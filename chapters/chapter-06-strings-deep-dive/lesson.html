@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
 <body data-active-chapter="chapter-06">
@@ -38,6 +38,15 @@
   <h1>Strings Deep Dive</h1>
   <p><em>You've already used strings since Chapter 1 &mdash; printing them, joining them with <code>+</code>, reading them from <code>input()</code>. This chapter is where you actually learn what a string can do. Strings are everywhere in real software: filenames, emails, log lines, receipts, usernames, API responses &mdash; almost nothing ships without text moving through it, so this chapter goes deeper than most.</em></p>
 
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Start with the pattern.</strong> Each section teaches one small string idea.</li>
+      <li><strong>Read the example first.</strong> The code is chosen to mirror real work: filenames, logs, emails, receipts.</li>
+      <li><strong>Try one line at a time.</strong> The playgrounds are meant for quick experiments, not long typing.</li>
+    </ul>
+  </div>
+
   <nav class="page-toc" aria-label="On this page">
     <span class="toc-label">On this page</span>
     <a href="#indexing-slicing">1. Indexing &amp; slicing</a>
@@ -61,37 +70,57 @@
   <div class="subtopic" id="indexing-slicing">
     <span class="subtopic-label">Sub-topic 1 of 6</span>
     <h2>1. Indexing &amp; slicing</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Index</strong> = one character at one position.</li>
+        <li><strong>Slice</strong> = a range of characters.</li>
+        <li><strong>Step</strong> = jump forward or backward.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Think in positions:</strong> a string is a row of boxes, and each box has a number.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Index map for "PYTHON"</span>
+      <pre><code>P    Y    T    H    O    N
+0    1    2    3    4    5
+-6   -5   -4   -3   -2   -1</code></pre>
+    </div>
+
     <p>
-      A string is a sequence of characters, and every character sits at a
-      numbered position, starting from <code>0</code>. <code>s[i]</code>
-      grabs the single character at position <code>i</code>. Negative
-      positions count backward from the end, so <code>s[-1]</code> is
-      always the last character &mdash; no matter how long the string is.
-      <code>len(s)</code> tells you how many characters a string holds.
+      <code>s[i]</code> grabs the single character sitting at position
+      <code>i</code> &mdash; so <code>"PYTHON"[1]</code> is <code>'Y'</code>,
+      and <code>"PYTHON"[-1]</code> is always the <em>last</em> character,
+      no matter how long the string is. <code>len(s)</code> tells you how
+      many characters a string holds (<code>6</code>, here).
     </p>
 
     <div class="what-is">
       <span class="label">What is... an index?</span>
-      An index is a character's position number inside a string. Python
-      counts from <code>0</code>, so in <code>"cat"</code>, <code>'c'</code>
-      is at index <code>0</code>, <code>'a'</code> is at index <code>1</code>,
-      and <code>'t'</code> is at index <code>2</code>. Negative indices
-      count from the other end: <code>-1</code> is the last character,
-      <code>-2</code> is the second-to-last, and so on. Don't confuse this
-      with the <code>.index()</code> <em>method</em> you'll meet in the
-      next section &mdash; that one searches for a substring's position
-      instead of using a position you already know.
+      A character's position number inside a string, counting from
+      <code>0</code>. Don't mix this up with the <code>.index()</code>
+      <em>method</em> from the next section &mdash; that one searches for
+      where a substring is; here, you already know the position and just
+      want the character sitting there.
     </div>
 
     <p>
-      Beyond a single character, <code>s[a:b]</code> <strong>slices</strong>
-      out a whole range: every character from position <code>a</code> up to
-      &mdash; but not including &mdash; position <code>b</code>. That
-      "stop is excluded" rule should feel familiar; it's the exact same
-      rule <code>range()</code> followed in Chapter 5. A third number,
-      <code>s[a:b:step]</code>, controls how many positions to move each
-      time, and a negative step walks backward.
+      A single index gets you one character. <code>s[a:b]</code>
+      <strong>slices</strong> out a whole range instead — three quick rules:
     </p>
+
+    <ul>
+      <li><code>s[a:b]</code> — every character from <code>a</code> up to,
+        but not including, <code>b</code> (same "stop is excluded" rule
+        <code>range()</code> used back in Chapter 5).</li>
+      <li><code>s[a:b:step]</code> — a third number controls how many
+        positions to move each time.</li>
+      <li>A <strong>negative step</strong> walks backward — which is the
+        one-line trick behind reversing a string, as you'll see below.</li>
+    </ul>
 
     <div class="code-window">
       <div class="code-window-bar">
@@ -174,23 +203,25 @@ print(filename[::-1])</textarea>
   <div class="subtopic" id="string-methods">
     <span class="subtopic-label">Sub-topic 2 of 6</span>
     <h2>2. Common string methods</h2>
-    <p>
-      A <strong>method</strong> is a function that belongs to a value and
-      is called with dot notation: <code>value.method()</code>. Strings
-      come with a large set of built-in methods for cleaning, searching,
-      and reshaping text &mdash; you'll reach for these constantly, in
-      nearly every program that touches user input, files, or text of any
-      kind.
-    </p>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Method</strong> = a built-in action on a string.</li>
+        <li><strong>Clean</strong> text with <code>.strip()</code> and <code>.lower()</code>.</li>
+        <li><strong>Search</strong> text with <code>.find()</code>, <code>.replace()</code>, and <code>.count()</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you want to tidy user input or inspect a log line.
+    </div>
 
     <div class="what-is">
       <span class="label">What is... a method?</span>
-      A method is a function attached to a value, called with a dot:
-      <code>"hello".upper()</code> calls the <code>upper()</code> method
-      that belongs to the string <code>"hello"</code>. You've already
-      called functions like <code>print()</code> and <code>len()</code> on
-      their own; a method is the same idea, except it always belongs to
-      (and acts on) the value before the dot.
+      The difference from a plain function like <code>print()</code> or
+      <code>len()</code> is that a method always belongs to (and acts on)
+      the value before the dot: <code>"hello".upper()</code> only makes
+      sense attached to that specific string.
     </div>
 
     <p>
@@ -328,14 +359,18 @@ print(review.count("i"))</textarea>
   <div class="subtopic" id="f-strings">
     <span class="subtopic-label">Sub-topic 3 of 6</span>
     <h2>3. String formatting: f-strings</h2>
-    <p>
-      Since Chapter 1, you've built text by gluing pieces together with
-      <code>+</code>, converting numbers with <code>str()</code> along the
-      way. That works, but it gets clunky fast once several values are
-      involved. An <strong>f-string</strong> lets you drop expressions
-      directly inside a string, in place, with no <code>+</code> or
-      <code>str()</code> needed.
-    </p>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>f-string</strong> = a cleaner way to build text.</li>
+        <li>Put expressions inside <code>{...}</code>.</li>
+        <li>It replaces the old <code>+</code> and <code>str()</code> style for mixed text and values.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you want a receipt line, a log message, or a personalized greeting.
+    </div>
 
     <div class="what-is">
       <span class="label">What is... an f-string?</span>
@@ -432,15 +467,18 @@ print(f"{item} x{qty} = ${price * qty:.2f}")</textarea>
   <div class="subtopic" id="immutability">
     <span class="subtopic-label">Sub-topic 4 of 6</span>
     <h2>4. Immutability &amp; string identity</h2>
-    <p>
-      Chapter 2 introduced <code>id()</code> and mentioned that strings are
-      <strong>immutable</strong>. Now that you can actually manipulate
-      strings, it's worth seeing exactly what that means: a string can
-      never be changed in place. Every method call, every
-      <code>+</code>, every slice that looks like a "modification"
-      actually builds a brand-new string in memory and leaves the
-      original untouched.
-    </p>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Immutable</strong> means strings cannot be changed in place.</li>
+        <li>Every change creates a new string object.</li>
+        <li>This matters when you build text inside a loop.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Key idea:</strong> a string can be recreated, but it cannot be edited in place.
+    </div>
 
     <div class="code-window">
       <div class="code-window-bar">
@@ -535,14 +573,18 @@ print(id(s))</textarea>
   <div class="subtopic" id="searching-validating">
     <span class="subtopic-label">Sub-topic 5 of 6</span>
     <h2>5. Searching &amp; validating strings</h2>
-    <p>
-      Before you act on a string &mdash; convert it to a number, store it,
-      compare it &mdash; it's often worth checking what's actually inside
-      it. The <code>in</code> / <code>not in</code> operators you already
-      know from Chapter 3 work on strings too, checking for a substring
-      instead of a list item. And a family of <code>.is____()</code>
-      methods answers yes/no questions about a string's contents.
-    </p>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Check first</strong> before converting or storing text.</li>
+        <li><code>in</code> / <code>not in</code> asks whether a substring appears.</li>
+        <li><code>.isdigit()</code> and friends answer yes/no questions about the string's contents.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you want to avoid bad conversions or odd input before you act on it.
+    </div>
 
     <div class="code-window">
       <div class="code-window-bar">
@@ -641,13 +683,19 @@ else:
   <div class="subtopic" id="bringing-together">
     <span class="subtopic-label">Sub-topic 6 of 6</span>
     <h2>6. Bringing it together: real-world text processing</h2>
-    <p>
-      Real text processing almost never uses one string trick in
-      isolation &mdash; it chains several together. Here's a walkthrough
-      that combines everything from this chapter: cleaning a messy piece
-      of user input, confirming it's actually usable, and then processing
-      it.
-    </p>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Real text work is a pipeline.</strong></li>
+        <li><strong>Clean</strong> the text first.</li>
+        <li><strong>Check</strong> that something is left to process.</li>
+        <li><strong>Then transform</strong> it and use it.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> clean, check, then process.
+    </div>
 
     <div class="code-window">
       <div class="code-window-bar">
