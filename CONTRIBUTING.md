@@ -15,22 +15,28 @@ Each chapter lives at `chapters/chapter-{NN}-{slug}/` and needs, at minimum:
 
 ```text
 chapters/chapter-{NN}-{slug}/
-├── lesson.html               → follow the exact section order used in Chapter 1:
-│                                page-meta (badge/difficulty/reading time) → page-toc →
-│                                hook → plain-language concept → "What is...?" boxes →
-│                                code-window annotated code → optional Go Deeper →
-│                                Points to Remember
-├── quiz.html                  → fill-in-the-blank quiz using assets/quiz-engine.js;
-│                                 reuse the same markup pattern (.fib-row, data-answers,
-│                                 quiz-progress-fill, quiz-celebration)
+├── lesson.html               → page-meta (badge/difficulty/reading time) → page-toc →
+│                                hook → then, PER SUB-TOPIC: a .subtopic section with a
+│                                .subtopic-label, plain-language concept, "What is...?"
+│                                boxes, code-window annotated code (+ a .playground "Run
+│                                Code" box if the example doesn't need input()), optional
+│                                Go Deeper, and a short .quick-recap box — repeat this
+│                                whole unit for each sub-topic in the chapter, then finish
+│                                with one full .points-to-remember summarizing everything
+├── quiz.html                  → fill-in-the-blank quiz covering every sub-topic, using
+│                                 assets/quiz-engine.js (.fib-row, data-answers,
+│                                 quiz-progress-fill, quiz-celebration); <body> needs
+│                                 data-chapter-id="chapter-{NN}" so a perfect score marks
+│                                 the chapter complete via assets/progress.js
 ├── interview-questions.html   → .qa-item accordions (strong answer / red flags /
 │                                 follow-up), plus a rapid-fire fill-in-the-blank
 │                                 review using the same quiz-engine.js pattern
 ├── exercises/
 │   ├── README.md               → plain-text version for repo browsing / local cloning
-│   ├── index.html              → styled version linked from the live site (task-card
+│   ├── index.html              → styled version linked from the live site: task-card
 │   │                              per TODO, code-window for starter code, download-links
-│   │                              pointing at the raw .py files)
+│   │                              to the raw .py files, and at least one .debug-card
+│   │                              ("Debug the Code") task with intentionally broken code
 │   ├── starter.py
 │   └── solution.py
 └── project/
@@ -47,12 +53,18 @@ repo as-is, with no Jekyll/markdown rendering, so an un-styled `.md` file
 looks broken if linked directly from the site). Keep both in sync when
 content changes.
 
+**Include `assets/progress.js` on every quiz page and every chapter-list
+page** (index.html, docs/curriculum/index.html), and give each chapter-list
+entry a `data-chapter-link="chapter-{NN}"` attribute so completed chapters
+get a "✓ Completed" badge automatically. Only wire `assets/playground.js`
+into examples that don't call `input()` — Pyodide's sandbox has no stdin.
+
 Then:
 
 1. Add the new chapter as a link in `index.html`'s chapter list (move it out
    of "coming soon") **and** as a new `.roadmap-list` entry in
    `docs/curriculum/index.html` (move it from "Planned" to "Built").
-2. Update `docs/curriculum/CURRICULUM_MAP.md` (the plain-text draft) to match.
+2. Update `docs/curriculum/CURRICULUM_MAP.md` to match.
 3. Verify every Python solution actually runs: `python3 solution.py` (pipe
    sample answers via `echo`/`printf` if it uses `input()`).
 4. Open every `.html` page for the chapter directly in a browser (or via the
@@ -60,6 +72,12 @@ Then:
    `chapter-nav` link, and every top-bar nav link before pushing — the whole
    chapter should form one connected loop: lesson → quiz → exercises →
    interview questions → project → back to all chapters.
+5. **Every module (a group of 4-6 chapters shown as one section in the
+   roadmap) ends with a written exam** at
+   `assessments/written-exams/module-{N}-exam.md` — short-answer + scenario
+   questions covering every chapter in that module, plus a full answer key
+   (same style as the genai-for-everyone repo's exams). Write it once the
+   module's last chapter is done.
 
 ## Content standards
 

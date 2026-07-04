@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 2: Variables & Data Types — dynamic typing, type()/id(), immutability, and type conversion gotchas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-02-interview">
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 2 Interview Prep</span>
+    <span class="reading-time">8 min read</span>
+  </div>
+  <h1>Interview Questions: Variables &amp; Data Types</h1>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why is Python called a "dynamically typed" language?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because a variable's type is determined at runtime from the value assigned to it, not declared upfront by the programmer. The same variable name can even hold different types at different points in the program &mdash; <code>x = 10</code> then later <code>x = "ten"</code> is legal.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing "dynamically typed" with "not typed at all" &mdash; Python values absolutely have types, they're just not declared explicitly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's one downside of dynamic typing compared to a statically typed language like Java?" (Answer: type errors surface at runtime instead of being caught before the program even runs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What's the difference between <code>type()</code> and <code>id()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>type()</code> tells you what kind of value something is (str, int, etc.). <code>id()</code> tells you where in memory it lives. Two variables can have the same type but different ids (different objects), or the same id (literally the same object in memory).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking they're interchangeable or that <code>id()</code> is only useful for debugging &mdash; it's also the mechanism behind the <code>is</code> operator.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does the <code>is</code> operator actually check?" (Answer: whether two variables share the same <code>id()</code> &mdash; the same object &mdash; not just equal values.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Why might <code>id(x)</code> and <code>id(y)</code> be equal after <code>x = 10</code> and <code>y = 10</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because small integers are immutable, Python reuses the same underlying object for the same small value instead of creating a new one every time. Both variables end up pointing at that one shared object.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming this always happens for every value/type (it's an implementation detail specific to small integers and a few other cases, not a general guarantee).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you then run <code>x = 20</code>, does <code>y</code> change too?" (Answer: no &mdash; a brand new object is created for <code>20</code>, and only <code>x</code> is repointed to it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What happens if you run <code>int("hello")</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It raises a <code>ValueError</code>, because <code>"hello"</code> can't be meaningfully interpreted as a number. Type conversion only succeeds when the value makes sense in the target type.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Guessing it silently returns <code>0</code> or <code>None</code> &mdash; Python raises an explicit error instead of failing silently.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you safely attempt this conversion without crashing the program?" (Answer: wrap it in a <code>try</code>/<code>except</code> &mdash; covered in Chapter 12.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What does <code>bool("False")</code> return, and why does this surprise people?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It returns <code>True</code>. <code>bool()</code> on a string only checks whether the string is empty or not &mdash; it never reads the actual text. Since <code>"False"</code> is a non-empty string, it converts to <code>True</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Guessing <code>False</code> &mdash; a very common, very reasonable-sounding wrong answer that reveals the candidate hasn't hit this edge case yet.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the only string that converts to <code>False</code>?" (Answer: the empty string <code>""</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> Name the five basic data types covered so far and give an example of each.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>str</code> (<code>"hello"</code>), <code>int</code> (<code>12</code>), <code>float</code> (<code>4.9</code>), <code>bool</code> (<code>True</code>), and <code>complex</code> (<code>3+4j</code>).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Forgetting <code>complex</code> entirely &mdash; understandable since it's rare in beginner code, but worth knowing it exists.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Which of these five are immutable?" (Answer: all of them &mdash; every one of Python's fundamental built-in types is immutable.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> A variable name is case-<code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="sensitive" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>int("25")</code> converts a string to an <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="integer,int" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Only the <code>____</code> string converts to <code>False</code> with <code>bool()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="empty" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> Every one of Python's fundamental built-in types is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="immutable" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="exercises/index.html">&larr; Exercises</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+</body>
+</html>

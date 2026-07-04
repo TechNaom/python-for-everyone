@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2: Variables & Data Types — Python for Everyone</title>
+<meta name="description" content="Naming rules for variables, Python's automatic types (str, int, float, bool, complex), type()/id(), and type conversion — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 2 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">16 min read</span>
+  </div>
+  <h1>Variables &amp; Data Types</h1>
+  <p><em>You already used variables in Chapter 1. Now let's understand exactly what's happening under the hood.</em></p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#naming">1. Naming variables properly</a>
+    <a href="#auto-types">2. Python decides the type for you</a>
+    <a href="#type-id">3. type() and id()</a>
+    <a href="#conversion">4. Converting between types</a>
+  </nav>
+
+  <div class="hook">
+    Every value your program touches &mdash; a name, a price, a score &mdash;
+    lives somewhere in memory with a specific type and a specific address.
+    Most of the time Python hides this from you. But the moment something
+    goes wrong (a crash, a weird bug, an interview question you can't
+    answer), it's because one of these hidden details mattered. This
+    chapter makes them visible.
+  </div>
+
+  <div class="subtopic" id="naming">
+    <span class="subtopic-label">Sub-topic 1 of 4</span>
+    <h2>1. Naming variables properly</h2>
+    <p>
+      In Chapter 1 you wrote <code>name = "Asha"</code> without worrying too
+      much about what names are allowed. Python actually has firm rules
+      about it &mdash; break them, and your program won't even run.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">naming.py</span>
+      </div>
+      <pre><code>abc123 = "valid"      &#35; starts with a letter &mdash; OK
+_123 = "valid"        &#35; starts with underscore &mdash; OK
+123abc = "invalid"    &#35; cannot start with a digit
+abc 123 = "invalid"   &#35; no spaces allowed
+abc$123 = "invalid"   &#35; no special symbols allowed</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... case-sensitivity?</span>
+      Python treats uppercase and lowercase letters as completely different
+      characters in a name. <code>age</code>, <code>Age</code>, and
+      <code>AGE</code> are three separate variables. This trips up beginners
+      constantly &mdash; if your code says a variable is "undefined" but you
+      swear you created it, check the capitalization first.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why these rules exist</summary>
+      <p>
+        Python's parser needs to instantly tell a variable name apart from a
+        number or an operator while reading your code left to right. Letting
+        names start with a digit would make <code>123abc</code> ambiguous
+        &mdash; is that the number 123 followed by something called
+        <code>abc</code>, or one name? Banning that ambiguity up front keeps
+        the language simple to parse and impossible to misread.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A variable name must start with a letter or underscore (<code>_</code>).</li>
+        <li>After that, digits are allowed.</li>
+        <li>No spaces, no special symbols (<code>$</code>, <code>%</code>, etc.).</li>
+        <li>Names are case-sensitive: <code>age</code> &ne; <code>Age</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="auto-types">
+    <span class="subtopic-label">Sub-topic 2 of 4</span>
+    <h2>2. Python decides the type for you</h2>
+    <p>
+      In languages like Java or C, you must announce a variable's type
+      before using it. Python doesn't ask you to &mdash; it looks at the
+      value you assign and figures the type out automatically. This is
+      called <strong>dynamic typing</strong>, and it's one of the biggest
+      reasons Python feels so much lighter to write.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">auto_types.py</span>
+      </div>
+      <pre><code>name = "Asha"        &#35; str    &mdash; text
+age = 12             &#35; int    &mdash; whole number
+height = 4.9         &#35; float  &mdash; decimal number
+is_student = True    &#35; bool   &mdash; True or False
+reading = 3 + 4j     &#35; complex &mdash; rarely needed, but built in
+
+print(name, age, height, is_student, reading)</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">name = "Asha"
+age = 12
+height = 4.9
+is_student = True
+print(name, age, height, is_student)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" to see the output here &mdash; runs a real Python interpreter right in this page.</div>
+    </div>
+    <p class="playground-note">First click loads a real Python engine in your browser (a few seconds) &mdash; after that, running is instant. This sandbox can't use <code>input()</code>, so try editing the values above instead.</p>
+
+    <div class="what-is">
+      <span class="label">What is... a boolean?</span>
+      A boolean is a data type with exactly two possible values:
+      <code>True</code> or <code>False</code> (capitalized, no quotes &mdash;
+      those are keywords, not strings). Booleans are what every comparison
+      like <code>5 &gt; 3</code> produces, and they're the foundation of
+      every decision your programs will make starting in Chapter 4.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... dynamic typing?</span>
+      Dynamic typing means a variable's type is determined automatically
+      from the value assigned to it, and can even change later in the same
+      program: <code>x = 10</code> then later <code>x = "ten"</code> is
+      completely legal &mdash; <code>x</code> just points to a different type
+      of value now.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: complex numbers</summary>
+      <p>
+        A complex number has a real and an imaginary part, written as
+        <code>a+bj</code> in Python (using <code>j</code> instead of math's
+        usual <code>i</code>, a convention borrowed from electrical
+        engineering). Most beginner programs never need this type, but it
+        exists as a first-class built-in type &mdash; useful to know if you
+        ever move into scientific computing.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Python is <strong>dynamically typed</strong> &mdash; no need to declare a type.</li>
+        <li>Core types: <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code>, <code>complex</code>.</li>
+        <li><code>True</code> and <code>False</code> are booleans, not strings &mdash; no quotes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="type-id">
+    <span class="subtopic-label">Sub-topic 3 of 4</span>
+    <h2>3. Peeking under the hood: type() and id()</h2>
+    <p>
+      Since Python decides types automatically, you sometimes need to ask
+      it what it decided. Two built-in functions answer that: one tells
+      you a value's type, the other tells you exactly where in memory it
+      lives.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">type_and_id.py</span>
+      </div>
+      <pre><code>x = 10
+print(type(x))   &#35; &lt;class 'int'&gt;
+print(id(x))     &#35; some memory address, e.g. 140713...
+
+y = 10
+print(id(y))     &#35; often the SAME address as x!</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... identity?</span>
+      An object's identity is its unique location in memory, returned by
+      <code>id()</code>. Two variables can hold "the same value" while
+      being different questions from "are they the exact same object in
+      memory" &mdash; that second question is what <code>id()</code> and the
+      <code>is</code> keyword answer.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why do x and y share an address?</summary>
+      <p>
+        For small, unchanging values like the integer <code>10</code>,
+        Python reuses one object in memory instead of creating a new one
+        every time. When you write <code>x = 10</code> and
+        <code>y = 10</code>, both variables just point at that one shared
+        object &mdash; that's why <code>id(x) == id(y)</code>. This works
+        because numbers, strings, and booleans in Python are
+        <strong>immutable</strong>: once created, an object's value can
+        never change in place. If you later do <code>x = 20</code>, Python
+        doesn't modify the original object &mdash; it creates a brand new
+        one and points <code>x</code> at that instead, leaving
+        <code>y</code> untouched at <code>10</code>.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>type(value)</code> tells you the data type.</li>
+        <li><code>id(value)</code> tells you the memory address.</li>
+        <li>Numbers, strings, and booleans are <strong>immutable</strong> &mdash; they can't be changed in place.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="conversion">
+    <span class="subtopic-label">Sub-topic 4 of 4</span>
+    <h2>4. Converting between types</h2>
+    <p>
+      Remember from Chapter 1: <code>input()</code> always returns a
+      string, even if the person types a number. Sooner or later you need
+      to explicitly convert a value from one type to another &mdash; Python
+      gives you one function per type to do it.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">conversion.py</span>
+      </div>
+      <pre><code>age_text = "25"
+age_number = int(age_text)      &#35; str -&gt; int
+print(age_number + 5)           &#35; 30
+
+price = float("19.99")          &#35; str -&gt; float
+name_of_25 = str(25)            &#35; int -&gt; str
+is_ready = bool(1)               &#35; -&gt; True</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_conversion.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="5">age_text = "25"
+age_number = int(age_text)
+print(age_number + 5)
+print(type(age_number))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" to see the output here.</div>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... type conversion?</span>
+      Type conversion (also called "casting") is turning a value of one
+      type into another &mdash; <code>int("25")</code> turns the string
+      <code>"25"</code> into the number <code>25</code>. It only works if
+      the value actually makes sense in the new type: <code>int("hello")</code>
+      raises an error, because "hello" isn't a number in any language.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: the bool() trap that catches everyone once</summary>
+      <p>
+        <code>bool("False")</code> returns <code>True</code>. Read that
+        again &mdash; it's not a typo. <code>bool()</code> doesn't look at
+        <em>what the text says</em>, it only checks whether the string is
+        <strong>empty or not</strong>. Any non-empty string, including the
+        literal text <code>"False"</code>, converts to <code>True</code>.
+        Only <code>bool("")</code> (an empty string) gives <code>False</code>.
+        This exact mistake shows up in real bugs when developers read a
+        setting like <code>"false"</code> from a config file as text and
+        forget this rule.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>int()</code>, <code>float()</code>, <code>str()</code>, <code>bool()</code>, <code>complex()</code> convert between types.</li>
+        <li>Conversion fails with an error if the value doesn't make sense in the target type.</li>
+        <li><code>bool()</code> on a string only checks if it's empty &mdash; not what the text says.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>Variable names: start with a letter or underscore, then letters/digits only, no spaces or symbols, case-sensitive.</li>
+      <li>Python is dynamically typed &mdash; it infers <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code>, or <code>complex</code> from the value you assign.</li>
+      <li><code>type(x)</code> shows the data type; <code>id(x)</code> shows the memory address.</li>
+      <li>Small immutable values (like small ints) may share the same memory address until reassigned.</li>
+      <li>Convert between types explicitly with <code>int()</code>, <code>float()</code>, <code>str()</code>, <code>bool()</code>, <code>complex()</code> &mdash; watch out for the <code>bool()</code>-on-strings trap.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../chapter-01-first-program/lesson.html">&larr; Chapter 1</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4: Control Flow (if / elif / else) — Python for Everyone</title>
+<meta name="description" content="Decision-making in Python: if, if-else, elif chains, and nested if — with indentation rules and a live playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 4 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">18 min read</span>
+  </div>
+  <h1>Control Flow: if / elif / else</h1>
+  <p><em>Every interesting program eventually needs to make a decision. This is the chapter where your code starts to think.</em></p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#simple-if">1. Simple if</a>
+    <a href="#if-else">2. if-else</a>
+    <a href="#elif">3. elif chains</a>
+    <a href="#nested">4. Nested if</a>
+  </nav>
+
+  <div class="hook">
+    So far, every program you've written runs the exact same lines every
+    single time, top to bottom. Real software doesn't work that way &mdash; a
+    login check either lets you in or doesn't, a discount either applies or
+    doesn't, a grade is A or B or C depending on the score. <code>if</code>
+    is how your program branches based on what's actually true right now.
+  </div>
+
+  <div class="subtopic" id="simple-if">
+    <span class="subtopic-label">Sub-topic 1 of 4</span>
+    <h2>1. Simple if</h2>
+    <p>
+      An <code>if</code> statement checks a condition. If it's
+      <code>True</code>, the indented block underneath runs. If it's
+      <code>False</code>, Python skips that block entirely and moves on.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">simple_if.py</span>
+      </div>
+      <pre><code>age = 20
+
+if age >= 18:
+    print("You can vote.")
+
+print("Program continues here either way.")</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_if.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="5">age = 16
+if age >= 18:
+    print("You can vote.")
+print("Program continues here either way.")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing 16 to 20 and running again.</div>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... indentation?</span>
+      In most languages, curly braces <code>{ }</code> mark a block of
+      code. Python uses <strong>indentation</strong> (consistent spacing,
+      usually 4 spaces) instead &mdash; every line indented under the
+      <code>if</code> is part of that block. This isn't just a style
+      preference; it's how Python knows where the block ends. Mixing tabs
+      and spaces, or indenting inconsistently, causes a real error.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why colon + indentation instead of braces?</summary>
+      <p>
+        Python's designer, Guido van Rossum, wanted code layout to be
+        forced to match code structure &mdash; in languages with braces, you
+        can indent however you like and the compiler doesn't care, which
+        sometimes lets sloppy or misleading formatting slip through. By
+        making indentation the actual syntax, Python code you read is
+        guaranteed to be structured the way it looks.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>if condition:</code> then an indented block runs only when the condition is <code>True</code>.</li>
+        <li>Indentation is not decoration &mdash; it's how Python defines the block.</li>
+        <li>Code after the <code>if</code> block, back at the original indent level, always runs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="if-else">
+    <span class="subtopic-label">Sub-topic 2 of 4</span>
+    <h2>2. if-else</h2>
+    <p>
+      Often you want to do one thing OR another &mdash; never both, never
+      neither. <code>else</code> catches every case the <code>if</code>
+      didn't.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">if_else.py</span>
+      </div>
+      <pre><code>number = 7
+
+if number % 2 == 0:
+    print(number, "is even")
+else:
+    print(number, "is odd")</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a boolean expression?</span>
+      A boolean expression is anything that evaluates to <code>True</code>
+      or <code>False</code> &mdash; usually built from the relational and
+      logical operators from Chapter 3. <code>number % 2 == 0</code> is a
+      boolean expression: it's either <code>True</code> (even) or
+      <code>False</code> (odd), never anything in between.
+    </div>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>else:</code> runs exactly when the <code>if</code> condition was <code>False</code>.</li>
+        <li>Exactly one of the two blocks runs &mdash; never both, never neither.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="elif">
+    <span class="subtopic-label">Sub-topic 3 of 4</span>
+    <h2>3. elif — checking more than two possibilities</h2>
+    <p>
+      Real decisions often have more than two outcomes. <code>elif</code>
+      (short for "else if") lets you check condition after condition, in
+      order, stopping at the first one that's true.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">grade.py</span>
+      </div>
+      <pre><code>average = 68
+
+if average >= 75:
+    grade = "A"
+elif average >= 60:
+    grade = "B"
+elif average >= 50:
+    grade = "C"
+elif average >= 40:
+    grade = "D"
+else:
+    grade = "Fail"
+
+print("Grade:", grade)   &#35; Grade: B</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_grade.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="11">average = 45
+if average >= 75:
+    grade = "A"
+elif average >= 60:
+    grade = "B"
+elif average >= 50:
+    grade = "C"
+elif average >= 40:
+    grade = "D"
+else:
+    grade = "Fail"
+print("Grade:", grade)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try a few different average values.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: order matters in an elif chain</summary>
+      <p>
+        Python checks each condition top to bottom and stops at the very
+        first <code>True</code> one &mdash; it never checks the rest, even
+        if they'd also be true. This is why the grade example checks
+        <code>&gt;= 75</code> before <code>&gt;= 60</code>: if it checked
+        <code>&gt;= 40</code> first, a score of 90 would incorrectly match
+        that condition first and stop there, before ever reaching
+        <code>&gt;= 75</code>. Always order an elif chain from most specific
+        (or highest threshold) to least.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>elif</code> checks another condition only if the previous ones were <code>False</code>.</li>
+        <li>Only the first matching branch runs &mdash; order your conditions carefully.</li>
+        <li><code>else</code> at the end catches everything that didn't match any condition.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="nested">
+    <span class="subtopic-label">Sub-topic 4 of 4</span>
+    <h2>4. Nested if — decisions inside decisions</h2>
+    <p>
+      An <code>if</code> can contain another <code>if</code> inside its
+      block. This is useful when the second question only makes sense
+      after the first is already answered.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">nested_if.py</span>
+      </div>
+      <pre><code>a = 10
+b = 5
+c = 4
+
+if a > b:
+    if a > c:
+        print("a is the biggest:", a)</code></pre>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: nested if vs. a single "and"</summary>
+      <p>
+        The example above could also be written as one line:
+        <code>if a &gt; b and a &gt; c:</code>. Both are correct here.
+        Nesting becomes genuinely necessary once the inner decision needs
+        its own separate <code>else</code>, or depends on something only
+        computed inside the outer block &mdash; you'll see real examples of
+        this once you reach loops and functions.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>An <code>if</code> inside another <code>if</code>'s block is called nested.</li>
+        <li>The inner condition is only checked if the outer one was already <code>True</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>if condition:</code> runs an indented block only when the condition is true.</li>
+      <li>Indentation defines the block in Python &mdash; there are no curly braces.</li>
+      <li><code>else</code> catches everything the <code>if</code> didn't; exactly one branch runs.</li>
+      <li><code>elif</code> chains check multiple possibilities in order, stopping at the first match &mdash; order high-to-low or most-specific-first.</li>
+      <li>Nested <code>if</code> statements handle decisions that only make sense after an outer condition is already true.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../chapter-03-operators/lesson.html">&larr; Chapter 3</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+</body>
+</html>

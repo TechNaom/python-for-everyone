@@ -14,28 +14,40 @@ A self-paced Python course built as a series of small, interactive HTML
 follows the same format:
 
 1. A real-world hook before any syntax
-2. The concept explained in plain language first
-3. "What is...?" callout boxes for every new term, the moment it's introduced
-4. Annotated code examples — what each line does, and why
-5. An optional "Go Deeper" section for readers who want more rigor
-6. Points to Remember
-7. An interactive fill-in-the-blank quiz — each blank has its own **Check**
-   button for instant ✅/❌ feedback, no backend, nothing leaves your browser
-8. Exercises
-9. Interview questions (strong answer / red flags / follow-up format)
-10. A small real project that uses everything the chapter taught
+2. Each sub-topic explained in plain language, with its own "What is...?"
+   callouts, annotated code (plus a live in-browser "Run Code" playground
+   where the example doesn't need `input()`), an optional "Go Deeper" box,
+   and a short Quick Recap
+3. A full Points to Remember summary at the end
+4. An interactive fill-in-the-blank quiz — each blank has its own **Check**
+   button for instant ✅/❌ feedback, a live progress bar, no backend,
+   nothing leaves your browser
+5. Exercises, including at least one "Debug the Code" task
+6. Interview questions (strong answer / red flags / follow-up format) plus
+   a rapid-fire recall quiz
+7. A small real, resume-worthy project that uses everything the chapter taught
+
+Every 4-6 chapters form a **module**, capped with a written exam covering
+everything in that module. Completing a chapter's quiz with a perfect
+score marks it "✓ Completed" sitewide (stored only in your browser's
+local storage — no accounts, no tracking).
 
 ## Status
 
 This course is being built **one chapter at a time**, piloted and validated
-before scaling. Currently live:
+before scaling. Currently live (Module 1 — Foundations):
 
 - ✅ Chapter 1: Your First Python Program (`print()`, variables, basic types, `input()`)
+- ✅ Chapter 2: Variables & Data Types (dynamic typing, `type()`/`id()`, conversion)
+- ✅ Chapter 3: Operators (arithmetic, relational/logical, bitwise, `is`/`in`)
+- ✅ Chapter 4: Control Flow (if / elif / else, nested if)
+- ✅ Chapter 5: Loops (while / for, accumulator pattern, break/continue)
+- ✅ Module 1 Written Exam
 
 See the live [roadmap page](https://technaom.github.io/python-for-everyone/docs/curriculum/index.html)
 (or the plain-text draft at
 [`docs/curriculum/CURRICULUM_MAP.md`](docs/curriculum/CURRICULUM_MAP.md))
-for the full roadmap of chapters to come.
+for the full 27-chapter, 5-module roadmap.
 
 ## Repo structure
 

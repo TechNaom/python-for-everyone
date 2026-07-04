@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3: Operators — Python for Everyone</title>
+<meta name="description" content="Arithmetic, relational, logical, bitwise, and special operators in Python, with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 3 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">18 min read</span>
+  </div>
+  <h1>Operators</h1>
+  <p><em>You've used <code>+</code> already. Now let's meet the rest of the toolbox that lets your programs actually compute things.</em></p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#arithmetic">1. Arithmetic &amp; assignment</a>
+    <a href="#relational-logical">2. Relational &amp; logical</a>
+    <a href="#bitwise">3. Bitwise</a>
+    <a href="#special">4. Special: is / in</a>
+  </nav>
+
+  <div class="hook">
+    An operator is a tiny symbol that does real work: <code>+</code> adds,
+    <code>&gt;</code> compares, <code>and</code> combines conditions. Every
+    piece of logic you'll ever write &mdash; a discount calculation, a login
+    check, a permission system &mdash; is built entirely out of these small
+    pieces stacked together.
+  </div>
+
+  <div class="subtopic" id="arithmetic">
+    <span class="subtopic-label">Sub-topic 1 of 4</span>
+    <h2>1. Arithmetic &amp; assignment operators</h2>
+    <p>
+      Python has two division operators that behave differently &mdash; this
+      single detail causes more beginner confusion than almost anything
+      else in this chapter, so pay close attention to the example below.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">arithmetic.py</span>
+      </div>
+      <pre><code>x = 10
+y = 3
+
+print(x + y)   &#35; 13  &mdash; addition
+print(x - y)   &#35; 7   &mdash; subtraction
+print(x * y)   &#35; 30  &mdash; multiplication
+print(x / y)   &#35; 3.3333...  &mdash; division, ALWAYS returns a float
+print(x // y)  &#35; 3   &mdash; floor division, drops the remainder
+print(x % y)   &#35; 1   &mdash; modulo, gives ONLY the remainder
+print(x ** y)  &#35; 1000 &mdash; power (10 to the power of 3)</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_arithmetic.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">x = 10
+y = 3
+print(x / y)
+print(x // y)
+print(x % y)
+print(x ** y)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" to see the output here.</div>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... floor division?</span>
+      Floor division (<code>//</code>) divides and then rounds
+      <em>down</em> to the nearest whole number, throwing away anything
+      after the decimal point. <code>10 // 3</code> is <code>3</code>, not
+      <code>3.33</code> and not rounded to <code>3</code> by rounding rules
+      &mdash; it's always rounded toward negative infinity.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... modulo?</span>
+      The modulo operator (<code>%</code>) gives you <em>only</em> the
+      remainder left over after division. <code>10 % 3</code> is
+      <code>1</code>, because 3 goes into 10 three times with 1 left over.
+      It's the single most useful operator for "is this number even?"
+      (<code>n % 2 == 0</code>) and for working with cycles and wraparounds.
+    </div>
+
+    <p>
+      Assignment operators combine an operation with storing the result
+      back into the same variable &mdash; you already have a habit of
+      writing <code>i = i + 1</code>; Python gives you a shortcut.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">assignment.py</span>
+      </div>
+      <pre><code>score = 10
+score += 5    &#35; same as: score = score + 5  -&gt; 15
+score -= 3    &#35; same as: score = score - 3  -&gt; 12
+score *= 2    &#35; same as: score = score * 2  -&gt; 24
+print(score)</code></pre>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: no ++ or -- in Python</summary>
+      <p>
+        If you've used C, Java, or JavaScript, you might reach for
+        <code>score++</code>. Python doesn't have that operator at all &mdash;
+        it was left out deliberately, partly because <code>++</code> in
+        other languages secretly hides two different behaviors
+        (increment-then-use vs. use-then-increment) that cause subtle bugs.
+        In Python, you always write <code>score += 1</code> instead, which
+        is completely unambiguous.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>/</code> always returns a float; <code>//</code> floor-divides (rounds down); <code>%</code> returns only the remainder.</li>
+        <li><code>**</code> is power: <code>2 ** 3</code> is <code>8</code>.</li>
+        <li><code>+=</code>, <code>-=</code>, <code>*=</code>, etc. combine an operation with reassignment.</li>
+        <li>Python has no <code>++</code> or <code>--</code> operators.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="relational-logical">
+    <span class="subtopic-label">Sub-topic 2 of 4</span>
+    <h2>2. Relational &amp; logical operators</h2>
+    <p>
+      Relational operators compare two values and always produce a
+      boolean. Logical operators combine multiple boolean results into
+      one final decision.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">relational.py</span>
+      </div>
+      <pre><code>age = 20
+has_ticket = True
+
+print(age &gt;= 18)                    &#35; True
+print(age &gt;= 18 and has_ticket)     &#35; True  &mdash; BOTH must be true
+print(age &lt; 13 or has_ticket)       &#35; True  &mdash; only ONE needs to be true
+print(not has_ticket)               &#35; False &mdash; flips it</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a logical operator?</span>
+      <code>and</code> requires every condition to be true for the whole
+      expression to be true. <code>or</code> only needs one condition to be
+      true. <code>not</code> simply flips a boolean: <code>True</code>
+      becomes <code>False</code> and vice versa.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: short-circuit evaluation</summary>
+      <p>
+        Python stops checking as soon as it knows the answer. In
+        <code>age &gt;= 18 and has_ticket</code>, if <code>age &gt;= 18</code>
+        is already <code>False</code>, Python never even looks at
+        <code>has_ticket</code> &mdash; the whole expression is already
+        guaranteed <code>False</code>. This matters in real code: you can
+        safely write <code>x != 0 and 10 / x &gt; 1</code> because Python
+        won't attempt the division if <code>x</code> is <code>0</code>.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Relational operators (<code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>==</code>, <code>!=</code>) always return a boolean.</li>
+        <li><code>and</code> &mdash; every condition must be true.</li>
+        <li><code>or</code> &mdash; at least one condition must be true.</li>
+        <li><code>not</code> &mdash; flips a boolean.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bitwise">
+    <span class="subtopic-label">Sub-topic 3 of 4</span>
+    <h2>3. Bitwise operators</h2>
+    <p>
+      Every number is stored internally as bits (1s and 0s). Bitwise
+      operators work directly on those bits. This sounds academic, but
+      it's exactly how real permission systems (like Unix file
+      permissions) and low-level flags work &mdash; you'll use this for
+      real in this chapter's project.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">bitwise.py</span>
+      </div>
+      <pre><code>a = 5   &#35; binary: 101
+b = 6   &#35; binary: 110
+
+print(a &amp; b)   &#35; 4   &mdash; AND: 1 only where BOTH have a 1
+print(a | b)   &#35; 7   &mdash; OR: 1 where EITHER has a 1
+print(a ^ b)   &#35; 3   &mdash; XOR: 1 where they DIFFER
+print(a &lt;&lt; 1)  &#35; 10  &mdash; shift bits left (doubles the value)
+print(a &gt;&gt; 1)  &#35; 2   &mdash; shift bits right (halves it, rounding down)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a bit flag?</span>
+      A bit flag uses individual bits of a single number to represent
+      several independent yes/no switches at once. Instead of four
+      separate boolean variables, you can pack four flags into one number
+      and use <code>&amp;</code> (AND) to check one, and <code>|</code> (OR)
+      to turn one on &mdash; this is exactly how Unix file permissions
+      (read=4, write=2, execute=1) work under the hood.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: converting between number systems</summary>
+      <p>
+        Python can show you any integer in binary, octal, or hexadecimal
+        with built-in functions: <code>bin(10)</code> gives
+        <code>'0b1010'</code>, <code>oct(10)</code> gives <code>'0o12'</code>,
+        and <code>hex(10)</code> gives <code>'0xa'</code>. The prefixes
+        (<code>0b</code>, <code>0o</code>, <code>0x</code>) tell Python (and
+        you) which base you're reading, and you can write literals directly
+        in any of these forms in your source code too.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>&amp;</code> (AND), <code>|</code> (OR), <code>^</code> (XOR) operate bit by bit.</li>
+        <li><code>&lt;&lt;</code> and <code>&gt;&gt;</code> shift bits left/right (multiply/divide by powers of 2).</li>
+        <li><code>bin()</code>, <code>oct()</code>, <code>hex()</code> show a number in another base.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="special">
+    <span class="subtopic-label">Sub-topic 4 of 4</span>
+    <h2>4. Special operators: is / in</h2>
+    <p>
+      Two more operators come up constantly in real Python code:
+      <code>is</code> checks identity (same object in memory, the concept
+      from Chapter 2), and <code>in</code> checks membership.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">special_ops.py</span>
+      </div>
+      <pre><code>a = 10
+b = 10
+print(a is b)          &#35; True  &mdash; same small-int object (Chapter 2!)
+
+fruits = ["apple", "banana", "mango"]
+print("banana" in fruits)      &#35; True
+print("grape" not in fruits)   &#35; True</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the difference between == and is?</span>
+      <code>==</code> asks "do these have the <em>same value</em>?"
+      <code>is</code> asks "are these the <em>exact same object</em> in
+      memory?" Two different lists with identical contents are
+      <code>==</code> but not <code>is</code>. This distinction rarely
+      matters for numbers and strings, but matters a lot once you start
+      working with lists and objects in later chapters.
+    </div>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>is</code> / <code>is not</code> check identity (same object).</li>
+        <li><code>in</code> / <code>not in</code> check membership (is this value inside this collection).</li>
+        <li><code>==</code> checks value equality &mdash; not the same thing as <code>is</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>/</code> always gives a float; <code>//</code> floor-divides; <code>%</code> gives the remainder; <code>**</code> is power.</li>
+      <li>Assignment shortcuts (<code>+=</code>, etc.) exist; <code>++</code>/<code>--</code> do not.</li>
+      <li>Relational operators return booleans; <code>and</code>/<code>or</code>/<code>not</code> combine them, with short-circuit evaluation.</li>
+      <li>Bitwise operators (<code>&amp;</code>, <code>|</code>, <code>^</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>) work on individual bits &mdash; useful for flags and permissions.</li>
+      <li><code>is</code> checks identity, <code>in</code> checks membership &mdash; neither is the same as <code>==</code>.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../chapter-02-variables-data-types/lesson.html">&larr; Chapter 2</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+</body>
+</html>

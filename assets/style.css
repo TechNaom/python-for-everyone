@@ -1056,6 +1056,215 @@ footer.site-footer a {
 .roadmap-status.built { background: #E7F6EA; color: var(--color-green); }
 .roadmap-status.planned { background: #EEF0F4; color: var(--color-text-soft); }
 
+/* ---------- Progress badges (localStorage-driven) ---------- */
+.complete-badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-green);
+  background: #E7F6EA;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-left: 10px;
+}
+
+.chapter-list li.chapter-complete {
+  border-left: 5px solid var(--color-green);
+}
+
+.roadmap-list li.chapter-complete .roadmap-status {
+  background: #E7F6EA;
+  color: var(--color-green);
+}
+
+/* ---------- Live code playground ---------- */
+.playground {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin: 20px 0;
+}
+
+.playground-bar {
+  background: #1B2233;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.playground-bar .filename {
+  color: #8A93A8;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+}
+
+.playground-run-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--color-yellow);
+  color: var(--color-navy);
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.playground-run-btn:hover {
+  transform: translateY(-1px);
+}
+
+.playground-run-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.playground textarea.playground-code {
+  display: block;
+  width: 100%;
+  border: none;
+  resize: vertical;
+  background: #0F1420;
+  color: #E8ECF4;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 15px;
+  line-height: 1.55;
+  padding: 18px;
+  min-height: 90px;
+}
+
+.playground textarea.playground-code:focus {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -2px;
+}
+
+.playground-output {
+  background: #F4F6FA;
+  color: #1B2233;
+  border-top: 1px solid var(--color-border);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  padding: 14px 18px;
+  white-space: pre-wrap;
+  min-height: 24px;
+}
+
+.playground-note {
+  font-size: 14px;
+  color: var(--color-text-soft);
+  margin-top: 6px;
+}
+
+/* ---------- Sub-topic quick recap (lighter than Points to Remember) ---------- */
+.quick-recap {
+  background: #F4F8F4;
+  border: 1px dashed #A9CFA9;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin: 20px 0 32px;
+  font-size: 17px;
+}
+
+.quick-recap .label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-green);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.quick-recap .label::before {
+  content: "📌 ";
+}
+
+.quick-recap ul {
+  margin: 4px 0 0;
+  padding-left: 22px;
+}
+
+.quick-recap li {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+/* ---------- Sub-topic section divider ---------- */
+.subtopic {
+  margin-top: 44px;
+  padding-top: 4px;
+}
+
+.subtopic-label {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-blue-dark);
+  background: #EAF1FC;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+/* ---------- Debug-the-code exercise cards ---------- */
+.debug-card {
+  background: #FFF4F3;
+  border: 1px solid #F3C6C2;
+  border-left: 6px solid var(--color-red);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 18px 0;
+}
+
+.debug-card h3 {
+  margin-top: 0;
+  color: var(--color-red);
+}
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+th, td {
+  text-align: left;
+  padding: 12px 18px;
+  font-size: 17px;
+}
+
+th {
+  background: var(--color-navy);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+td {
+  border-top: 1px solid var(--color-border);
+}
+
+tbody tr:nth-child(even) {
+  background: #F7F8FC;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   body { font-size: 17px; }

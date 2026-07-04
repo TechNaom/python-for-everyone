@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5: Loops (while / for) — Python for Everyone</title>
+<meta name="description" content="while loops, for loops with range(), common loop patterns, and break/continue — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 5 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">20 min read</span>
+  </div>
+  <h1>Loops: while &amp; for</h1>
+  <p><em>Computers are extraordinarily good at doing the same thing a thousand times without complaining. This chapter teaches you how to ask for that.</em></p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#while">1. while loops</a>
+    <a href="#for-range">2. for loops and range()</a>
+    <a href="#patterns">3. Common loop patterns</a>
+    <a href="#break-continue">4. break &amp; continue</a>
+  </nav>
+
+  <div class="hook">
+    Imagine printing the numbers 1 to 1,000, or checking every item in a
+    10,000-row spreadsheet, or asking a user for input until they type
+    something valid. Writing that logic by hand, one line per number,
+    would be absurd. A loop lets you say "repeat this block until I say
+    stop" &mdash; once, cleanly, no matter how many times it actually runs.
+  </div>
+
+  <div class="subtopic" id="while">
+    <span class="subtopic-label">Sub-topic 1 of 4</span>
+    <h2>1. while loops</h2>
+    <p>
+      A <code>while</code> loop repeats its block as long as a condition
+      stays <code>True</code>. Every <code>while</code> loop needs three
+      things: a starting point, a condition, and something that eventually
+      makes the condition false &mdash; skip that last part and your loop
+      never stops.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">while_basics.py</span>
+      </div>
+      <pre><code>i = 1              &#35; starting point
+while i <= 5:      &#35; condition
+    print(i)
+    i = i + 1      &#35; the step that eventually stops the loop</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_while.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="5">i = 1
+while i <= 5:
+    print(i)
+    i = i + 1</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing 5 to 10.</div>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an infinite loop?</span>
+      An infinite loop is one whose condition never becomes
+      <code>False</code>, so it runs forever (or until you force-stop the
+      program). This almost always happens by forgetting the step that
+      changes the loop variable &mdash; if you removed <code>i = i + 1</code>
+      above, <code>i</code> would stay <code>1</code> forever and the loop
+      would never end.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: the three parts of every loop, named properly</summary>
+      <p>
+        Every loop &mdash; <code>while</code> or <code>for</code> &mdash; has
+        three conceptual parts: <strong>initialization</strong> (where the
+        loop starts), the <strong>condition</strong> (how many times it
+        runs), and the <strong>step</strong> (increment or decrement).
+        Getting any one of these wrong is the source of almost every loop
+        bug you'll ever write &mdash; when a loop misbehaves, check these
+        three things first, in this order.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>while condition:</code> repeats its block as long as the condition is <code>True</code>.</li>
+        <li>Every loop needs initialization, a condition, and a step that eventually stops it.</li>
+        <li>Forgetting the step creates an infinite loop.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="for-range">
+    <span class="subtopic-label">Sub-topic 2 of 4</span>
+    <h2>2. for loops and range()</h2>
+    <p>
+      When you already know how many times you want to repeat something,
+      a <code>for</code> loop combined with <code>range()</code> is more
+      direct than managing a counter variable yourself.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">for_range.py</span>
+      </div>
+      <pre><code>for i in range(5):
+    print(i)          &#35; prints 0, 1, 2, 3, 4  (5 is NOT included)
+
+for i in range(1, 6):
+    print(i)          &#35; prints 1, 2, 3, 4, 5
+
+for i in range(10, 0, -2):
+    print(i)          &#35; prints 10, 8, 6, 4, 2 (counting down by 2)</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_range.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="4">for i in range(1, 11, 2):
+    print(i)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the start, stop, or step.</div>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... range()?</span>
+      <code>range(stop)</code> counts from 0 up to (but not including)
+      <code>stop</code>. <code>range(start, stop)</code> counts from
+      <code>start</code> up to (not including) <code>stop</code>.
+      <code>range(start, stop, step)</code> adds a step size, which can be
+      negative to count backward. The end value is <strong>always
+      excluded</strong> &mdash; this trips up almost every beginner at least
+      once.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: for loops work on more than just range()</summary>
+      <p>
+        <code>for</code> can iterate directly over any sequence &mdash; a
+        string, a list, later a dictionary. <code>for letter in "abc":</code>
+        runs the block once per character, no <code>range()</code> or index
+        needed at all. You'll use this constantly starting in Chapter 6.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>for i in range(n):</code> counts <code>0</code> to <code>n-1</code>.</li>
+        <li><code>range(start, stop, step)</code> gives full control, and the stop value is always excluded.</li>
+        <li><code>for</code> can iterate directly over strings and other sequences, not just numbers.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="patterns">
+    <span class="subtopic-label">Sub-topic 3 of 4</span>
+    <h2>3. Common loop patterns</h2>
+    <p>
+      A handful of loop "shapes" show up constantly in real code and in
+      interviews. Learning to recognize them is more valuable than
+      memorizing any single example.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">accumulator_pattern.py</span>
+      </div>
+      <pre><code>&#35; The "accumulator" pattern: build up a result across iterations
+total = 0
+i = 1
+while i <= 10:
+    total = total + i
+    i += 1
+print("Sum 1-10:", total)   &#35; 55
+
+&#35; Digit-by-digit processing: peel off digits with % and //
+n = 256
+digit_sum = 0
+while n > 0:
+    digit_sum += n % 10   &#35; grab the last digit
+    n = n // 10           &#35; drop the last digit
+print("Digit sum of 256:", digit_sum)   &#35; 2+5+6 = 13</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the accumulator pattern?</span>
+      An accumulator is a variable (often started at <code>0</code>) that
+      collects a running result across every loop iteration &mdash; a sum, a
+      count, a product. It's called an accumulator because it "accumulates"
+      the answer one step at a time instead of computing it all at once.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: peeling off digits with % and //</summary>
+      <p>
+        <code>n % 10</code> always gives you the last digit of <code>n</code>
+        (in base 10). <code>n // 10</code> removes that last digit by
+        floor-dividing it away. Repeating both together in a loop lets you
+        process a number digit by digit &mdash; this exact pattern solves
+        digit-sum, digit-reversal, and palindrome-checking problems, all
+        common interview questions.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>The accumulator pattern: a variable that builds up a result across iterations.</li>
+        <li><code>n % 10</code> gets the last digit; <code>n // 10</code> removes it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="break-continue">
+    <span class="subtopic-label">Sub-topic 4 of 4</span>
+    <h2>4. break &amp; continue</h2>
+    <p>
+      Sometimes you need to exit a loop early, or skip just one iteration
+      without stopping the whole thing. <code>break</code> and
+      <code>continue</code> handle exactly those two cases.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">break_continue.py</span>
+      </div>
+      <pre><code>&#35; break: stop the loop immediately
+for number in [4, 7, 11, 15, 3]:
+    if number == 11:
+        print("Found it!")
+        break
+    print("Checking:", number)
+
+&#35; continue: skip just this iteration, keep looping
+for number in range(1, 6):
+    if number == 3:
+        continue
+    print(number)   &#35; prints 1, 2, 4, 5 (3 is skipped)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... break vs. continue?</span>
+      <code>break</code> exits the loop completely &mdash; nothing after it
+      in the loop runs again. <code>continue</code> jumps straight back to
+      the loop's condition, skipping the rest of the current iteration's
+      code but continuing to loop.
+    </div>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>break</code> exits the loop entirely.</li>
+        <li><code>continue</code> skips only the current iteration, then keeps looping.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>while condition:</code> repeats until the condition is false; always ensure it eventually becomes false.</li>
+      <li><code>for i in range(...):</code> is ideal when you know the number of repetitions in advance; the stop value is always excluded.</li>
+      <li>The accumulator pattern builds up a result (sum, count) across iterations.</li>
+      <li><code>n % 10</code> / <code>n // 10</code> peel digits off a number one at a time.</li>
+      <li><code>break</code> exits a loop early; <code>continue</code> skips just the current iteration.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../chapter-04-control-flow/lesson.html">&larr; Chapter 4</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+</body>
+</html>

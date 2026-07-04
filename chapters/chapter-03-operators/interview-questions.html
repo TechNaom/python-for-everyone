@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 3: Operators — division semantics, short-circuit evaluation, bitwise flags, is vs ==.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-03-interview">
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 3 Interview Prep</span>
+    <span class="reading-time">8 min read</span>
+  </div>
+  <h1>Interview Questions: Operators</h1>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the difference between <code>/</code> and <code>//</code> in Python?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>/</code> is true division and always returns a float, even when the numbers divide evenly (<code>10 / 2</code> is <code>5.0</code>). <code>//</code> is floor division &mdash; it divides then rounds down to the nearest whole number, returning an int if both operands are ints.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying <code>//</code> just "rounds" &mdash; it specifically rounds toward negative infinity, which matters for negative numbers (<code>-7 // 2</code> is <code>-4</code>, not <code>-3</code>).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>-7 // 2</code> evaluate to?" (Answer: <code>-4</code>, because floor division rounds toward negative infinity, not toward zero.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why doesn't Python have a <code>++</code> operator?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It was a deliberate design choice. In languages that have it, <code>++</code> secretly has two forms (pre-increment and post-increment) with different behavior depending on position, which causes subtle bugs. Python requires the explicit, unambiguous <code>x += 1</code> instead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing this at all and trying to write <code>x++</code> in actual Python code (it's a syntax error).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>x += 1</code> actually expand to?" (Answer: <code>x = x + 1</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What is short-circuit evaluation, and why does it matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Python stops evaluating a logical expression as soon as the final result is already determined. In <code>a and b</code>, if <code>a</code> is <code>False</code>, <code>b</code> is never evaluated. This lets you safely write guard conditions like <code>x != 0 and 10 / x &gt; 1</code>, where the second check would crash if it ran when <code>x</code> is <code>0</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not realizing that operand order matters because of this &mdash; putting the "safe" check first is a deliberate pattern, not an accident.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>or</code> short-circuit too, and under what condition?" (Answer: yes &mdash; if the first operand is <code>True</code>, the second is never evaluated.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How would you use bitwise operators to store multiple true/false flags in one number?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Assign each flag a power of 2 (1, 2, 4, 8, ...) so each occupies a unique bit. Combine flags with <code>|</code> (e.g., <code>read | write</code> = <code>4 | 2</code> = <code>6</code>). Check if a flag is set with <code>&amp;</code> (e.g., <code>permissions &amp; write</code> is non-zero if write is set). This is exactly how Unix file permissions work.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to use decimal values like 1, 2, 3 for flags instead of powers of 2 &mdash; that breaks the ability to combine and check them independently.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you turn a specific flag off, keeping the others intact?" (Answer: use <code>&amp;</code> with the bitwise complement, e.g., <code>permissions &amp; ~write</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What's the difference between <code>==</code> and <code>is</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>==</code> compares values &mdash; are these two things "equal"? <code>is</code> compares identity &mdash; are these the literal same object in memory? Two separate lists with the same contents are <code>==</code> but not <code>is</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>is</code> to compare strings or numbers for equality in real code &mdash; it can work by coincidence for small cached values but isn't reliable or the correct tool for the job.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When is <code>is</code> the correct operator to use?" (Answer: mainly for comparing against <code>None</code>, e.g., <code>if x is None:</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What does <code>in</code> do, and what types can you use it with?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>in</code> checks membership &mdash; whether a value exists inside a collection like a string, list, tuple, set, or dictionary keys. <code>"a" in "cat"</code> is <code>True</code> (substring check); <code>3 in [1, 2, 3]</code> is <code>True</code> (element check).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking it only works on lists &mdash; it's a general operator across every built-in collection type, including strings.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the opposite check called?" (Answer: <code>not in</code>.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>**</code> is the <code>____</code> operator.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="power,exponent,exponentiation" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>|</code> is the bitwise <code>____</code> operator.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="or,OR" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>not in</code> is the opposite of <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="in" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>and</code>/<code>or</code> stop evaluating early &mdash; this is called <code>____</code> evaluation.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="short-circuit,short circuit" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="exercises/index.html">&larr; Exercises</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+</body>
+</html>

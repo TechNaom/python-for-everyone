@@ -65,8 +65,12 @@
       const pct = rows.length ? Math.round((correctCount / rows.length) * 100) : 0;
       fillEl.style.width = `${pct}%`;
     }
+    const perfectScore = rows.length > 0 && correctCount === rows.length;
     if (celebrationEl) {
-      celebrationEl.classList.toggle("show", rows.length > 0 && correctCount === rows.length);
+      celebrationEl.classList.toggle("show", perfectScore);
+    }
+    if (perfectScore && window.PFEProgress) {
+      window.PFEProgress.markComplete(document.body.dataset.chapterId);
     }
   }
 

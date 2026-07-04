@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Curriculum Roadmap — Python for Everyone</title>
-<meta name="description" content="The full draft roadmap for Python for Everyone — from Your First Python Program through career prep.">
+<meta name="description" content="The full roadmap for Python for Everyone — from Your First Python Program through data analysis, testing, and career prep.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,53 +29,107 @@
 
   <h1>Curriculum Roadmap</h1>
   <p>
-    This is a <strong>draft roadmap</strong>. Only Chapter 1 is built so far
-    &mdash; the course is being developed one chapter at a time, with each new
-    chapter validated against the format Chapter 1 established before moving
-    to the next. Exact chapter count, order, and titles may still change.
+    Rebuilt from ten years of real classroom teaching material into 27
+    chapters, grouped into five modules. Each chapter is fully piloted
+    (lesson, quiz, exercises, interview questions, project) before the
+    next one starts, and every module ends with a written exam.
   </p>
 
-  <h2>Built</h2>
+  <h2>Module 1 — Foundations</h2>
   <ul class="roadmap-list">
-    <li class="built">
+    <li class="built" data-chapter-link="chapter-01">
       <span class="roadmap-status built">Live</span>
       <div>
-        <a href="../../chapters/chapter-01-first-program/lesson.html"><strong>Chapter 1: Your First Python Program</strong></a>
-        <div class="status">print() &middot; variables &middot; basic types (string/int/float) &middot; input() &middot; joining text</div>
+        <a href="../../chapters/chapter-01-first-program/lesson.html"><strong>1. Your First Python Program</strong></a>
+        <div class="status">print() &middot; variables &middot; basic types &middot; input()</div>
       </div>
     </li>
+    <li class="built" data-chapter-link="chapter-02">
+      <span class="roadmap-status built">Live</span>
+      <div>
+        <a href="../../chapters/chapter-02-variables-data-types/lesson.html"><strong>2. Variables &amp; Data Types</strong></a>
+        <div class="status">Project: Unit converter</div>
+      </div>
+    </li>
+    <li class="built" data-chapter-link="chapter-03">
+      <span class="roadmap-status built">Live</span>
+      <div>
+        <a href="../../chapters/chapter-03-operators/lesson.html"><strong>3. Operators</strong></a>
+        <div class="status">Project: Permission-flags calculator (bitwise)</div>
+      </div>
+    </li>
+    <li class="built" data-chapter-link="chapter-04">
+      <span class="roadmap-status built">Live</span>
+      <div>
+        <a href="../../chapters/chapter-04-control-flow/lesson.html"><strong>4. Control Flow (if / elif / else)</strong></a>
+        <div class="status">Project: Grade calculator</div>
+      </div>
+    </li>
+    <li class="built" data-chapter-link="chapter-05">
+      <span class="roadmap-status built">Live</span>
+      <div>
+        <a href="../../chapters/chapter-05-loops/lesson.html"><strong>5. Loops (while / for)</strong></a>
+        <div class="status">Project: Number-pattern generator</div>
+      </div>
+    </li>
+    <li class="built"><span class="roadmap-status built">Live</span><div><a href="https://github.com/TechNaom/python-for-everyone/blob/main/assessments/written-exams/module-1-exam.md"><em>Module 1 Written Exam</em></a></div></li>
   </ul>
 
-  <h2>Planned (draft &mdash; not yet built)</h2>
+  <h2>Module 2 — Data Structures &amp; Functions</h2>
   <ul class="roadmap-list">
-    <li class="planned"><span class="roadmap-status planned">2</span> <div>Variables &amp; Data Types, In Depth</div></li>
-    <li class="planned"><span class="roadmap-status planned">3</span> <div>Operators (arithmetic, comparison, logical)</div></li>
-    <li class="planned"><span class="roadmap-status planned">4</span> <div>Control Flow: if / elif / else</div></li>
-    <li class="planned"><span class="roadmap-status planned">5</span> <div>Loops: while and for</div></li>
-    <li class="planned"><span class="roadmap-status planned">6</span> <div>Lists &amp; Tuples</div></li>
-    <li class="planned"><span class="roadmap-status planned">7</span> <div>Dictionaries &amp; Sets</div></li>
-    <li class="planned"><span class="roadmap-status planned">8</span> <div>Functions</div></li>
-    <li class="planned"><span class="roadmap-status planned">9</span> <div>String Manipulation</div></li>
-    <li class="planned"><span class="roadmap-status planned">10</span> <div>Error Handling (try/except)</div></li>
-    <li class="planned"><span class="roadmap-status planned">11</span> <div>File Handling</div></li>
-    <li class="planned"><span class="roadmap-status planned">12</span> <div>Modules &amp; Packages</div></li>
-    <li class="planned"><span class="roadmap-status planned">13</span> <div>Object-Oriented Programming: Basics</div></li>
-    <li class="planned"><span class="roadmap-status planned">14</span> <div>OOP: Inheritance &amp; Polymorphism</div></li>
-    <li class="planned"><span class="roadmap-status planned">15</span> <div>Working with Real Data: CSV, JSON, and APIs</div></li>
-    <li class="planned"><span class="roadmap-status planned">16</span> <div>Capstone Projects</div></li>
-    <li class="planned"><span class="roadmap-status planned">17</span> <div>Coding-Challenge &amp; Interview-Prep Module</div></li>
-    <li class="planned"><span class="roadmap-status planned">18</span> <div>What's Next: Career Paths in Python</div></li>
+    <li class="planned"><span class="roadmap-status planned">6</span><div>Strings Deep Dive <span class="status">Project: Password strength checker</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">7</span><div>Lists &amp; Tuples <span class="status">Project: To-do list manager</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">8</span><div>Dictionaries &amp; Sets <span class="status">Project: Inventory tracker</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">9</span><div>Comprehensions, Lambda &amp; Functional Tools <span class="status">Project: Data-cleaning one-liners kit</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">10</span><div>Functions Deep Dive <span class="status">Project: Tip / bill-split calculator library</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">&#128221;</span><div><em>Module 2 Written Exam</em></div></li>
+  </ul>
+
+  <h2>Module 3 — OOP &amp; Robust Code</h2>
+  <ul class="roadmap-list">
+    <li class="planned"><span class="roadmap-status planned">11</span><div>Modules &amp; Packages <span class="status">Project: Expense tracker</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">12</span><div>Exception Handling <span class="status">Project: ATM simulator</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">13</span><div>File Handling &amp; CSV <span class="status">Project: Log-file analyzer</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">14</span><div>OOP Basics <span class="status">Project: Library management system</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">15</span><div>OOP Deeper (static/class methods, encapsulation, properties) <span class="status">Project: Bank account system</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">16</span><div>Inheritance &amp; Polymorphism <span class="status">Project: Vehicle rental system</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">&#128221;</span><div><em>Module 3 Written Exam</em></div></li>
+  </ul>
+
+  <h2>Module 4 — Real-World Python</h2>
+  <ul class="roadmap-list">
+    <li class="planned"><span class="roadmap-status planned">17</span><div>Generators, Iterators &amp; Context Managers <span class="status">Project: Large-file streaming reader</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">18</span><div>Regular Expressions <span class="status">Project: Resume keyword scanner</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">19</span><div>Working with APIs &amp; JSON <span class="status">Project: Weather/quote-of-the-day fetcher</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">20</span><div>Multithreading <span class="status">Project: Concurrent file-download simulator</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">21</span><div>Working with Databases (MySQL) <span class="status">Project: Student record management system</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">&#128221;</span><div><em>Module 4 Written Exam</em></div></li>
+  </ul>
+
+  <h2>Module 5 — Data Analysis, Testing &amp; Career</h2>
+  <ul class="roadmap-list">
+    <li class="planned"><span class="roadmap-status planned">22</span><div>NumPy for Data Analysis <span class="status">Project: Grade/statistics analyzer</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">23</span><div>Pandas for Data Analysis <span class="status">Project: Sales-data dashboard</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">24</span><div>Testing Your Code (unittest/pytest) <span class="status">Project: Test suite for an earlier project</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">25</span><div>Professional Python (git, venv, logging, argparse) <span class="status">Project: Packaged CLI tool</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">26</span><div>Capstone Projects <span class="status">Combine 2-3 earlier projects into one portfolio piece</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">27</span><div>Interview &amp; Career Prep <span class="status">Mock interview + portfolio checklist</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">&#128221;</span><div><em>Module 5 Written Exam</em></div></li>
   </ul>
 
   <h2>Format every chapter follows</h2>
   <p>
-    Established and validated in Chapter 1: hook, plain-language concept,
-    "What is...?" callouts, annotated code, optional "Go Deeper" box, Points
-    to Remember, an interactive self-checking quiz, exercises, interview
-    questions, and a real project. See
+    Hook &rarr; plain-language concept &rarr; "What is...?" callouts &rarr;
+    annotated code (with a live in-browser "Run Code" playground for
+    examples that don't need <code>input()</code>) &rarr; optional "Go
+    Deeper" box &rarr; a quick recap after each sub-topic &rarr; a full
+    Points to Remember at the end &rarr; an interactive fill-in-the-blank
+    quiz (with a progress bar that marks the chapter complete in your
+    browser) &rarr; exercises (including a "Debug the Code" task) &rarr;
+    interview questions &rarr; a real, resume-worthy project. Every module
+    of 4-6 chapters ends with a written exam. See
     <a href="https://github.com/TechNaom/python-for-everyone/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>
-    for the exact file structure and content standards each new chapter must
-    match.
+    for the exact file structure and content standards.
   </p>
 
 </main>
@@ -87,5 +141,6 @@
   </div>
 </footer>
 
+<script src="../../assets/progress.js"></script>
 </body>
 </html>

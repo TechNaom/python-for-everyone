@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 4: Control Flow — indentation rules, elif ordering, and nested if.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-04-interview">
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 4 Interview Prep</span>
+    <span class="reading-time">7 min read</span>
+  </div>
+  <h1>Interview Questions: Control Flow</h1>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why does Python use indentation instead of curly braces?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Python treats indentation as actual syntax, not just style. This forces code layout to always match code structure, since inconsistent indentation is a real error rather than just an unusual formatting choice a reader has to untangle.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying indentation in Python is "just for readability" &mdash; it is functionally required, not optional style.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What happens if you mix tabs and spaces in the same block?" (Answer: Python raises a <code>TabError</code> or <code>IndentationError</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why does the order of conditions matter in an elif chain?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Python checks conditions top to bottom and stops at the first one that's true, even if a later condition would also be true. In a grading scale, checking the highest threshold first (<code>&gt;= 75</code> before <code>&gt;= 60</code>) is essential &mdash; reversing the order would make a 90 incorrectly match a lower grade's condition first.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming Python evaluates every condition and picks the "most correct" one &mdash; it doesn't; it's strictly first-match-wins.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Rewrite a broken elif chain that checks the lowest grade threshold first." (Good candidates should be able to identify and fix the ordering bug on the spot.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's the difference between a nested if and using <code>and</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>For a simple case like "both conditions must be true," they're equivalent: <code>if a and b:</code> behaves the same as a nested <code>if a: if b:</code>. Nesting becomes necessary once the inner block needs its own independent <code>else</code>, or depends on a value only available inside the outer block.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Nesting ifs by default for every multi-condition check, producing unnecessarily deep, hard-to-read code when a single combined condition would do.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give an example where nesting is actually required, not just a style choice." (Good answer: when the inner if-else needs to run different logic than the outer's else, producing four distinct outcomes instead of two.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> Can an if-else run both its branches? Neither?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>No, to both. Exactly one branch always runs in an if-else statement &mdash; the condition is either true or false, with no third state, so exactly one path executes every time the statement is reached.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing this with multiple separate <code>if</code> statements (not <code>elif</code>), where more than one block genuinely can run since each is independently evaluated.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the key difference between two separate `if` statements and one `if`/`elif`?" (Answer: separate ifs are independent and can both run; an elif chain guarantees only one branch runs.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> A condition Python evaluates as True or False is called a <code>____</code> expression.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="boolean" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> An if/elif/else chain always executes <code>____</code> branch.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="one,exactly one" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Python blocks are defined by <code>____</code>, not braces.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="indentation,indenting" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="exercises/index.html">&larr; Exercises</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+</body>
+</html>

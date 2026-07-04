@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 5: Loops — while vs for, range() semantics, the accumulator pattern, break vs continue.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-05-interview">
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 5 Interview Prep</span>
+    <span class="reading-time">8 min read</span>
+  </div>
+  <h1>Interview Questions: Loops</h1>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> When would you choose a <code>while</code> loop over a <code>for</code> loop?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Use <code>for</code> when you know the number of iterations upfront (or are iterating over a known sequence). Use <code>while</code> when the loop should continue until some condition changes, and you don't know in advance how many iterations that will take &mdash; like reading input until the user types "quit".</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying they're interchangeable in every situation &mdash; technically almost anything can be forced into either form, but the choice signals whether the iteration count is known ahead of time.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Write a loop that keeps asking the user for a positive number until they give one." (Expect a <code>while</code> loop, since the number of attempts isn't known in advance.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Does <code>range(1, 10)</code> include 10?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>No. <code>range(start, stop)</code> always excludes the stop value. <code>range(1, 10)</code> produces 1 through 9.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Getting this wrong is extremely common and worth practicing until it's automatic &mdash; it's one of the most frequent sources of off-by-one bugs in real code.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you print the numbers 1 through 10 inclusive?" (Answer: <code>range(1, 11)</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's the accumulator pattern, and can you give an example?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A variable initialized before the loop (often to 0 or an empty value) that gets updated on every iteration to build up a final result &mdash; a running sum, a running count, a running product. Example: <code>total = 0</code> then <code>total += i</code> inside a loop to sum a range of numbers.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Forgetting to initialize the accumulator before the loop starts &mdash; a very common real bug that causes a <code>NameError</code> or wrong starting value.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What would happen if you initialized a sum accumulator to 1 instead of 0?" (Answer: the final sum would be off by exactly 1, too high.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between <code>break</code> and <code>continue</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>break</code> exits the loop entirely &mdash; no more iterations happen at all. <code>continue</code> skips the rest of the current iteration's code and jumps back to re-check the loop condition, but the loop keeps going.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing which one stops the loop completely versus which one just skips ahead.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you find the first negative number in a list and stop searching once found?" (Expect a loop with an <code>if</code> check and a <code>break</code> once the match is found.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> How do you extract each digit of a number using a loop?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Repeatedly use <code>n % 10</code> to get the last digit, then <code>n = n // 10</code> to remove it, looping while <code>n &gt; 0</code>. This is the standard pattern behind digit-sum, digit-reversal, and palindrome-check problems.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to convert the number to a string and slice it character by character without realizing the interviewer usually wants the arithmetic approach to test understanding of <code>%</code>/<code>//</code> (though mentioning the string approach as an alternative shows good breadth).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Modify this to check if a number is a palindrome." (Expect: build the reversed number digit by digit, compare to the original.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>range(1, 10)</code> produces numbers from 1 to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="9" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>____</code> exits a loop; <code>continue</code> just skips ahead.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="break" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> An accumulator variable is usually initialized <code>____</code> the loop.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="before" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="exercises/index.html">&larr; Exercises</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+</body>
+</html>
