@@ -4,13 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 1: Your First Python Program — Python for Everyone</title>
+<meta name="description" content="Learn print(), variables, basic types, and input() in Python — with annotated code, instant-check quizzes, and a real project.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
 <body>
 
 <header class="top-bar">
   <div class="page">
-    <a href="../../index.html">🐍 Python for Everyone</a>
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
     <nav>
       <a href="../../index.html">All Chapters</a>
     </nav>
@@ -21,7 +26,8 @@
 
   <p><a href="../../index.html">&larr; Back to all chapters</a></p>
 
-  <h1>Chapter 1: Your First Python Program</h1>
+  <span class="chapter-badge">Chapter 1 of 18</span>
+  <h1>Your First Python Program</h1>
   <p><em>No experience needed. No installs required to start reading — just bring your curiosity.</em></p>
 
   <div class="hook">
@@ -56,10 +62,19 @@
     computer say something back. In Python, that's done with <code>print()</code>.
   </p>
 
-  <pre><code>print("Hello, world!")</code></pre>
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">hello.py</span>
+    </div>
+    <pre><code>print("Hello, world!")</code></pre>
+  </div>
 
   <p>Run that one line, and Python will display:</p>
-  <pre><code>Hello, world!</code></pre>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>Hello, world!</code></pre>
+  </div>
 
   <p>Let's break down exactly what's happening in that line:</p>
 
@@ -105,8 +120,14 @@
     later.
   </p>
 
-  <pre><code>name = "Asha"
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">variables.py</span>
+    </div>
+    <pre><code>name = "Asha"
 print(name)</code></pre>
+  </div>
 
   <div class="code-breakdown">
     <dl>
@@ -146,9 +167,15 @@ print(name)</code></pre>
     beginner are strings (text) and numbers.
   </p>
 
-  <pre><code>name = "Asha"       # a string (text)
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">types.py</span>
+    </div>
+    <pre><code>name = "Asha"       # a string (text)
 age = 12            # an integer (a whole number)
 height = 4.9        # a float (a number with a decimal point)</code></pre>
+  </div>
 
   <div class="what-is">
     <span class="label">What is... a data type?</span>
@@ -169,8 +196,14 @@ height = 4.9        # a float (a number with a decimal point)</code></pre>
     fixed message.
   </p>
 
-  <pre><code>name = input("What's your name? ")
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">greet.py</span>
+    </div>
+    <pre><code>name = input("What's your name? ")
 print("Nice to meet you, " + name + "!")</code></pre>
+  </div>
 
   <div class="code-breakdown">
     <dl>
@@ -207,8 +240,14 @@ print("Nice to meet you, " + name + "!")</code></pre>
       guess which one you meant when the types don't match. To fix it, convert the
       number to a string first, using <code>str()</code>:
     </p>
-    <pre><code>age = 12
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fix_type_error.py</span>
+      </div>
+      <pre><code>age = 12
 print("Your age is " + str(age))</code></pre>
+    </div>
     <p>
       <code>str(age)</code> takes the number <code>12</code> and produces the text
       <code>"12"</code>, which can then be safely joined with other text. This
@@ -220,11 +259,17 @@ print("Your age is " + str(age))</code></pre>
   <h2>6. Putting it all together</h2>
   <p>Here's a small, complete program using everything from this chapter:</p>
 
-  <pre><code>name = input("What's your name? ")
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">chapter1_recap.py</span>
+    </div>
+    <pre><code>name = input("What's your name? ")
 age = input("How old are you? ")
 
 print("Hello, " + name + "!")
 print("So you're " + age + " years old. That's a great age to be learning Python!")</code></pre>
+  </div>
 
   <p>
     Try running this yourself. Every time you run it, it can produce a different,
@@ -260,6 +305,13 @@ print("So you're " + age + " years old. That's a great age to be learning Python
   </div>
 
 </main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
 
 </body>
 </html>

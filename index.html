@@ -3,55 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python for Everyone</title>
+<title>Python for Everyone — Free, Interactive Python Course</title>
+<meta name="description" content="A free, interactive Python course for everyone — kids, career-switchers, and working professionals. Self-checking quizzes, real projects, interview prep.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
 <header class="top-bar">
   <div class="page">
-    <a href="index.html">🐍 Python for Everyone</a>
+    <a href="index.html" class="brand">🐍 Python for Everyone</a>
     <nav>
+      <a href="docs/curriculum/CURRICULUM_MAP.md">Roadmap</a>
       <a href="https://github.com/TechNaom/python-for-everyone">GitHub</a>
     </nav>
   </div>
 </header>
 
+<section class="hero">
+  <div class="page">
+    <span class="hero-eyebrow">✨ 100% Free &middot; No Sign-Up</span>
+    <h1>Learn Python the way it should be taught.</h1>
+    <p class="lede">
+      Interactive mini-textbooks, instant-check quizzes, real projects, and
+      interview prep — built for a curious kid, a career-switcher, and a
+      working professional, all in the same course.
+    </p>
+    <div class="hero-badges">
+      <span>🧠 Plain-language first</span>
+      <span>✅ Self-checking quizzes</span>
+      <span>🛠️ Real projects</span>
+      <span>💼 Interview-ready</span>
+    </div>
+    <a href="chapters/chapter-01-first-program/lesson.html" class="btn-primary">Start Chapter 1 →</a>
+    <a href="docs/curriculum/CURRICULUM_MAP.md" class="btn-secondary">View the roadmap</a>
+  </div>
+</section>
+
 <main class="page">
 
-  <h1>Python for Everyone</h1>
-  <p>
-    A free, interactive Python course built for anyone &mdash; a curious kid, a
-    career-switcher, a working professional, or someone picking up a new
-    skill in retirement. No cost, no sign-up, no assumed background.
-  </p>
-
-  <div class="hook">
-    Every chapter is a mini interactive textbook, right in your browser:
-    plain-language explanations, annotated real code, a self-checking
-    fill-in-the-blank quiz with instant feedback, exercises, interview
-    questions, and a small real project to build. No installs needed just to
-    start reading.
+  <h2>Why this course is different</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <span class="icon">📘</span>
+      <h3>Every term explained</h3>
+      <p>"What is...?" boxes define new words the moment they appear — no silent jargon.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">✅</span>
+      <h3>Instant-check quizzes</h3>
+      <p>Fill in the blank, hit Check, and know immediately — no waiting, no backend, nothing tracked.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🔬</span>
+      <h3>Go Deeper, if you want</h3>
+      <p>Optional sections give the full mechanism for readers who want more rigor — skip them if you don't.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🛠️</span>
+      <h3>Real, fun projects</h3>
+      <p>Every chapter ends with something genuinely worth building, not a throwaway toy example.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">💼</span>
+      <h3>Interview prep built in</h3>
+      <p>Strong-answer / red-flag / follow-up breakdowns for every chapter's core concepts.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🌍</span>
+      <h3>Open source, forever</h3>
+      <p>MIT licensed. Clone it, fork it, use it for your own classroom or study group.</p>
+    </div>
   </div>
 
   <h2>Chapters</h2>
   <ul class="chapter-list">
     <li>
-      <a href="chapters/chapter-01-first-program/lesson.html">Chapter 1: Your First Python Program</a>
-      <span class="status">print() &middot; variables &middot; types &middot; input()</span>
+      <span class="chapter-num">1</span>
+      <div>
+        <a href="chapters/chapter-01-first-program/lesson.html">Your First Python Program</a>
+        <span class="status">print() &middot; variables &middot; types &middot; input()</span>
+      </div>
     </li>
-    <li>
-      <span class="badge-coming-soon">Chapter 2: Variables &amp; Data Types, In Depth — coming soon</span>
+    <li class="coming-soon">
+      <span class="chapter-num">2</span>
+      <div>
+        <span class="badge-coming-soon">Variables &amp; Data Types, In Depth — coming soon</span>
+      </div>
     </li>
-    <li>
-      <span class="badge-coming-soon">More chapters are being added one at a time — see the full roadmap below</span>
+    <li class="coming-soon">
+      <span class="chapter-num">···</span>
+      <div>
+        <span class="badge-coming-soon">More chapters are being added one at a time — see the full roadmap below</span>
+      </div>
     </li>
   </ul>
 
   <h2>How to use this course</h2>
   <ul>
     <li>Read the lesson, take the quiz, do the exercises, then build the project — in that order.</li>
-    <li>Every quiz question has its own <strong>Check</strong> button, so you get instant feedback without needing to submit anything or wait for a grader.</li>
+    <li>Every quiz question has its own <strong>Check</strong> button, so you get instant feedback without submitting anything or waiting for a grader.</li>
     <li>"Go Deeper" boxes are optional — skip them on your first pass if you just want the essentials, come back later if you want the full picture.</li>
     <li>Running the Python code requires <a href="https://www.python.org/downloads/">Python 3</a> installed on your computer — everything else (lessons, quizzes) works right in this browser.</li>
   </ul>
@@ -64,14 +118,14 @@
     <a href="docs/curriculum/CURRICULUM_MAP.md">docs/curriculum/CURRICULUM_MAP.md</a>.
   </p>
 
-  <h2>Free and open</h2>
-  <p>
-    This entire course is open source under the MIT license (see
-    <a href="https://github.com/TechNaom/python-for-everyone/blob/main/LICENSE">LICENSE</a>).
-    Clone it, fork it, use it for your own study group or classroom.
-  </p>
-
 </main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
 
 </body>
 </html>

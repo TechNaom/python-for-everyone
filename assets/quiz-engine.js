@@ -47,19 +47,27 @@
 
   function updateScore() {
     const scoreEl = document.getElementById("quiz-score");
-    if (!scoreEl) return;
+    const fillEl = document.getElementById("quiz-progress-fill");
+    const celebrationEl = document.getElementById("quiz-celebration");
     const rows = document.querySelectorAll(".fib-row");
     let correctCount = 0;
-    let attempted = 0;
+
     rows.forEach((row) => {
       const input = row.querySelector(".fib-blank");
       if (!input) return;
-      if (input.value.trim() !== "") {
-        attempted += 1;
-        if (input.classList.contains("correct")) correctCount += 1;
-      }
+      if (input.classList.contains("correct")) correctCount += 1;
     });
-    scoreEl.textContent = `Score: ${correctCount} / ${rows.length}`;
+
+    if (scoreEl) {
+      scoreEl.textContent = `Score: ${correctCount} / ${rows.length}`;
+    }
+    if (fillEl) {
+      const pct = rows.length ? Math.round((correctCount / rows.length) * 100) : 0;
+      fillEl.style.width = `${pct}%`;
+    }
+    if (celebrationEl) {
+      celebrationEl.classList.toggle("show", rows.length > 0 && correctCount === rows.length);
+    }
   }
 
   function wireUp() {

@@ -4,13 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 1 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive fill-in-the-blank quiz for Chapter 1: Your First Python Program — instant Check-button feedback.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
 <body>
 
 <header class="top-bar">
   <div class="page">
-    <a href="../../index.html">🐍 Python for Everyone</a>
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
     <nav>
       <a href="../../index.html">All Chapters</a>
     </nav>
@@ -21,17 +26,22 @@
 
   <p><a href="lesson.html">&larr; Back to the lesson</a></p>
 
-  <h1>Chapter 1 Quiz: Your First Python Program</h1>
+  <span class="chapter-badge">Chapter 1 Quiz</span>
+  <h1>Your First Python Program</h1>
   <p>
     Fill in each blank, then press its <strong>Check</strong> button (or press
     Enter) to see instantly if you're right. There's no penalty for guessing
     again &mdash; try until you get it.
   </p>
 
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
   <form onsubmit="return false;">
 
     <div class="quiz-question">
-      <label for="q1"><strong>1.</strong> The function used to display text on the
+      <label for="q1"><span class="q-num">1</span> The function used to display text on the
       screen is <code>____()</code>.</label>
       <div class="fib-row">
         <input type="text" id="q1" class="fib-blank" data-answers="print,Print" aria-label="Answer for question 1">
@@ -41,7 +51,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q2"><strong>2.</strong> Any piece of text wrapped in quotation
+      <label for="q2"><span class="q-num">2</span> Any piece of text wrapped in quotation
       marks is called a <code>____</code>.</label>
       <div class="fib-row">
         <input type="text" id="q2" class="fib-blank" data-answers="string,strings" aria-label="Answer for question 2">
@@ -51,7 +61,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q3"><strong>3.</strong> In <code>score = 10</code>, the single
+      <label for="q3"><span class="q-num">3</span> In <code>score = 10</code>, the single
       <code>=</code> means "____ the value in the variable," not mathematical
       equality.</label>
       <div class="fib-row">
@@ -62,7 +72,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q4"><strong>4.</strong> A whole number with no decimal point,
+      <label for="q4"><span class="q-num">4</span> A whole number with no decimal point,
       like <code>12</code>, is called an <code>____</code>.</label>
       <div class="fib-row">
         <input type="text" id="q4" class="fib-blank" data-answers="integer,int" aria-label="Answer for question 4">
@@ -72,7 +82,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q5"><strong>5.</strong> A number with a decimal point, like
+      <label for="q5"><span class="q-num">5</span> A number with a decimal point, like
       <code>4.9</code>, is called a <code>____</code>.</label>
       <div class="fib-row">
         <input type="text" id="q5" class="fib-blank" data-answers="float" aria-label="Answer for question 5">
@@ -82,7 +92,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q6"><strong>6.</strong> The function that pauses a program and
+      <label for="q6"><span class="q-num">6</span> The function that pauses a program and
       waits for the user to type something is <code>____()</code>.</label>
       <div class="fib-row">
         <input type="text" id="q6" class="fib-blank" data-answers="input,Input" aria-label="Answer for question 6">
@@ -92,7 +102,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q7"><strong>7.</strong> Joining two strings together end-to-end
+      <label for="q7"><span class="q-num">7</span> Joining two strings together end-to-end
       with <code>+</code> is called <code>____</code>.</label>
       <div class="fib-row">
         <input type="text" id="q7" class="fib-blank" data-answers="concatenation,concatenating" aria-label="Answer for question 7">
@@ -102,7 +112,7 @@
     </div>
 
     <div class="quiz-question">
-      <label for="q8"><strong>8.</strong> To join a number with a string safely,
+      <label for="q8"><span class="q-num">8</span> To join a number with a string safely,
       you first convert the number to text using <code>____()</code>.</label>
       <div class="fib-row">
         <input type="text" id="q8" class="fib-blank" data-answers="str,str()" aria-label="Answer for question 8">
@@ -116,6 +126,10 @@
       <span id="quiz-score"></span>
     </div>
 
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! You've got Chapter 1 down &mdash; on to the exercises and project.
+    </div>
+
   </form>
 
   <div class="chapter-nav">
@@ -124,6 +138,13 @@
   </div>
 
 </main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
 
 <script src="../../assets/quiz-engine.js"></script>
 </body>
