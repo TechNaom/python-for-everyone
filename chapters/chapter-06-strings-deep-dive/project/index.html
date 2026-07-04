@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 Project: Password Strength & Policy Auditor — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven password strength checker using string methods, iteration, and the accumulator pattern.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-06">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 6 Project</span>
+    <span class="reading-time">35 min build</span>
+  </div>
+  <h1>Password Strength & Policy Auditor</h1>
+  <p>A menu-driven mini-app that scores a password against five real policy rules and tracks session stats &mdash; built entirely out of string methods, iteration, and the accumulator pattern from Chapter 5. This one's genuinely resume-worthy.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Password Strength & Policy Auditor ===
+
+1. Check a password
+2. View session stats
+3. Quit
+Choose an option (1-3): 1
+Enter a password to check: abc
+
+--- Result for 'abc' ---
+Score: 1/5  ->  Rating: Weak
+Checklist:
+  [ ] At least 8 characters long
+  [ ] Contains an uppercase letter
+  [x] Contains a lowercase letter
+  [ ] Contains a digit
+  [ ] Contains a special character (!@#$%^&*()-_=+)
+Suggestions:
+  - Make it at least 8 characters long
+  - Add an uppercase letter
+  - Add a digit
+  - Add a special character, e.g. one of !@#$%^&*()-_=+
+
+1. Check a password
+2. View session stats
+3. Quit
+Choose an option (1-3): 2
+
+--- Session Stats ---
+Passwords checked: 1
+Strong passwords: 0
+Strong rate: 0.0%
+
+1. Check a password
+2. View session stats
+3. Quit
+Choose an option (1-3): 3
+
+Session summary: checked 1 password(s), 0 rated Strong.
+Goodbye!</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A <code>while True</code> menu loop with three options: check a password, view
+    session stats, or quit. Checking a password scores it out of 5 against length,
+    uppercase, lowercase, digit, and special-character rules &mdash; all checked with
+    string methods and a single <code>for</code> loop over its characters, no
+    <code>re</code> module needed. Session stats use the accumulator pattern: a
+    running count of passwords checked and how many were rated Strong.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The five rules</h2>
+  <ul>
+    <li>At least 8 characters long</li>
+    <li>Contains an uppercase letter</li>
+    <li>Contains a lowercase letter</li>
+    <li>Contains a digit</li>
+    <li>Contains a special character (from <code>!@#$%^&amp;*()-_=+</code>)</li>
+  </ul>
+  <p>Each satisfied rule is worth one point. A score of 0-2 is rated <strong>Weak</strong>, 3-4 is <strong>Medium</strong>, and 5 is <strong>Strong</strong>. The tool also prints exactly which rules were missed &mdash; not just the score &mdash; so the feedback is actionable.</p>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a rule that rejects passwords containing the word "password" (case-insensitive), using <code>.lower()</code> and the <code>in</code> operator.</li>
+    <li>Track the single strongest password's score for the session.</li>
+    <li>Print a percentage breakdown of how many checks landed in each of Weak / Medium / Strong.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Password policy checks like this run in real signup forms, admin panels, and security tooling every day. The logic here is small on purpose &mdash; a single pass over each character, a handful of booleans, an accumulator for stats &mdash; but it's the same shape as production validation code: clear rules, specific feedback, and a running record of what happened.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

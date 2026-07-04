@@ -46,6 +46,8 @@ chapters/chapter-{NN}-{slug}/
 │   ├── index.html
 │   ├── starter.py
 │   └── solution.py
+├── challenges.html             → HackerRank-style auto-graded coding challenges (see below;
+│                                  standard from Chapter 6 onward, chapter root, not a subfolder)
 └── project/
     ├── README.md                → plain-text version for repo browsing
     ├── index.html                → styled version linked from the live site
@@ -71,9 +73,58 @@ of `.task-card`, and combine `task-card debug-card` classes for any
 must still obey "stick to what's been taught" — a scenario problem is
 just a real-world framing, not a license to reach for un-taught syntax.
 `practice/` slots into the chapter-nav chain right after `exercises/` and
-before `interview-questions.html`: `quiz → exercises → practice →
-interview-questions → project`. See `chapters/chapter-01-first-program/practice/`
-for a fully worked example.
+before `challenges.html`/`interview-questions.html` (see below):
+`quiz → exercises → practice → challenges → interview-questions → project`.
+See `chapters/chapter-01-first-program/practice/` for a fully worked example.
+
+**Chapters 6 onward are "deeper" chapters — more sub-topics, real-world
+framing everywhere, a Challenges page, and a bigger project.** This
+standard was piloted on Chapter 6 (Strings Deep Dive) and confirmed
+working before being written down here:
+
+- **More sub-topics than Chapters 1-5's flat 4.** Give a chapter as many
+  sub-topics as the material actually needs (Chapter 6 used 6) rather than
+  forcing everything into 4 — `lesson.html`'s page-toc, `quiz.html`,
+  `exercises/`, and `practice/` all scale with however many sub-topics you
+  pick.
+- **Real-world software use cases belong IN the lesson, not bolted on.**
+  Every sub-topic should open with or include a genuine production-flavored
+  example (masking sensitive data, parsing log lines, cleaning form input,
+  building a receipt/notification string) rather than an abstract "here's
+  the syntax" demo. `practice/`'s scenario-tagged problems should lean the
+  same way.
+- **`interview-questions.html` gets a much bigger set** — aim for 12-14
+  `.qa-item` accordions and a matching 12-14-item rapid-fire quiz, not the
+  ~6-8 that Chapters 1-5 used. Cover the questions people actually get
+  asked about this topic in real interviews, not just chapter-recap
+  trivia. Verify every rapid-fire answer by actually running the
+  corresponding Python before writing it into `data-answers`.
+- **`project/` becomes a bigger, multi-feature mini-app** — still one
+  Python file, still within that chapter's cumulative allowed features,
+  but a menu-driven tool with several real operations and running session
+  state, not a single-purpose script. Chapter 6's Password Strength &
+  Policy Auditor is the reference example.
+- **`challenges.html` is a new page: HackerRank-style, auto-graded,
+  client-side.** It lives at the chapter root (`../../` asset depth, a
+  sibling of `lesson.html`/`quiz.html`/`interview-questions.html`, NOT a
+  subfolder), between `practice/` and `interview-questions.html` in the
+  nav chain. It's powered by `assets/challenge-engine.js` — a Pyodide-based
+  judge that actually executes a learner's function against real test
+  cases and reports pass/fail per case, entirely in the browser, no
+  backend. Read the doc comment at the top of `challenge-engine.js` for
+  the exact HTML contract (`.challenge-card`, `data-challenge-code`
+  textarea, `data-challenge-run` button, `data-challenge-results` div, and
+  a `<script type="application/json" data-challenge-tests>` block per
+  problem). Include `<script src="{prefix}assets/challenge-engine.js">`
+  alongside the usual progress.js/chapters-data.js/sidebar.js includes.
+  Aim for ~8 problems (Easy→Medium mix), 4-6 test cases each including
+  edge cases, and a `<details class="qa-item"><summary>Show Solution</summary>`
+  reveal per problem. **Before publishing, write every reference solution
+  to a scratch script and actually run every one of its own test cases
+  through it with `python3`** — a wrong `expected` value silently breaks
+  the grader for a learner who wrote genuinely correct code. See
+  `chapters/chapter-06-strings-deep-dive/challenges.html` for a fully
+  worked example.
 
 **Every chapter page needs both a `.md` and an `.html` version** where noted
 above: the `.md` is what a `git clone` / repo browser sees; the `.html` is
@@ -124,7 +175,8 @@ Then:
    local Pages preview) and click through every quiz Check button, every
    `chapter-nav` link, and every top-bar nav link before pushing — the whole
    chapter should form one connected loop: lesson → quiz → exercises →
-   practice bank → interview questions → project → back to all chapters.
+   practice bank → challenges (Ch6+) → interview questions → project →
+   back to all chapters.
 5. **Every module (a group of 4-6 chapters shown as one section in the
    roadmap) ends with a written exam** at
    `assessments/written-exams/module-{N}-exam.md` — short-answer + scenario

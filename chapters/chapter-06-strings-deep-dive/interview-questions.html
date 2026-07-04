@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 6: Strings Deep Dive — immutability, slicing edge cases, find vs index, f-strings, and the accumulator pattern applied to text.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-06-interview" data-active-chapter="chapter-06">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 6 Interview Prep</span>
+    <span class="reading-time">15 min read</span>
+  </div>
+  <h1>Interview Questions: Strings Deep Dive</h1>
+  <p>Strings come up in nearly every technical interview, from warm-up questions to full problems. This set goes deeper than earlier chapters &mdash; expect real interviewers to probe immutability, identity vs. equality, slicing edge cases, and the performance intuition behind string building.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why are strings immutable in Python, and what does that mean in practice?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Once a string object is created, its contents can never be changed in place. Every string method that looks like it "modifies" a string &mdash; <code>.upper()</code>, <code>.replace()</code>, <code>+=</code> &mdash; actually builds and returns a brand-new string object, leaving the original untouched. In practice this means you must always capture the result: <code>s.upper()</code> alone does nothing to <code>s</code>; you need <code>s = s.upper()</code> to rebind the variable to the new string.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>s[0] = "X"</code> works, or writing <code>s.strip()</code> on its own line and expecting <code>s</code> itself to have changed.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What actually happens when you run <code>s = s.upper()</code>?" (Expect: a new string object is created in memory; <code>s</code> is rebound to point at it; the old string object is unchanged and discarded once nothing references it anymore.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why can <code>s1 == s2</code> and <code>s1 is s2</code> give different answers for strings?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>==</code> compares <em>values</em> &mdash; are the two sequences of characters equal, character for character? <code>is</code> compares <em>identity</em> &mdash; are the two names pointing at the exact same object in memory (same <code>id()</code>)? CPython sometimes reuses ("interns") short, simple string literals internally, so two equal literals can occasionally also be <code>is</code>-identical &mdash; but that's an implementation detail, never a guarantee. Value comparison should always use <code>==</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>is</code> to compare string contents "because it worked once" &mdash; identity checks on strings are fragile and shouldn't be relied on for equality.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>s1 = "hello world"</code> and <code>s2 = "hello world"</code>, is <code>s1 is s2</code> guaranteed to be <code>True</code>?" (No &mdash; interning behavior is a CPython implementation detail and shouldn't be depended on either way; only <code>==</code> is guaranteed to reflect value equality.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What happens with out-of-range indices and negative steps in slicing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Slicing never raises an error for out-of-range bounds &mdash; Python silently clamps them, so <code>"hello"[10:20]</code> just returns <code>""</code> instead of crashing. Single-index access is different: <code>"hello"[10]</code> <strong>does</strong> raise <code>IndexError</code>. A negative step reverses the direction of travel: <code>s[::-1]</code> walks the whole string backward (a common way to reverse a string), and <code>s[5:1:-1]</code> walks backward from index 5 down to, but not including, index 1.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>s[100]</code> behaves like slicing and safely returns an empty result &mdash; single-index out-of-range access crashes, slicing never does.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>"hello"[10:20]</code> return? What does <code>"hello"[10]</code> do?" (<code>""</code> for the slice; <code>IndexError</code> for the single index.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between <code>.find()</code> and <code>.index()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both search for a substring and return the lowest index where it starts. <code>.find()</code> returns <code>-1</code> if the substring isn't found. <code>.index()</code> raises a <code>ValueError</code> instead. Use <code>.find()</code> when "not found" is a normal, expected outcome you'll handle with a plain <code>if</code> check; reach for <code>.index()</code> when a missing substring should be treated as an error condition.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming the two are interchangeable, or assuming <code>.find()</code> raises an exception on failure.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you safely check whether a substring exists, without risking a crash?" (Use the <code>in</code> operator, or check <code>s.find(sub) != -1</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Why does <code>"5" + 5</code> raise a <code>TypeError</code>, but <code>f"{5}"</code> works fine?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Python's <code>+</code> operator doesn't auto-convert types between a string and an int &mdash; unlike some languages, it refuses to guess whether you meant arithmetic or concatenation, so it raises <code>TypeError: can only concatenate str (not "int") to str</code>. You have to convert explicitly, with <code>str(5)</code> or by dropping the value into an f-string: <code>f"{5}"</code> formats <em>any</em> value to its string representation automatically inside the braces, no explicit <code>str()</code> call needed.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Expecting Python to silently coerce an int to a string during <code>+</code>, the way looser-typed languages do.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the fix for <code>"Age: " + 25</code>?" (<code>"Age: " + str(25)</code>, or more idiomatically <code>f"Age: {25}"</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> How would you reverse a string in Python?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>s[::-1]</code> &mdash; a slice with no start or stop and a step of <code>-1</code>, walking the entire string backward in one expression. There's no <code>.reverse()</code> method on strings; that method belongs to mutable sequences (like lists, coming in Chapter 7) that can be rearranged in place &mdash; strings can't be, since they're immutable.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to call a <code>.reverse()</code> method directly on a string.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you check if a string is a palindrome?" (Compare <code>s == s[::-1]</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> Why is repeated <code>+=</code> string concatenation inside a loop considered costly?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because strings are immutable, every <code>+=</code> inside a loop builds a brand-new string object and copies <em>all</em> the characters accumulated so far into it, then discards the old object. Across <code>n</code> iterations building a result of length <code>n</code>, that repeated re-copying can cost <code>O(n&sup2;)</code> time in the worst case, not <code>O(n)</code> &mdash; each step re-copies everything before it. The standard fix, once collections are available, is to gather the individual pieces separately and combine them once at the end with <code>"".join(pieces)</code>, which is a single <code>O(n)</code> pass instead of many.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating string concatenation as "free," the way fixed-size numeric addition is, and not recognizing a growing <code>+=</code> loop as a performance smell during code review.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why does joining pre-collected pieces avoid the repeated-copy problem that <code>+=</code> has?" (Because the join happens once, after all pieces are known, instead of re-copying a growing string on every single iteration.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What's a common gotcha with <code>.strip()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.strip()</code> (and <code>.lstrip()</code>/<code>.rstrip()</code>) only removes characters from the very beginning and/or end of a string &mdash; it never touches anything in the middle, even if the same character shows up there too. By default it strips whitespace, but you can pass it a string of characters to remove instead; that argument is treated as a <em>set</em> of characters to strip from the ends, not a substring to remove as a single unit.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Expecting <code>.strip()</code> to clean up whitespace in the middle of a string, or expecting <code>.strip("ab")</code> to remove the two-character sequence <code>"ab"</code> rather than any mix of the individual characters <code>'a'</code> and <code>'b'</code> from the ends.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>"xxhixx".strip("x")</code> return?" (<code>"hi"</code> &mdash; the leading and trailing <code>'x'</code> characters are removed, stopping as soon as a non-<code>'x'</code> character is reached on each side.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What's a pitfall with case-insensitive string comparison?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The usual approach is normalizing both sides the same way before comparing, e.g. <code>s1.lower() == s2.lower()</code>. The pitfall is normalizing only <em>one</em> side and forgetting the other &mdash; comparing <code>s1.lower() == s2</code> will fail to match <code>"CAT"</code> against <code>"cat"</code> even though a human would call them equal, because <code>s2</code> was never lowered.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Lowering (or uppercasing) just one operand and assuming the comparison is now case-insensitive.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you check if user input of <code>'YES'</code>, <code>'yes'</code>, or <code>'Yes'</code> should all count as a yes?" (Lower the input once, e.g. <code>answer.lower() == "yes"</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between <code>.split()</code> with no arguments and <code>.split(",")</code> with a specific separator?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.split()</code> with no arguments splits on <em>any run</em> of whitespace, collapses consecutive whitespace into a single split point, and discards leading/trailing whitespace entirely &mdash; <code>"  a   b  ".split()</code> gives two pieces. <code>.split(",")</code> with an explicit separator splits on that <em>exact</em> character(s) and does <strong>not</strong> collapse repeats: <code>"a,,b".split(",")</code> gives three pieces, including an empty string between the two commas.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming an explicit separator behaves like the no-argument form and silently drops empty pieces between repeated separators.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>"a,,b".split(",")</code> return, and how many elements does it have?" (Three pieces: the text before the first comma, an empty string between the two commas, and the text after &mdash; because an explicit separator never collapses repeats.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> How do you safely check if a string is a number before converting it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The pattern taught so far is checking <code>s.isdigit()</code> before calling <code>int(s)</code>, so you avoid handing <code>int()</code> something it can't parse. But <code>.isdigit()</code> has real limits: it returns <code>False</code> for a leading minus sign or a decimal point, so both <code>"-5".isdigit()</code> and <code>"3.14".isdigit()</code> are <code>False</code> even though both look like numbers to a human. Once exception handling is introduced in a later chapter, the more robust approach is to just attempt the conversion inside a <code>try</code>/<code>except</code> and handle failure directly, rather than trying to out-guess every valid numeric format up front.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>.isdigit()</code> correctly validates negative numbers or decimals &mdash; it only recognizes plain digit characters.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why doesn't <code>"-5".isdigit()</code> return <code>True</code>?" (Because <code>'-'</code> isn't a digit character, and <code>.isdigit()</code> requires <em>every</em> character in the string to be a digit, with no allowance for a sign or a decimal point.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What's the difference between <code>.isalnum()</code> and checking <code>.isalpha() or .isdigit()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.isalnum()</code> returns <code>True</code> when every character in the string is either a letter or a digit (and the string isn't empty) &mdash; so it accepts genuinely <em>mixed</em> strings like <code>"abc123"</code>. <code>.isalpha()</code> alone requires every character to be a letter (fails on <code>"abc123"</code> because of the digits), and <code>.isdigit()</code> alone requires every character to be a digit (also fails on <code>"abc123"</code>). So <code>.isalpha() or .isdigit()</code> only returns <code>True</code> for a string that is <em>purely</em> letters or <em>purely</em> digits &mdash; never for a genuine mix of both. The two checks are not interchangeable.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>.isalnum()</code> as shorthand for <code>.isalpha() or .isdigit()</code> &mdash; it's a materially broader check.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>"abc123".isalnum()</code> return? What does <code>"abc123".isalpha() or "abc123".isdigit()</code> return?" (<code>True</code>; then <code>False</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What's the practical difference between a mutable and an immutable sequence, using a string as the example?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>An immutable sequence, like a string, can't have any of its elements changed, added, or removed after creation &mdash; <code>s[0] = "X"</code> raises a <code>TypeError</code>. Any "change" has to build and assign a whole new string. A mutable sequence (like a list, in Chapter 7) can have individual elements changed in place, e.g. <code>my_list[0] = "X"</code> works fine, without creating a new object. This matters because immutability guarantees a string can't be silently altered elsewhere in a program while you're holding a reference to it &mdash; but it also means any "edit in place" idea (removing one character, swapping one letter) requires rebuilding a new string rather than mutating the original directly.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing <code>s[0] = "X"</code> and being surprised by the error, without understanding <em>why</em> it fails &mdash; it's not a syntax rule, it's a direct consequence of strings being immutable.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you change just the first character of a string to uppercase, using only what's been taught so far?" (Rebuild it: <code>s[0].upper() + s[1:]</code> &mdash; concatenate a new first character with the rest of the original string via slicing.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> Why prefer <code>.startswith()</code>/<code>.endswith()</code> over slicing or <code>.find()</code> for a prefix/suffix check?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.startswith(sub)</code>/<code>.endswith(sub)</code> say exactly what you mean and handle length differences safely without you computing slice indices yourself. Using slicing (<code>s[:len(sub)] == sub</code>) works but requires getting the length arithmetic right, which is easy to get subtly wrong. Using <code>.find(sub) == 0</code> as a prefix check technically works too, but it's solving a bigger problem than necessary &mdash; <code>.find()</code> searches the <em>entire</em> string for the first occurrence anywhere, not just at the start.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for <code>.find()</code> or manual slicing when <code>.startswith()</code>/<code>.endswith()</code> says exactly what's intended and doesn't need to scan the whole string.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you check if a filename ends in <code>.txt</code>?" (<code>filename.endswith(".txt")</code>.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>"Python"[-1]</code> evaluates to <code>"____"</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="n" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>"Hello"[1:4]</code> evaluates to <code>"____"</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="ell" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>len("hello")</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="5" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>.find()</code> returns <code>____</code> when the substring isn't found.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="-1" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> <code>.index()</code> raises a <code>____</code> when the substring isn't found.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="ValueError" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> f-strings are written with an <code>____</code> prefix right before the opening quote.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="f" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>"  hi  ".strip()</code> evaluates to <code>"____"</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="hi" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>"a,,b".split(",")</code> produces <code>____</code> elements.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>"Hello".upper()</code> evaluates to <code>"____"</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="HELLO" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>"42".isdigit()</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="True" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>"abc123".isalpha()</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="False" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Checking whether a substring exists inside a string uses the <code>____</code> operator.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="in" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> <code>"Cat" == "cat"</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="False" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> To reverse a string <code>s</code> with slicing, you write <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="s[::-1]" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

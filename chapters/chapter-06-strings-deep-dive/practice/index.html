@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 6: Strings Deep Dive, including interview-style scenario problems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-06">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 6 Practice Bank</span>
+    <span class="reading-time">50-65 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Strings Deep Dive</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Uses
+    everything from Chapters 1-5 plus this chapter's own toolkit:
+    <code>len()</code>, indexing/slicing, the string methods from the
+    lesson, f-strings, and iterating a string or a <code>.split()</code>
+    result with a bare for-loop. No lists/dicts, comprehensions,
+    functions, or <code>try</code>/<code>except</code> yet.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-indexing">1. Indexing &amp; Slicing</a>
+    <a href="#topic-methods">2. Common String Methods</a>
+    <a href="#topic-fstrings">3. f-strings</a>
+    <a href="#topic-immutability">4. Immutability &amp; Identity</a>
+    <a href="#topic-searching">5. Searching &amp; Validating</a>
+    <a href="#topic-realworld">6. Real-World Text Processing</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-indexing">Topic 1: Indexing &amp; Slicing</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> First and last character</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Given <code>word = "Programming"</code>, print the first character with a positive index, then the last character with a negative index.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Length and a slice</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Given <code>phrase = "Hello, World!"</code>, print its length with <code>len()</code>, then print <code>phrase[7:12]</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Every other character</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Given <code>code = "abcdefghij"</code>, print every other character using a slice with a step of 2.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Reverse with a slice</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Given <code>word = "Python"</code>, print it reversed using <code>word[::-1]</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This raises an <code>IndexError</code> because <code>word[len(word)]</code> is one past the last valid index. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Phone number parser</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Given <code>phone = "(555) 123-4567"</code>, use slicing to pull out just the area code <code>"555"</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Slicing never crashes</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Prove that <code>word[0:100]</code> on a short string doesn't crash, then explain in a comment why a plain index like <code>word[100]</code> would.</p>
+  </div>
+
+  <h2 id="topic-methods">Topic 2: Common String Methods</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Clean whitespace</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Clean <code>"   mpapasani   "</code> with <code>.strip()</code> and print the result wrapped in brackets to prove the spaces are gone.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Four ways to change case</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Given <code>city = "new york"</code>, print <code>.upper()</code>, <code>.lower()</code>, <code>.title()</code>, and <code>.capitalize()</code> side by side.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Strip the dashes</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Given <code>phone_raw = "555-123-4567"</code>, use <code>.replace()</code> to remove the dashes.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. This crashes with a <code>ValueError</code> because <code>.index()</code> can't find <code>"cat"</code>. Fix it with <code>.find()</code>, which returns <code>-1</code> instead.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Count occurrences and words</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. Count how many times <code>"Hello"</code> appears with <code>.count()</code>, then count the total number of words using <code>.split()</code> and a for-loop.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Filename validator</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Given <code>filename = "server_log_2024.txt"</code>, check it with <code>.startswith()</code> and <code>.endswith()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Case-insensitive login check</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Show that <code>"Manohar" == "manohar"</code> is <code>False</code>, but their <code>.lower()</code> versions match &mdash; and explain why that matters for login checks.</p>
+  </div>
+
+  <h2 id="topic-fstrings">Topic 3: String Formatting with f-strings</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Embed two variables</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Given <code>name = "Asha"</code> and <code>age = 22</code>, print a sentence using an f-string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Compute inside the braces</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Given <code>price = 19.99</code> and <code>quantity = 3</code>, print <code>f"Total: {price * quantity}"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Round with a format spec</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Given <code>pi_value = 3.14159265</code>, print it rounded to 2 decimal places using <code>:.2f</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. This prints the literal text <code>{temperature}</code> instead of its value because the string is missing its <code>f</code> prefix. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Aligned table row</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Print two name/score rows using <code>:&lt;10</code> to left-align each name and <code>:&gt;5</code> to right-align each score.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Receipt line</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Given an item name, quantity, and price, print one receipt line with the line total formatted to 2 decimal places.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Old style vs. f-strings</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Print the same sentence built with <code>+</code>/<code>str()</code> and then as an f-string, and explain in a comment why the f-string reads more clearly.</p>
+  </div>
+
+  <h2 id="topic-immutability">Topic 4: Immutability &amp; String Identity</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> You can't mutate a string</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Explain in a comment why <code>s[0] = "b"</code> isn't allowed, then build <code>"bat"</code> from <code>s = "cat"</code> correctly using slicing.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Same object, then a new one</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Given <code>a = "hello"</code> and <code>b = a</code>, compare <code>id(a)</code> and <code>id(b)</code> before and after <code>b = b + " world"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Watch the id change in a loop</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Build a string with <code>+=</code> inside a <code>range(5)</code> loop, printing <code>id(result)</code> every iteration.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. This raises a <code>TypeError</code> from trying to mutate <code>word</code> via index assignment. Fix it by rebuilding the string with slicing.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Interning two literals</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. Given <code>x = "hello"</code> and <code>y = "hello"</code>, compare <code>id(x)</code>, <code>id(y)</code>, and <code>x is y</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Log builder anti-pattern</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Build a log string with <code>+=</code> in a loop, printing its id each time, then explain why this is a real performance problem at production scale.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Reassignment doesn't ripple</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Given <code>a = "draft"</code>, <code>b = a</code>, then <code>a = "final"</code>, print both and explain why <code>b</code> still says <code>"draft"</code>.</p>
+  </div>
+
+  <h2 id="topic-searching">Topic 5: Searching &amp; Validating Strings</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> in / not in</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Given <code>word = "python"</code>, print whether <code>"th" in word</code> and whether <code>"z" not in word</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Validate before converting</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Given <code>age_input = "25"</code>, check <code>.isdigit()</code> before converting it with <code>int()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Letters only?</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Compare <code>.isalpha()</code> on <code>"Asha123"</code> and on <code>"Asha"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Case checks</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Check <code>.isupper()</code> on <code>"PYTHON"</code> and <code>.islower()</code> on <code>"python"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Whitespace-only field</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. Given <code>field = "   "</code>, check <code>.isspace()</code> to detect a field that's only whitespace.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>PIN validator</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Given <code>pin = "4821"</code>, combine <code>.isdigit()</code> and <code>len()</code> to check it's a valid 4-digit PIN.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why .isalnum() rejects underscores</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Given <code>username = "user_2024"</code>, show <code>.isalnum()</code> is <code>False</code>, then build a custom check with a for-loop that also allows <code>"_"</code>.</p>
+  </div>
+
+  <h2 id="topic-realworld">Topic 6: Real-World Text Processing</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Clean a messy field</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Clean <code>"  MANOHAR@EXAMPLE.COM  "</code> by chaining <code>.strip()</code> and <code>.lower()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Tally vowels</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Loop over a sentence character by character and use the accumulator pattern to count vowels.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Parse a log line</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Given <code>line = "level: ERROR"</code>, use <code>.find(":")</code> and slicing to split it into a key and a value.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. This email comparison should be case-insensitive but isn't, so a validly-typed but differently-capitalized email fails. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Mask a card number</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. Given <code>card = "4111111122223333"</code>, mask everything but the last 4 characters for a receipt.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Log line splitter</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Given a pipe-delimited log line, use <code>.split("|")</code> and a for-loop to print each field.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Whole words vs. raw substrings</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Count how many times <code>"the"</code> appears as a whole word vs. as a raw substring with <code>.count()</code>, and explain why they differ.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

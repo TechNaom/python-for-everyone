@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style string challenges for Chapter 6: Strings Deep Dive.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-06">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 6 Coding Challenges</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Strings Deep Dive</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of hidden-until-you-look
+    test cases (including edge cases like empty strings). Stuck? Every
+    challenge has a <strong>Show Solution</strong> reveal at the bottom.
+    Only uses what Chapters 1-6 have covered so far &mdash; no lists, no
+    <code>def</code> beyond the function stub already given, no
+    <code>sorted()</code>/sets.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Reverse a String <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>reverse_string(s)</code> that returns the string <code>s</code> reversed.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>s</code> may be empty, and may contain any mix of upper/lowercase letters.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>reverse_string("hello")</code> &rarr; <code>"olleh"</code><br>
+        <code>reverse_string("a")</code> &rarr; <code>"a"</code><br>
+        <code>reverse_string("")</code> &rarr; <code>""</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="6">
+def reverse_string(s):
+    # TODO: return s reversed using slicing
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "reverse_string",
+  "cases": [
+    { "args": ["hello"], "expected": "olleh" },
+    { "args": ["a"], "expected": "a" },
+    { "args": [""], "expected": "" },
+    { "args": ["Python"], "expected": "nohtyP" },
+    { "args": ["AbC"], "expected": "CbA" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def reverse_string(s):
+    return s[::-1]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Check a Palindrome <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_palindrome(s)</code> that returns <code>True</code> if <code>s</code> reads the same forwards and backwards, and <code>False</code> otherwise. This check is exact (case-sensitive, no trimming).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>s</code> may be empty (an empty string counts as a palindrome) or a single character (always a palindrome).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_palindrome("racecar")</code> &rarr; <code>True</code><br>
+        <code>is_palindrome("hello")</code> &rarr; <code>False</code><br>
+        <code>is_palindrome("Aa")</code> &rarr; <code>False</code> (case-sensitive)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="6">
+def is_palindrome(s):
+    # TODO: compare s to its reverse and return True/False
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_palindrome",
+  "cases": [
+    { "args": ["racecar"], "expected": true },
+    { "args": ["hello"], "expected": false },
+    { "args": [""], "expected": true },
+    { "args": ["a"], "expected": true },
+    { "args": ["Aa"], "expected": false },
+    { "args": ["abba"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def is_palindrome(s):
+    return s == s[::-1]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Count the Vowels <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_vowels(s)</code> that returns how many of the characters in <code>s</code> are vowels (<code>a, e, i, o, u</code>), counting both upper and lowercase.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>s</code> may be empty, and may mix upper/lowercase letters.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_vowels("hello")</code> &rarr; <code>2</code><br>
+        <code>count_vowels("PYTHON")</code> &rarr; <code>1</code><br>
+        <code>count_vowels("")</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="8">
+def count_vowels(s):
+    # TODO: loop over s (case-insensitively) and count the vowels
+    # using the accumulator pattern
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_vowels",
+  "cases": [
+    { "args": ["hello"], "expected": 2 },
+    { "args": ["PYTHON"], "expected": 1 },
+    { "args": [""], "expected": 0 },
+    { "args": ["aeiouAEIOU"], "expected": 10 },
+    { "args": ["xyz"], "expected": 0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def count_vowels(s):
+    count = 0
+    for char in s.lower():
+        if char in "aeiou":
+            count = count + 1
+    return count</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Count a Character <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_char(s, ch)</code> that returns how many times the single character <code>ch</code> appears in <code>s</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>s</code> may be empty; <code>ch</code> may not appear in <code>s</code> at all (return <code>0</code>).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_char("banana", "a")</code> &rarr; <code>3</code><br>
+        <code>count_char("banana", "z")</code> &rarr; <code>0</code><br>
+        <code>count_char("Mississippi", "s")</code> &rarr; <code>4</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="6">
+def count_char(s, ch):
+    # TODO: return how many times ch appears in s
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_char",
+  "cases": [
+    { "args": ["banana", "a"], "expected": 3 },
+    { "args": ["banana", "z"], "expected": 0 },
+    { "args": ["", "x"], "expected": 0 },
+    { "args": ["Mississippi", "s"], "expected": 4 },
+    { "args": ["aaaa", "a"], "expected": 4 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def count_char(s, ch):
+    return s.count(ch)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">5</span> Is It a Valid Number String? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_valid_number(s)</code> that returns <code>True</code> only if every character in <code>s</code> is a digit (0-9) &mdash; the kind of check you'd run <em>before</em> calling <code>int(s)</code> on form input.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>s</code> may be empty, contain a decimal point, a minus sign, or spaces &mdash; none of those count as valid.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_valid_number("123")</code> &rarr; <code>True</code><br>
+        <code>is_valid_number("12.5")</code> &rarr; <code>False</code><br>
+        <code>is_valid_number("-5")</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="6">
+def is_valid_number(s):
+    # TODO: return True only if every character in s is a digit
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_valid_number",
+  "cases": [
+    { "args": ["123"], "expected": true },
+    { "args": [""], "expected": false },
+    { "args": ["12.5"], "expected": false },
+    { "args": ["-5"], "expected": false },
+    { "args": [" 12"], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def is_valid_number(s):
+    return s.isdigit()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Capitalize Each Word <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>capitalize_words(sentence)</code> that returns <code>sentence</code> with the first letter of every word uppercase and the rest of each word lowercase, words separated by a single space. Build the result yourself with <code>.split()</code> and a for-loop &mdash; don't rely on <code>.title()</code> alone (it mishandles things like apostrophes).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>sentence</code> may be empty, a single word, or contain extra spaces between words (which <code>.split()</code> already collapses for you).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>capitalize_words("hello world")</code> &rarr; <code>"Hello World"</code><br>
+        <code>capitalize_words("PYTHON is FUN")</code> &rarr; <code>"Python Is Fun"</code><br>
+        <code>capitalize_words("")</code> &rarr; <code>""</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def capitalize_words(sentence):
+    # TODO: split sentence into words, capitalize each word (first
+    # letter upper, rest lower), and rebuild the sentence with a
+    # single space between words. Watch out for the empty-string case.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "capitalize_words",
+  "cases": [
+    { "args": ["hello world"], "expected": "Hello World" },
+    { "args": ["PYTHON is FUN"], "expected": "Python Is Fun" },
+    { "args": ["a"], "expected": "A" },
+    { "args": [""], "expected": "" },
+    { "args": ["multiple   spaces here"], "expected": "Multiple Spaces Here" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def capitalize_words(sentence):
+    result = ""
+    first = True
+    for word in sentence.split():
+        piece = word[0].upper() + word[1:].lower()
+        if first:
+            result = piece
+            first = False
+        else:
+            result = result + " " + piece
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Mask a Card Number <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>mask_string(s, keep)</code> that replaces every character in <code>s</code> except the last <code>keep</code> characters with <code>"*"</code> &mdash; the way a receipt hides most of a credit card number.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>keep</code> may be <code>0</code> (mask everything) or greater than <code>len(s)</code> (nothing to mask &mdash; return <code>s</code> unchanged).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>mask_string("4111111122223333", 4)</code> &rarr; <code>"************3333"</code><br>
+        <code>mask_string("hello", 2)</code> &rarr; <code>"***lo"</code><br>
+        <code>mask_string("hi", 4)</code> &rarr; <code>"hi"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def mask_string(s, keep):
+    # TODO: return s with everything except the last `keep` characters
+    # replaced by "*". Handle keep >= len(s) by returning s as-is.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "mask_string",
+  "cases": [
+    { "args": ["4111111122223333", 4], "expected": "************3333" },
+    { "args": ["hello", 2], "expected": "***lo" },
+    { "args": ["hi", 4], "expected": "hi" },
+    { "args": ["", 3], "expected": "" },
+    { "args": ["password123", 0], "expected": "***********" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def mask_string(s, keep):
+    masked_len = len(s) - keep
+    if masked_len < 0:
+        masked_len = 0
+    visible_start = len(s) - keep
+    if visible_start < 0:
+        visible_start = 0
+    return "*" * masked_len + s[visible_start:]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Anagram Check <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_anagram(a, b)</code> that returns <code>True</code> if <code>a</code> and <code>b</code> use exactly the same letters the same number of times (ignoring case and spaces), and <code>False</code> otherwise. Solve it using only <code>.lower()</code>, <code>.replace()</code>, <code>len()</code>, <code>.count()</code>, and a for-loop &mdash; no <code>sorted()</code>, lists, or sets.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> comparisons are case-insensitive and ignore spaces; both strings may be empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_anagram("listen", "silent")</code> &rarr; <code>True</code><br>
+        <code>is_anagram("hello", "world")</code> &rarr; <code>False</code><br>
+        <code>is_anagram("Dormitory", "Dirty Room")</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def is_anagram(a, b):
+    # TODO: clean both strings (lowercase, remove spaces), bail out
+    # early if their lengths differ, then loop over one cleaned string
+    # and compare .count() of each character between the two —
+    # no sorted(), lists, or sets allowed.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_anagram",
+  "cases": [
+    { "args": ["listen", "silent"], "expected": true },
+    { "args": ["hello", "world"], "expected": false },
+    { "args": ["", ""], "expected": true },
+    { "args": ["a", "ab"], "expected": false },
+    { "args": ["Dormitory", "Dirty Room"], "expected": true },
+    { "args": ["Astronomer", "Moon starer"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def is_anagram(a, b):
+    a_clean = a.lower().replace(" ", "")
+    b_clean = b.lower().replace(" ", "")
+    if len(a_clean) != len(b_clean):
+        return False
+    for ch in a_clean:
+        if a_clean.count(ch) != b_clean.count(ch):
+            return False
+    return True</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

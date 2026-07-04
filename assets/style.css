@@ -1192,6 +1192,119 @@ footer.site-footer a {
   margin-top: 6px;
 }
 
+/* ---------- HackerRank-style coding challenges (auto-graded) ---------- */
+.challenge-card {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+  margin: 24px 0;
+  box-shadow: var(--shadow-md);
+}
+
+.challenge-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+}
+
+.challenge-statement {
+  margin: 10px 0 16px;
+}
+
+.challenge-statement .constraints,
+.challenge-statement .examples {
+  font-size: 16px;
+  background: rgba(16, 27, 51, 0.04);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin: 10px 0;
+}
+
+.challenge-statement code {
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+textarea.challenge-code {
+  display: block;
+  width: 100%;
+  border: none;
+  resize: vertical;
+  background: #0F1420;
+  color: #E8ECF4;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 15px;
+  line-height: 1.55;
+  padding: 18px;
+  min-height: 120px;
+  border-radius: 12px;
+}
+
+textarea.challenge-code:focus {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -2px;
+}
+
+.challenge-run-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--color-yellow);
+  color: var(--color-navy);
+  border: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: transform 0.12s ease;
+}
+
+.challenge-run-btn:hover {
+  transform: translateY(-1px);
+}
+
+.challenge-run-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.challenge-results {
+  margin-top: 14px;
+}
+
+.challenge-case {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13.5px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.challenge-case.pass {
+  background: rgba(30, 142, 62, 0.10);
+  color: #14532D;
+}
+
+.challenge-case.fail {
+  background: rgba(197, 34, 31, 0.08);
+  color: #7A1613;
+}
+
+.challenge-summary {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin-top: 10px;
+  color: var(--color-text-soft);
+}
+
+.challenge-summary.all-pass {
+  color: var(--color-green);
+}
+
 /* ---------- Sub-topic quick recap (lighter than Points to Remember) ---------- */
 .quick-recap {
   background: #F4F8F4;

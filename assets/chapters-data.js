@@ -24,7 +24,7 @@ window.PFE_MODULES = [
     title: "Module 2 — Data Structures & Functions",
     examPath: null,
     chapters: [
-      { id: "chapter-06", num: 6, title: "Strings Deep Dive", path: null },
+      { id: "chapter-06", num: 6, title: "Strings Deep Dive", path: "chapters/chapter-06-strings-deep-dive/lesson.html" },
       { id: "chapter-07", num: 7, title: "Lists & Tuples", path: null },
       { id: "chapter-08", num: 8, title: "Dictionaries & Sets", path: null },
       { id: "chapter-09", num: 9, title: "Comprehensions, Lambda & Functional Tools", path: null },

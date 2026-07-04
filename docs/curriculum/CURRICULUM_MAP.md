@@ -16,16 +16,16 @@ moving to the next. The rendered, always-current version lives at
 | 4 | Control Flow (if / elif / else) | simple if, if-else, elif chains, nested if |
 | 5 | Loops (while / for) | while, for + range(), accumulator pattern, break/continue |
 | — | Module 1 Written Exam | covers Chapters 1-5 |
+| 6 | Strings Deep Dive | indexing/slicing, string methods, f-strings, immutability, validation, real-world text processing — plus a Challenges page (8 auto-graded coding problems, HackerRank-style) |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 6 | Strings Deep Dive | Password strength checker |
 | 7 | Lists & Tuples | To-do list manager |
 | 8 | Dictionaries & Sets | Inventory tracker |
 | 9 | Comprehensions, Lambda & Functional Tools | Data-cleaning one-liners kit |
-| 10 | Functions Deep Dive | Tip / bill-split calculator library |
+| 10 | Functions Deep Dive (params & defaults, `*args`/`**kwargs`, scope & `global`/`nonlocal`, recursion, closures, decorators) | Tip / bill-split calculator library |
 | 11 | Modules & Packages | Expense tracker (`datetime`, `math`) |
 | 12 | Exception Handling | ATM simulator (custom exceptions) |
 | 13 | File Handling & CSV | Log-file analyzer |
