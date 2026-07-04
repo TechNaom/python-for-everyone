@@ -36,13 +36,13 @@
     <span class="reading-time">26 min read</span>
   </div>
   <h1>Strings Deep Dive</h1>
-  <p><em>You've already used strings since Chapter 1 &mdash; printing them, joining them with <code>+</code>, reading them from <code>input()</code>. This chapter is where you actually learn what a string can do. Strings are everywhere in real software: filenames, emails, log lines, receipts, usernames, API responses &mdash; almost nothing ships without text moving through it, so this chapter goes deeper than most.</em></p>
+  <p><em>You already know the basics of strings from Chapter 1. This chapter helps you use them with more control, confidence, and purpose. Strings show up in almost every app you use: filenames, emails, passwords, receipts, logs, and messages. Once you can handle them well, you can work with text in a much more professional way.</em></p>
 
   <div class="lesson-hero">
     <h2>How to read this chapter</h2>
     <ul>
-      <li><strong>Start with the pattern.</strong> Each section teaches one small string idea.</li>
-      <li><strong>Read the example first.</strong> The code is chosen to mirror real work: filenames, logs, emails, receipts.</li>
+      <li><strong>Start with the pattern.</strong> Each section teaches one small string idea at a time.</li>
+      <li><strong>Read the example first.</strong> The code mirrors real situations like filenames, logs, emails, and receipts.</li>
       <li><strong>Try one line at a time.</strong> The playgrounds are meant for quick experiments, not long typing.</li>
     </ul>
   </div>
@@ -58,13 +58,7 @@
   </nav>
 
   <div class="hook">
-    Every filename has an extension buried in its last few characters. Every
-    credit card confirmation email shows you only the last four digits.
-    Every login form has to notice that "Alice@Example.com " and
-    "alice@example.com" are the same address once you ignore case and
-    stray spaces. None of that is magic &mdash; it's a handful of string
-    operations, used constantly, in almost every piece of software you've
-    ever touched. This chapter builds them one at a time.
+    A tiny bit of text handling powers a surprising amount of software. A login form checks an email, a receipt hides part of a card number, and a file system reads names and extensions. These are all just string problems. This chapter helps you solve them clearly and confidently.
   </div>
 
   <div class="subtopic" id="indexing-slicing">
