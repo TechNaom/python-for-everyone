@@ -41,12 +41,39 @@ chapters/chapter-{NN}-{slug}/
 │   │                              ("Debug the Code") task with intentionally broken code
 │   ├── starter.py
 │   └── solution.py
+├── practice/                   → deeper per-topic problem bank (see below)
+│   ├── README.md
+│   ├── index.html
+│   ├── starter.py
+│   └── solution.py
 └── project/
     ├── README.md                → plain-text version for repo browsing
     ├── index.html                → styled version linked from the live site
     ├── starter.py
     └── solution.py
 ```
+
+**The `practice/` folder is a deeper problem bank, on top of `exercises/`.**
+Where `exercises/` stays a short, guided 4-task intro, `practice/` groups
+problems by the chapter's actual sub-topics (the same sections listed in
+`lesson.html`'s page-toc) and gives each sub-topic **5-10 problems**,
+following one `starter.py`/`solution.py` pair per chapter (same
+multi-TODO-in-one-file convention as `exercises/`, just with numbered
+TODOs like `2.1`, `2.2`, ... `2.A`, `2.B` per topic instead of one flat
+sequence). Within each topic's problem set, include at least **two
+scenario-based problems** — framed as a real workplace situation or an
+actual interview question, not just "compute X" — since these are the
+ones that carry over into interview prep. Mark those two with `.scenario-card`
+(a `.scenario-tag` badge reading "💼 Scenario" or "💼 Interview Prep") instead
+of `.task-card`, and combine `task-card debug-card` classes for any
+"Debug the Code" problem within the practice set (same pattern
+`exercises/` already uses for its one debug task). Every practice problem
+must still obey "stick to what's been taught" — a scenario problem is
+just a real-world framing, not a license to reach for un-taught syntax.
+`practice/` slots into the chapter-nav chain right after `exercises/` and
+before `interview-questions.html`: `quiz → exercises → practice →
+interview-questions → project`. See `chapters/chapter-01-first-program/practice/`
+for a fully worked example.
 
 **Every chapter page needs both a `.md` and an `.html` version** where noted
 above: the `.md` is what a `git clone` / repo browser sees; the `.html` is
@@ -97,7 +124,7 @@ Then:
    local Pages preview) and click through every quiz Check button, every
    `chapter-nav` link, and every top-bar nav link before pushing — the whole
    chapter should form one connected loop: lesson → quiz → exercises →
-   interview questions → project → back to all chapters.
+   practice bank → interview questions → project → back to all chapters.
 5. **Every module (a group of 4-6 chapters shown as one section in the
    roadmap) ends with a written exam** at
    `assessments/written-exams/module-{N}-exam.md` — short-answer + scenario

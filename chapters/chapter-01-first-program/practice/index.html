@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 1, including interview-style scenario problems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-01">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 1 Practice Bank</span>
+    <span class="reading-time">30-40 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Your First Python Program</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Still uses
+    only <code>print()</code>, variables, basic types, <code>input()</code>,
+    and string concatenation with <code>+</code> / <code>str()</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-print">1. print()</a>
+    <a href="#topic-variables">2. Variables</a>
+    <a href="#topic-types">3. Basic Types</a>
+    <a href="#topic-input">4. input()</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-print">Topic 1: print()</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Two lines, two calls</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Print <code>"Hello, World!"</code>, then print your own name &mdash; two separate <code>print()</code> calls.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Shipping label</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Print a 3-line shipping label: name, street address, city + zip &mdash; one <code>print()</code> call per line.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Decorative header</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Print a line of dashes, then a title, then another line of dashes.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Why three lines?</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Print <code>"Loading..."</code> three times in three separate calls, then add a comment explaining why each one lands on its own line.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Welcome banner</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. Print a 2-line "Welcome" banner using symbols of your choice in the quoted text.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Internal tool startup banner</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Your team's internal CLI script needs a startup banner: print a title line, then a "Type --help for options" line.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Prove print() adds a newline</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. An interviewer asks whether <code>print()</code> automatically starts a new line after each call. Write two calls and add a comment explaining what you expect to see and why.</p>
+  </div>
+
+  <h2 id="topic-variables">Topic 2: Variables</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Three variables, three types</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Store your name, age, and height in three variables and print each on its own line.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reassignment</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Create <code>score = 10</code> and print it, then reassign it to <code>20</code> and print again.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Order doesn't matter</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Create two variables holding different values, then print the second one first &mdash; to show a variable is just a label.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Running balance</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Create <code>balance = 100</code> and reassign it three times in a row like a running total, printing after each change.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Copying a value</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. Copy one variable's value into a second variable and print both to show they currently match.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Click counter</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Simulate 3 button clicks (no loops yet) by reassigning a <code>click_count</code> variable to <code>1</code>, <code>2</code>, then <code>3</code>, printing after each one.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Debug: balance printed too early</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. The code prints a bank balance <em>before</em> a deposit is added instead of after. Find the bug and fix the order.</p>
+  </div>
+
+  <h2 id="topic-types">Topic 3: Basic Types</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> One of each type</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Create a string, an int, and a float for a product listing, and print each with a label sentence using <code>str()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Label + number</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Join the label <code>"Total items: "</code> with an int using <code>str()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This line joins a string directly with an int and crashes with a <code>TypeError</code>. Fix it with <code>str()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> ID card sentence</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Build one sentence joining a name (string), age (int), and GPA (float) &mdash; converting the numbers with <code>str()</code> first.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Int vs. float</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Store the same number once as an int and once as a float, and print both to see how Python displays them differently.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Till receipt line</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Print a receipt line like <code>Coffee - $4.50</code> by joining a string and a float with <code>str()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why does str() fix it?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Explain in a comment why <code>"Age: " + 30</code> crashes but <code>"Age: " + str(30)</code> doesn't.</p>
+  </div>
+
+  <h2 id="topic-input">Topic 4: input()</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Personalized greeting</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Ask for the user's name with <code>input()</code> and print a personalized greeting.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Two questions, one sentence</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Ask for the user's name and favorite hobby with two <code>input()</code> calls, then combine both in one sentence.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Age as text</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Ask for the user's age as text and build a sentence combining it with other text using <code>+</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. This code joins <code>input()</code> text directly with an <code>int</code> variable and crashes. Fix it with <code>str()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Two more questions</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. Ask for the user's favorite food and season, then combine both answers into one sentence.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Mini Mad Libs</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Ask for a noun and an adjective, then print a silly sentence combining both with fixed text around them.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What type does input() return?</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Prove that <code>input()</code> always returns a string &mdash; even when the user types a number &mdash; by joining it directly with another string, no <code>str()</code> needed. Explain why in a comment, contrasting it with TODO 4.4.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

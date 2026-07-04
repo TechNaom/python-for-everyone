@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 2: Variables & Data Types, including interview-style scenario problems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-02">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 2 Practice Bank</span>
+    <span class="reading-time">35-45 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Variables &amp; Data Types</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Still uses
+    only <code>print()</code>, variables, <code>input()</code>, string
+    concatenation with <code>+</code> / <code>str()</code>, identifier
+    naming, dynamic typing, <code>type()</code>, <code>id()</code>, and
+    the conversion functions <code>int()</code>, <code>float()</code>,
+    <code>str()</code>, <code>bool()</code>, <code>complex()</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-naming">1. Naming variables properly</a>
+    <a href="#topic-dynamic-typing">2. Python decides the type for you</a>
+    <a href="#topic-type-id">3. type() and id()</a>
+    <a href="#topic-conversion">4. Converting between types</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-naming">Topic 1: Naming variables properly</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Three properly named variables</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Create snake_case variables for a person's first name, last name, and age, and print each on its own line.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Rename a bad variable</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Someone named a shopping cart total <code>x</code>. Create a properly named replacement, assign it <code>49.99</code>, and print it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Case sensitivity</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Create <code>total</code>, <code>Total</code>, and <code>TOTAL</code>, each with a different value, and print all three.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Underscore-prefixed name</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Create a variable name starting with an underscore for an internal-use value, assign it, and print it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Fixing bad identifiers</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. Rewrite three badly chosen identifiers (<code>2nd_place</code>, <code>user name</code>, <code>api-key</code>) as valid snake_case variables with sample values.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Config keys</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Name three config variables &mdash; a max retry count, an API timeout in seconds, and a debug-mode flag &mdash; with proper snake_case identifiers.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why three separate variables?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Explain why <code>total</code>, <code>Total</code>, and <code>TOTAL</code> can all exist as separate variables in the same program.</p>
+  </div>
+
+  <h2 id="topic-dynamic-typing">Topic 2: Python decides the type for you</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Four types, one print()</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Create a <code>str</code>, <code>int</code>, <code>float</code>, and <code>bool</code> variable, and print all four in a single <code>print()</code> call.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reassigning to a new type</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Create <code>signal = 10</code>, print it, then reassign it to the string <code>"ten"</code> and print again.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Boolean to string</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Create <code>ready = True</code>, print it, then reassign it to the string <code>"yes"</code> and print again.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Complex numbers exist too</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Create a complex number variable like <code>3 + 4j</code> and print it directly.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Float to int</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. Create a float variable, print it, then reassign it to an int and print again.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Feature flag reload</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Reassign a boolean feature flag to a string to simulate a config reload, and explain why that's legal in Python but wouldn't compile in a statically typed language.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Debug: cart summary crash</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. This code crashes with a <code>TypeError</code> because a cart's item count is joined directly with a string. Find the bug and fix it.</p>
+  </div>
+
+  <h2 id="topic-type-id">Topic 3: type() and id()</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> What type is this?</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Create a float variable and print its type with <code>type()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Same value, same id?</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Create two variables holding the same small int, and print both <code>id()</code> values.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Type and id together</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Create a string variable and print both its type and its id.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Larger numbers, same id?</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Create two variables holding the same larger int (<code>500</code>) and compare their ids &mdash; do they still match?</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> type() reflects the current value</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Create a boolean variable, print its type, reassign it to an int, and print its type again.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>QA type check</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Prove a config value is really an <code>int</code> before it's trusted by a billing system, using <code>type()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Do id(x) and id(y) match?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. If <code>x = 5</code> and <code>y = 5</code>, will <code>id(x)</code> and <code>id(y)</code> be the same? Prove it and explain why.</p>
+  </div>
+
+  <h2 id="topic-conversion">Topic 4: Converting between types</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Text to int</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Ask for the user's age with <code>input()</code>, convert it to an <code>int</code>, and print the value and its type.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Text to float</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Convert a string like <code>"3.14"</code> to a <code>float</code> using <code>float()</code> and print it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Int to string</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Convert an <code>int</code> to a <code>str</code> using <code>str()</code> and print the value and its type.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Zero and one as bool</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Convert <code>0</code> and <code>1</code> to <code>bool</code> and print both to compare.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This code crashes with a <code>ValueError</code> because <code>int()</code> can't parse the text <code>"three"</code>. Find the bug and fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Signup form age check</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Ask for the user's current age, convert it to an <code>int</code>, and print a sentence stating their age next year.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The bool() string trap</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. What does <code>bool("False")</code> return, and why does that surprise people? Prove it and explain the empty-string rule.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. Note that
+    <code>id()</code> values will differ every time you run the
+    program, so don't expect your exact numbers to match.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

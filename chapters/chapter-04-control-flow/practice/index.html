@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 4: Control Flow, including interview-style scenario problems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-04">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 4 Practice Bank</span>
+    <span class="reading-time">35-45 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Control Flow</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Still uses
+    only what Chapters 1-4 covered: <code>print()</code>, variables,
+    <code>input()</code>, the conversion functions, arithmetic /
+    relational / logical / bitwise operators, <code>is</code> /
+    <code>in</code>, and <code>if</code> / <code>if-else</code> /
+    <code>elif</code> chains / nested <code>if</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-simple-if">1. Simple if</a>
+    <a href="#topic-if-else">2. if-else</a>
+    <a href="#topic-elif">3. elif chains</a>
+    <a href="#topic-nested">4. Nested if</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-simple-if">Topic 1: Simple if</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Above freezing?</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Print a message only if <code>temperature</code> is above 32, then add a print() right after the if block that always runs, to show the program continues either way.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Looks like an email</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Using <code>in</code>, print a message only if <code>"@"</code> is found inside an email string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Odd check with bitwise &amp;</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Using <code>number &amp; 1 == 1</code>, print a message only if the number is odd.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Checking identity with is</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Using <code>is</code> (not <code>==</code>), check whether a boolean variable is <code>True</code> and print a welcome message if so.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Password check</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. Ask for a password with <code>input()</code> and print "Access granted." only if it matches.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Free shipping threshold</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. If <code>cart_total</code> is 75 or more, print a message telling the shopper they qualify for free shipping.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Prove code after if always runs</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. An interviewer asks whether code right after an <code>if</code> block runs even when the condition is <code>False</code>. Prove it, and add a comment explaining why.</p>
+  </div>
+
+  <h2 id="topic-if-else">Topic 2: if-else</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Which price is higher?</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Compare <code>price_a</code> and <code>price_b</code> and print which is more expensive using if-else.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Valid percentage?</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Using if-else and <code>and</code> (or a chained comparison), print whether <code>completion_percent</code> is a valid percentage (0-100).</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Vowel or consonant</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Using if-else and <code>in</code>, print whether a letter is a vowel or a consonant.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Odd or even, bitwise</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Using if-else and bitwise <code>&amp;</code>, print whether <code>value</code> is odd or even.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Newsletter signup</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. Ask "Subscribe to our newsletter? (yes/no):" with <code>input()</code> and print a matching if-else response.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Age-based ticket pricing</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Print the child or adult ticket price based on <code>visitor_age</code> using if-else.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Login permission check</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Using if-else and <code>and</code>, grant access only if the entered username <em>and</em> password both match the stored values.</p>
+  </div>
+
+  <h2 id="topic-elif">Topic 3: elif chains</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Traffic light action</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Using an elif chain, turn a traffic light color into "Stop" / "Slow down" / "Go" / "Unknown signal".</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Positive, negative, or zero</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Using if/elif/else, classify a number as positive, negative, or zero.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Three separate <code>if</code> statements overwrite each other instead of using <code>elif</code>, so a 95-degree temperature gets miscategorized as "warm" instead of "hot." Find the bug and fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> FizzBuzz, one number</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Using an elif chain (divisible-by-15 checked first), print "FizzBuzz" / "Fizz" / "Buzz" / the number itself for a single value <code>n</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Day number to weekday</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Ask for a day number (1-7) with <code>input()</code> and use an elif chain to print the matching weekday name.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Discount tier by purchase amount</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Using an elif chain ordered highest-threshold-first, print a Platinum/Gold/Silver/no-discount tier based on <code>purchase_amount</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why elif order matters</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Build a grade elif chain (highest threshold first) and add a comment explaining why checking the highest threshold first is required.</p>
+  </div>
+
+  <h2 id="topic-nested">Topic 4: Nested if</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Positive and even/odd</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Using a nested if (outer: positive check, inner: even/odd check), classify a number.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Login flow, three outcomes</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Using a nested if (outer: username check, inner: password check), print "Login successful.", "Incorrect password.", or "Username not found."</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Pass, not-eligible, or fail</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Using a nested if (outer: passing score, inner: attendance), decide between pass / not-eligible / fail.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Large or small positive</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Using a nested if (outer: positive check, inner: magnitude check), classify a number as large/small positive, or not positive.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Age and ID check</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. Ask for age with <code>input()</code>; if 18+, ask (with a nested <code>input()</code>) whether the visitor has a valid ID, to decide entry.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Bank withdrawal</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Using a nested if (outer: sufficient funds, inner: valid amount), process a withdrawal and print the new balance.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Nested if vs. a single and</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write the nested-if and single-<code>and</code>-condition versions of the same check side by side, and explain in a comment when nesting is genuinely required.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

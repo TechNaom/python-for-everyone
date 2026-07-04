@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 3: Operators, including interview-style scenario problems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-03">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 3 Practice Bank</span>
+    <span class="reading-time">35-45 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Operators</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Still uses
+    only what Chapters 1-3 covered: <code>print()</code>, variables, basic
+    types, and this chapter's arithmetic/assignment, relational/logical,
+    bitwise, and <code>is</code>/<code>in</code> operators. No
+    <code>if</code>, loops, or functions yet &mdash; conditions are just
+    printed, not used to branch.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-arithmetic">1. Arithmetic &amp; assignment</a>
+    <a href="#topic-relational-logical">2. Relational &amp; logical</a>
+    <a href="#topic-bitwise">3. Bitwise</a>
+    <a href="#topic-special">4. Special: is / in</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-arithmetic">Topic 1: Arithmetic &amp; assignment</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> All seven arithmetic operators</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Given <code>a = 17</code> and <code>b = 5</code>, print the result of <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code>, and <code>**</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Every compound assignment shortcut</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Starting from <code>score = 50</code>, apply <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>//=</code>, <code>%=</code>, and <code>**=</code> in turn, printing after each one.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Celsius to Fahrenheit</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Given <code>celsius = 25</code>, convert it with <code>celsius * 9 / 5 + 32</code> and print the result.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. This is supposed to print the square of <code>-3</code> (which is <code>9</code>), but a precedence gotcha between unary minus and <code>**</code> makes it print <code>-9</code> instead. Fix it with parentheses.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Area and perimeter</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. Given <code>length = 8</code> and <code>width = 3</code>, compute and print the area and perimeter of the rectangle.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Grocery bill split</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Split a bill of <code>1875</code> cents evenly among <code>4</code> friends using <code>//</code> for each person's share and <code>%</code> for the leftover cents.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Does / ever return an int?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Prove that <code>/</code> always returns a float in Python, even when the division comes out exact, by printing <code>10 / 2</code>.</p>
+  </div>
+
+  <h2 id="topic-relational-logical">Topic 2: Relational &amp; logical</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> All six relational operators</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Given <code>x = 8</code> and <code>y = 3</code>, print the result of <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, and <code>&gt;=</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Range check</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Given <code>age = 25</code>, print a single expression with <code>and</code> checking whether it's between 18 and 65 (inclusive).</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Too hot or too cold</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Given <code>temperature = 95</code>, print a single expression with <code>or</code> checking whether it's over 90 or under 32.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Flip a boolean</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Given <code>is_raining = False</code>, print <code>not is_raining</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Combined eligibility check</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. Given <code>credit_score = 720</code> and <code>has_income = True</code>, print a single <code>and</code> expression checking both conditions.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Login gatekeeper</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Print whether login is allowed based on <code>is_active_account and correct_password</code>, both set to <code>True</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Prove short-circuit evaluation</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Given <code>x = 0</code>, print <code>x != 0 and 10 / x &gt; 1</code> and explain in a comment why this doesn't crash.</p>
+  </div>
+
+  <h2 id="topic-bitwise">Topic 3: Bitwise</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> AND, OR, XOR</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Given <code>a = 5</code> and <code>b = 6</code>, print <code>a &amp; b</code>, <code>a | b</code>, and <code>a ^ b</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Shift left and right</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Using the same <code>a = 5</code>, print <code>a &lt;&lt; 1</code> and <code>a &gt;&gt; 1</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Bitwise NOT</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Print <code>~a</code> and add a comment explaining what it does to every bit.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Combine flags</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Given <code>read = 4</code>, <code>write = 2</code>, <code>execute = 1</code>, combine <code>read</code> and <code>write</code> with <code>|</code> and print it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Check a flag</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Using the <code>permissions</code> value from TODO 3.4, check whether the write flag is set with <code>&amp;</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Unix file permissions</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Combine <code>read</code>, <code>write</code>, and <code>execute</code> into one <code>full_permissions</code> value using <code>|</code>, just like Unix <code>rwx</code> permissions.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why powers of 2?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Explain why bit flags are assigned as powers of 2 instead of sequential numbers, then prove it by combining and checking flags with <code>|</code> and <code>&amp;</code>.</p>
+  </div>
+
+  <h2 id="topic-special">Topic 4: Special: is / in</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Identity vs. equality</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Given <code>a = 10</code> and <code>b = 10</code>, print <code>a is b</code> and <code>a == b</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Same object, two names</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Given <code>name = "Ada"</code> and <code>name_alias = name</code>, print <code>name is name_alias</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Substring membership</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Given <code>word = "python"</code>, print whether <code>"th"</code> is inside it using <code>in</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Absence check</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Using the same <code>word</code>, print whether <code>"z"</code> is NOT inside it using <code>not in</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> PIN digit check</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. Given <code>pin = "4821"</code> and <code>digit = "8"</code>, print whether <code>digit</code> is in <code>pin</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Access code validator</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Given <code>allowed_chars = "ABCDEF0123456789"</code> and <code>entered_char = "F"</code>, print whether <code>entered_char</code> is in <code>allowed_chars</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Is "is" safe for numbers?</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Given <code>x = 300</code> and <code>y = 300</code>, print <code>x == y</code> and <code>x is y</code>, then explain in a comment why <code>is</code> isn't guaranteed to match <code>==</code> for integers this large.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

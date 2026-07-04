@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 5: Loops, including interview-style scenario problems on while, for/range(), the accumulator pattern, and break/continue.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-05">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 5 Practice Bank</span>
+    <span class="reading-time">35-45 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Loops (while &amp; for)</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Loops are
+    one of the most common interview warm-up areas, so several of these
+    lean directly into that. Still uses only <code>while</code> loops,
+    <code>for</code> loops with <code>range()</code>, the accumulator
+    pattern, <code>break</code>/<code>continue</code>, and everything
+    from earlier chapters.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-while">1. while loops</a>
+    <a href="#topic-for-range">2. for loops and range()</a>
+    <a href="#topic-patterns">3. Common loop patterns</a>
+    <a href="#topic-break-continue">4. break &amp; continue</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-while">Topic 1: while loops</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Count 1 to 5</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Use a <code>while</code> loop to print the numbers 1 through 5, one per line.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Countdown</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Use a <code>while</code> loop to count down from 10 to 1, one number per line.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Evens by stepping</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Use a <code>while</code> loop to print every even number from 2 to 20 (inclusive), stepping by 2 each time.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Doubling until 100</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Start a variable at 1 and keep doubling it (<code>value = value * 2</code>) and printing it, for as long as it's <code>&lt;= 100</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This <code>while</code> loop never updates its loop variable &mdash; running it as-is would loop forever, so it's commented out. Uncomment it, add the missing step, and confirm it prints 1 through 5 and stops.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Launch sequence</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Mission control needs a countdown script: count down from 5 to 1 with a <code>while</code> loop, then print <code>"Liftoff! 🚀"</code> after the loop ends.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why while True: never stops</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Explain in a comment why <code>while True:</code> with no <code>break</code> and no changing condition never stops on its own, then write a safe, bounded <code>while</code> loop counting 1 to 3 as contrast.</p>
+  </div>
+
+  <h2 id="topic-for-range">Topic 2: for loops and range()</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Count 1 to 5</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Use a <code>for</code> loop with <code>range()</code> to print the numbers 1 through 5.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Multiples of 5</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Use <code>range()</code>'s start/stop/step form to print every multiple of 5 from 0 to 45 (inclusive).</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Countdown with a negative step</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Use <code>range()</code>'s negative step form to count down from 10 to 1.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Even or odd</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Loop over <code>range(1, 21)</code> and print whether each number is "even" or "odd" using <code>if</code>/<code>else</code> and <code>%</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This loop is supposed to print 1 through 10 inclusive, but stops at 9 because of an off-by-one <code>range()</code> bound. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Multiplication table</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Your manager wants a quick reference sheet for order quantities of 12 units. Print the multiplication table of 12, from <code>12 x 1</code> to <code>12 x 10</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Even numbers, the efficient way</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Print only the even numbers from 1 to 20 &mdash; but without checking each number with <code>% 2</code>. Use <code>range()</code>'s step argument instead.</p>
+  </div>
+
+  <h2 id="topic-patterns">Topic 3: Common loop patterns</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Sum with a while loop</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Use a <code>while</code> loop and the accumulator pattern to sum the numbers 1 through 10.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Sum with a for loop</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Use a <code>for</code> loop and the accumulator pattern to sum the numbers 1 through 100.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Count accumulator</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Count how many numbers from 1 to 50 are evenly divisible by 3, using a count accumulator.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. This accumulator gets reset to 0 <em>inside</em> the loop on every iteration instead of once before it starts, so the final total is wrong. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Product accumulator (factorial)</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Use a product accumulator (started at 1, not 0!) to compute 5 factorial.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Daily transactions</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Three transactions came in today: $19.99, $45.50, and $12.25. Using a <code>while</code> loop and an <code>if</code>/<code>elif</code> chain to pick the right amount each time, add each one to a running total.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Palindrome check</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. A classic interview warm-up: given <code>n = 1221</code>, use a <code>while</code> loop and the digit-peeling pattern (<code>%</code> and <code>//</code>) to reverse the number, then check if it's a palindrome.</p>
+  </div>
+
+  <h2 id="topic-break-continue">Topic 4: break &amp; continue</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Break early</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Loop over <code>range(1, 21)</code> and <code>break</code> the moment the loop variable reaches 15.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Skip with continue</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Loop over <code>range(1, 11)</code> and use <code>continue</code> to skip printing any multiple of 3.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Break and continue together</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Loop over <code>range(1, 31)</code>, <code>break</code> once the number exceeds 20, and <code>continue</code> to skip odd numbers &mdash; so only even numbers up to 20 print.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. This loop should <em>skip</em> multiples of 4 with <code>continue</code>, but it uses <code>break</code> instead, so it stops completely at the first one. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Search and break</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. Use a <code>while</code> loop with <code>break</code> to find the first number greater than 100 that's evenly divisible by both 7 and 3.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Retry attempt simulator</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. A login system allows at most 3 attempts. Simulate 3 hard-coded attempts against a correct code, using a <code>while</code> loop with <code>break</code> once the code matches, and print "Account locked" if all attempts fail.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Sensor data cleanup</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. A weather station logs 5 readings, some negative (sensor glitches). Use <code>continue</code> to skip the invalid negative readings while summing only the valid ones.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

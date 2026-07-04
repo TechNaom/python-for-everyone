@@ -23,9 +23,12 @@ follows the same format:
    button for instant ✅/❌ feedback, a live progress bar, no backend,
    nothing leaves your browser
 5. Exercises, including at least one "Debug the Code" task
-6. Interview questions (strong answer / red flags / follow-up format) plus
+6. A Practice Bank — a deeper, per-topic problem set (5-10 problems per
+   sub-topic) with at least two scenario-based, interview-style problems
+   per topic, for extra reps and interview prep
+7. Interview questions (strong answer / red flags / follow-up format) plus
    a rapid-fire recall quiz
-7. A small real, resume-worthy project that uses everything the chapter taught
+8. A small real, resume-worthy project that uses everything the chapter taught
 
 Every 4-6 chapters form a **module**, capped with a written exam covering
 everything in that module. Completing a chapter's quiz with a perfect
@@ -66,6 +69,7 @@ python-for-everyone/
 │       ├── quiz.html                     → fill-in-the-blank quiz
 │       ├── interview-questions.html      → Q&A accordion + rapid-fire quiz
 │       ├── exercises/                    → index.html, README.md, starter.py, solution.py
+│       ├── practice/                     → deeper per-topic problem bank, incl. interview scenarios
 │       └── project/                      → index.html, README.md, starter.py, solution.py
 └── .github/workflows/                    → GitHub Pages deploy workflow
 ```
