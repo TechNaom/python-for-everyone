@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body>
+<body data-active-chapter="chapter-02">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
 
 <header class="top-bar">
   <div class="page">
@@ -313,6 +316,15 @@ print(type(age_number))</textarea>
     </div>
   </div>
 
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every "500 Internal Server Error" you've ever seen on a website is often, under the hood, a <code>TypeError</code> from mixing types the way this chapter warned about &mdash; unhandled by that site's code.</li>
+      <li>Config files (<code>.env</code>, JSON settings) load everything as strings or loosely-typed values first &mdash; real production code constantly does exactly the <code>int()</code>/<code>float()</code> conversions you just practiced before trusting that data.</li>
+      <li><code>id()</code> and immutability aren't academic trivia &mdash; they're the exact reasoning behind why Python's small-integer caching exists, and why comparing objects with <code>is</code> vs <code>==</code> causes real, hard-to-find bugs in production systems.</li>
+    </ul>
+  </div>
+
   <div class="points-to-remember">
     <h2>Points to Remember</h2>
     <ul>
@@ -339,5 +351,9 @@ print(type(age_number))</textarea>
 </footer>
 
 <script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
 </body>
 </html>

@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../../assets/style.css">
 </head>
-<body>
+<body data-active-chapter="chapter-01">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
 
 <header class="top-bar">
   <div class="page">
@@ -87,16 +90,12 @@ Chapter 1 Project: Personal Greeting Generator
 
 &#35; TODO 1: Ask for the person's name using input(), store it in a variable.
 
-
 &#35; TODO 2: Ask for their favorite animal.
-
 
 &#35; TODO 3: Ask for their favorite food.
 
-
 &#35; TODO 4: Ask for a number from 1 to 100 (this comes back as a string &mdash;
 &#35; that's fine, we're only printing it, not doing math with it).
-
 
 &#35; TODO 5: Print a personalized greeting using all four answers.
 print("=== Your Personalized Greeting ===")</code></pre>
@@ -135,5 +134,8 @@ print("=== Your Personalized Greeting ===")</code></pre>
   </div>
 </footer>
 
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
 </body>
 </html>

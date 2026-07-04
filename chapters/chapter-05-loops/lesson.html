@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body>
+<body data-active-chapter="chapter-05">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
 
 <header class="top-bar">
   <div class="page">
@@ -288,6 +291,15 @@ for number in range(1, 6):
     </div>
   </div>
 
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every "processing 10,000 rows" data pipeline, every web crawler, every batch email sender is fundamentally a loop over a collection &mdash; the accumulator pattern you learned here shows up in almost all of them.</li>
+      <li>An infinite loop in production doesn't just "run forever" politely &mdash; it's one of the most common causes of a server hanging and an on-call engineer getting paged at 3am.</li>
+      <li>The digit-peeling pattern (<code>%</code> / <code>//</code>) is a genuinely common warm-up question at technical interviews, precisely because it tests whether you understand these two operators deeply, not just loop syntax.</li>
+    </ul>
+  </div>
+
   <div class="points-to-remember">
     <h2>Points to Remember</h2>
     <ul>
@@ -314,5 +326,9 @@ for number in range(1, 6):
 </footer>
 
 <script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
 </body>
 </html>

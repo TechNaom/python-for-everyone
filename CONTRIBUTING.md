@@ -22,7 +22,9 @@ chapters/chapter-{NN}-{slug}/
 │                                Code" box if the example doesn't need input()), optional
 │                                Go Deeper, and a short .quick-recap box — repeat this
 │                                whole unit for each sub-topic in the chapter, then finish
-│                                with one full .points-to-remember summarizing everything
+│                                with one .real-world callout (3 bullets tying the whole
+│                                chapter to genuine production/industry use) and one full
+│                                .points-to-remember summarizing everything
 ├── quiz.html                  → fill-in-the-blank quiz covering every sub-topic, using
 │                                 assets/quiz-engine.js (.fib-row, data-answers,
 │                                 quiz-progress-fill, quiz-celebration); <body> needs
@@ -58,6 +60,30 @@ page** (index.html, docs/curriculum/index.html), and give each chapter-list
 entry a `data-chapter-link="chapter-{NN}"` attribute so completed chapters
 get a "✓ Completed" badge automatically. Only wire `assets/playground.js`
 into examples that don't call `input()` — Pyodide's sandbox has no stdin.
+
+**Every page needs the persistent chapter sidebar.** Right after the
+opening `<body>` tag, include:
+
+```html
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="{prefix}" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+```
+
+where `{prefix}` is the same relative-path-to-root prefix already used for
+`assets/style.css` on that page. Set `data-active-chapter="chapter-{NN}"`
+on `<body>` (a separate attribute from `data-chapter-id`, which
+`quiz-engine.js` uses for progress-marking) so the sidebar highlights the
+current chapter. Include `assets/chapters-data.js` and `assets/sidebar.js`
+(after `assets/progress.js`) before `</body>`. When a new chapter is
+built, update its entry in `assets/chapters-data.js` (`path: null` →
+the real lesson.html path) — the sidebar picks it up automatically
+everywhere, no per-page edits needed.
+
+**Visual language is glassmorphic.** Card-style components use
+`var(--color-card-bg)` (translucent) plus `backdrop-filter: var(--glass-blur)`
+against the fixed gradient-mesh backdrop on `body::before` — match this
+pattern for any new callout box rather than using a flat opaque background.
 
 Then:
 

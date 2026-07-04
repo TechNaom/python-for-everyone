@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body>
+<body data-active-chapter="chapter-01">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
 
 <header class="top-bar">
   <div class="page">
@@ -292,6 +295,15 @@ print("So you're " + age + " years old. That's a great age to be learning Python
     printing <em>your</em> answers back to you.
   </p>
 
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every command-line tool you've ever used &mdash; <code>git</code>, <code>pip</code>, <code>docker</code> &mdash; is built on exactly this: reading input, printing output.</li>
+      <li>Server logs (the diagnostic text engineers read when something breaks in production) are just millions of <code>print()</code>-style statements, timestamped.</li>
+      <li>The very first thing engineers do when learning any new tool or API is write a tiny script like today's &mdash; it's not a "beginner" pattern, it's the universal first move.</li>
+    </ul>
+  </div>
+
   <div class="points-to-remember">
     <h2>Points to Remember</h2>
     <ul>
@@ -328,5 +340,8 @@ print("So you're " + age + " years old. That's a great age to be learning Python
   </div>
 </footer>
 
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
 </body>
 </html>

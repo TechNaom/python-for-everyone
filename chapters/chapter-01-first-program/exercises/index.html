@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../../assets/style.css">
 </head>
-<body>
+<body data-active-chapter="chapter-01">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
 
 <header class="top-bar">
   <div class="page">
@@ -84,14 +87,11 @@ Chapter 1 Exercises: Your First Python Program
 
 &#35; TODO 1: Print a greeting of your choice.
 
-
 &#35; TODO 2: Create three variables &mdash; city (string), favorite_number (int),
 &#35; and temperature_today (float) &mdash; then print all three.
 
-
 &#35; TODO 3: Ask the user for their favorite color with input(), store it,
 &#35; then print a sentence that includes their answer.
-
 
 &#35; TODO 4: Fix the TypeError below using str().
 visits = 5
@@ -121,5 +121,8 @@ print("You've visited this page " + visits + " times.")</code></pre>
   </div>
 </footer>
 
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
 </body>
 </html>

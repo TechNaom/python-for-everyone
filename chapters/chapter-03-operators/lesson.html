@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
-<body>
+<body data-active-chapter="chapter-03">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
 
 <header class="top-bar">
   <div class="page">
@@ -308,6 +311,15 @@ print("grape" not in fruits)   &#35; True</code></pre>
     </div>
   </div>
 
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Pagination on every app you use ("Page 3 of 10") is computed with <code>//</code> and <code>%</code> on a total item count and a page size &mdash; the exact operators from this chapter.</li>
+      <li>Feature flags at companies like Google and Netflix use bitwise flags exactly like the permissions project &mdash; one integer, dozens of independent on/off switches, checked with <code>&amp;</code>.</li>
+      <li>Short-circuit evaluation is a real performance and safety technique &mdash; production code guards expensive or risky operations (network calls, division, database lookups) behind a cheap <code>and</code> check first.</li>
+    </ul>
+  </div>
+
   <div class="points-to-remember">
     <h2>Points to Remember</h2>
     <ul>
@@ -334,5 +346,9 @@ print("grape" not in fruits)   &#35; True</code></pre>
 </footer>
 
 <script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
 </body>
 </html>
