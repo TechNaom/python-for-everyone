@@ -817,6 +817,245 @@ footer.site-footer a {
   color: #E4E9F5;
 }
 
+/* ---------- Page meta row (badges, reading time) ---------- */
+.page-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.badge-difficulty {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-green);
+  background: #E7F6EA;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.reading-time {
+  font-size: 15px;
+  color: var(--color-text-soft);
+}
+
+.reading-time::before {
+  content: "⏱ ";
+}
+
+/* ---------- On-this-page table of contents ---------- */
+.page-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin: 22px 0 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-toc .toc-label {
+  width: 100%;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-soft);
+  margin-bottom: 4px;
+}
+
+.page-toc a {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  background: #EEF1F7;
+  color: var(--color-blue-dark);
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+.page-toc a:hover {
+  background: #DCE9FA;
+}
+
+/* ---------- Download-file pills (exercises/project pages) ---------- */
+.download-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 28px;
+}
+
+.download-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-navy);
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.download-links a:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.download-links a::before {
+  content: "⬇";
+}
+
+/* ---------- Exercise / project task cards ---------- */
+.task-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 18px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.task-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+}
+
+.task-card .task-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Interview Q&A accordion ---------- */
+.qa-item {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.qa-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 18px 22px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-navy);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qa-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.qa-item summary::after {
+  content: "▸";
+  margin-left: auto;
+  color: var(--color-blue);
+  transition: transform 0.15s ease;
+}
+
+.qa-item[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.qa-item summary .q-num {
+  background: var(--color-navy);
+}
+
+.qa-body {
+  padding: 0 22px 22px;
+}
+
+.qa-section-label {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin: 14px 0 8px;
+}
+
+.qa-section-label.strong { background: #E7F6EA; color: var(--color-green); }
+.qa-section-label.flags { background: #FCE9E8; color: var(--color-red); }
+.qa-section-label.followup { background: #EAF1FC; color: var(--color-blue-dark); }
+
+/* ---------- Roadmap page ---------- */
+.roadmap-list {
+  list-style: none;
+  padding: 0;
+  counter-reset: roadmap;
+}
+
+.roadmap-list li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px 22px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.roadmap-list li.built {
+  border-left: 5px solid var(--color-green);
+}
+
+.roadmap-list li.planned {
+  opacity: 0.75;
+}
+
+.roadmap-status {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.roadmap-status.built { background: #E7F6EA; color: var(--color-green); }
+.roadmap-status.planned { background: #EEF0F4; color: var(--color-text-soft); }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
   body { font-size: 17px; }

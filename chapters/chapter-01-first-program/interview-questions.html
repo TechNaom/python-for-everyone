@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 1: Your First Python Program — strong-answer, red-flag, and follow-up breakdowns, plus a rapid-fire fill-in-the-blank review.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 1 Interview Prep</span>
+    <span class="reading-time">8 min read</span>
+  </div>
+  <h1>Interview Questions: Your First Python Program</h1>
+  <p>
+    These are the kinds of questions that come up in early screening interviews
+    and coding bootcamp assessments once someone claims "I know Python basics."
+    Each one includes what a strong answer sounds like, common red flags, and a
+    natural follow-up an interviewer might ask next. Click any question to
+    expand it.
+  </p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What does <code>print()</code> do, and how is it different from just typing text into your code?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>print()</code> is a function that outputs its argument to the console/terminal so a human can see it. Text that isn't inside <code>print()</code> just sits in the source code and does nothing when the program runs &mdash; Python doesn't display arbitrary lines of code, only what you explicitly ask it to output.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking every line of code "shows up" somewhere automatically, or confusing <code>print()</code> with <code>return</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between <code>print()</code> and <code>return</code> in a function?"</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What's the difference between <code>=</code> and <code>==</code> in Python?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>=</code> is assignment &mdash; it stores a value in a variable. <code>==</code> is comparison &mdash; it checks whether two values are equal and returns <code>True</code> or <code>False</code>. Mixing them up is one of the most common beginner bugs.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying they're "basically the same" or being unable to give an example of each.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What would <code>if x = 5:</code> do in Python?" (Answer: it's a syntax error &mdash; Python doesn't allow assignment inside an <code>if</code> condition like that.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What are the three basic data types you've learned so far, and how do you tell them apart?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>String (text, always in quotes, e.g. <code>"hello"</code>), integer (whole numbers, no decimal point, e.g. <code>12</code>), and float (numbers with a decimal point, e.g. <code>4.9</code>). You can also check a value's type directly with <code>type(value)</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that <code>"12"</code> (quoted) is a string even though it looks numeric.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What would <code>type("12")</code> return, and why?"</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> Why does <code>print("Age: " + 25)</code> raise an error, and how do you fix it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>+</code> means different things for different types &mdash; for numbers it adds, for strings it concatenates. Python won't silently guess which one you meant when you mix a string and an int, so it raises a <code>TypeError</code>. Fix it by converting the number to a string first: <code>print("Age: " + str(25))</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Guessing the error is a "syntax error" rather than a type error, or not knowing <code>str()</code> exists.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the reverse conversion called, if you have a string like <code>"25"</code> and want it as a number?" (Answer: <code>int()</code> or <code>float()</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What does <code>input()</code> return, and what type is it always?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>input()</code> displays an optional prompt, pauses execution, and returns whatever the user typed &mdash; always as a <strong>string</strong>, even if they typed digits. This surprises a lot of beginners: <code>input("Enter your age: ")</code> followed by trying to do math on the result directly will fail unless you convert it with <code>int()</code> first.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>input()</code> automatically knows if the user meant to type a number.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you get a number from the user and immediately add 5 to it?" (Answer: <code>age = int(input("Age: ")); print(age + 5)</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's a variable, in your own words?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A named location that holds a value, which can be read or changed later in the program. It's a way of giving a piece of data a memorable label instead of retyping the raw value everywhere.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing a variable with the value itself (e.g., saying "a variable is just text") or thinking variable names must match their content's type in the name.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can a variable's value change after it's first set? Show me an example."</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> What symbol is used for assignment? A single <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="=,equals,equals sign" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> What wraps text to make it a string? <code>____</code> marks.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="quotation,quote,quotes" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Name the two numeric types covered in Chapter 1: int and <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="float" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> What type does <code>input()</code> always return? A <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="string,str" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> What function converts a number to a string? <code>____()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="str,str()" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 5 for 5 &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <h2>Strategy Tips</h2>
+  <ul>
+    <li>If you're new to interviews: it's completely fine to think out loud ("I know <code>input()</code> returns a string, so I'd need to convert it before doing math") &mdash; interviewers are usually evaluating your reasoning, not just your final answer.</li>
+    <li>If you get a question wrong, don't panic &mdash; ask "would it help if I walked through a small example?" and write one out. Concrete examples recover a lot of partial credit.</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <a href="exercises/index.html">&larr; Exercises</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/quiz-engine.js"></script>
+</body>
+</html>

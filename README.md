@@ -32,27 +32,35 @@ before scaling. Currently live:
 
 - ✅ Chapter 1: Your First Python Program (`print()`, variables, basic types, `input()`)
 
-See [`docs/curriculum/CURRICULUM_MAP.md`](docs/curriculum/CURRICULUM_MAP.md)
-for the full draft roadmap of chapters to come.
+See the live [roadmap page](https://technaom.github.io/python-for-everyone/docs/curriculum/index.html)
+(or the plain-text draft at
+[`docs/curriculum/CURRICULUM_MAP.md`](docs/curriculum/CURRICULUM_MAP.md))
+for the full roadmap of chapters to come.
 
 ## Repo structure
 
-```
+```text
 python-for-everyone/
-├── index.html                          → course landing page (GitHub Pages entry point)
-├── docs/curriculum/CURRICULUM_MAP.md   → full draft course roadmap
+├── index.html                           → course landing page (GitHub Pages entry point)
+├── docs/curriculum/
+│   ├── index.html                        → live, styled roadmap page
+│   └── CURRICULUM_MAP.md                 → plain-text draft roadmap (repo browsing)
 ├── assets/
-│   ├── style.css                        → shared visual design, used by every chapter
-│   └── quiz-engine.js                   → shared fill-in-the-blank quiz checking logic
+│   ├── style.css                         → shared visual design, used by every page
+│   └── quiz-engine.js                    → shared fill-in-the-blank quiz checking logic
 ├── chapters/
 │   └── chapter-01-first-program/
-│       ├── lesson.html                  → the interactive mini-textbook
-│       ├── quiz.html                    → fill-in-the-blank quiz
-│       ├── exercises/                   → starter.py, solution.py, README
-│       ├── interview-questions.md
-│       └── project/                     → a small real project (starter + solution)
-└── .github/workflows/                   → GitHub Pages deploy workflow
+│       ├── lesson.html                   → the interactive mini-textbook
+│       ├── quiz.html                     → fill-in-the-blank quiz
+│       ├── interview-questions.html      → Q&A accordion + rapid-fire quiz
+│       ├── exercises/                    → index.html, README.md, starter.py, solution.py
+│       └── project/                      → index.html, README.md, starter.py, solution.py
+└── .github/workflows/                    → GitHub Pages deploy workflow
 ```
+
+Every chapter page is fully cross-linked: lesson → quiz → exercises →
+interview questions → project → back to all chapters, plus a top-nav
+Roadmap link on every page.
 
 ## Running the Python exercises locally
 

@@ -18,6 +18,7 @@
     <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
     <nav>
       <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
     </nav>
   </div>
 </header>
@@ -26,9 +27,23 @@
 
   <p><a href="../../index.html">&larr; Back to all chapters</a></p>
 
-  <span class="chapter-badge">Chapter 1 of 18</span>
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 1 of 18</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">12 min read</span>
+  </div>
   <h1>Your First Python Program</h1>
   <p><em>No experience needed. No installs required to start reading — just bring your curiosity.</em></p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-program">1. What's a program?</a>
+    <a href="#print">2. print()</a>
+    <a href="#variables">3. Variables</a>
+    <a href="#types">4. Basic types</a>
+    <a href="#input">5. input()</a>
+    <a href="#recap">6. Putting it together</a>
+  </nav>
 
   <div class="hook">
     Imagine you could give a computer instructions in plain steps, and it would follow
@@ -38,7 +53,7 @@
     that talks back to you personally &mdash; using your own name.
   </div>
 
-  <h2>1. What is a "program," really?</h2>
+  <h2 id="what-is-a-program">1. What is a "program," really?</h2>
   <p>
     A program is just a list of instructions, written in an order the computer can
     understand, that tells it what to do &mdash; step by step, top to bottom. Think of
@@ -56,7 +71,7 @@
     data pipelines.
   </div>
 
-  <h2>2. Your first instruction: <code>print()</code></h2>
+  <h2 id="print">2. Your first instruction: <code>print()</code></h2>
   <p>
     The very first thing most people learn in any language is how to make the
     computer say something back. In Python, that's done with <code>print()</code>.
@@ -112,7 +127,7 @@
     even though it looks like a number, the quotes make it text.
   </div>
 
-  <h2>3. Storing information: variables</h2>
+  <h2 id="variables">3. Storing information: variables</h2>
   <p>
     Printing fixed text is useful, but real programs need to <em>remember</em>
     things &mdash; a name, a score, an age. That's what a <strong>variable</strong>
@@ -160,7 +175,7 @@ print(name)</code></pre>
     the label later, Python fetches whatever is currently inside the jar.
   </div>
 
-  <h2>4. Basic types: text vs. numbers</h2>
+  <h2 id="types">4. Basic types: text vs. numbers</h2>
   <p>
     Not everything you store is text. Python understands a few basic
     <strong>types</strong> of information, and the two you'll use constantly as a
@@ -188,7 +203,7 @@ height = 4.9        # a float (a number with a decimal point)</code></pre>
     point).
   </div>
 
-  <h2>5. Asking the user a question: <code>input()</code></h2>
+  <h2 id="input">5. Asking the user a question: <code>input()</code></h2>
   <p>
     So far, our programs have only said things <em>to</em> the person running them.
     <code>input()</code> lets a program ask <em>a question</em> and wait for a reply
@@ -256,7 +271,7 @@ print("Your age is " + str(age))</code></pre>
     </p>
   </details>
 
-  <h2>6. Putting it all together</h2>
+  <h2 id="recap">6. Putting it all together</h2>
   <p>Here's a small, complete program using everything from this chapter:</p>
 
   <div class="code-window">
