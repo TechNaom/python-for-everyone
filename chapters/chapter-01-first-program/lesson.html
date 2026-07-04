@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1: Your First Python Program — Python for Everyone</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <h1>Chapter 1: Your First Python Program</h1>
+  <p><em>No experience needed. No installs required to start reading — just bring your curiosity.</em></p>
+
+  <div class="hook">
+    Imagine you could give a computer instructions in plain steps, and it would follow
+    them <strong>exactly</strong>, every single time, without getting tired or bored.
+    That's what programming is. And Python is one of the friendliest languages ever
+    made for doing it. By the end of this chapter, you'll have written a program
+    that talks back to you personally &mdash; using your own name.
+  </div>
+
+  <h2>1. What is a "program," really?</h2>
+  <p>
+    A program is just a list of instructions, written in an order the computer can
+    understand, that tells it what to do &mdash; step by step, top to bottom. Think of
+    it like a recipe: "crack two eggs," "whisk them," "pour into the pan." A computer
+    program is the same idea, except the "kitchen" is the computer, and the
+    "ingredients" are things like text, numbers, and questions you ask the user.
+  </p>
+
+  <div class="what-is">
+    <span class="label">What is... Python?</span>
+    Python is a programming language &mdash; a way of writing instructions that a
+    computer can run. It's known for reading almost like plain English, which is
+    why it's often recommended as a first language for total beginners, while also
+    being powerful enough to run real companies like Instagram, Spotify, and NASA's
+    data pipelines.
+  </div>
+
+  <h2>2. Your first instruction: <code>print()</code></h2>
+  <p>
+    The very first thing most people learn in any language is how to make the
+    computer say something back. In Python, that's done with <code>print()</code>.
+  </p>
+
+  <pre><code>print("Hello, world!")</code></pre>
+
+  <p>Run that one line, and Python will display:</p>
+  <pre><code>Hello, world!</code></pre>
+
+  <p>Let's break down exactly what's happening in that line:</p>
+
+  <div class="code-breakdown">
+    <dl>
+      <dt>print</dt>
+      <dd>This is a built-in Python <em>function</em> &mdash; a reusable command that
+      does one specific job. This one's job is: "display whatever I'm given, on the
+      screen."</dd>
+
+      <dt>( )</dt>
+      <dd>Parentheses are how you hand information <em>to</em> a function. Whatever
+      goes inside the parentheses is what gets displayed.</dd>
+
+      <dt>"Hello, world!"</dt>
+      <dd>The quotation marks tell Python "this is text, not an instruction to run."
+      Anything wrapped in quotes is treated as plain text, exactly as typed.</dd>
+    </dl>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What is... a function?</span>
+    A function is a named, reusable set of instructions that does one job. You don't
+    need to know <em>how</em> <code>print()</code> works internally &mdash; you just
+    need to know what to hand it and what it will do. That's the whole point of a
+    function: it hides the complicated part behind a simple name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">What is... a string?</span>
+    Any piece of text wrapped in quotation marks (single <code>'like this'</code> or
+    double <code>"like this"</code>) is called a <strong>string</strong> in
+    programming. It's called that because it's a "string of characters" lined up
+    in a row. <code>"Hello, world!"</code> is a string. So is <code>"42"</code> &mdash;
+    even though it looks like a number, the quotes make it text.
+  </div>
+
+  <h2>3. Storing information: variables</h2>
+  <p>
+    Printing fixed text is useful, but real programs need to <em>remember</em>
+    things &mdash; a name, a score, an age. That's what a <strong>variable</strong>
+    is for: a labeled box where you can store a piece of information and use it
+    later.
+  </p>
+
+  <pre><code>name = "Asha"
+print(name)</code></pre>
+
+  <div class="code-breakdown">
+    <dl>
+      <dt>name</dt>
+      <dd>This is the variable's name &mdash; the label on the box. You can call it
+      almost anything (avoid spaces and starting with a number).</dd>
+
+      <dt>=</dt>
+      <dd>In Python, a single equals sign means <strong>"store this value in this
+      box,"</strong> not "is equal to" like in math class. This trips up a lot of
+      beginners &mdash; keep it in mind!</dd>
+
+      <dt>"Asha"</dt>
+      <dd>The value being stored &mdash; a string, in this case.</dd>
+
+      <dt>print(name)</dt>
+      <dd>Notice there are no quotes around <code>name</code> here. That's on
+      purpose: without quotes, Python looks up the <em>variable</em> called
+      <code>name</code> and prints whatever is stored inside it (<code>Asha</code>).
+      With quotes, <code>print("name")</code> would just print the literal word
+      "name."</dd>
+    </dl>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What is... a variable?</span>
+    A variable is a name that points to a value stored in the computer's memory.
+    Think of a variable as a labeled jar: <code>name = "Asha"</code> is like writing
+    "name" on a jar's label and putting the note "Asha" inside it. Whenever you use
+    the label later, Python fetches whatever is currently inside the jar.
+  </div>
+
+  <h2>4. Basic types: text vs. numbers</h2>
+  <p>
+    Not everything you store is text. Python understands a few basic
+    <strong>types</strong> of information, and the two you'll use constantly as a
+    beginner are strings (text) and numbers.
+  </p>
+
+  <pre><code>name = "Asha"       # a string (text)
+age = 12            # an integer (a whole number)
+height = 4.9        # a float (a number with a decimal point)</code></pre>
+
+  <div class="what-is">
+    <span class="label">What is... a data type?</span>
+    A data type tells Python <em>what kind</em> of value something is, so it knows
+    what you're allowed to do with it. You can add two numbers together
+    (<code>2 + 2</code>), but adding two pieces of text works differently (it joins
+    them, rather than doing math). The three types you'll meet most as a beginner:
+    <strong>string</strong> (text, in quotes), <strong>int</strong> (a whole
+    number, no decimal point), and <strong>float</strong> (a number with a decimal
+    point).
+  </div>
+
+  <h2>5. Asking the user a question: <code>input()</code></h2>
+  <p>
+    So far, our programs have only said things <em>to</em> the person running them.
+    <code>input()</code> lets a program ask <em>a question</em> and wait for a reply
+    &mdash; this is what makes a program feel alive and personal, instead of just a
+    fixed message.
+  </p>
+
+  <pre><code>name = input("What's your name? ")
+print("Nice to meet you, " + name + "!")</code></pre>
+
+  <div class="code-breakdown">
+    <dl>
+      <dt>input("What's your name? ")</dt>
+      <dd>This displays the question on screen, then pauses the program completely
+      until the person types something and presses Enter.</dd>
+
+      <dt>name = input(...)</dt>
+      <dd>Whatever the person typed gets stored in the variable <code>name</code>
+      &mdash; exactly like storing any other value, except this one came from the
+      user instead of being written directly in the code.</dd>
+
+      <dt>"Nice to meet you, " + name + "!"</dt>
+      <dd>The <code>+</code> symbol here glues strings together, end to end. This is
+      called <strong>concatenation</strong> &mdash; a fancy word for "joining text
+      pieces into one longer piece."</dd>
+    </dl>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What is... concatenation?</span>
+    Concatenation just means joining pieces of text together into one. If
+    <code>first = "Py"</code> and <code>second = "thon"</code>, then
+    <code>first + second</code> produces <code>"Python"</code>. It's the text
+    equivalent of pushing two puzzle pieces together.
+  </div>
+
+  <details class="go-deeper">
+    <summary>Go Deeper: why can't I add a number and a string with +?</summary>
+    <p>
+      If you try <code>print("Your age is " + 12)</code>, Python will raise an
+      error, because <code>+</code> means two different things depending on type:
+      for numbers it means "add," for strings it means "join." Python refuses to
+      guess which one you meant when the types don't match. To fix it, convert the
+      number to a string first, using <code>str()</code>:
+    </p>
+    <pre><code>age = 12
+print("Your age is " + str(age))</code></pre>
+    <p>
+      <code>str(age)</code> takes the number <code>12</code> and produces the text
+      <code>"12"</code>, which can then be safely joined with other text. This
+      "convert one type into another on purpose" pattern is extremely common in
+      real Python code and is worth getting comfortable with early.
+    </p>
+  </details>
+
+  <h2>6. Putting it all together</h2>
+  <p>Here's a small, complete program using everything from this chapter:</p>
+
+  <pre><code>name = input("What's your name? ")
+age = input("How old are you? ")
+
+print("Hello, " + name + "!")
+print("So you're " + age + " years old. That's a great age to be learning Python!")</code></pre>
+
+  <p>
+    Try running this yourself. Every time you run it, it can produce a different,
+    personal result &mdash; because it's not printing fixed text anymore, it's
+    printing <em>your</em> answers back to you.
+  </p>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>print()</code> displays something on the screen.</li>
+      <li>Text wrapped in quotes is called a <strong>string</strong>.</li>
+      <li>A single <code>=</code> stores a value in a variable &mdash; it does not
+        mean mathematical equality.</li>
+      <li>Numbers without decimals are <strong>integers</strong>; numbers with
+        decimals are <strong>floats</strong>.</li>
+      <li><code>input()</code> asks the user a question and waits for their typed
+        reply, storing it in a variable.</li>
+      <li><code>+</code> joins ("concatenates") strings together; joining a string
+        with a number directly causes an error unless you convert the number with
+        <code>str()</code> first.</li>
+    </ul>
+  </div>
+
+  <p>
+    Ready to check what stuck? Head to the interactive quiz next &mdash; every blank
+    has a Check button, so you'll know instantly if you've got it.
+  </p>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+</body>
+</html>

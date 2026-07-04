@@ -1,0 +1,341 @@
+/* Python for Everyone — shared style
+   Design goals: large readable type, high contrast, no jargon-heavy UI,
+   works for a first-time-computer-user and a working professional alike. */
+
+:root {
+  --color-bg: #FAFAF8;
+  --color-text: #1A1A1A;
+  --color-navy: #1E3A5F;
+  --color-python-blue: #306998;
+  --color-python-yellow: #FFD43B;
+  --color-green: #2E7D32;
+  --color-red: #C62828;
+  --color-card-bg: #FFFFFF;
+  --color-border: #DADAD5;
+  --max-width: 780px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+header.top-bar {
+  background: var(--color-navy);
+  color: #fff;
+  padding: 18px 20px;
+}
+
+header.top-bar .page {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+header.top-bar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+header.top-bar nav a {
+  font-weight: 400;
+  font-size: 16px;
+  margin-left: 18px;
+  opacity: 0.9;
+}
+
+header.top-bar nav a:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-size: 34px;
+  color: var(--color-navy);
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 26px;
+  color: var(--color-python-blue);
+  margin-top: 48px;
+  border-bottom: 3px solid var(--color-python-yellow);
+  padding-bottom: 6px;
+}
+
+h3 {
+  font-size: 21px;
+  color: var(--color-navy);
+}
+
+p, li {
+  font-size: 19px;
+}
+
+a {
+  color: var(--color-python-blue);
+}
+
+code, pre {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+code {
+  background: #EEF1F4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+pre {
+  background: #1E1E1E;
+  color: #E8E8E8;
+  padding: 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Hook / opening scenario box */
+.hook {
+  background: var(--color-navy);
+  color: #fff;
+  padding: 24px;
+  border-radius: 10px;
+  font-size: 21px;
+  margin: 24px 0;
+}
+
+/* "What is...?" definition callouts */
+.what-is {
+  background: #FFF9E6;
+  border-left: 6px solid var(--color-python-yellow);
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+
+.what-is .label {
+  font-weight: 700;
+  color: var(--color-navy);
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Code walkthrough: annotated line-by-line breakdown */
+.code-breakdown {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 4px 20px;
+  margin: 16px 0;
+}
+
+.code-breakdown dt {
+  font-family: monospace;
+  background: #EEF1F4;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 14px;
+  font-size: 16px;
+}
+
+.code-breakdown dd {
+  margin: 6px 0 6px 0;
+  color: #333;
+}
+
+/* Go Deeper collapsible section */
+details.go-deeper {
+  background: #F0F4F8;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 4px 20px 16px;
+  margin: 24px 0;
+}
+
+details.go-deeper summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--color-python-blue);
+  padding: 14px 0;
+  font-size: 19px;
+}
+
+details.go-deeper summary:hover {
+  text-decoration: underline;
+}
+
+/* Points to Remember */
+.points-to-remember {
+  background: #ECF6EC;
+  border: 1px solid #BEE0BE;
+  border-radius: 8px;
+  padding: 8px 24px 16px;
+  margin: 24px 0;
+}
+
+.points-to-remember h2 {
+  border: none;
+  margin-top: 12px;
+}
+
+/* Quiz elements */
+.quiz-question {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+
+.fib-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.fib-blank {
+  font-size: 18px;
+  padding: 8px 10px;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  min-width: 160px;
+  font-family: monospace;
+}
+
+.fib-blank.correct {
+  border-color: var(--color-green);
+  background: #E8F5E9;
+}
+
+.fib-blank.incorrect {
+  border-color: var(--color-red);
+  background: #FDECEA;
+}
+
+button.check-btn {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-python-blue);
+  color: #fff;
+  cursor: pointer;
+}
+
+button.check-btn:hover {
+  background: var(--color-navy);
+}
+
+button.check-btn:focus-visible,
+.fib-blank:focus-visible {
+  outline: 3px solid var(--color-python-yellow);
+  outline-offset: 2px;
+}
+
+.fib-feedback {
+  font-weight: 700;
+  font-size: 18px;
+  min-width: 28px;
+  display: inline-block;
+}
+
+.fib-feedback.correct { color: var(--color-green); }
+.fib-feedback.incorrect { color: var(--color-red); }
+
+#check-all-wrap {
+  margin-top: 20px;
+}
+
+#quiz-score {
+  font-weight: 700;
+  font-size: 20px;
+  margin-left: 12px;
+}
+
+/* Nav buttons between chapter pages */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.chapter-nav a {
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--color-python-blue);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+}
+
+.chapter-nav a:hover {
+  background: var(--color-navy);
+}
+
+/* Landing page chapter list */
+.chapter-list {
+  list-style: none;
+  padding: 0;
+}
+
+.chapter-list li {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+}
+
+.chapter-list a {
+  font-weight: 700;
+  font-size: 21px;
+  text-decoration: none;
+}
+
+.chapter-list .status {
+  font-size: 15px;
+  color: #666;
+  margin-left: 8px;
+}
+
+.badge-coming-soon {
+  color: #666;
+  font-style: italic;
+}

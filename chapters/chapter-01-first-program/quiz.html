@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1 Quiz — Python for Everyone</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <h1>Chapter 1 Quiz: Your First Python Program</h1>
+  <p>
+    Fill in each blank, then press its <strong>Check</strong> button (or press
+    Enter) to see instantly if you're right. There's no penalty for guessing
+    again &mdash; try until you get it.
+  </p>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="q1"><strong>1.</strong> The function used to display text on the
+      screen is <code>____()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q1" class="fib-blank" data-answers="print,Print" aria-label="Answer for question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q2"><strong>2.</strong> Any piece of text wrapped in quotation
+      marks is called a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="string,strings" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q3"><strong>3.</strong> In <code>score = 10</code>, the single
+      <code>=</code> means "____ the value in the variable," not mathematical
+      equality.</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="store,save,assign" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q4"><strong>4.</strong> A whole number with no decimal point,
+      like <code>12</code>, is called an <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q4" class="fib-blank" data-answers="integer,int" aria-label="Answer for question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q5"><strong>5.</strong> A number with a decimal point, like
+      <code>4.9</code>, is called a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q5" class="fib-blank" data-answers="float" aria-label="Answer for question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q6"><strong>6.</strong> The function that pauses a program and
+      waits for the user to type something is <code>____()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="input,Input" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q7"><strong>7.</strong> Joining two strings together end-to-end
+      with <code>+</code> is called <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q7" class="fib-blank" data-answers="concatenation,concatenating" aria-label="Answer for question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q8"><strong>8.</strong> To join a number with a string safely,
+      you first convert the number to text using <code>____()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q8" class="fib-blank" data-answers="str,str()" aria-label="Answer for question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/README.md">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<script src="../../assets/quiz-engine.js"></script>
+</body>
+</html>
