@@ -363,6 +363,34 @@ pre code {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin-top: 46px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.hero-stats div {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-stats strong {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-yellow);
+  line-height: 1.1;
+}
+
+.hero-stats span {
+  font-size: 13px;
+  color: #9AA7C4;
+  margin-top: 2px;
+}
+
 /* ---------- Feature grid ("why this course") ---------- */
 .feature-grid {
   display: grid;
@@ -830,62 +858,118 @@ button.check-btn:focus-visible,
 }
 
 /* ---------- Landing page chapter list ---------- */
-.chapter-list {
-  list-style: none;
-  padding: 0;
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 22px;
 }
 
-.chapter-list li {
+.chapter-card {
+  --card-accent: var(--color-blue);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 22px 26px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.chapter-list li:has(a):hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-}
-
-.chapter-list .chapter-num {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--color-blue), var(--color-blue-dark));
-  color: #fff;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chapter-list li.coming-soon .chapter-num {
-  background: #D6DAE3;
-  color: #6B7280;
-}
-
-.chapter-list a {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 20px;
+  padding: 26px 24px 22px;
   text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.chapter-list .status {
-  display: block;
-  font-size: 15px;
+.chapter-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--card-accent), transparent);
+}
+
+.chapter-card.module-2 { --card-accent: var(--color-teal); }
+.chapter-card.module-3 { --card-accent: var(--color-green); }
+.chapter-card.module-4 { --card-accent: var(--color-navy-2); }
+.chapter-card.module-5 { --card-accent: var(--color-yellow-dark); }
+
+.chapter-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--card-accent);
+}
+
+.chapter-card-icon {
+  font-size: 34px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.chapter-card-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--card-accent);
+}
+
+.chapter-card h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 2px 0 2px;
+  color: var(--color-navy);
+}
+
+.chapter-card p {
+  font-size: 14px;
   color: var(--color-text-soft);
-  margin-top: 4px;
-  font-weight: 400;
+  margin: 0 0 14px;
+  flex-grow: 1;
+}
+
+.chapter-card-cta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--card-accent);
+}
+
+.chapter-card-cta span {
+  display: inline-block;
+  transition: transform 0.18s ease;
+}
+
+.chapter-card:hover .chapter-card-cta span {
+  transform: translateX(4px);
+}
+
+.chapter-card.chapter-complete {
+  border-color: var(--color-green);
+}
+
+.chapter-card.chapter-complete::after {
+  content: "✓ Completed";
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-green);
+  background: #E7F6EA;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.chapter-card-more {
+  --card-accent: var(--color-navy);
+  background: linear-gradient(160deg, rgba(46, 107, 184, 0.08), rgba(16, 27, 51, 0.04));
+  border-style: dashed;
 }
 
 .badge-coming-soon {
@@ -1168,10 +1252,6 @@ footer.site-footer a {
   padding: 4px 10px;
   border-radius: 999px;
   margin-left: 10px;
-}
-
-.chapter-list li.chapter-complete {
-  border-left: 5px solid var(--color-green);
 }
 
 .roadmap-list li.chapter-complete .roadmap-status {
@@ -1516,7 +1596,7 @@ tbody tr:nth-child(even) {
 .code-breakdown,
 .quiz-progress-wrap,
 .quiz-question,
-.chapter-list li,
+.chapter-card,
 .page-toc,
 .task-card,
 .scenario-card,
@@ -1749,7 +1829,6 @@ table {
   h1 { font-size: 28px; }
   h2 { font-size: 22px; }
   .btn-secondary { margin-left: 0; margin-top: 10px; }
-  .chapter-list li { flex-direction: column; align-items: flex-start; }
 }
 
 @media (max-width: 900px) {

@@ -43,6 +43,13 @@
     </div>
     <a href="chapters/chapter-01-first-program/lesson.html" class="btn-primary">Start Chapter 1 →</a>
     <a href="docs/curriculum/index.html" class="btn-secondary">View the roadmap</a>
+
+    <div class="hero-stats">
+      <div><strong>7</strong><span>chapters live</span></div>
+      <div><strong>27</strong><span>chapters planned</span></div>
+      <div><strong>150+</strong><span>practice problems</span></div>
+      <div><strong>$0</strong><span>cost, ever</span></div>
+    </div>
   </div>
 </section>
 
@@ -83,63 +90,71 @@
   </div>
 
   <h2>Chapters</h2>
-  <ul class="chapter-list">
-    <li data-chapter-link="chapter-01">
-      <span class="chapter-num">1</span>
-      <div>
-        <a href="chapters/chapter-01-first-program/lesson.html">Your First Python Program</a>
-        <span class="status">print() &middot; variables &middot; types &middot; input()</span>
-      </div>
-    </li>
-    <li data-chapter-link="chapter-02">
-      <span class="chapter-num">2</span>
-      <div>
-        <a href="chapters/chapter-02-variables-data-types/lesson.html">Variables &amp; Data Types</a>
-        <span class="status">dynamic typing &middot; type() / id() &middot; conversion</span>
-      </div>
-    </li>
-    <li data-chapter-link="chapter-03">
-      <span class="chapter-num">3</span>
-      <div>
-        <a href="chapters/chapter-03-operators/lesson.html">Operators</a>
-        <span class="status">arithmetic &middot; relational &amp; logical &middot; bitwise &middot; is / in</span>
-      </div>
-    </li>
-    <li data-chapter-link="chapter-04">
-      <span class="chapter-num">4</span>
-      <div>
-        <a href="chapters/chapter-04-control-flow/lesson.html">Control Flow (if / elif / else)</a>
-        <span class="status">simple if &middot; if-else &middot; elif chains &middot; nested if</span>
-      </div>
-    </li>
-    <li data-chapter-link="chapter-05">
-      <span class="chapter-num">5</span>
-      <div>
-        <a href="chapters/chapter-05-loops/lesson.html">Loops (while / for)</a>
-        <span class="status">while &middot; for &amp; range() &middot; accumulator pattern &middot; break / continue</span>
-      </div>
-    </li>
-    <li data-chapter-link="chapter-06">
-      <span class="chapter-num">6</span>
-      <div>
-        <a href="chapters/chapter-06-strings-deep-dive/lesson.html">Strings Deep Dive</a>
-        <span class="status">indexing &amp; slicing &middot; string methods &middot; f-strings &middot; immutability &middot; validation &middot; real-world text processing</span>
-      </div>
-    </li>
-    <li data-chapter-link="chapter-07">
-      <span class="chapter-num">7</span>
-      <div>
-        <a href="chapters/chapter-07-lists-tuples/lesson.html">Lists &amp; Tuples</a>
-        <span class="status">indexing &amp; slicing &middot; list methods &middot; tuples &amp; unpacking &middot; nested lists &middot; copying &amp; the is-vs-== trap &middot; real-world use</span>
-      </div>
-    </li>
-    <li class="coming-soon">
-      <span class="chapter-num">···</span>
-      <div>
-        <span class="badge-coming-soon">More chapters are being added one at a time — see the full roadmap below</span>
-      </div>
-    </li>
-  </ul>
+  <div class="chapter-grid">
+    <a class="chapter-card module-1" data-chapter-link="chapter-01" href="chapters/chapter-01-first-program/lesson.html">
+      <span class="chapter-card-icon">👋</span>
+      <span class="chapter-card-num">Chapter 1</span>
+      <h3>Your First Python Program</h3>
+      <p>print() &middot; variables &middot; types &middot; input()</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-1" data-chapter-link="chapter-02" href="chapters/chapter-02-variables-data-types/lesson.html">
+      <span class="chapter-card-icon">🏷️</span>
+      <span class="chapter-card-num">Chapter 2</span>
+      <h3>Variables &amp; Data Types</h3>
+      <p>dynamic typing &middot; type() / id() &middot; conversion</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-1" data-chapter-link="chapter-03" href="chapters/chapter-03-operators/lesson.html">
+      <span class="chapter-card-icon">🧮</span>
+      <span class="chapter-card-num">Chapter 3</span>
+      <h3>Operators</h3>
+      <p>arithmetic &middot; relational &amp; logical &middot; bitwise &middot; is / in</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-1" data-chapter-link="chapter-04" href="chapters/chapter-04-control-flow/lesson.html">
+      <span class="chapter-card-icon">🚦</span>
+      <span class="chapter-card-num">Chapter 4</span>
+      <h3>Control Flow</h3>
+      <p>if / elif / else &middot; nested if</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-1" data-chapter-link="chapter-05" href="chapters/chapter-05-loops/lesson.html">
+      <span class="chapter-card-icon">🔁</span>
+      <span class="chapter-card-num">Chapter 5</span>
+      <h3>Loops</h3>
+      <p>while &middot; for &amp; range() &middot; break / continue</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-2" data-chapter-link="chapter-06" href="chapters/chapter-06-strings-deep-dive/lesson.html">
+      <span class="chapter-card-icon">🧵</span>
+      <span class="chapter-card-num">Chapter 6</span>
+      <h3>Strings Deep Dive</h3>
+      <p>indexing &amp; slicing &middot; string methods &middot; f-strings &middot; validation</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-2" data-chapter-link="chapter-07" href="chapters/chapter-07-lists-tuples/lesson.html">
+      <span class="chapter-card-icon">🧺</span>
+      <span class="chapter-card-num">Chapter 7</span>
+      <h3>Lists &amp; Tuples</h3>
+      <p>list methods &middot; tuples &amp; unpacking &middot; nested lists &middot; copying pitfalls</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card module-2" data-chapter-link="chapter-08" href="chapters/chapter-08-dictionaries-sets/lesson.html">
+      <span class="chapter-card-icon">📚</span>
+      <span class="chapter-card-num">Chapter 8</span>
+      <h3>Dictionaries &amp; Sets</h3>
+      <p>key-value pairs &middot; dict methods &middot; set operations &middot; nested records</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="chapter-card chapter-card-more" href="docs/curriculum/index.html">
+      <span class="chapter-card-icon">🗺️</span>
+      <span class="chapter-card-num">+19 more</span>
+      <h3>See the full roadmap</h3>
+      <p>Comprehensions, OOP, files, APIs, NumPy/Pandas, and more — built one chapter at a time.</p>
+      <span class="chapter-card-cta">View roadmap <span aria-hidden="true">→</span></span>
+    </a>
+  </div>
 
   <h2>How to use this course</h2>
   <ul>

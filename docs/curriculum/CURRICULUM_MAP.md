@@ -18,12 +18,12 @@ moving to the next. The rendered, always-current version lives at
 | — | Module 1 Written Exam | covers Chapters 1-5 |
 | 6 | Strings Deep Dive | indexing/slicing, string methods, f-strings, immutability, validation, real-world text processing — plus a Challenges page (8 auto-graded coding problems, HackerRank-style) |
 | 7 | Lists & Tuples | indexing/slicing/mutation, list methods, tuples & packing/unpacking, nested lists, shallow copies & the is-vs-== trap, real-world record processing — plus a Challenges page (8 auto-graded coding problems) and, from this chapter onward, 4 extra real-world project ideas alongside the one fully built project |
+| 8 | Dictionaries & Sets | creating/accessing dicts, dict methods, looping, sets & set operations, nested dicts, real-world lookup/frequency use — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 8 | Dictionaries & Sets | Inventory tracker |
 | 9 | Comprehensions, Lambda & Functional Tools | Data-cleaning one-liners kit |
 | 10 | Functions Deep Dive (params & defaults, `*args`/`**kwargs`, scope & `global`/`nonlocal`, recursion, closures, decorators) | Tip / bill-split calculator library |
 | 11 | Modules & Packages | Expense tracker (`datetime`, `math`) |

@@ -73,7 +73,14 @@ window.PFE_MODULES = [
         { id: "copying-lists", title: "Copying lists & the is-vs-== trap" },
         { id: "bringing-together", title: "Real-world lists & tuples in production" }
       ] },
-      { id: "chapter-08", num: 8, title: "Dictionaries & Sets", path: null },
+      { id: "chapter-08", num: 8, title: "Dictionaries & Sets", path: "chapters/chapter-08-dictionaries-sets/lesson.html", subtopics: [
+        { id: "creating-accessing", title: "Creating dictionaries & accessing values" },
+        { id: "dict-methods", title: "Dict methods: add, update, remove" },
+        { id: "looping-dicts", title: "Looping over dictionaries" },
+        { id: "sets", title: "Sets: unique collections & set operations" },
+        { id: "nested-dicts", title: "Nested dictionaries & real-world records" },
+        { id: "bringing-together", title: "Real-world dicts & sets in production" }
+      ] },
       { id: "chapter-09", num: 9, title: "Comprehensions, Lambda & Functional Tools", path: null },
       { id: "chapter-10", num: 10, title: "Functions Deep Dive", path: null }
     ]
