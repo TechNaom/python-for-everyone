@@ -1,11 +1,27 @@
 # Python for Everyone
 
+![Python for Everyone](assets/banner.svg)
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-1E8E3E)](LICENSE)
+[![Chapters built](https://img.shields.io/badge/chapters%20built-7%20%2F%2027-2E6BB8)](docs/curriculum/CURRICULUM_MAP.md)
+[![Live site](https://img.shields.io/badge/live%20site-technaom.github.io-FFC93C)](https://technaom.github.io/python-for-everyone/)
+[![No signup required](https://img.shields.io/badge/signup-not%20required-0E7C86)](https://technaom.github.io/python-for-everyone/)
+
 Free, interactive Python course for everyone — from complete beginners to
 working professionals. Mini HTML textbooks with instant-check
 fill-in-the-blank quizzes, hands-on exercises, interview prep, and real
 projects.
 
 🔗 **Live course site:** https://technaom.github.io/python-for-everyone/
+
+## Contents
+
+- [What this is](#what-this-is)
+- [Status](#status)
+- [Repo structure](#repo-structure)
+- [Running the Python exercises locally](#running-the-python-exercises-locally)
+- [Maintenance](#maintenance)
+- [License](#license)
 
 ## What this is
 
