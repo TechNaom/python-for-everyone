@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 10: Functions Deep Dive — the mutable default argument trap, *args/**kwargs mechanics, scope and global/nonlocal, closures, decorators, recursion, and pass-by-object-reference semantics.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-10-interview" data-active-chapter="chapter-10">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 10 Interview Prep</span>
+    <span class="reading-time">21 min read</span>
+  </div>
+  <h1>Interview Questions: Functions Deep Dive</h1>
+  <p>Functions are the single most interview-tested topic in beginner-to-intermediate Python screens &mdash; the mutable default argument trap alone shows up constantly, because it separates people who've actually been bitten by it from people who've only read about functions. This set covers parameters vs. arguments, default arguments and their most famous gotcha, <code>*args</code>/<code>**kwargs</code>, scope and why <code>global</code> makes senior engineers wince, closures, how <code>@decorator</code> really desugars, recursion vs. iteration, and the pass-by-object-reference semantics that trip up almost everyone at least once.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the difference between a parameter and an argument?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>parameter</strong> is the named placeholder listed in a function's <code>def</code> line &mdash; it exists only in the function's definition, before the function is ever called. An <strong>argument</strong> is the actual value handed in when the function is called and bound to that parameter. In <code>def greet(name): ...</code>, <code>name</code> is the parameter; in the call <code>greet("Ana")</code>, <code>"Ana"</code> is the argument. The two words get used interchangeably in casual conversation, but interviewers listen for whether a candidate knows the distinction is "definition-time placeholder" versus "call-time value."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using "argument" and "parameter" as if they mean the exact same thing in a context where the distinction matters (e.g. explaining a `TypeError: missing required positional argument`), or being unable to say which one is which when asked directly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"In <code>def add(a, b=5): return a + b</code> followed by <code>add(3)</code>, name the parameters and the arguments." (Parameters: <code>a</code> and <code>b</code>. Arguments: just <code>3</code>, bound to <code>a</code> &mdash; <code>b</code> uses its default since no argument was passed for it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What does <code>return</code> actually do, and what happens if a function has no <code>return</code> statement at all?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>return</code> immediately exits the function and sends a value back to wherever the function was called &mdash; any code after a <code>return</code> in that same execution path never runs. A function with no <code>return</code> statement (or a bare <code>return</code> with nothing after it) still returns something: Python implicitly returns <code>None</code>. This is why calling <code>result = some_function()</code> on a function that never explicitly returns anything gives you <code>result == None</code>, not an error &mdash; the function ran fine, it just never produced a value on purpose.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a function without a <code>return</code> statement raises an error or gives back "nothing" in some special sense, rather than the very real, checkable value <code>None</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>print(noop())</code> output, given <code>def noop(): pass</code>?" (<code>None</code> &mdash; no explicit <code>return</code> means Python returns <code>None</code> automatically.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What is the mutable default argument trap, and why does it happen?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A default argument value is created <strong>exactly once</strong>, when the <code>def</code> statement itself runs &mdash; not fresh on every call. That's harmless for immutable defaults like <code>5</code> or <code>"x"</code>, but if the default is a mutable object like <code>[]</code> or <code>{}</code>, every call that doesn't supply its own argument shares that <em>same</em> list or dict, and mutations from one call leak into the next. <code>def add_item(item, basket=[]): basket.append(item); return basket</code> looks like it should return a fresh one-item list each time, but calling it twice with no <code>basket</code> argument returns <code>["apple", "banana"]</code> the second time, not <code>["banana"]</code> &mdash; the same list object stuck around between calls. The standard fix is to default to <code>None</code> and create the mutable object fresh inside the function body: <code>def add_item(item, basket=None): basket = [] if basket is None else basket; ...</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using a mutable literal (<code>[]</code>, <code>{}</code>, <code>set()</code>) directly as a default argument in real code without knowing this trap exists &mdash; it's one of the most common real bugs in production Python, not just a trivia question.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>def add_item(item, basket=[]): basket.append(item); return basket</code>, what does calling <code>add_item('apple')</code> then <code>add_item('banana')</code> return the second time?" (<code>['apple', 'banana']</code> &mdash; both calls shared the same default list.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between a positional argument and a keyword argument?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>positional argument</strong> is matched to a parameter purely by its order in the call &mdash; the first value goes to the first parameter, the second to the second, and so on. A <strong>keyword argument</strong> is passed as <code>name=value</code> and matched by that name regardless of order, which makes the call self-documenting and lets arguments be supplied out of order. <code>greet("Ana", 30)</code> relies on position; <code>greet(age=30, name="Ana")</code> is identical in effect but reads more clearly at the call site and is safer once a function has several parameters, since it's immune to accidentally swapping two same-typed arguments.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Mixing them incorrectly &mdash; Python requires all positional arguments to come before any keyword arguments in a call, so <code>greet(name="Ana", 30)</code> is a <code>SyntaxError</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is <code>greet(30, name='Ana')</code> valid if <code>greet</code> is defined as <code>def greet(name, age): ...</code>?" (No &mdash; <code>30</code> would bind positionally to <code>name</code> first, then <code>name='Ana'</code> tries to bind the same parameter again, raising <code>TypeError: got multiple values for argument 'name'</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What do <code>*args</code> and <code>**kwargs</code> actually do, and when would you reach for each?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>*args</code> collects any number of extra <strong>positional</strong> arguments into a tuple inside the function, and <code>**kwargs</code> collects any number of extra <strong>keyword</strong> arguments into a dict. <code>def total(*args): return sum(args)</code> can be called as <code>total(1, 2, 3)</code> or <code>total(1, 2, 3, 4, 5)</code> with no need to predefine how many numbers are coming. Reach for <code>*args</code> when a function needs to accept a variable number of similar, unnamed values (like numbers to sum, or items to log); reach for <code>**kwargs</code> when it needs to accept an open-ended set of named options (like configuration settings) without hard-coding every possible one. The names <code>args</code> and <code>kwargs</code> are just convention &mdash; the <code>*</code> and <code>**</code> are what actually matter to Python.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>*args</code> and <code>**kwargs</code> must be named exactly that (any name works, the stars do the work), or using them everywhere "just in case" instead of writing explicit named parameters when the function's inputs are actually well-known and fixed.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>total(1, 2, 3, 4)</code> return, given <code>def total(*args): return sum(args)</code>?" (<code>10</code> &mdash; all four positional arguments land in the <code>args</code> tuple, then get summed.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the difference between local scope and global scope, and why is using the <code>global</code> keyword often considered bad practice?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>Local scope</strong> is the set of names that exist only inside the function where they were created &mdash; they disappear once the function returns, and nothing outside can see them. <strong>Global scope</strong> is the module-level namespace, visible from anywhere in the file, including inside functions (functions can <em>read</em> a global variable with no special keyword at all). The <code>global</code> keyword is only needed when a function wants to <em>reassign</em> a global variable rather than just read it, and it's considered risky because it makes a function's behavior depend on, and silently mutate, state that lives outside its own inputs and outputs &mdash; two different functions touching the same global can produce order-dependent, hard-to-trace bugs, especially as a codebase grows. The safer default is to pass values in as parameters and get results back via <code>return</code>, keeping each function's behavior self-contained and predictable.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for <code>global</code> as the default way to share state between functions instead of passing parameters and returning values, or not realizing that reading a global inside a function needs no <code>global</code> keyword at all &mdash; only reassigning it does.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>count = 0</code> at module level and <code>def bump(): global count; count += 1</code>, what is <code>count</code> after calling <code>bump()</code> three times?" (<code>3</code> &mdash; each call reassigns the actual global thanks to the <code>global</code> declaration.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What does <code>nonlocal</code> do, and how is it different from <code>global</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>nonlocal</code> lets a nested (inner) function reassign a variable that belongs to its <strong>enclosing function's</strong> local scope &mdash; one level up, but still not the module-level global scope. <code>global</code> reaches all the way up to module level; <code>nonlocal</code> only reaches the nearest enclosing function that actually has that variable. This matters specifically for closures: a counter-style closure where an inner function increments a variable defined in the outer function needs <code>nonlocal</code> to modify that outer variable, because without it, the inner function would just create a brand-new local variable of the same name instead of touching the outer one.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>global</code> when the variable being modified actually lives in an enclosing function, not at module level &mdash; that's a <code>SyntaxError</code> (or worse, silently modifies an unrelated module-level variable of the same name if one happens to exist).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given a closure where <code>inner()</code> does <code>count += 1</code> on a variable from its enclosing function, with no <code>nonlocal</code> declaration, what happens?" (An <code>UnboundLocalError</code> &mdash; without <code>nonlocal</code>, Python treats <code>count</code> as a brand-new local variable inside <code>inner</code>, and <code>count += 1</code> tries to read it before it's ever been assigned.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What is a closure, and what's a concrete use case for one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>closure</strong> is an inner function that "remembers" and can still use variables from its enclosing function's scope, even after that enclosing function has already finished running and returned. <code>def make_multiplier(factor): def multiplier(x): return x * factor; return multiplier</code> returns the inner <code>multiplier</code> function, and every time it's later called, it still has access to whatever <code>factor</code> was when it was created &mdash; <code>double = make_multiplier(2)</code> then <code>double(5)</code> gives <code>10</code>, and a separate <code>triple = make_multiplier(3)</code> keeps its own independent <code>factor</code>. A concrete real use case: building several specialized functions from one factory function (a multiplier, a validator with a fixed threshold, an event handler that remembers which button created it) without needing a full class just to hold that one piece of remembered state.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing a closure with just "a nested function" &mdash; the defining feature is that it captures and retains access to the enclosing scope's variables after that scope has finished executing, not merely that one function is defined inside another.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>double = make_multiplier(2)</code> and <code>triple = make_multiplier(3)</code> from the factory above, what does <code>double(5)</code> return, and does calling it affect <code>triple</code>?" (<code>10</code>, and no &mdash; each closure keeps its own independent copy of <code>factor</code> from when it was created.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why do decorators exist, and what problem are they solving?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>decorator</strong> lets you add behavior "around" a function &mdash; logging, timing, access checks, retry logic, result formatting &mdash; without editing that function's own body or repeating the same wrapping code above every function that needs it. The problem it solves is code duplication: without decorators, adding "log every call to this function" to ten different functions means pasting the same logging code into all ten; with a decorator, that logic is written once and applied with a single <code>@decorator_name</code> line above each function definition. It's the same instinct as a comprehension replacing a repetitive loop &mdash; capturing a repeated pattern once and applying it declaratively wherever it's needed.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating a decorator as mysterious "magic syntax" rather than what it actually is underneath: a function that takes a function and returns a (usually wrapped) function.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You have five functions that should each print how long they took to run. What's the decorator-based fix versus the copy-paste fix?" (Write one timing decorator once and put <code>@timer</code> above each of the five functions, instead of pasting the same timing code inside all five function bodies.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> How does <code>@decorator</code> syntax actually desugar, and what does that reveal about how decorators work?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Writing <code>@shout</code> directly above <code>def greet(name): ...</code> is exactly equivalent to defining <code>greet</code> normally and then immediately running <code>greet = shout(greet)</code> right after &mdash; the <code>@</code> syntax is pure sugar for "pass this function into that one, and replace the original name with whatever comes back." This reveals that a decorator is just a regular function that accepts a function as its argument and returns a (typically new, wrapping) function; there's no special runtime magic beyond ordinary function calls and reassignment. Because of this, a hand-written decorator almost always defines an inner <code>wrapper</code> function that calls the original, does something before/after/around that call, and returns <code>wrapper</code> itself as the replacement.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Being unable to write out the desugared, non-<code>@</code> version of a decorated function by hand &mdash; if the <code>@decorator</code> line is genuinely mysterious rather than "sugar for a reassignment," that's a sign the concept hasn't clicked yet.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>@shout</code> above <code>def greet(name): return f'hello {name}'</code>, write the equivalent code without using <code>@</code> syntax at all." (<code>def greet(name): return f'hello {name}'</code> followed by <code>greet = shout(greet)</code> &mdash; identical behavior, no <code>@</code> needed.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Why does a decorator's inner wrapper function usually accept <code>*args, **kwargs</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A decorator is often written once and applied to many different functions, and those functions may take completely different parameter signatures &mdash; one might take zero arguments, another might take three positional arguments, another might take keyword arguments. If the wrapper hard-codes specific parameter names, the decorator only works on functions matching that exact signature. Writing <code>def wrapper(*args, **kwargs): result = func(*args, **kwargs); return result</code> lets the wrapper transparently accept <em>whatever</em> the decorated function itself accepts, and pass all of it straight through unchanged &mdash; making the decorator reusable across any function regardless of its parameter list.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing a wrapper with fixed, named parameters, which quietly breaks the moment the decorator is applied to a function with a different signature than the one it was first tested against.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why would a decorator's wrapper defined as <code>def wrapper(x): return func(x) * 2</code> fail if applied to a function that takes two arguments?" (Calling the decorated function with two arguments would raise a <code>TypeError</code>, since <code>wrapper</code> itself only accepts one &mdash; <code>*args, **kwargs</code> avoids hard-coding an arity the wrapper doesn't actually need to know.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What's the tradeoff between recursion and iteration, and what's the practical risk of using recursion?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>Recursion</strong> solves a problem by having a function call itself on a smaller version of the same problem until it hits a <strong>base case</strong> that stops the calls; <strong>iteration</strong> solves the same class of problem with a loop. Recursion often reads more naturally for problems that are inherently defined in terms of themselves &mdash; factorial, tree/nested-structure traversal, some search algorithms &mdash; while iteration is usually more efficient in Python specifically, since each recursive call adds a new frame to the call stack, and Python has no built-in tail-call optimization to collapse that overhead away. The practical risk is a <strong>stack overflow</strong> (<code>RecursionError</code> in Python): recurse too deep &mdash; thousands of calls without hitting the base case &mdash; and the program crashes, whereas an equivalent loop just keeps iterating with flat, constant memory use.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for recursion on a problem with a very large or unbounded depth (e.g. processing a million-item list one at a time recursively) when a simple loop would do the identical job without any risk of hitting Python's recursion limit.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>def factorial(n): return 1 if n <= 1 else n * factorial(n - 1)</code>, what happens if you call <code>factorial(10000)</code>?" (It raises a <code>RecursionError</code> &mdash; the call stack overflows long before reaching the base case, since Python's default recursion depth limit is far lower than 10,000.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Every recursive function needs a base case — what happens without one, and what else does a correct recursive function need?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>base case</strong> is the condition under which a recursive function stops calling itself and returns a direct answer instead &mdash; without one, the function calls itself forever (or until it hits Python's recursion limit and raises <code>RecursionError</code>), since there's never a point where it stops. A correct recursive function needs exactly two things: a base case that can be reached, and a <strong>recursive case</strong> that always moves <em>closer</em> to that base case with each call &mdash; usually by shrinking the input in some way (n-1, a smaller slice, one fewer item left to process). <code>factorial(n)</code>'s base case is <code>n <= 1</code>, returning <code>1</code> directly, and its recursive case, <code>n * factorial(n - 1)</code>, always calls itself with a strictly smaller <code>n</code>, guaranteeing it eventually reaches the base case.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing a recursive call that doesn't actually shrink the problem toward the base case (e.g. accidentally calling <code>factorial(n)</code> instead of <code>factorial(n - 1)</code>) &mdash; that's infinite recursion even though a base case technically exists in the code, because it's never actually reached.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's wrong with <code>def countdown(n): print(n); countdown(n - 1)</code> if it's meant to stop at zero?" (There's no base case at all &mdash; it never checks for <code>n == 0</code> and returns, so it keeps recursing into negative numbers until it hits a <code>RecursionError</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> Why does mutating a list argument inside a function affect the caller's original list, but reassigning that same parameter doesn't?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Python passes arguments by <strong>object reference</strong>: the parameter inside the function becomes another name pointing at the exact same object the caller passed in, not a separate copy of it. Because of that, any <strong>mutation</strong> performed through that parameter &mdash; <code>lst.append(1)</code>, <code>lst[0] = 99</code> &mdash; changes the one shared object in place, so the caller sees the change too. But <strong>reassigning</strong> the parameter itself, <code>lst = [9, 9]</code>, doesn't mutate anything; it just points the local name <code>lst</code> at a brand-new object, leaving the caller's original object completely untouched, because the caller's variable was never pointing at the parameter name to begin with, only at the same object the parameter name also happened to reference. This is why <code>def mutate_list(lst): lst.append(99)</code> changes the caller's list, while <code>def reassign_list(lst): lst = [1, 2, 3]</code> has zero effect on it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing Python as strictly "pass by reference" (implying reassignment would also affect the caller, like some other languages' reference parameters) or strictly "pass by value" (implying mutation wouldn't affect the caller either) &mdash; neither label is accurate; "pass by object reference" is the precise description.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>data = [0]</code>, what is <code>data</code> after calling <code>def append_one(lst): lst.append(1)</code> as <code>append_one(data)</code>? What if the function instead did <code>lst = [9, 9]</code>?" (Mutation case: <code>data</code> becomes <code>[0, 1]</code> &mdash; the caller's list itself was changed. Reassignment case: <code>data</code> stays <code>[0]</code> &mdash; the parameter was pointed at a new object, but the caller's variable never followed along.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> Given <code>def add(a, b=5): return a + b</code>, <code>add(3)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="8" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Given <code>def total(*args): return sum(args)</code>, <code>total(1, 2, 3, 4)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="10" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Given <code>def info(**kwargs): return len(kwargs)</code>, <code>info(name="Al", age=30)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="2" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> Given <code>count = 0</code> and <code>def bump(): global count; count += 1</code>, after calling <code>bump()</code> three times, <code>count</code> is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> To let a nested function reassign a variable from its enclosing function's scope (one level up, not module level), you need the <code>____</code> keyword.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="nonlocal" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Given <code>def make_adder(n): def adder(x): return x + n; return adder</code> and <code>add5 = make_adder(5)</code>, <code>add5(10)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="15" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> Writing <code>@shout</code> above <code>def greet(name): ...</code> is sugar for the reassignment <code>greet = ____(greet)</code> (name the function).</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="shout" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Given a decorator <code>wrap</code> whose wrapper returns <code>f(*a, **k) * 2</code>, applied as <code>@wrap</code> above <code>def double(x): return x</code>, <code>double(4)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="8" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Given <code>def fact(n): return 1 if n <= 1 else n * fact(n - 1)</code>, <code>fact(4)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="24" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Given <code>def noop(): pass</code>, <code>print(noop())</code> prints <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="None" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> Given <code>def add_to(item, bucket=[]): bucket.append(item); return bucket</code>, calling <code>add_to("x")</code> then <code>len(add_to("y"))</code> evaluates to <code>____</code> (the mutable default argument trap).</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="2" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Given <code>data = [0]</code> and <code>def append_one(lst): lst.append(1)</code>, after calling <code>append_one(data)</code>, <code>len(data)</code> is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="2" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Given <code>data2 = [0]</code> and <code>def reassign(lst): lst = [9, 9]</code>, after calling <code>reassign(data2)</code>, <code>data2</code> is still <code>____</code> (Python list syntax).</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="[0]" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> Given <code>def show(*args): return len(args)</code>, <code>show(1, 2, 3, 4, 5)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="5" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

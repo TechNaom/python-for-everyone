@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10: Functions Deep Dive — Python for Everyone</title>
+<meta name="description" content="Defining functions with def, default arguments, *args and **kwargs, variable scope, recursion, closures, and decorators — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-10">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 10 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">50 min read</span>
+  </div>
+  <h1>Functions Deep Dive</h1>
+  <p><em>Every chapter so far has quietly been building toward this one. Chapter 9 even wrote small, single-expression functions with <code>lambda</code> — but <code>lambda</code> can't hold a loop, an <code>if</code> block, or more than one line. This chapter introduces <code>def</code>: the real, full-powered way to name a reusable block of code, give it inputs, and get a result back. Once <code>def</code> is in your toolbox, everything from Chapter 1 onward can be organized into clean, reusable, testable pieces — which is exactly how real production code is structured.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>This chapter is unusually broad.</strong> Eight sub-topics instead of the usual six, because "functions" covers a lot of ground: definitions, defaults, variable-length arguments, scope, recursion, closures, and decorators.</li>
+      <li><strong>Each idea builds on the last.</strong> Scope (sub-topic 4) explains why closures (sub-topic 6) even need <code>nonlocal</code>. Read them in order the first time through.</li>
+      <li><strong>Functions are how real codebases stay maintainable.</strong> Nearly every example here is a small, reusable helper — the same shape you'll find in production code at any company.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#function-basics">1. Defining functions: def, parameters, return</a>
+    <a href="#default-args">2. Default arguments</a>
+    <a href="#args-kwargs">3. *args and **kwargs</a>
+    <a href="#scope">4. Variable scope: local, global, and nonlocal</a>
+    <a href="#recursion">5. Recursive functions</a>
+    <a href="#closures">6. Closures</a>
+    <a href="#decorators">7. Decorators</a>
+    <a href="#bringing-together">8. Real-world functions in production</a>
+  </nav>
+
+  <div class="hook">
+    Copy-pasting the same five lines of code into three different places in a program is one of the most reliable ways to create a bug — fix it in one spot, forget the other two, and now the program behaves inconsistently. A function solves this by giving that block of code a name, a set of inputs, and a single place it lives. Every real Python program, from a ten-line script to a production web service, is built almost entirely out of functions calling other functions.
+  </div>
+
+  <div class="subtopic" id="function-basics">
+    <span class="subtopic-label">Sub-topic 1 of 8</span>
+    <h2>1. Defining functions: <code>def</code>, parameters, <code>return</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>def name(parameters):</code> starts a function definition; the indented block underneath is its body.</li>
+        <li><strong>Parameters</strong> are named inputs; calling the function with actual values fills them in.</li>
+        <li><code>return</code> hands a value back to whoever called the function — it's not the same thing as <code>print()</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you're about to write the same logic more than once, or a chunk of code deserves its own name to make the program easier to read.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a function?</span>
+      A function is a named, reusable block of code that runs when you
+      <strong>call</strong> it by name. It can accept inputs (parameters),
+      do some work, and optionally hand a result back with
+      <code>return</code>. You've been calling built-in functions since
+      Chapter 1 — <code>print()</code>, <code>len()</code>,
+      <code>range()</code> — this chapter is about writing your own.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">first_function.py</span>
+      </div>
+      <pre><code>def greet(name):
+    return "Hello, " + name + "!"
+
+message = greet("Priya")
+print(message)   &#35; Hello, Priya!</code></pre>
+    </div>
+
+    <p>
+      <code>def greet(name):</code> defines the function — it doesn't run
+      anything yet. The body only runs when <code>greet("Priya")</code>
+      actually <strong>calls</strong> it, with <code>"Priya"</code> filling
+      in the <code>name</code> parameter for that one call.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a parameter, versus an argument?</span>
+      A <strong>parameter</strong> is the name listed in the function's
+      definition — <code>name</code> in <code>def greet(name):</code>. An
+      <strong>argument</strong> is the actual value passed in when calling
+      it — <code>"Priya"</code> in <code>greet("Priya")</code>. People often
+      use the words interchangeably, but the definition side is the
+      parameter and the call side is the argument.
+    </div>
+
+    <p>
+      <code>return</code> is easy to confuse with <code>print()</code> at
+      first, because both can make a value show up on screen. They do
+      completely different jobs:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">return_vs_print.py</span>
+      </div>
+      <pre><code>def add_printing(a, b):
+    print(a + b)   &#35; shows the result, hands nothing back
+
+def add_returning(a, b):
+    return a + b   &#35; hands the result back to the caller
+
+add_printing(3, 4)          &#35; prints 7
+result = add_returning(3, 4)
+print(result * 10)          &#35; 70 — only possible because a value came back</code></pre>
+    </div>
+
+    <p>
+      <code>add_printing</code>'s result disappears the moment it's shown —
+      there's nothing to store or reuse. <code>add_returning</code> hands
+      its result back as a real value, so it can be stored in a variable,
+      passed to another function, or used in more math. Most functions you
+      write should <code>return</code> a value rather than just printing
+      it, so the caller decides what to do with the result.
+    </p>
+
+    <p>
+      A function with no <code>return</code> statement at all doesn't
+      error — it just hands back a special value, <code>None</code>,
+      automatically:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">implicit_none.py</span>
+      </div>
+      <pre><code>def log_message(text):
+    print("LOG:", text)
+    &#35; no return statement
+
+outcome = log_message("server started")
+print(outcome)   &#35; None</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>None</code>?</span>
+      <code>None</code> is Python's built-in value meaning "no value here."
+      Any function without an explicit <code>return</code> — or with a bare
+      <code>return</code> and nothing after it — automatically hands back
+      <code>None</code> when it's called.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_function_basics.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">def square(n):
+    return n ** 2
+
+print(square(6))
+print(square(11))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a second parameter and using it in the return.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: return also exits the function immediately</summary>
+      <p>
+        The moment a <code>return</code> statement runs, the function
+        stops — any code after it in that same call never executes. This
+        makes <code>return</code> useful for early-exit checks, like
+        returning immediately if an input is invalid, without needing an
+        <code>else</code> block to skip the rest of the function.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>def name(parameters):</code> defines a function; nothing runs until it's called.</li>
+        <li><code>return</code> hands a value back to the caller; <code>print()</code> only displays a value and hands nothing back.</li>
+        <li>A function with no <code>return</code> statement implicitly returns <code>None</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="default-args">
+    <span class="subtopic-label">Sub-topic 2 of 8</span>
+    <h2>2. Default arguments</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A parameter can have a <strong>default value</strong>, used automatically when the caller doesn't provide one.</li>
+        <li>Calling the function still lets you override the default by passing a value explicitly.</li>
+        <li>A mutable default (like a list) is a well-known trap — it's shared across every call, not recreated each time.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a parameter has an obvious, sensible value most callers will want, but should still be changeable when needed.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a default argument?</span>
+      A default argument is a value assigned to a parameter right in the
+      function definition — <code>def greet(name, greeting="Hello"):</code>
+      — used automatically whenever the caller doesn't supply that
+      argument themselves.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">default_argument.py</span>
+      </div>
+      <pre><code>def greet(name, greeting="Hello"):
+    return greeting + ", " + name + "!"
+
+print(greet("Priya"))              &#35; Hello, Priya!
+print(greet("Amir", "Welcome"))    &#35; Welcome, Amir!</code></pre>
+    </div>
+
+    <p>
+      <code>greet("Priya")</code> uses the default <code>"Hello"</code>
+      since no second argument was given. <code>greet("Amir",
+      "Welcome")</code> overrides it — the value passed in always wins over
+      the default.
+    </p>
+
+    <p>
+      There's a trap worth knowing before you ever use a list or dictionary
+      as a default value. Python creates default values <em>once</em>, when
+      the function is defined — not fresh on every call — so a mutable
+      default gets shared and quietly accumulates across calls:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">mutable_default_trap.py</span>
+      </div>
+      <pre><code>def add_item(item, cart=[]):
+    cart.append(item)
+    return cart
+
+print(add_item("apple"))    &#35; ['apple']
+print(add_item("banana"))   &#35; ['apple', 'banana'] — NOT a fresh empty cart!</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">why this happens — the default list is created once, not per call</span>
+      <pre><code>cart=[] is created ONE time, when add_item is defined
+call 1: add_item("apple")   -> appends to that same list -> ['apple']
+call 2: add_item("banana")  -> appends to that SAME list  -> ['apple', 'banana']
+
+Every call that doesn't pass its own cart shares the one list from Line 1.</code></pre>
+    </div>
+
+    <p>
+      The fix is a well-known pattern: default the parameter to
+      <code>None</code>, then create a brand-new list inside the function
+      body if none was given. This way, every call that doesn't pass its
+      own list gets its own fresh one:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">mutable_default_fixed.py</span>
+      </div>
+      <pre><code>def add_item(item, cart=None):
+    if cart is None:
+        cart = []
+    cart.append(item)
+    return cart
+
+print(add_item("apple"))    &#35; ['apple']
+print(add_item("banana"))   &#35; ['banana'] — fresh list every time</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_default_arguments.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">def make_coffee(size="medium", extra_shot=False):
+    label = size + " coffee"
+    if extra_shot:
+        label += " with an extra shot"
+    return label
+
+print(make_coffee())
+print(make_coffee("large", True))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try calling make_coffee() with only extra_shot set.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: default arguments must come after non-default ones</summary>
+      <p>
+        <code>def greet(greeting="Hello", name):</code> is a
+        <code>SyntaxError</code> — once a parameter has a default, every
+        parameter after it must also have one. Python needs to be able to
+        tell, just from position, which arguments a caller intended to
+        skip.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A default argument, <code>param=value</code>, is used automatically when the caller doesn't supply that argument.</li>
+        <li>Passing a value explicitly always overrides the default.</li>
+        <li>Never use a mutable default like <code>[]</code> or <code>{}</code> — it's created once and shared across every call; default to <code>None</code> and create the mutable value inside the function instead.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="args-kwargs">
+    <span class="subtopic-label">Sub-topic 3 of 8</span>
+    <h2>3. <code>*args</code> and <code>**kwargs</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>*args</code> collects any number of extra positional arguments into a tuple.</li>
+        <li><code>**kwargs</code> collects any number of extra keyword arguments into a dictionary.</li>
+        <li>Both exist for when the number of arguments genuinely can't be known in advance — not as a default way to write every function.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a function truly needs to accept a variable number of inputs — not as a shortcut to avoid naming parameters clearly.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>*args</code>?</span>
+      <code>*args</code> in a function definition collects any number of
+      extra positional arguments into a single tuple named
+      <code>args</code>. The <code>*</code> is what does the collecting —
+      <code>args</code> itself is just a conventional name.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">using_args.py</span>
+      </div>
+      <pre><code>def total(*args):
+    return sum(args)
+
+print(total(1, 2, 3))     &#35; 6
+print(total(10, 20))      &#35; 30
+print(total())            &#35; 0</code></pre>
+    </div>
+
+    <p>
+      <code>total</code> works with any number of arguments — one, two,
+      ten, or zero — because <code>*args</code> gathers whatever was passed
+      into a tuple, and <code>sum()</code> (Chapter 7) adds up whatever's
+      inside it.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>**kwargs</code>?</span>
+      <code>**kwargs</code> collects any number of extra keyword arguments
+      — arguments passed as <code>name=value</code> — into a single
+      dictionary named <code>kwargs</code>. Like <code>*args</code>, the
+      double <code>**</code> is what matters; <code>kwargs</code> is just
+      the conventional name.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">using_kwargs.py</span>
+      </div>
+      <pre><code>def build_profile(name, **kwargs):
+    profile = {"name": name}
+    profile.update(kwargs)
+    return profile
+
+print(build_profile("Zoe", age=29, city="Austin"))
+&#35; {'name': 'Zoe', 'age': 29, 'city': 'Austin'}</code></pre>
+    </div>
+
+    <p>
+      <code>build_profile</code> always needs <code>name</code>, but any
+      other detail — age, city, job title, anything — gets collected into
+      <code>kwargs</code> without the function needing a parameter for
+      every possible field in advance.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_args_kwargs.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">def describe_pizza(*toppings, **details):
+    print("Toppings:", toppings)
+    print("Details:", details)
+
+describe_pizza("pepperoni", "olives", size="large", crust="thin")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a third topping and a fourth detail.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: genuinely useful vs. over-engineering</summary>
+      <p>
+        <code>*args</code> and <code>**kwargs</code> earn their keep when a
+        function truly can't know its argument count ahead of time — a
+        <code>total()</code> that adds any number of values, or a logging
+        wrapper (Sub-topic 7) that needs to forward whatever arguments the
+        wrapped function receives. Reaching for them on a function that
+        always takes the same two or three named things just hides what
+        the function actually expects — plain, named parameters are more
+        readable whenever the shape of the input is already known.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>*args</code> collects extra positional arguments into a tuple.</li>
+        <li><code>**kwargs</code> collects extra keyword arguments into a dictionary.</li>
+        <li>Use both only when a function genuinely needs a variable number of arguments — named parameters are clearer when the inputs are already known.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="scope">
+    <span class="subtopic-label">Sub-topic 4 of 8</span>
+    <h2>4. Variable scope: local, global, and <code>nonlocal</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A variable created inside a function is <strong>local</strong> — it only exists while that function is running.</li>
+        <li>A function can read a <strong>global</strong> variable, but assigning to a same-named variable creates a new local one instead of changing it.</li>
+        <li>The <code>global</code> keyword explicitly opts in to changing a global variable from inside a function.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> scope is what keeps one function's variables from accidentally clobbering another function's, or the rest of the program's.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... scope?</span>
+      Scope is the region of code where a variable name is visible and
+      usable. A variable created inside a function only exists in that
+      function's <strong>local</strong> scope — it disappears once the
+      function finishes running, and code outside the function can't see
+      it at all.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">local_scope.py</span>
+      </div>
+      <pre><code>def calculate_area(width, height):
+    area = width * height   &#35; local to this function
+    return area
+
+print(calculate_area(4, 5))   &#35; 20
+&#35; print(area) here would raise NameError — area doesn't exist out here</code></pre>
+    </div>
+
+    <p>
+      A function can freely <em>read</em> a variable defined outside it —
+      that's normal and safe. The surprise shows up the moment a function
+      tries to <em>assign</em> to a same-named variable: Python treats that
+      as creating a brand-new local variable, not changing the outer one:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">assignment_creates_local.py</span>
+      </div>
+      <pre><code>x = 10
+
+def try_change():
+    x = 20   &#35; creates a NEW local x, doesn't touch the outer one
+    return x
+
+print(try_change())   &#35; 20 — the local x
+print(x)               &#35; 10 — the outer x, unchanged</code></pre>
+    </div>
+
+    <p>
+      This is a deliberate safety feature, not a limitation. Without it,
+      any function anywhere in a large program could silently overwrite a
+      variable another part of the program depends on, just by happening
+      to reuse the same name.
+    </p>
+
+    <p>
+      Sometimes a function genuinely does need to change a variable
+      defined outside it — a running total updated by several different
+      calls, for example. The <code>global</code> keyword explicitly opts
+      in to that, telling Python "don't create a local — use the outer
+      one":
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">the_global_keyword.py</span>
+      </div>
+      <pre><code>visit_count = 0
+
+def record_visit():
+    global visit_count
+    visit_count += 1
+
+record_visit()
+record_visit()
+record_visit()
+print(visit_count)   &#35; 3</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>global</code> keyword?</span>
+      <code>global name</code>, written as the first line inside a
+      function body, tells Python that assignments to <code>name</code> in
+      this function should change the module-level (outer) variable,
+      instead of creating a new local one.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_scope.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">score = 0
+
+def add_points(points):
+    global score
+    score += points
+
+add_points(10)
+add_points(5)
+print(score)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try removing the global line and see what breaks.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: nonlocal is global's cousin for nested functions</summary>
+      <p>
+        <code>global</code> reaches out to module-level variables from
+        inside a function. A different keyword, <code>nonlocal</code>,
+        does the same job one level in — letting a function defined
+        <em>inside</em> another function modify a variable from that
+        enclosing function, rather than the whole module. That situation —
+        a function nested inside another function — is exactly what
+        Sub-topic 6, closures, covers next, where <code>nonlocal</code>
+        gets used for real.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A variable created inside a function is local — it exists only while that function runs.</li>
+        <li>Assigning to a variable inside a function creates a new local one by default, even if an outer variable shares the name — this keeps functions from accidentally clobbering each other's variables.</li>
+        <li><code>global name</code> explicitly opts in to changing a module-level variable from inside a function; <code>nonlocal</code> does the equivalent for a variable one function-level up, covered in Sub-topic 6.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="recursion">
+    <span class="subtopic-label">Sub-topic 5 of 8</span>
+    <h2>5. Recursive functions</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>recursive function</strong> calls itself, working on a smaller version of the same problem each time.</li>
+        <li>Every recursive function needs a <strong>base case</strong> — a condition where it stops calling itself.</li>
+        <li>Recursion is elegant for naturally nested problems, but a plain loop is usually simpler and safer for everyday tasks.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a problem is naturally defined in terms of a smaller version of itself, like a factorial, a nested folder structure, or a tree.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... recursion?</span>
+      Recursion is when a function calls itself, each time working on a
+      smaller piece of the original problem, until it reaches a
+      <strong>base case</strong> simple enough to answer directly without
+      calling itself again.
+    </div>
+
+    <p>
+      A factorial is a classic recursive example — <code>4! = 4 &times; 3!</code>,
+      and <code>3! = 3 &times; 2!</code>, all the way down to <code>1! = 1</code>,
+      which is the base case that stops the chain:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">factorial_recursive.py</span>
+      </div>
+      <pre><code>def factorial(n):
+    if n == 0 or n == 1:
+        return 1          &#35; base case — stops the recursion
+    return n * factorial(n - 1)   &#35; recursive case
+
+print(factorial(4))   &#35; 24</code></pre>
+    </div>
+
+    <p>
+      Tracing <code>factorial(4)</code> shows each call waiting on a
+      smaller call before it can finish, then unwinding back out once the
+      base case is hit:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">factorial(4) traced — calls going in, results coming back out</span>
+      <pre><code>factorial(4) called
+  factorial(3) called
+    factorial(2) called
+      factorial(1) called
+      -&gt; base case, returns 1
+    -&gt; factorial(2) returns 2
+  -&gt; factorial(3) returns 6
+-&gt; factorial(4) returns 24</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a base case?</span>
+      A base case is the condition in a recursive function that returns an
+      answer directly, without calling the function again. Without one, a
+      recursive function calls itself forever, until Python runs out of
+      room and raises an error.
+    </div>
+
+    <p>
+      That error is worth seeing once, so it's recognizable later —
+      forgetting the base case (or writing one that's never actually
+      reached) causes a <code>RecursionError</code>, because Python keeps
+      every waiting call in memory until one of them finally returns:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">missing_base_case.py</span>
+      </div>
+      <pre><code>def countdown_broken(n):
+    print(n)
+    return countdown_broken(n - 1)   &#35; no base case — never stops
+
+&#35; countdown_broken(5) eventually raises:
+&#35; RecursionError: maximum recursion depth exceeded</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_recursion.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">def countdown(n):
+    if n <= 0:
+        print("Liftoff!")
+        return
+    print(n)
+    countdown(n - 1)
+
+countdown(5)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the starting number.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: when a loop is simply the better tool</summary>
+      <p>
+        Every recursive function has a loop-based equivalent, and for
+        something like a factorial or a simple countdown, the loop version
+        is usually easier to read and uses a fixed, small amount of memory
+        regardless of the input size. Recursion earns its place on
+        problems that are naturally nested — walking a folder tree,
+        exploring a tree-shaped data structure — where "process this, then
+        recursively process the smaller pieces inside it" mirrors the
+        problem's actual shape. For everything else, honestly ask whether
+        a <code>for</code> or <code>while</code> loop would just be
+        simpler; Python's default recursion limit (around 1,000 calls deep)
+        also means recursion isn't safe for problems that could go
+        thousands of levels deep.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A recursive function calls itself on a smaller version of the same problem.</li>
+        <li>Every recursive function needs a base case — the condition where it stops calling itself and returns directly.</li>
+        <li>Recursion suits naturally nested problems; a loop is usually simpler, uses less memory, and avoids Python's recursion depth limit for everyday tasks.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="closures">
+    <span class="subtopic-label">Sub-topic 6 of 8</span>
+    <h2>6. Closures</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>closure</strong> is a function defined inside another function that remembers variables from the outer function's scope.</li>
+        <li>The outer function's variables stay alive for the inner function to use, even after the outer function has already returned.</li>
+        <li><code>nonlocal</code> lets the inner function modify — not just read — a captured outer variable.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you need to create several independent functions that each remember their own separate piece of state.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a closure?</span>
+      A closure is a function defined inside another function that
+      "remembers" the enclosing function's variables, even after the
+      outer function has finished running. The inner function carries its
+      enclosing scope along with it, like a small backpack of remembered
+      values.
+    </div>
+
+    <p>
+      A counter-maker is the classic motivating example — each call to
+      <code>make_counter()</code> builds a brand-new <code>increment</code>
+      function, and each one remembers its <em>own</em> separate
+      <code>count</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">counter_maker.py</span>
+      </div>
+      <pre><code>def make_counter():
+    count = 0
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+    return increment
+
+counter = make_counter()
+print(counter())   &#35; 1
+print(counter())   &#35; 2
+print(counter())   &#35; 3</code></pre>
+    </div>
+
+    <p>
+      Without <code>nonlocal</code>, <code>count += 1</code> inside
+      <code>increment</code> would create a brand-new local
+      <code>count</code> inside <code>increment</code> itself — the exact
+      "assignment creates a local" rule from Sub-topic 4, just one function
+      level deeper. <code>nonlocal count</code> tells Python to reuse and
+      modify the <code>count</code> that belongs to the enclosing
+      <code>make_counter</code> instead.
+    </p>
+
+    <p>
+      Calling <code>make_counter()</code> a second time proves each closure
+      keeps its own independent copy — a fresh <code>count</code>, separate
+      from the first counter's:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">two counters, each remembering its own separate count</span>
+      <pre><code>c1 = make_counter()
+c1() -&gt; 1
+c1() -&gt; 2
+c1() -&gt; 3
+
+c2 = make_counter()
+c2() -&gt; 1   &#35; a brand-new count, unrelated to c1's</code></pre>
+    </div>
+
+    <p>
+      A multiplier-maker is another common shape — the outer function's
+      parameter, not just a local variable, gets remembered too:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">multiplier_maker.py</span>
+      </div>
+      <pre><code>def multiplier_maker(factor):
+    def multiply(n):
+        return n * factor   &#35; remembers factor from the enclosing call
+    return multiply
+
+double = multiplier_maker(2)
+triple = multiplier_maker(3)
+
+print(double(5))   &#35; 10
+print(triple(5))   &#35; 15</code></pre>
+    </div>
+
+    <p>
+      <code>double</code> and <code>triple</code> are both built from the
+      exact same <code>multiply</code> function definition, but each
+      remembers a different <code>factor</code> from the call that created
+      it — that's the whole point of a closure: the same inner logic,
+      customized by whatever it captured on the way out.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_closures.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="9">def make_greeter(greeting):
+    def greet(name):
+        return greeting + ", " + name + "!"
+    return greet
+
+hello_greeter = make_greeter("Hello")
+hi_greeter = make_greeter("Hi")
+
+print(hello_greeter("Zoe"))
+print(hi_greeter("Zoe"))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try making a third greeter with a different greeting.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: only variables actually used inside the inner function get captured</summary>
+      <p>
+        A closure doesn't remember the entire outer function — only the
+        specific variables the inner function actually references. If
+        <code>make_counter</code> had ten unrelated local variables but
+        <code>increment</code> only ever used <code>count</code>, only
+        <code>count</code> would be captured; the rest are cleaned up
+        normally once <code>make_counter</code> finishes running.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A closure is a function defined inside another function that remembers its enclosing scope's variables.</li>
+        <li>Each call to the outer function creates a new, independent closure with its own captured variables.</li>
+        <li><code>nonlocal</code> is required to modify — not just read — a captured variable from the enclosing function.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="decorators">
+    <span class="subtopic-label">Sub-topic 7 of 8</span>
+    <h2>7. Decorators</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>decorator</strong> is a function that wraps another function, adding behavior before and/or after it runs.</li>
+        <li><code>@decorator_name</code> above a function definition applies the decorator automatically.</li>
+        <li>Decorators lean directly on closures: the wrapper function remembers the original function it's wrapping.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> the same extra behavior — timing, logging, checking something — needs to wrap several different functions without repeating that logic inside each one.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a decorator?</span>
+      A decorator is a function that takes another function as input,
+      defines a new function that adds some behavior around it, and
+      returns that new function — effectively "wrapping" the original
+      without changing its actual code.
+    </div>
+
+    <p>
+      Building one from scratch shows exactly how the pieces fit together
+      — a decorator is really just a closure where the captured variable
+      happens to be another function:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">decorator_by_hand.py</span>
+      </div>
+      <pre><code>def log_calls(func):
+    def wrapper(*args, **kwargs):
+        print("Calling", func.__name__)
+        result = func(*args, **kwargs)
+        print(func.__name__, "returned", result)
+        return result
+    return wrapper
+
+def add(a, b):
+    return a + b
+
+logged_add = log_calls(add)   &#35; wrap add manually
+print(logged_add(3, 4))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">what actually happens when logged_add(3, 4) runs</span>
+      <pre><code>Calling add
+add returned 7
+7</code></pre>
+    </div>
+
+    <p>
+      <code>wrapper</code> uses <code>*args</code> and <code>**kwargs</code>
+      (Sub-topic 3) so it can forward <em>any</em> arguments straight
+      through to whatever function it's wrapping, no matter how many that
+      function takes. Writing <code>logged_add = log_calls(add)</code>
+      every time gets repetitive — Python's <code>@</code> syntax applies
+      the exact same wrapping automatically, right at the point where the
+      function is defined:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">the_at_syntax.py</span>
+      </div>
+      <pre><code>def log_calls(func):
+    def wrapper(*args, **kwargs):
+        print("Calling", func.__name__)
+        result = func(*args, **kwargs)
+        print(func.__name__, "returned", result)
+        return result
+    return wrapper
+
+@log_calls
+def add(a, b):
+    return a + b
+
+print(add(3, 4))   &#35; same output as before — @log_calls did the wrapping</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>@</code> syntax?</span>
+      <code>@decorator_name</code>, written directly above a function
+      definition, is shorthand for <code>add = decorator_name(add)</code>
+      — Python applies the decorator to the function immediately after
+      it's defined, so every call to <code>add</code> from then on actually
+      calls the wrapped version.
+    </div>
+
+    <p>
+      Timing how long a function takes is another common real use for a
+      decorator — the wrapping logic lives in exactly one place, and any
+      function can opt in just by adding <code>@time_it</code> above it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">timing_decorator.py</span>
+      </div>
+      <pre><code>def time_it(func):
+    def wrapper(*args, **kwargs):
+        start = 100.0   &#35; a stand-in "clock reading" for this example
+        result = func(*args, **kwargs)
+        end = 100.2
+        print(func.__name__, "took", round(end - start, 2), "seconds")
+        return result
+    return wrapper
+
+@time_it
+def slow_add(a, b):
+    return a + b
+
+print(slow_add(2, 2))</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_decorators.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="12">def shout(func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return result.upper() + "!"
+    return wrapper
+
+@shout
+def greet(name):
+    return "hello, " + name
+
+print(greet("zoe"))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try stacking a second decorator on top of @shout.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: real-world decorators usually add functools.wraps</summary>
+      <p>
+        Production decorators almost always add one more line,
+        <code>@functools.wraps(func)</code> above <code>wrapper</code>,
+        which preserves the original function's name and docstring instead
+        of replacing them with <code>wrapper</code>'s. That needs
+        <code>import functools</code>, which is a Chapter 11 topic — worth
+        knowing it exists, but skipped here since this chapter doesn't use
+        <code>import</code> yet. The hand-written decorators above work
+        correctly without it; they just report <code>func.__name__</code>
+        slightly less precisely in edge cases.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A decorator is a function that wraps another function to add behavior before, after, or around its call.</li>
+        <li><code>@decorator_name</code> above a function definition is shorthand for reassigning the function to its wrapped version.</li>
+        <li>A decorator's wrapper typically uses <code>*args, **kwargs</code> to forward any arguments through to the original function unchanged.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 8 of 8</span>
+    <h2>8. Real-world functions in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A small library of focused helper functions is how real, maintainable codebases are organized.</li>
+        <li>Each function does <strong>one job</strong> and has a name that says exactly what that job is.</li>
+        <li>Breaking logic into functions makes it testable, reusable, and easy for someone else to read later.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> a big program isn't one long script — it's many small functions, each solving one small piece, calling each other.
+    </div>
+
+    <p>
+      A signup form needs several independent checks — is the email
+      shaped correctly, is the age a sensible number, is the password
+      long enough. Writing each check as its own small function makes the
+      whole validation step easy to read at a glance, and easy to test one
+      rule at a time:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">validation_helpers.py</span>
+      </div>
+      <pre><code>def is_valid_email(email):
+    return "@" in email and "." in email
+
+def is_valid_age(age_text):
+    return age_text.isdigit() and 0 < int(age_text) < 120
+
+def is_valid_password(password):
+    return len(password) >= 8
+
+def validate_signup(email, age_text, password):
+    return (
+        is_valid_email(email)
+        and is_valid_age(age_text)
+        and is_valid_password(password)
+    )
+
+print(validate_signup("zoe@example.com", "29", "supersecret"))   &#35; True
+print(validate_signup("not-an-email", "29", "supersecret"))      &#35; False</code></pre>
+    </div>
+
+    <p>
+      <code>validate_signup</code> reads almost like plain English, because
+      each individual rule already has a name. If the password rule ever
+      needs to change — say, requiring a number too — only
+      <code>is_valid_password</code> needs updating, and every place that
+      calls it picks up the new rule automatically.
+    </p>
+
+    <p>
+      A small library of calculation helpers follows the same pattern —
+      each function handles one computation, and a higher-level function
+      combines them:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">calculation_helpers.py</span>
+      </div>
+      <pre><code>def calculate_subtotal(prices):
+    return sum(prices)
+
+def calculate_tax(subtotal, rate=0.08):
+    return round(subtotal * rate, 2)
+
+def calculate_total(prices, tax_rate=0.08):
+    subtotal = calculate_subtotal(prices)
+    tax = calculate_tax(subtotal, tax_rate)
+    return round(subtotal + tax, 2)
+
+cart = [19.99, 5.00, 42.50]
+print(calculate_total(cart))   &#35; 72.4</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a helper function?</span>
+      A helper function is a small function that exists to support a
+      larger one — it does one focused job (like computing tax) so the
+      bigger function (like computing a total) can stay short and read
+      like a summary of its steps, instead of one long block of math.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_bringing_together.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="12">def is_valid_username(username):
+    return len(username) >= 3 and username.isalnum()
+
+def is_valid_pin(pin):
+    return pin.isdigit() and len(pin) == 4
+
+def can_log_in(username, pin):
+    return is_valid_username(username) and is_valid_pin(pin)
+
+print(can_log_in("zoe1", "1234"))
+print(can_log_in("z", "12"))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a third helper, like is_valid_domain.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: this is exactly what "breaking a problem down" means</summary>
+      <p>
+        Every function in this section could be inlined into one giant
+        block of code that does the same job — but that version would be
+        far harder to read, test, or fix. Real production codebases are
+        built almost entirely from small, well-named functions like these,
+        each one calling others, which is exactly why this chapter has
+        spent so much time on how to define, scope, and wrap them
+        correctly.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Real codebases are organized as many small, focused functions rather than one long script.</li>
+        <li>Each function should do one job and have a name that describes exactly what that job is.</li>
+        <li>Small helper functions make validation and calculation logic easy to read, reuse, and fix in one place.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Web frameworks and libraries are built almost entirely of functions calling other functions — a "route handler" in a web app is just a function Python calls automatically when a request comes in.</li>
+      <li>Decorators power real production features like Flask's <code>@app.route()</code> and pytest's <code>@pytest.fixture</code> — the exact wrapping pattern built by hand in Sub-topic 7, just applied to bigger jobs.</li>
+      <li>Closures are what make factory functions and configurable callbacks work throughout real libraries — one function shape, customized differently depending on what it captured when it was created.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>def name(parameters):</code> defines a reusable function; <code>return</code> hands a value back to the caller, while a function with no <code>return</code> implicitly returns <code>None</code>.</li>
+      <li>A default argument (<code>param=value</code>) is used when the caller omits that argument — but never default to a mutable value like <code>[]</code>, since it's created once and shared across every call.</li>
+      <li><code>*args</code> collects extra positional arguments into a tuple, and <code>**kwargs</code> collects extra keyword arguments into a dictionary — useful when a function genuinely needs a variable number of inputs.</li>
+      <li>A variable assigned inside a function is local by default, even if an outer variable shares its name; <code>global</code> explicitly opts in to changing a module-level variable from inside a function.</li>
+      <li>A recursive function calls itself on a smaller version of the same problem until a base case stops it — useful for naturally nested problems, but a loop is usually simpler and safer for everyday tasks.</li>
+      <li>A closure is a function defined inside another function that remembers its enclosing scope's variables; <code>nonlocal</code> lets it modify — not just read — a captured variable.</li>
+      <li>A decorator wraps another function to add behavior around it, applied automatically with <code>@decorator_name</code> — and is really just a closure whose captured variable happens to be a function.</li>
+      <li>Real, maintainable codebases are built from many small, well-named functions, each doing one job, calling each other to build up bigger behavior.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 Project: Tip & Bill-Split Calculator Library — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven tip and bill-split calculator as a real function library using def, default arguments, and *args/**kwargs — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-10">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 10 Project</span>
+    <span class="reading-time">50 min build</span>
+  </div>
+  <h1>Tip & Bill-Split Calculator Library</h1>
+  <p>A small, genuine library of well-designed, reusable functions for splitting bills, calculating tips, applying discounts, and adding fees &mdash; wired up to a simple menu-driven CLI on top. This is the first project in the course actually <strong>built around functions</strong> as its organizing principle: every calculation lives in a standalone, named function with clear inputs and a clear return value, and the <code>while True</code> menu loop at the bottom does nothing but call into that library and print results. That's the whole point of this chapter &mdash; earlier projects crammed their logic straight into the menu loop's <code>if</code>/<code>elif</code> branches; this one doesn't.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Tip &amp; Bill-Split Calculator Library ===
+
+1. Calculate a tip only
+2. Apply a discount to a bill
+3. Split a bill across people
+4. Build a full receipt (discount + tip + fees + split)
+5. Show session history
+6. Quit
+Choose an option (1-6): 4
+Bill amount: $100
+Discount percent (blank = 0): 10
+Tip percent (blank = 15): 18
+Number of people (blank = 1): 2
+Add extra fees? (y/n): y
+How many fees to add? 2
+  Fee #1 name (e.g. delivery_fee): delivery fee
+  Fee #1 amount: $5
+  Fee #2 name (e.g. delivery_fee): service fee
+  Fee #2 amount: $2.5
+
+--- Receipt ---
+Original bill:        $100.00
+Discount:             10.0% -&gt; $90.00
+Tip (18.0%):          $16.20
+Delivery Fee:         $5.00
+Service Fee:          $2.50
+Grand total:          $113.70
+Per person (2):       $56.85
+
+1. Calculate a tip only
+2. Apply a discount to a bill
+3. Split a bill across people
+4. Build a full receipt (discount + tip + fees + split)
+5. Show session history
+6. Quit
+Choose an option (1-6): 5
+
+--- Session History (1 receipt(s)) ---
+1. Bill $100.00 -&gt; Grand total $113.70
+
+1. Calculate a tip only
+2. Apply a discount to a bill
+3. Split a bill across people
+4. Build a full receipt (discount + tip + fees + split)
+5. Show session history
+6. Quit
+Choose an option (1-6): 6
+
+Session summary: 1 receipt(s) built.
+Goodbye!</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A function library of six small, reusable functions &mdash;
+    <code>calculate_tip</code>, <code>apply_discount</code>,
+    <code>apply_surcharges</code>, <code>split_bill</code>,
+    <code>summarize_fees</code>, and <code>build_receipt</code> &mdash;
+    wired to a <code>while True</code> menu loop with six options: calculate
+    a tip only, apply a discount, split a bill across people, build a full
+    receipt, show session history, or quit. Every receipt built gets
+    appended to a running <code>receipts</code> list, the same running-state
+    pattern earlier projects have used, just now built on top of function
+    calls instead of inline logic.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The function library</h2>
+  <ul>
+    <li><code>calculate_tip(bill_amount, tip_percent=15)</code> &mdash; a <strong>default argument</strong> means most tips can be calculated with just a bill amount, while still allowing a custom percentage.</li>
+    <li><code>apply_discount(bill_amount, discount_percent=0)</code> &mdash; defaults to no discount at all, so it's safe to call even when there isn't one.</li>
+    <li><code>apply_surcharges(bill_amount, *surcharges)</code> &mdash; <strong><code>*args</code></strong> lets the caller tack on any number of flat fees (delivery, service, ...) without this function needing to know in advance how many there'll be.</li>
+    <li><code>split_bill(total, num_people=1)</code> &mdash; defaults to "no split" (one person), and guards against splitting across zero or a negative number of people.</li>
+    <li><code>summarize_fees(**fees)</code> &mdash; <strong><code>**kwargs</code></strong> totals up any number of <em>named</em> fees (<code>delivery_fee=5, service_fee=2</code>) without a fixed parameter for every possible fee name.</li>
+    <li><code>build_receipt(bill_amount, tip_percent=15, discount_percent=0, num_people=1, **extra_fees)</code> &mdash; the "bring it all together" function. It doesn't duplicate any math itself; it just calls the five functions above in the right order and assembles their results into one receipt dict &mdash; function composition in action.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "recalculate last receipt with a different tip" option that rebuilds the most recent entry in <code>receipts</code> using a new tip percentage, reusing <code>build_receipt(...)</code> rather than writing new math.</li>
+    <li>Write a <code>round_up_to_nearest(amount, nearest=1)</code> function and use it to offer a "round the grand total up" option on a receipt.</li>
+    <li>Add a <code>best_tip_for_budget(bill_amount, max_total)</code> function that works backward from a maximum total the customer can spend to figure out the highest tip percentage they can afford.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Splitting a bill and calculating a tip sounds trivial, but the real skill this project practices is <strong>function design</strong>: deciding what belongs in its own small function, what a good default argument is, and when <code>*args</code>/<code>**kwargs</code> genuinely simplify a call versus just adding noise. That's precisely the skill behind any real-world calculation library &mdash; a payments system's fee calculator, a payroll system's tax-and-deduction functions, an e-commerce checkout's discount-and-shipping pipeline &mdash; all of them are built the same way this project is: small functions with clear responsibilities, composed together by one function that calls them in the right order.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Tip &amp; Bill-Split Calculator Library above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 10 (everything through comprehensions and lambda, plus <code>def</code>, parameters/defaults, <code>*args</code>/<code>**kwargs</code>, scope, recursion, closures, and decorators). No starter or solution files are provided on purpose &mdash; building one of these unassisted, menu loop and all, is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Unit-Conversion Function Library</h3>
+    <p><strong>Problem:</strong> Recipes, shipping labels, fitness apps, and engineering tools constantly need to convert between units &mdash; and a reliable conversion library is the backbone of every one of them.</p>
+    <p><strong>What it should do:</strong> Build small functions like <code>celsius_to_fahrenheit(c)</code>, <code>miles_to_km(miles)</code>, <code>pounds_to_kg(pounds)</code>, and a general-purpose <code>convert(value, from_unit, to_unit)</code> that dispatches to the right specific function based on the unit names passed in. Menu options: convert temperature, convert distance, convert weight, and show a conversion history of everything converted this session.</p>
+    <p><strong>Suggested approach:</strong> Write each specific conversion as its own one-line function with a clear name and a docstring, then have <code>convert(...)</code> use <code>if</code>/<code>elif</code> to call the right one &mdash; this keeps each individual formula isolated and testable on its own, exactly like this chapter's <code>calculate_tip</code>/<code>apply_discount</code> split. Store each conversion performed as a dict in a running list for the history option.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Text-Statistics Toolkit</h3>
+    <p><strong>Problem:</strong> Writers, editors, and content platforms need quick readability stats &mdash; word count, sentence count, average word length &mdash; computed consistently every time.</p>
+    <p><strong>What it should do:</strong> Build functions like <code>count_words(text)</code>, <code>count_sentences(text)</code>, <code>count_characters(text, include_spaces=True)</code>, and <code>average_word_length(text)</code>. Menu options: paste in a block of text, run the full toolkit on it and print every stat, and compare two texts side by side using the same functions on both.</p>
+    <p><strong>Suggested approach:</strong> <code>count_sentences</code> can use a simple approach like counting <code>.</code>, <code>!</code>, and <code>?</code> characters with <code>.count(...)</code>; keep <code>include_spaces=True</code> as a default argument on <code>count_characters</code> so most calls don't need to think about it. Build a <code>build_report(text)</code> function that composes all four smaller functions into one summary dict, the same "bring it all together" pattern <code>build_receipt</code> uses here.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Grade &amp; GPA Calculator Library</h3>
+    <p><strong>Problem:</strong> Students and teachers alike need a reliable way to turn a list of scores or letter grades into a final weighted grade or GPA &mdash; by hand, this is error-prone and inconsistent.</p>
+    <p><strong>What it should do:</strong> Build functions like <code>weighted_average(*scores, weights=None)</code>, <code>percent_to_letter_grade(percent)</code>, and <code>gpa_from_letters(*letters)</code>. Menu options: enter scores and weights for one class and get the weighted average, convert a percent to a letter grade, and compute a GPA across several classes' letter grades.</p>
+    <p><strong>Suggested approach:</strong> <code>weighted_average</code> is a great real use case for <code>*args</code> (any number of scores) alongside a <code>weights</code> parameter that defaults to <code>None</code>, meaning "treat every score equally" when no weights are given &mdash; inside the function, build an equal-weights list yourself if <code>weights is None</code>. <code>percent_to_letter_grade</code> is a clean <code>if</code>/<code>elif</code> chain returning a single-character string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Password-Strength-Scoring Function Library</h3>
+    <p><strong>Problem:</strong> Signup forms need to score password strength in real time and explain <em>why</em> a password is weak &mdash; reusing the string-check ideas from Chapter 6/3 but now organized as a real function library instead of one big block of <code>if</code> statements.</p>
+    <p><strong>What it should do:</strong> Build functions like <code>has_uppercase(password)</code>, <code>has_digit(password)</code>, <code>has_symbol(password)</code>, <code>score_password(password)</code> (returns a 0-4 strength score based on which checks pass), and <code>strength_label(score)</code> (turns that score into "Weak"/"Fair"/"Strong"). Menu options: score a single password and show which checks it passed/failed, and batch-score a list of sample passwords showing each one's label.</p>
+    <p><strong>Suggested approach:</strong> Each <code>has_*</code> check is a one-line function returning <code>True</code>/<code>False</code>; <code>score_password</code> calls all of them and counts how many returned <code>True</code>, exactly the same "small functions composed by one bigger function" shape as <code>build_receipt</code> in this chapter's main project. Keep the individual checks reusable on their own, since a real signup form often needs to show which specific rule failed, not just a final score.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

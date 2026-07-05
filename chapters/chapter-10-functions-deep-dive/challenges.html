@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on default arguments, *args/**kwargs, recursion, closures, and decorators for Chapter 10: Functions Deep Dive.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-10">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 10 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Functions Deep Dive</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases like <code>n = 0</code> and empty inputs).
+    Stuck? Every challenge has a <strong>Show Solution</strong> reveal at
+    the bottom. Only uses what Chapters 1-10 have covered so far &mdash;
+    <code>def</code>, default arguments, <code>*args</code>/<code>**kwargs</code>,
+    <code>global</code>/<code>nonlocal</code>, recursion, closures, and
+    hand-written decorators. No <code>try</code>/<code>except</code>, file
+    I/O, classes, or imports.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Price With Tax <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>price_with_tax(price, tax_rate=0.08)</code> that returns <code>price</code> plus <code>tax_rate</code> of <code>price</code>, rounded to 2 decimal places, using a default argument for <code>tax_rate</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>price</code> may be <code>0</code>; <code>tax_rate</code> may be overridden by the caller; round the final result to 2 decimal places with <code>round(..., 2)</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>price_with_tax(100)</code> &rarr; <code>108.0</code><br>
+        <code>price_with_tax(100, 0.1)</code> &rarr; <code>110.0</code><br>
+        <code>price_with_tax(0)</code> &rarr; <code>0.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def price_with_tax(price, tax_rate=0.08):
+    # TODO: return price + price * tax_rate, rounded to 2 decimal places
+    # with round(..., 2). tax_rate should default to 0.08 when the
+    # caller doesn't pass one.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "price_with_tax",
+  "cases": [
+    { "args": [100], "expected": 108.0 },
+    { "args": [100, 0.1], "expected": 110.0 },
+    { "args": [0], "expected": 0.0 },
+    { "args": [50, 0], "expected": 50.0 },
+    { "args": [200, 0.25], "expected": 250.0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def price_with_tax(price, tax_rate=0.08):
+    return round(price + price * tax_rate, 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Sum Any Number of Values <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>total_of(*args)</code> that returns the sum of however many positional arguments are passed in, using <code>*args</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> may be called with zero arguments (return <code>0</code>); arguments may be negative.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>total_of(1, 2, 3)</code> &rarr; <code>6</code><br>
+        <code>total_of()</code> &rarr; <code>0</code><br>
+        <code>total_of(-1, 1)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def total_of(*args):
+    # TODO: use *args to collect any number of positional arguments into
+    # a tuple, then return sum(args). Calling total_of() with no
+    # arguments should return 0.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "total_of",
+  "cases": [
+    { "args": [1, 2, 3], "expected": 6 },
+    { "args": [], "expected": 0 },
+    { "args": [5], "expected": 5 },
+    { "args": [-1, 1], "expected": 0 },
+    { "args": [10, 20, 30, 40], "expected": 100 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def total_of(*args):
+    return sum(args)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Format a Record From Keyword Arguments <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>format_record(fields)</code> that takes a dictionary <code>fields</code> and returns a single string joining every entry as <code>"key=value"</code> pairs separated by <code>", "</code>, in insertion order. Do the actual joining inside a small nested helper that takes <code>**kwargs</code>, and call that helper by unpacking the dict into it with <code>**fields</code> &mdash; that's the <code>**kwargs</code> pattern this challenge is really testing, just wired up so the outside caller can hand you a single dict.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>fields</code> may be an empty dict (return <code>""</code>); values may be strings or numbers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>format_record({"name": "Asha", "age": 21})</code> &rarr; <code>"name=Asha, age=21"</code><br>
+        <code>format_record({})</code> &rarr; <code>""</code><br>
+        <code>format_record({"x": 1})</code> &rarr; <code>"x=1"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def format_record(fields):
+    # TODO: define a nested helper _format(**kwargs) that returns
+    # ", ".join(f"{k}={v}" for k, v in kwargs.items()), then return
+    # _format(**fields) so the dict's entries flow through **kwargs
+    # exactly the way a caller's own keyword arguments would.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "format_record",
+  "cases": [
+    { "args": [{"name": "Asha", "age": 21}], "expected": "name=Asha, age=21" },
+    { "args": [{}], "expected": "" },
+    { "args": [{"x": 1}], "expected": "x=1" },
+    { "args": [{"a": 1, "b": 2, "c": 3}], "expected": "a=1, b=2, c=3" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def format_record(fields):
+    def _format(**kwargs):
+        return ", ".join(f"{k}={v}" for k, v in kwargs.items())
+    return _format(**fields)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Recursive Factorial <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a recursive function <code>factorial(n)</code> that returns <code>n!</code> (the product of every whole number from 1 to <code>n</code>), with <code>factorial(0)</code> equal to <code>1</code> as the base case.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is always a non-negative integer; must be implemented recursively (no loop-based fallback).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>factorial(0)</code> &rarr; <code>1</code><br>
+        <code>factorial(5)</code> &rarr; <code>120</code><br>
+        <code>factorial(10)</code> &rarr; <code>3628800</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def factorial(n):
+    # TODO: base case - if n == 0, return 1.
+    # Otherwise, return n * factorial(n - 1).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "factorial",
+  "cases": [
+    { "args": [0], "expected": 1 },
+    { "args": [1], "expected": 1 },
+    { "args": [5], "expected": 120 },
+    { "args": [6], "expected": 720 },
+    { "args": [10], "expected": 3628800 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def factorial(n):
+    if n == 0:
+        return 1
+    return n * factorial(n - 1)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Recursive Digit Sum <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a recursive function <code>digit_sum(n)</code> that returns the sum of the digits of <code>n</code>. The base case is when <code>n</code> is already a single digit (less than 10) &mdash; return <code>n</code> directly. Otherwise, return the last digit (<code>n % 10</code>) plus the recursive digit sum of the rest of the number (<code>n // 10</code>).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is always a non-negative integer, including <code>0</code>; must be implemented recursively.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>digit_sum(0)</code> &rarr; <code>0</code><br>
+        <code>digit_sum(123)</code> &rarr; <code>6</code><br>
+        <code>digit_sum(9999)</code> &rarr; <code>36</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def digit_sum(n):
+    # TODO: base case - if n < 10, n is already a single digit, so
+    # return n directly.
+    # Otherwise, return (n % 10) + digit_sum(n // 10).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "digit_sum",
+  "cases": [
+    { "args": [0], "expected": 0 },
+    { "args": [5], "expected": 5 },
+    { "args": [123], "expected": 6 },
+    { "args": [9999], "expected": 36 },
+    { "args": [10], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def digit_sum(n):
+    if n < 10:
+        return n
+    return (n % 10) + digit_sum(n // 10)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Count Numbers in a Nested List <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a recursive function <code>count_numbers(data)</code> that takes a list which may contain numbers and/or other nested lists (nested arbitrarily deep), and returns a count of how many individual numbers appear in total, at every level.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>data</code> may be empty, or contain empty nested lists (they contribute <code>0</code>); nesting depth is not fixed.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_numbers([1, 2, [3, 4], [5, [6, 7, 8]]])</code> &rarr; <code>8</code><br>
+        <code>count_numbers([])</code> &rarr; <code>0</code><br>
+        <code>count_numbers([1, [2, [3, [4]]]])</code> &rarr; <code>4</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def count_numbers(data):
+    # TODO: loop over data. For each item, if isinstance(item, list) is
+    # True, recurse into it with count_numbers(item) and add that to a
+    # running count; otherwise the item is a single number, so add 1.
+    # Return the running count once the loop finishes.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_numbers",
+  "cases": [
+    { "args": [[1, 2, [3, 4], [5, [6, 7, 8]]]], "expected": 8 },
+    { "args": [[]], "expected": 0 },
+    { "args": [[1, [2, [3, [4]]]]], "expected": 4 },
+    { "args": [[[], [], []]], "expected": 0 },
+    { "args": [[1, 2, 3]], "expected": 3 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def count_numbers(data):
+    count = 0
+    for item in data:
+        if isinstance(item, list):
+            count += count_numbers(item)
+        else:
+            count += 1
+    return count</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Closure-Based Running Totals <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>running_totals(amounts)</code> that builds a closure-based accumulator internally: a local <code>total = 0</code>, plus a nested function <code>add(amount)</code> that uses <code>nonlocal total</code> to add <code>amount</code> to <code>total</code> and return the new running total. Then, using that same <code>add</code> closure, process every value in <code>amounts</code> in order and return a list of the running total after each one.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>amounts</code> may be empty (return <code>[]</code>); values may be negative; the running total must persist across every value in <code>amounts</code> via <code>nonlocal</code>, not be recomputed from scratch each time.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>running_totals([10, 5, -3])</code> &rarr; <code>[10, 15, 12]</code><br>
+        <code>running_totals([])</code> &rarr; <code>[]</code><br>
+        <code>running_totals([1, 1, 1, 1])</code> &rarr; <code>[1, 2, 3, 4]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def running_totals(amounts):
+    # TODO: define a local total = 0, then define a nested function
+    # add(amount) that uses `nonlocal total` to add amount to total and
+    # return the new total. Then return
+    # [add(amount) for amount in amounts] so every call to add() shares
+    # and updates the same enclosing total.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "running_totals",
+  "cases": [
+    { "args": [[10, 5, -3]], "expected": [10, 15, 12] },
+    { "args": [[]], "expected": [] },
+    { "args": [[100, 0]], "expected": [100, 100] },
+    { "args": [[1, 1, 1, 1]], "expected": [1, 2, 3, 4] },
+    { "args": [[-5]], "expected": [-5] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def running_totals(amounts):
+    total = 0
+
+    def add(amount):
+        nonlocal total
+        total += amount
+        return total
+
+    return [add(amount) for amount in amounts]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Call-Counting Decorator <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>call_n_times(n)</code> that, internally, defines a small function <code>ping()</code> returning <code>"pong"</code>, and a decorator <code>with_call_count(fn)</code> that wraps <code>fn</code> so every call to the wrapped version calls the original <code>fn</code> (ignoring its return value) and instead returns how many times the wrapped function has been called so far, starting at <code>1</code> on the first call (track the running count with <code>nonlocal</code> inside the decorator). Wrap <code>ping</code> with <code>with_call_count</code>, call the wrapped version <code>n</code> times, and return the result of the final call (<code>0</code> if <code>n</code> is <code>0</code>, since the wrapped function is never called).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> may be <code>0</code> (return <code>0</code>); the call count must start at <code>1</code> on the first call and increase by <code>1</code> each subsequent call.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>call_n_times(3)</code> &rarr; <code>3</code><br>
+        <code>call_n_times(1)</code> &rarr; <code>1</code><br>
+        <code>call_n_times(0)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def call_n_times(n):
+    # TODO: define with_call_count(fn), a decorator that keeps a local
+    # calls = 0 and returns a nested wrapper(*args, **kwargs) which uses
+    # `nonlocal calls` to increment calls, calls fn(*args, **kwargs)
+    # (ignoring its result), and returns the updated calls count.
+    # Then define ping() returning "pong", wrap it with
+    # counted_ping = with_call_count(ping), call counted_ping() a total
+    # of n times inside a loop, and return the result of the last call
+    # (start a result variable at 0 for the n == 0 case).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "call_n_times",
+  "cases": [
+    { "args": [3], "expected": 3 },
+    { "args": [1], "expected": 1 },
+    { "args": [0], "expected": 0 },
+    { "args": [5], "expected": 5 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def call_n_times(n):
+    def with_call_count(fn):
+        calls = 0
+
+        def wrapper(*args, **kwargs):
+            nonlocal calls
+            calls += 1
+            fn(*args, **kwargs)
+            return calls
+
+        return wrapper
+
+    def ping():
+        return "pong"
+
+    counted_ping = with_call_count(ping)
+    result = 0
+    for _ in range(n):
+        result = counted_ping()
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

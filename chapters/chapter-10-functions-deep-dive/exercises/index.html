@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 10: Functions Deep Dive, including a Debug the Code task on the mutable default argument trap.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-10">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 10 Exercises</span>
+    <span class="reading-time">30 min, hands-on</span>
+  </div>
+  <h1>Exercises: Functions Deep Dive</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Defining functions</h3>
+    <p>Write a function <code>calculate_area(width, height)</code> that returns the area of a rectangle. Then write a function <code>describe_pet(name, species)</code> that returns a string like <code>"Rex is a dog"</code>. Call both and print the results.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Default arguments</h3>
+    <p>Write a function <code>make_coffee(size="medium", extra_shot=False)</code> that returns a label like <code>"medium coffee"</code>, or <code>"large coffee with an extra shot"</code> if <code>extra_shot</code> is <code>True</code>. Call it once with no arguments, and once with <code>"large"</code> and <code>True</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> *args and **kwargs</h3>
+    <p>Write a function <code>total_cost(*prices)</code> that returns the sum of any number of prices, rounded to 2 decimals. Then write a function <code>build_order(item, **details)</code> that returns a dictionary starting with <code>{"item": item}</code> and merges in whatever extra keyword arguments are passed.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Scope and global</h3>
+    <p>Given the module-level variable <code>visits = 0</code>, write a function <code>record_visit()</code> that uses the <code>global</code> keyword to increment <code>visits</code> by 1 each time it's called. Call it three times and print the final <code>visits</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Recursion</h3>
+    <p>Write a recursive function <code>countdown(n)</code> that prints each number from <code>n</code> down to 1, then prints <code>"Liftoff!"</code> — with a proper base case. Then write a recursive function <code>sum_to_n(n)</code> that returns the sum of every whole number from 1 to <code>n</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Closures</h3>
+    <p>Write a function <code>make_multiplier(factor)</code> that returns an inner function <code>multiply(n)</code> which returns <code>n * factor</code>. Use it to create a <code>double</code> multiplier and a <code>triple</code> multiplier, and call both.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Decorators</h3>
+    <p>Write a decorator <code>shout(func)</code> whose inner <code>wrapper</code> calls <code>func</code> with any arguments it receives, then returns the result in uppercase with an exclamation point added. Apply it with <code>@shout</code> to a function <code>greet(name)</code> that returns <code>"hi " + name</code>, and print the result of calling it.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This function is supposed to build up a fresh task list on every call, but it reuses the same list across every call instead — the classic mutable default argument trap. Find and fix the bug.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy.py</span>
+      </div>
+      <pre><code>def add_task(task, task_list=[]):
+    task_list.append(task)
+    return task_list
+
+print(add_task("clean the kitchen"))
+print(add_task("cook dinner"))</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">9</span> Bringing it together: login validation helpers</h3>
+    <p>Write two small helper functions, <code>is_valid_username(username)</code> (at least 3 characters and alphanumeric) and <code>is_valid_pin(pin)</code> (exactly 4 digits). Then write <code>can_log_in(username, pin)</code>, which returns <code>True</code> only if both helpers pass. Test it with one valid and one invalid login.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
