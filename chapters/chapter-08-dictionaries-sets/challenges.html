@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style dictionary and set challenges for Chapter 8: Dictionaries & Sets.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-08">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 8 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Dictionaries &amp; Sets</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases like empty dicts and sets). Stuck? Every
+    challenge has a <strong>Show Solution</strong> reveal at the bottom.
+    Only uses what Chapters 1-8 have covered so far &mdash; no
+    comprehensions, no <code>def</code> beyond the function stub already
+    given.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Word Frequency Counter <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>word_frequency(words)</code> that returns a dictionary mapping each word in <code>words</code> to how many times it appears.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>words</code> may be empty (return <code>{}</code>); words may repeat any number of times.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>word_frequency(["a", "b", "a", "c", "b", "a"])</code> &rarr; <code>{"a": 3, "b": 2, "c": 1}</code><br>
+        <code>word_frequency([])</code> &rarr; <code>{}</code><br>
+        <code>word_frequency(["x"])</code> &rarr; <code>{"x": 1}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def word_frequency(words):
+    # TODO: build a result dict. Loop over words, and for each word set
+    # counts[word] = counts.get(word, 0) + 1. Return counts.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "word_frequency",
+  "cases": [
+    { "args": [["a", "b", "a", "c", "b", "a"]], "expected": {"a": 3, "b": 2, "c": 1} },
+    { "args": [[]], "expected": {} },
+    { "args": [["x"]], "expected": {"x": 1} },
+    { "args": [["cat", "dog", "cat"]], "expected": {"cat": 2, "dog": 1} },
+    { "args": [["a", "a", "a", "a"]], "expected": {"a": 4} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def word_frequency(words):
+    counts = {}
+    for word in words:
+        counts[word] = counts.get(word, 0) + 1
+    return counts</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Find Duplicate Values <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>find_duplicate_values(d)</code> that returns a sorted list of keys in <code>d</code> whose value also appears under an earlier key (i.e. two or more keys share the same value). Each duplicate key should appear once in the result.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>d</code> may be empty (return <code>[]</code>); values may be numbers or strings; return the result sorted.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>find_duplicate_values({"a": 1, "b": 2, "c": 1})</code> &rarr; <code>["c"]</code><br>
+        <code>find_duplicate_values({"a": 1, "b": 2, "c": 3})</code> &rarr; <code>[]</code><br>
+        <code>find_duplicate_values({"a": 1, "b": 1, "c": 1})</code> &rarr; <code>["b", "c"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def find_duplicate_values(d):
+    # TODO: keep a list of values seen so far. Loop over the keys of d
+    # (for key in d); if d[key] is already in seen_values, add key to a
+    # duplicate_keys list, otherwise append it to seen_values. Sort
+    # duplicate_keys before returning it.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "find_duplicate_values",
+  "cases": [
+    { "args": [{"a": 1, "b": 2, "c": 1}], "expected": ["c"] },
+    { "args": [{"a": 1, "b": 2, "c": 3}], "expected": [] },
+    { "args": [{}], "expected": [] },
+    { "args": [{"a": 1, "b": 1, "c": 1}], "expected": ["b", "c"] },
+    { "args": [{"x": 5}], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def find_duplicate_values(d):
+    seen_values = []
+    duplicate_keys = []
+    for key in d:
+        value = d[key]
+        if value in seen_values:
+            duplicate_keys.append(key)
+        else:
+            seen_values.append(value)
+    duplicate_keys.sort()
+    return duplicate_keys</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Merge Two Dicts, Summing Shared Keys <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>merge_sum_shared_keys(a, b)</code> that merges dictionaries <code>a</code> and <code>b</code> into one new dictionary. If a key exists in both, its value in the result should be the <em>sum</em> of both values; otherwise the key keeps its original value.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> either dict may be empty; values are always numbers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>merge_sum_shared_keys({"a": 1, "b": 2}, {"b": 3, "c": 4})</code> &rarr; <code>{"a": 1, "b": 5, "c": 4}</code><br>
+        <code>merge_sum_shared_keys({}, {"a": 1})</code> &rarr; <code>{"a": 1}</code><br>
+        <code>merge_sum_shared_keys({"a": 1}, {})</code> &rarr; <code>{"a": 1}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def merge_sum_shared_keys(a, b):
+    # TODO: build a result dict starting with a copy of every key/value
+    # in a. Then loop over b's keys — if the key is already in result,
+    # add b's value to the existing one; otherwise just set it.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "merge_sum_shared_keys",
+  "cases": [
+    { "args": [{"a": 1, "b": 2}, {"b": 3, "c": 4}], "expected": {"a": 1, "b": 5, "c": 4} },
+    { "args": [{}, {"a": 1}], "expected": {"a": 1} },
+    { "args": [{"a": 1}, {}], "expected": {"a": 1} },
+    { "args": [{}, {}], "expected": {} },
+    { "args": [{"a": 5, "b": 5}, {"a": 5, "b": 5}], "expected": {"a": 10, "b": 10} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def merge_sum_shared_keys(a, b):
+    result = {}
+    for key in a:
+        result[key] = a[key]
+    for key in b:
+        if key in result:
+            result[key] = result[key] + b[key]
+        else:
+            result[key] = b[key]
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Invert a Dictionary <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>invert_dict(d)</code> that returns a new dictionary with <code>d</code>'s keys and values swapped &mdash; each value becomes a key, mapped back to its original key.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>d</code> may be empty; if two keys share the same value, the later key (in iteration order) wins in the inverted result.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>invert_dict({"a": "x", "b": "y"})</code> &rarr; <code>{"x": "a", "y": "b"}</code><br>
+        <code>invert_dict({})</code> &rarr; <code>{}</code><br>
+        <code>invert_dict({"x": "y"})</code> &rarr; <code>{"y": "x"}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="8">
+def invert_dict(d):
+    # TODO: build a result dict. Loop over the keys of d and set
+    # result[d[key]] = key for each one.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "invert_dict",
+  "cases": [
+    { "args": [{"a": "x", "b": "y"}], "expected": {"x": "a", "y": "b"} },
+    { "args": [{}], "expected": {} },
+    { "args": [{"x": "y"}], "expected": {"y": "x"} },
+    { "args": [{"a": "dup", "b": "dup"}], "expected": {"dup": "b"} },
+    { "args": [{"k": "val100"}], "expected": {"val100": "k"} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def invert_dict(d):
+    result = {}
+    for key in d:
+        result[d[key]] = key
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Common Elements Between Two Sets <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>common_elements(a, b)</code> that takes two lists, converts them to sets, and returns a <em>sorted list</em> of the elements common to both.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> either list may be empty; lists may contain duplicate values or strings; return the result sorted.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>common_elements([1, 2, 3], [2, 3, 4])</code> &rarr; <code>[2, 3]</code><br>
+        <code>common_elements([1, 2], [3, 4])</code> &rarr; <code>[]</code><br>
+        <code>common_elements([1, 1, 2], [1, 2, 2])</code> &rarr; <code>[1, 2]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def common_elements(a, b):
+    # TODO: build set_a = set(a) and set_b = set(b), then use the
+    # intersection operator (set_a & set_b) to find shared elements.
+    # Convert the result to a list, sort it, and return it.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "common_elements",
+  "cases": [
+    { "args": [[1, 2, 3], [2, 3, 4]], "expected": [2, 3] },
+    { "args": [[1, 2], [3, 4]], "expected": [] },
+    { "args": [[], [1, 2]], "expected": [] },
+    { "args": [[1, 1, 2], [1, 2, 2]], "expected": [1, 2] },
+    { "args": [["a", "b"], ["b", "c"]], "expected": ["b"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def common_elements(a, b):
+    set_a = set(a)
+    set_b = set(b)
+    common = set_a & set_b
+    result = list(common)
+    result.sort()
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Group Records By a Key <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>group_by_key(records, key)</code> that takes a list of dictionaries (<code>records</code>) and groups them into a dictionary mapping each distinct value of <code>records[i][key]</code> to a list of the full records that had that value, in original order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>records</code> may be empty (return <code>{}</code>); every record is guaranteed to contain <code>key</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>group_by_key([{"dept": "eng"}, {"dept": "sales"}, {"dept": "eng"}], "dept")</code> &rarr; <code>{"eng": [{"dept": "eng"}, {"dept": "eng"}], "sales": [{"dept": "sales"}]}</code><br>
+        <code>group_by_key([], "dept")</code> &rarr; <code>{}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def group_by_key(records, key):
+    # TODO: build a groups dict. Loop over records; for each record read
+    # group_value = record[key]. If group_value is already a key in
+    # groups, append record to groups[group_value]; otherwise set
+    # groups[group_value] = [record] (a new one-item list).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "group_by_key",
+  "cases": [
+    { "args": [[{"name": "Asha", "dept": "eng"}, {"name": "Ravi", "dept": "sales"}, {"name": "Meera", "dept": "eng"}], "dept"],
+      "expected": {"eng": [{"name": "Asha", "dept": "eng"}, {"name": "Meera", "dept": "eng"}], "sales": [{"name": "Ravi", "dept": "sales"}]} },
+    { "args": [[], "dept"], "expected": {} },
+    { "args": [[{"dept": "eng"}], "dept"], "expected": {"eng": [{"dept": "eng"}]} },
+    { "args": [[{"dept": "a"}, {"dept": "a"}, {"dept": "a"}], "dept"], "expected": {"a": [{"dept": "a"}, {"dept": "a"}, {"dept": "a"}]} },
+    { "args": [[{"team": "x"}, {"team": "y"}], "team"], "expected": {"x": [{"team": "x"}], "y": [{"team": "y"}]} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def group_by_key(records, key):
+    groups = {}
+    for record in records:
+        group_value = record[key]
+        if group_value in groups:
+            groups[group_value].append(record)
+        else:
+            groups[group_value] = [record]
+    return groups</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Check if Two Words Are Anagrams <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_anagram(word_a, word_b)</code> that returns <code>True</code> if <code>word_a</code> and <code>word_b</code> are anagrams of each other (contain exactly the same letters, same counts, in any order), using a dictionary of letter counts &mdash; not <code>sorted()</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both words may be empty (two empty strings are anagrams of each other); comparison is case-sensitive.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_anagram("listen", "silent")</code> &rarr; <code>True</code><br>
+        <code>is_anagram("hello", "world")</code> &rarr; <code>False</code><br>
+        <code>is_anagram("", "")</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def is_anagram(word_a, word_b):
+    # TODO: build a letter-count dict for word_a (loop over its
+    # characters, using counts_a[ch] = counts_a.get(ch, 0) + 1), then do
+    # the same for word_b into counts_b. Return counts_a == counts_b —
+    # two dicts compare equal if they have the same keys and values.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_anagram",
+  "cases": [
+    { "args": ["listen", "silent"], "expected": true },
+    { "args": ["hello", "world"], "expected": false },
+    { "args": ["", ""], "expected": true },
+    { "args": ["abc", "ab"], "expected": false },
+    { "args": ["aabb", "abab"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def is_anagram(word_a, word_b):
+    counts_a = {}
+    for ch in word_a:
+        counts_a[ch] = counts_a.get(ch, 0) + 1
+    counts_b = {}
+    for ch in word_b:
+        counts_b[ch] = counts_b.get(ch, 0) + 1
+    return counts_a == counts_b</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Find the Most Frequent Element <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>most_frequent(items)</code> that returns the value in <code>items</code> that appears the most times. If there's a tie, return whichever of the tied values appears first in <code>items</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> always has at least one element; values may be numbers or strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>most_frequent([1, 2, 2, 3, 2])</code> &rarr; <code>2</code><br>
+        <code>most_frequent(["a"])</code> &rarr; <code>"a"</code><br>
+        <code>most_frequent([1, 1, 2, 2])</code> &rarr; <code>1</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def most_frequent(items):
+    # TODO: first build a frequency dict with counts.get(item, 0) + 1,
+    # same as the word-frequency challenge. Then loop over items (in
+    # their original order) tracking best_item/best_count, and update
+    # them whenever counts[item] is strictly greater than best_count —
+    # using strictly-greater (not >=) keeps the first-seen value on ties.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "most_frequent",
+  "cases": [
+    { "args": [[1, 2, 2, 3, 2]], "expected": 2 },
+    { "args": [["a"]], "expected": "a" },
+    { "args": [[1, 1, 2, 2]], "expected": 1 },
+    { "args": [["x", "y", "y", "x", "x"]], "expected": "x" },
+    { "args": [[5, 5, 5, 5]], "expected": 5 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def most_frequent(items):
+    counts = {}
+    for item in items:
+        counts[item] = counts.get(item, 0) + 1
+    best_item = None
+    best_count = -1
+    for item in items:
+        if counts[item] > best_count:
+            best_count = counts[item]
+            best_item = item
+    return best_item</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

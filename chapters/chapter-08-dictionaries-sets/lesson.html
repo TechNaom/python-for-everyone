@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8: Dictionaries &amp; Sets — Python for Everyone</title>
+<meta name="description" content="Creating and accessing dictionaries, dictionary methods, looping over dicts, sets and set operations, nested dictionaries, and real-world lookup/tally patterns — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-08">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 8 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">30 min read</span>
+  </div>
+  <h1>Dictionaries &amp; Sets</h1>
+  <p><em>Chapter 7 ended on a problem: a record like <code>["Priya", 91]</code> only makes sense if you already remember that position 0 is a name and position 1 is a score. Dictionaries fix that by naming each field instead of numbering it. Sets solve a different, equally common problem — keeping a collection where every value is guaranteed unique. Both are everywhere in real software, and this chapter is where you start using them.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Start with the pattern.</strong> Each section teaches one small dictionary or set idea at a time.</li>
+      <li><strong>Read the example first.</strong> The code mirrors real situations like student records, inventories, and survey tallies.</li>
+      <li><strong>Try one line at a time.</strong> The playgrounds are meant for quick experiments, not long typing.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#creating-accessing">1. Creating dictionaries &amp; accessing values</a>
+    <a href="#dict-methods">2. Dictionary methods that add, update, and remove</a>
+    <a href="#looping-dicts">3. Looping over dictionaries</a>
+    <a href="#sets">4. Sets: unique collections &amp; set operations</a>
+    <a href="#nested-dicts">5. Nested dictionaries &amp; real-world records</a>
+    <a href="#bringing-together">6. Real-world dictionaries &amp; sets in production</a>
+  </nav>
+
+  <div class="hook">
+    A user profile, a product catalog, a config file, a list of email addresses with no duplicates allowed — every one of these is naturally a dictionary or a set, not a list. Dictionaries store values under meaningful names instead of numbered positions; sets guarantee every value shows up exactly once. Together they're two of the most-used data structures in real Python code.
+  </div>
+
+  <div class="subtopic" id="creating-accessing">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Creating dictionaries &amp; accessing values</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Dictionary</strong> = a collection of <code>key: value</code> pairs, instead of numbered positions.</li>
+        <li>You look up a value by its key, not by an index number.</li>
+        <li>A missing key crashes unless you check for it first.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Think in labels:</strong> a dictionary is a row of labeled boxes, not numbered ones — you ask for the box named <code>"age"</code>, not the box at position 1.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a dictionary?</span>
+      A dictionary is an unordered-by-lookup collection of <code>key: value</code>
+      pairs, written between curly braces:
+      <code>student = {"name": "Priya", "age": 22}</code>. Every key is
+      unique and works like a label — you fetch a value by its key,
+      <code>student["name"]</code>, instead of by position.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">creating_dicts.py</span>
+      </div>
+      <pre><code>student = {"name": "Priya", "age": 22, "major": "CS"}
+print(student)
+print(len(student))   &#35; 3 — same len() you already know from lists</code></pre>
+    </div>
+
+    <p>
+      A dictionary's shape is different from a list's — every value has a
+      name attached to it, and that name is what you use to fetch it back:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">Key &rarr; value structure of student</span>
+      <pre><code>student = {"name": "Priya", "age": 22, "major": "CS"}
+
+key       ->  value
+"name"    ->  "Priya"
+"age"     ->  22
+"major"   ->  "CS"</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">accessing_by_key.py</span>
+      </div>
+      <pre><code>student = {"name": "Priya", "age": 22, "major": "CS"}
+
+print(student["name"])    &#35; 'Priya'
+print(student["major"])   &#35; 'CS'</code></pre>
+    </div>
+
+    <p>
+      Reaching for a key that doesn't exist doesn't return an empty value —
+      it crashes immediately, the same way an out-of-range list index does:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">the_keyerror_crash.py</span>
+      </div>
+      <pre><code>student = {"name": "Priya", "age": 22, "major": "CS"}
+print(student["gpa"])
+&#35; KeyError: 'gpa'</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a KeyError?</span>
+      A <code>KeyError</code> is what Python raises when you index a
+      dictionary with a key that isn't there. It's the dictionary
+      equivalent of an <code>IndexError</code> on a list — both mean
+      "that spot doesn't exist."
+    </div>
+
+    <p>
+      <code>.get()</code> avoids the crash entirely — it returns
+      <code>None</code> for a missing key instead of raising an error, and
+      you can hand it a fallback value to use instead of <code>None</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">using_get.py</span>
+      </div>
+      <pre><code>student = {"name": "Priya", "age": 22, "major": "CS"}
+
+print(student.get("gpa"))          &#35; None — no crash
+print(student.get("gpa", "N/A"))   &#35; 'N/A' — your own fallback instead</code></pre>
+    </div>
+
+    <p>
+      The <code>in</code> keyword you already know from strings and lists
+      works the same way here — it checks whether a value is a
+      <strong>key</strong> in the dictionary, before you ever try to
+      access it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">checking_with_in.py</span>
+      </div>
+      <pre><code>student = {"name": "Priya", "age": 22, "major": "CS"}
+
+print("major" in student)   &#35; True
+print("gpa" in student)     &#35; False
+
+if "gpa" in student:
+    print(student["gpa"])
+else:
+    print("No GPA on file")</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_dicts.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">product = {"name": "Wireless Mouse", "price": 24.99, "in_stock": True}
+print(product["name"])
+print(product.get("discount", "no discount"))
+print("price" in product)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding your own key, then look it up with .get().</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what can be a dictionary key?</summary>
+      <p>
+        Keys are almost always strings or numbers in everyday code, but
+        Python actually allows any immutable value as a key — a number, a
+        string, or a tuple (Chapter 7). Lists can't be keys, because keys
+        need to stay fixed for lookups to work reliably; this is one of the
+        few places tuples earn their keep over lists in practice.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A dictionary is written with curly braces as <code>{key: value, ...}</code>, and values are fetched by key, not position.</li>
+        <li>A missing key raises <code>KeyError</code>; <code>.get(key, default)</code> avoids the crash and returns a fallback instead.</li>
+        <li><code>"key" in some_dict</code> checks for a key's existence before you risk accessing it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="dict-methods">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Dictionary methods that add, update, and remove</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>.update()</code> adds or overwrites several keys at once.</li>
+        <li><code>.pop()</code>, <code>.setdefault()</code>, and <code>del</code> remove or safely insert entries.</li>
+        <li><code>.keys()</code>, <code>.values()</code>, <code>.items()</code> hand back views of a dictionary's parts.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> an inventory, a config, or a user profile needs to grow, shrink, or get patched with new data.
+    </div>
+
+    <p>
+      Setting a new key works exactly like overwriting an existing one —
+      just assign to it with square brackets. <code>.update()</code>
+      instead merges in several keys at once from another dictionary:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">updating_a_dict.py</span>
+      </div>
+      <pre><code>inventory = {"apples": 50, "bananas": 30}
+
+inventory["cherries"] = 20   &#35; add a brand-new key
+print(inventory)   &#35; {'apples': 50, 'bananas': 30, 'cherries': 20}
+
+inventory.update({"bananas": 45, "dates": 15})
+print(inventory)   &#35; {'apples': 50, 'bananas': 45, 'cherries': 20, 'dates': 15}</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... .update()?</span>
+      <code>.update(other_dict)</code> merges another dictionary's keys in:
+      new keys get added, and any key that already exists gets its value
+      overwritten. It's the dictionary version of <code>.extend()</code> on
+      a list — several changes in one call instead of one at a time.
+    </div>
+
+    <p>
+      Removing an entry works three different ways, depending on what you
+      need back:
+    </p>
+
+    <ul>
+      <li><code>.pop(key)</code> removes <code>key</code> and
+        <em>returns</em> its value.</li>
+      <li><code>del some_dict[key]</code> removes <code>key</code> without
+        returning anything.</li>
+      <li><code>.setdefault(key, default)</code> is the safe opposite of
+        removing — it inserts <code>key</code> only if it's missing, and
+        never overwrites an existing value.</li>
+    </ul>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">removing_and_defaulting.py</span>
+      </div>
+      <pre><code>inventory = {"apples": 50, "bananas": 45, "cherries": 20, "dates": 15}
+
+removed = inventory.pop("apples")
+print(removed, inventory)   &#35; 50 {'bananas': 45, 'cherries': 20, 'dates': 15}
+
+del inventory["dates"]
+print(inventory)   &#35; {'bananas': 45, 'cherries': 20}
+
+inventory.setdefault("elderberries", 0)   &#35; not present -> inserted
+inventory.setdefault("bananas", 999)       &#35; already present -> unchanged
+print(inventory)   &#35; {'bananas': 45, 'cherries': 20, 'elderberries': 0}</code></pre>
+    </div>
+
+    <p>
+      Three more methods hand back the dictionary's parts, which is
+      especially useful for looping (Section 3): <code>.keys()</code>,
+      <code>.values()</code>, and <code>.items()</code> — the last one
+      gives you key-value pairs together:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">keys_values_items.py</span>
+      </div>
+      <pre><code>inventory = {"bananas": 45, "cherries": 20, "elderberries": 0}
+
+print(list(inventory.keys()))     &#35; ['bananas', 'cherries', 'elderberries']
+print(list(inventory.values()))   &#35; [45, 20, 0]
+print(list(inventory.items()))    &#35; [('bananas', 45), ('cherries', 20), ('elderberries', 0)]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... .items()?</span>
+      <code>.items()</code> returns every key-value pair as a tuple
+      (Chapter 7) — <code>("bananas", 45)</code> — bundled into one view
+      you can loop over. Wrapping any of these three methods in
+      <code>list(...)</code> is only needed to print them nicely; looping
+      directly over <code>.items()</code> (next section) never needs it.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_dict_methods.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">settings = {"theme": "dark", "font_size": 14}
+settings.update({"font_size": 16, "language": "en"})
+print(settings)
+settings.setdefault("theme", "light")
+removed = settings.pop("language")
+print(removed, settings)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try setdefault on a brand-new key instead of an existing one.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: .pop() with a default, just like .get()</summary>
+      <p>
+        <code>.pop(key)</code> crashes with a <code>KeyError</code> if
+        <code>key</code> isn't present — same risk as <code>student["gpa"]</code>
+        from Section 1. Just like <code>.get()</code>,
+        <code>.pop(key, default)</code> accepts a second argument: a
+        fallback value returned instead of crashing when the key is
+        missing. Reach for it any time you want to remove-if-present
+        without an <code>if "key" in dict</code> check first.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>some_dict[key] = value</code> adds or overwrites one entry; <code>.update()</code> merges in several at once.</li>
+        <li><code>.pop(key)</code> removes and returns a value; <code>del some_dict[key]</code> removes without returning; <code>.setdefault()</code> inserts only if missing.</li>
+        <li><code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> hand back views of a dictionary's keys, values, or key-value pairs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="looping-dicts">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Looping over dictionaries</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>for key in some_dict:</code> loops over keys only.</li>
+        <li><code>for key, value in some_dict.items():</code> loops over both at once.</li>
+        <li>Since Python 3.7, a dictionary always remembers its insertion order.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Default habit:</strong> reach for <code>.items()</code> whenever a loop needs both the key and the value.
+    </div>
+
+    <p>
+      A plain <code>for</code> loop over a dictionary walks its
+      <strong>keys</strong>, one at a time — this is the same
+      <code>for</code> loop from Chapter 5, just handed a dictionary
+      instead of a list:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">looping_keys.py</span>
+      </div>
+      <pre><code>scores = {"Priya": 91, "Amir": 84, "Zoe": 77}
+
+for name in scores:
+    print(name)
+&#35; Priya
+&#35; Amir
+&#35; Zoe</code></pre>
+    </div>
+
+    <p>
+      That's fine when you only need the names, but most real loops need
+      the value too — which means indexing back in with
+      <code>scores[name]</code> on every pass. <code>.items()</code>
+      avoids that extra step by handing over both parts directly:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">looping_items.py</span>
+      </div>
+      <pre><code>scores = {"Priya": 91, "Amir": 84, "Zoe": 77}
+
+for name, score in scores.items():
+    print(name, "-", score)
+&#35; Priya - 91
+&#35; Amir - 84
+&#35; Zoe - 77</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... insertion order?</span>
+      Insertion order means a dictionary always loops in the same order
+      its keys were first added — not alphabetical, not random. Older
+      versions of Python didn't guarantee this, but every Python you'll
+      use today does, so a loop over <code>scores</code> reliably visits
+      Priya, then Amir, then Zoe, in that order, every single time.
+    </div>
+
+    <p>
+      That predictability makes the accumulator pattern from Chapter 5
+      work just as well on dictionaries as it did on lists — loop, check a
+      condition, and build up a running result:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">accumulating_over_a_dict.py</span>
+      </div>
+      <pre><code>scores = {"Priya": 91, "Amir": 84, "Zoe": 77}
+
+total = 0
+passing = 0
+for name, score in scores.items():
+    total = total + score
+    if score >= 80:
+        passing += 1
+        print(name, "passed with", score)
+
+print("Average:", total / len(scores))
+print("Passing count:", passing)</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_looping.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">prices = {"coffee": 3.50, "tea": 2.75, "juice": 4.00}
+for drink, price in prices.items():
+    print(f"{drink}: ${price:.2f}")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a drink and looping again.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: looping over .keys() or .values() directly</summary>
+      <p>
+        <code>for name in scores:</code> and
+        <code>for name in scores.keys():</code> do exactly the same
+        thing — plain iteration over a dictionary already walks its keys,
+        so <code>.keys()</code> is optional and mostly used for
+        readability. <code>for score in scores.values():</code> is the
+        one-sided version when you only need the values and don't care
+        which name they belong to.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>for key in some_dict:</code> loops over keys only; index back in with <code>some_dict[key]</code> if you need the value too.</li>
+        <li><code>for key, value in some_dict.items():</code> gives you both in one pass — the most common loop shape.</li>
+        <li>Dictionaries preserve insertion order, so the same loop visits entries in the same order every time.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="sets">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Sets: unique collections &amp; set operations</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Set</strong> = an unordered collection with no duplicate values, ever.</li>
+        <li><code>.add()</code> and <code>.remove()</code> change a set; <code>in</code> checks membership.</li>
+        <li><code>|</code>, <code>&amp;</code>, and <code>-</code> combine two sets: union, intersection, difference.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you need "every unique value" — tags on a post, emails that already unsubscribed, IDs seen so far.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a set?</span>
+      A set is a collection of unique values, written between curly braces
+      like a dictionary but without the <code>: value</code> part:
+      <code>team = {"Priya", "Amir", "Zoe"}</code>. Adding a duplicate does
+      nothing — a set can never hold the same value twice, and it doesn't
+      remember insertion order the way a dictionary does.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">creating_sets.py</span>
+      </div>
+      <pre><code>team_a = {"Priya", "Amir", "Zoe"}
+print(team_a)          &#35; some order — sets don't preserve insertion order
+print(len(team_a))     &#35; 3
+
+duplicates = {"a", "b", "a", "c", "b"}
+print(duplicates)      &#35; only 3 unique values ever get stored
+print(len(duplicates))  &#35; 3, not 5</code></pre>
+    </div>
+
+    <p>
+      Because a set has no positions, there's no indexing and no
+      <code>.append()</code> — instead, <code>.add()</code> inserts one
+      value and <code>.remove()</code> takes one out:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">add_remove.py</span>
+      </div>
+      <pre><code>team_a = {"Priya", "Amir", "Zoe"}
+
+team_a.add("Leo")
+print("Leo" in team_a)   &#35; True
+print(len(team_a))       &#35; 4
+
+team_a.remove("Leo")
+print("Leo" in team_a)   &#35; False
+print(len(team_a))       &#35; 3</code></pre>
+    </div>
+
+    <p>
+      That last line is the real reason sets are useful: checking
+      <code>value in some_set</code> is how you ask "have I already seen
+      this?" — the same <code>in</code> keyword from Chapters 6-8, just
+      answering that question far faster than checking a long list one
+      item at a time.
+    </p>
+
+    <p>
+      The three set operators are where sets really earn their keep —
+      each one answers a different question about two sets at once:
+    </p>
+
+    <ul>
+      <li><code>a | b</code> — <strong>union:</strong> everyone in
+        <code>a</code>, <code>b</code>, or both.</li>
+      <li><code>a &amp; b</code> — <strong>intersection:</strong> only
+        what's in both <code>a</code> and <code>b</code>.</li>
+      <li><code>a - b</code> — <strong>difference:</strong> what's in
+        <code>a</code> but not in <code>b</code>.</li>
+    </ul>
+
+    <div class="output-block">
+      <span class="output-label">team_a vs. team_b, side by side</span>
+      <pre><code>team_a = {"Priya", "Amir", "Zoe"}      team_b = {"Zoe", "Sam", "Bo"}
+
+      team_a only        both           team_b only
+      -----------       ------          -----------
+      Priya, Amir         Zoe            Sam, Bo
+
+team_a | team_b  (union)         -> Priya, Amir, Zoe, Sam, Bo
+team_a & team_b  (intersection)  -> Zoe
+team_a - team_b  (difference)    -> Priya, Amir</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">set_operations.py</span>
+      </div>
+      <pre><code>team_a = {"Priya", "Amir", "Zoe"}
+team_b = {"Zoe", "Sam", "Bo"}
+
+print("Zoe" in (team_a &amp; team_b))        &#35; True — Zoe is on both teams
+print(len(team_a | team_b))               &#35; 5 — total unique people
+print("Priya" in (team_a - team_b))        &#35; True — Priya is only on team_a</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... "unordered"?</span>
+      Unordered means a set doesn't track any particular position or
+      insertion order for its values — printing the same set twice can
+      even show the values in a different order each time. That's a
+      trade-off for the speed of membership checks and duplicate removal;
+      if order matters, keep using a list or a dictionary instead.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_sets.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">python_fans = {"Priya", "Amir", "Zoe"}
+js_fans = {"Zoe", "Sam"}
+print("Amir" in python_fans)
+python_fans.add("Leo")
+both = python_fans &amp; js_fans
+print(len(both))
+either = python_fans | js_fans
+print(len(either))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try a difference (-) between the two sets.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: turning a list into a set</summary>
+      <p>
+        Wrapping any list in <code>set(...)</code> — <code>set(some_list)</code>
+        — instantly gives you the unique values from that list, dropping
+        every duplicate. This is one of the most common one-line uses of
+        a set in real code, and shows up again in Section 6's
+        deduplication example.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A set holds unique values with curly braces and no <code>: value</code> part; duplicates are silently dropped.</li>
+        <li><code>.add()</code> and <code>.remove()</code> change a set; <code>value in some_set</code> checks membership.</li>
+        <li><code>|</code> (union), <code>&amp;</code> (intersection), and <code>-</code> (difference) combine two sets in three different ways.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="nested-dicts">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Nested dictionaries &amp; real-world records</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Nested dictionary</strong> = a dictionary whose values are themselves dictionaries.</li>
+        <li>Two keys reach a single value: outer key, then inner key.</li>
+        <li>Combines naturally with Chapter 7's lists — a dict of lists, or a list of dicts.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> each record has several named fields, and you have many records to keep track of by some ID or name.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a nested dictionary?</span>
+      A nested dictionary is a dictionary where a value is itself another
+      dictionary — no new syntax required, since a dictionary's values can
+      be any type, including another dictionary. This is how Python
+      represents "a record with named fields, for each of many entries."
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">nested_dicts.py</span>
+      </div>
+      <pre><code>students = {
+    "Priya": {"age": 22, "major": "CS"},
+    "Amir": {"age": 24, "major": "Math"},
+}
+
+print(students["Priya"])           &#35; {'age': 22, 'major': 'CS'} — the whole inner dict
+print(students["Priya"]["major"])  &#35; 'CS' — reach in with a second key</code></pre>
+    </div>
+
+    <p>
+      The first key picks a student's record; the second key picks one
+      field <em>inside</em> that record. Updating a nested dictionary works
+      the same way — reach in with both keys, then assign:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">updating_nested_dicts.py</span>
+      </div>
+      <pre><code>students = {
+    "Priya": {"age": 22, "major": "CS"},
+    "Amir": {"age": 24, "major": "Math"},
+}
+students["Priya"]["age"] = 23
+print(students["Priya"])   &#35; {'age': 23, 'major': 'CS'}</code></pre>
+    </div>
+
+    <p>
+      Dictionaries and lists combine naturally in two directions. A
+      dictionary can map a name to a <em>list</em> of values — a class
+      roster mapping each course to its list of enrolled students:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">dict_of_lists.py</span>
+      </div>
+      <pre><code>roster = {
+    "CS101": ["Priya", "Zoe"],
+    "MATH200": ["Amir"],
+}
+
+roster["CS101"].append("Sam")   &#35; the value is a list, so list methods work
+print(roster)   &#35; {'CS101': ['Priya', 'Zoe', 'Sam'], 'MATH200': ['Amir']}</code></pre>
+    </div>
+
+    <p>
+      Or the reverse: a <em>list of dictionaries</em>, one dictionary per
+      record — the natural shape for a batch of records where each one has
+      several named fields, replacing Chapter 7's
+      <code>[order_id, amount, status]</code> lists with named keys:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">list_of_dicts.py</span>
+      </div>
+      <pre><code>records = [
+    {"name": "Priya", "score": 91},
+    {"name": "Amir", "score": 84},
+]
+
+for record in records:
+    print(record["name"], record["score"])
+&#35; Priya 91
+&#35; Amir 84</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a list of dicts, compared to Chapter 7's nested lists?</span>
+      <code>["Priya", 91]</code> only makes sense if you remember position 0
+      is a name. <code>{"name": "Priya", "score": 91}</code> says the same
+      thing self-documenting — <code>record["score"]</code> reads clearly
+      no matter how many fields a record has, which is exactly why real
+      APIs and databases hand back data shaped like this.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_nested_dicts.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="9">inventory = {
+    "wireless mouse": {"price": 24.99, "in_stock": 12},
+    "keyboard": {"price": 49.99, "in_stock": 0},
+}
+for item, details in inventory.items():
+    print(item, "-", details["price"], "- in stock:", details["in_stock"])</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a new field to one of the inner dictionaries.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: nesting isn't limited to one level</summary>
+      <p>
+        Just like Chapter 7's nested lists, dictionaries can nest as deep
+        as the data actually needs —
+        <code>company["engineering"]["Priya"]["projects"]</code> is
+        perfectly valid Python. In practice, two levels (a record, and its
+        named fields) cover most real cases; going deeper is usually a
+        sign the data would be clearer split into several smaller
+        dictionaries instead.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A nested dictionary is a dictionary whose values are themselves dictionaries — no special syntax needed.</li>
+        <li><code>data[outer_key][inner_key]</code> reaches a single value: the first key picks the record, the second picks a field inside it.</li>
+        <li>A dict of lists groups values under names; a list of dicts represents a batch of named-field records — both combine directly with Chapter 7's list skills.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world dictionaries &amp; sets in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Tallying</strong> means counting occurrences into a dictionary, one pass through the data.</li>
+        <li><strong>Deduplicating</strong> means dropping repeats with a set, in one line.</li>
+        <li>A dictionary as a <strong>lookup table</strong> replaces long chains of <code>if</code>/<code>elif</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> loop the data once, use <code>.get()</code> or <code>in</code> to build a dictionary or set as you go.
+    </div>
+
+    <p>
+      Word-frequency counting is one of the most common real dictionary
+      patterns — split some text into words, then tally each one using
+      <code>.get()</code>'s default to handle first-time-seen words safely:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">word_frequency.py</span>
+      </div>
+      <pre><code>text = "the cat sat on the mat the cat ran"
+words = text.split()   &#35; Chapter 6's .split() -> a list of words
+
+counts = {}
+for word in words:
+    counts[word] = counts.get(word, 0) + 1
+
+print(counts)
+&#35; {'the': 3, 'cat': 2, 'sat': 1, 'on': 1, 'mat': 1, 'ran': 1}</code></pre>
+    </div>
+
+    <p>
+      That same <code>counts.get(word, 0) + 1</code> line is worth pausing
+      on: the first time a word appears, <code>.get()</code> returns
+      <code>0</code>, so <code>0 + 1</code> stores <code>1</code>. Every
+      time after that, it returns the running count so far, and adds one
+      more. Survey tallying uses the exact same shape:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">survey_tally.py</span>
+      </div>
+      <pre><code>responses = ["yes", "no", "yes", "yes", "maybe", "no"]
+
+tally = {}
+for r in responses:
+    tally[r] = tally.get(r, 0) + 1
+
+for answer, count in tally.items():
+    print(f"{answer}: {count}")
+&#35; yes: 3
+&#35; no: 2
+&#35; maybe: 1</code></pre>
+    </div>
+
+    <p>
+      Sets solve a different, equally common problem: a list of raw form
+      submissions almost always has repeats, and <code>set(...)</code>
+      strips them out in a single line:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">deduplicating_emails.py</span>
+      </div>
+      <pre><code>raw_emails = ["a@x.com", "b@x.com", "a@x.com", "c@x.com", "b@x.com"]
+
+unique_emails = set(raw_emails)
+print(len(raw_emails))       &#35; 5 — with repeats
+print(len(unique_emails))    &#35; 3 — repeats dropped</code></pre>
+    </div>
+
+    <p>
+      Finally, a dictionary makes a clean <strong>lookup table</strong> —
+      a config or a set of fixed prices that would otherwise need a long
+      chain of <code>if</code>/<code>elif</code> statements:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">lookup_table.py</span>
+      </div>
+      <pre><code>shipping_rates = {"standard": 4.99, "express": 12.99, "overnight": 24.99}
+
+method = "express"
+print(f"Shipping cost: ${shipping_rates.get(method, 0):.2f}")
+&#35; Shipping cost: $12.99</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a lookup table?</span>
+      A lookup table is a dictionary used purely to map an input to a
+      fixed result — a shipping method to its cost, a status code to its
+      message, a country to its currency. It reads far more clearly than
+      an equivalent chain of <code>if method == "standard": ... elif
+      method == "express": ...</code>, and adding a new entry is a
+      one-line change instead of another <code>elif</code>.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_word_frequency.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="9">text = "to be or not to be that is the question"
+words = text.split()
+counts = {}
+for word in words:
+    counts[word] = counts.get(word, 0) + 1
+for word, count in counts.items():
+    print(word, "-", count)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try counting a sentence of your own.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just use if/elif instead of .get()'s default?</summary>
+      <p>
+        You could write <code>if word in counts: counts[word] += 1
+        else: counts[word] = 1</code> — it does the same thing as
+        <code>counts[word] = counts.get(word, 0) + 1</code>, just in four
+        lines instead of one. Both are correct; the <code>.get()</code>
+        version is simply the idiom experienced Python developers reach
+        for once counting-with-a-default becomes a familiar shape.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Tallying counts occurrences with <code>counts[key] = counts.get(key, 0) + 1</code> in one pass through the data.</li>
+        <li><code>set(some_list)</code> deduplicates a list's values in a single line.</li>
+        <li>A dictionary used as a lookup table replaces long <code>if</code>/<code>elif</code> chains with one clean <code>.get()</code> call.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every JSON API response — user profiles, product catalogs, weather data — arrives in Python as nested dictionaries and lists, the exact shape Section 5 covers.</li>
+      <li>Word counts, tag clouds, analytics dashboards, and "top N" reports all start from the same tally-with-a-dictionary pattern this chapter's capstone walked through.</li>
+      <li>Sets back real production features directly — deduplicating a mailing list, checking "has this user ID already been processed today," and comparing two datasets for what changed are all one-line set operations instead of nested loops.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>Dictionaries are written with <code>{key: value, ...}</code> and looked up by key; a missing key raises <code>KeyError</code>, while <code>.get(key, default)</code> avoids the crash.</li>
+      <li><code>.update()</code> merges in several keys; <code>.pop()</code>/<code>del</code> remove entries; <code>.setdefault()</code> inserts only if missing; <code>.keys()</code>/<code>.values()</code>/<code>.items()</code> expose a dictionary's parts.</li>
+      <li><code>for key, value in some_dict.items():</code> is the standard loop shape; dictionaries always preserve insertion order.</li>
+      <li>Sets hold unique values with no positions — <code>.add()</code>/<code>.remove()</code> change them, and <code>|</code>/<code>&amp;</code>/<code>-</code> compute union, intersection, and difference.</li>
+      <li>Nested dictionaries (<code>data[outer][inner]</code>) model real records with named fields, and combine naturally with Chapter 7's lists as a dict of lists or a list of dicts.</li>
+      <li>Real-world code leans on <code>counts.get(key, 0) + 1</code> for tallying, <code>set(some_list)</code> for deduplication, and dictionaries as lookup tables in place of long <code>if</code>/<code>elif</code> chains.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

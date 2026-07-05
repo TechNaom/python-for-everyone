@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 8: Dictionaries &amp; Sets — hashability, .get() vs [], lookup speed, insertion order, set operations, and shallow-copy pitfalls with nested dicts.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-08-interview" data-active-chapter="chapter-08">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 8 Interview Prep</span>
+    <span class="reading-time">19 min read</span>
+  </div>
+  <h1>Interview Questions: Dictionaries &amp; Sets</h1>
+  <p>Dictionaries and sets are where interviewers check whether you understand <em>why</em> Python reaches for hashing instead of scanning &mdash; and whether the aliasing/copying traps from Chapter 7 still bite you here. This set covers the practical choice between dict and list, hashability, lookup speed, insertion order, and the set operations that show up constantly in real deduplication work.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> When would you use a dictionary instead of a list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Reach for a <strong>dictionary</strong> when you need to look values up by a meaningful label rather than by position &mdash; a user's profile fields, a product catalog keyed by SKU, a word-count table keyed by word. Reach for a <strong>list</strong> when order and position are what matter, or when there's no natural unique label for each item. The tell is the question you'll ask the collection later: "give me the item at position 3" is a list question; "give me the price for 'eggs'" is a dictionary question.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Simulating a dictionary with two parallel lists (one of keys, one of values) that have to be kept in sync by hand &mdash; that's exactly the problem a dict solves natively.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You need to store each student's grade, looked up by student name. List or dict?" (Dict &mdash; <code>grades["Ana"]</code> is a direct label lookup, not a position-based one.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why must dictionary keys be hashable, and why can't a list be used as one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A dict finds a key almost instantly by computing a <strong>hash</strong> &mdash; a fixed-size number derived from the key's value &mdash; and using it to jump straight to the right storage slot, rather than scanning every entry. For that shortcut to work safely, a key's hash must never change while it's stored, which means the key itself must be immutable. A list is mutable (it can grow, shrink, or have elements reassigned at any time), so its hash would have to change too, and Python simply refuses: <code>hash([1, 2])</code> raises <code>TypeError</code>. Tuples, strings, and numbers are all immutable and hashable, so they're all valid keys.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying "lists just aren't allowed as keys" without connecting it back to mutability and hashing &mdash; that's the actual mechanism, not an arbitrary rule.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would a tuple containing a list, like <code>(1, [2, 3])</code>, be a valid dict key?" (No &mdash; a container is only hashable if every element inside it is also hashable; the mutable list inside makes the whole tuple unhashable too.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's the difference between <code>my_dict["key"]</code> and <code>my_dict.get("key")</code> when the key is missing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Square-bracket access, <code>my_dict["key"]</code>, raises a <code>KeyError</code> immediately if the key doesn't exist &mdash; the program crashes right there unless something catches it. <code>my_dict.get("key")</code> instead returns <code>None</code> for a missing key, with no error at all, and <code>my_dict.get("key", default)</code> lets you supply your own fallback value instead of <code>None</code>. <code>.get()</code> is the safer default any time a missing key is a normal, expected possibility rather than a bug &mdash; e.g. looking up an optional field on a user record.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for square brackets everywhere and then wrapping every single lookup defensively, instead of just using <code>.get()</code> with a sensible default when a missing key is expected.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>d = {'a': 1}</code>, what does <code>d.get('z', 0)</code> return?" (<code>0</code> &mdash; the fallback value, since <code>'z'</code> isn't a key in <code>d</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How would you check whether a key exists in a dictionary before using it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Use the <code>in</code> operator: <code>if "sku" in inventory:</code> checks membership among the dict's <strong>keys</strong> and reads cleanly before doing a lookup you know is safe. This is the same <code>in</code> operator used for lists and strings, but on a dict it only ever checks keys, never values &mdash; <code>1 in {"a": 1}</code> is <code>False</code>, even though <code>1</code> is a value in that dict. Combining <code>in</code> with square brackets (<code>if k in d: x = d[k]</code>) is a common, perfectly valid alternative to <code>.get()</code> when you need to branch on whether the key existed at all, not just get a fallback value.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>in</code> on a dict searches values &mdash; it only searches keys.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>d = {'a': 1}</code>, what does <code>1 in d</code> evaluate to?" (<code>False</code> &mdash; <code>in</code> checks keys, and <code>1</code> is a value, not a key, in this dict.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Why is a dictionary lookup considered fast even for a huge dictionary, while searching a huge list is slow?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Checking <code>x in my_list</code> has to scan element by element from the start until it finds a match or reaches the end &mdash; on average, that scan gets longer as the list gets bigger. Checking <code>x in my_dict</code> (or <code>my_set</code>) instead computes the hash of <code>x</code> and jumps almost directly to the slot where it would live, so the lookup takes roughly the same tiny amount of time whether the dict has 10 entries or 10 million. That's the practical reason dicts and sets are the go-to structure for "have I seen this before?" checks and deduplication, especially inside a loop where a list-based check would silently turn into a much slower operation as data grows.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating list membership checks and dict/set membership checks as equally fast regardless of collection size &mdash; that assumption falls apart the moment the collection gets large and the check runs inside a loop.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You need to check thousands of times whether an ID has already been seen. List or set for the 'seen IDs' collection?" (Set &mdash; membership checks are effectively instant regardless of how many IDs have been seen, unlike a list which re-scans every time.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> Does a Python dictionary remember the order keys were inserted in?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Yes &mdash; modern Python dictionaries preserve <strong>insertion order</strong>: looping over a dict's keys, values, or items always visits them in the order they were first added, not some scrambled or sorted order. This is a real, relied-upon language guarantee (not an implementation accident) as of Python 3.7+. It's worth knowing that insertion order is not the same as sorted order &mdash; if you need keys in alphabetical or numeric order, you still have to call <code>sorted()</code> on them explicitly.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming dict order is random or assuming it's automatically sorted &mdash; it's neither; it's strictly insertion order until you sort it yourself.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>d = {}</code>, <code>d['z'] = 1</code>, <code>d['a'] = 2</code>, what order do the keys print in?" (<code>z</code> then <code>a</code> &mdash; insertion order, not alphabetical order.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the difference between <code>.keys()</code>, <code>.values()</code>, and <code>.items()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.keys()</code> gives every key in the dict, <code>.values()</code> gives every value, and <code>.items()</code> gives every <code>(key, value)</code> pair as a tuple &mdash; all three preserve insertion order and all three are the standard way to loop over a dict depending on what you need. <code>for k in d:</code> alone already loops over keys (the same as <code>for k in d.keys()</code>), so <code>.keys()</code> is often skipped in a plain key loop; <code>.items()</code> is the one that gets used constantly, since <code>for key, value in d.items():</code> unpacks both in one line, mirroring the pair-unpacking idiom from Chapter 7.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Looping with <code>for k in d:</code> and then manually re-looking-up <code>d[k]</code> inside the loop when <code>.items()</code> would hand back both directly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you loop over <code>prices = {'egg': 3, 'milk': 4}</code> and print each item and its price on one line?" (<code>for item, price in prices.items(): print(item, price)</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What happens if you assign to a key that already exists in a dictionary?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Assignment always overwrites &mdash; <code>my_dict["a"] = new_value</code> silently replaces whatever value was previously stored under <code>"a"</code>, with no warning or error, whether the key existed before or not. This is also exactly what <code>.update()</code> does across many keys at once: <code>d1.update(d2)</code> copies every key/value pair from <code>d2</code> into <code>d1</code>, overwriting any key that already existed in <code>d1</code> and adding any that didn't. There's no built-in protection against accidentally clobbering an existing value this way &mdash; if that matters, you check with <code>in</code> first.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Expecting an error or a warning when overwriting an existing key &mdash; Python does it silently every time.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>d = {'a': 1}</code> and <code>d.update({'a': 2, 'b': 3})</code>, what is <code>d</code> afterward?" (<code>{'a': 2, 'b': 3}</code> &mdash; the existing key <code>'a'</code> got overwritten, and the new key <code>'b'</code> got added.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What's the difference between <code>.pop("key")</code> and <code>del my_dict["key"]</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both remove a key/value pair from the dict, but <code>.pop("key")</code> also <em>returns</em> the removed value so you can capture and use it, while <code>del my_dict["key"]</code> just deletes it and gives nothing back. <code>.pop("key", default)</code> additionally lets you supply a fallback instead of raising <code>KeyError</code> if the key isn't present &mdash; the same safety pattern as <code>.get()</code>. <code>del</code> has no such safety net on a plain dict; deleting a missing key with <code>del</code> raises <code>KeyError</code> every time.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>del</code> when you actually need the removed value back, or forgetting that both raise <code>KeyError</code> on a missing key unless <code>.pop()</code> is given an explicit default.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>d = {'a': 1, 'b': 2}</code>, what does <code>d.pop('z', 'N/A')</code> return, and does it raise an error?" (Returns <code>'N/A'</code>, no error &mdash; the default absorbs the missing key.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between <code>==</code> and <code>is</code> when comparing two dictionaries?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Just like with lists in Chapter 7, <code>==</code> compares <em>values</em> &mdash; two separately built dicts with the same keys mapped to the same values are <code>==</code>, regardless of insertion order. <code>is</code> compares <em>identity</em> &mdash; whether both names point at the exact same object in memory. Two dicts built independently with identical contents are essentially never <code>is</code> the same object, even though they're <code>==</code>. This matters because dicts are mutable, so the aliasing trap from Chapter 7 (<code>b = a</code> makes <code>b</code> and <code>a</code> the same object) applies to dicts exactly the same way.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>is</code> to check whether two dicts have the same contents &mdash; that's what <code>==</code> is for.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Are <code>{'a': 1}</code> and <code>{'a': 1}</code>, written as two separate literals, the same object?" (No &mdash; each dict literal creates a new object, so they're <code>==</code> but not <code>is</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What's the gotcha with a shallow copy of a dictionary that contains nested dicts or lists?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Just like the nested-list shallow-copy trap in Chapter 7, <code>copy = original.copy()</code> only copies the <em>outer</em> dictionary &mdash; any value inside it that's itself mutable (a nested dict or list) is still the exact same shared object in both copies. So if <code>original = {"scores": [10, 20]}</code> and you make a shallow copy, appending to <code>copy["scores"]</code> silently changes <code>original["scores"]</code> too, because there's really only one list object being pointed at by both dicts. The fix at this course's level is rebuilding the nested structure by hand (a fresh inner dict or list per record) rather than assuming <code>.copy()</code> makes everything independent.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Calling <code>.copy()</code> on a dict of records and assuming every nested value is now independent &mdash; only the top-level dict is.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>original = {'a': [1, 2]}</code>, <code>shallow = original.copy()</code>, <code>shallow['a'].append(3)</code> &mdash; what is <code>original</code>?" (<code>{'a': [1, 2, 3]}</code> &mdash; the inner list is shared between both dicts, so mutating it through <code>shallow</code> also changes <code>original</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What's a set, and what's it good for that a list isn't?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>set</strong> is an unordered collection of unique, hashable values &mdash; duplicates are automatically dropped, and there's no positional indexing the way a list has. The two things a set is genuinely better at than a list: instant membership checks (the same hashing shortcut dicts use), and free deduplication &mdash; <code>set([1, 1, 2, 2, 3])</code> collapses straight to <code>{1, 2, 3}</code> with zero extra code. Real use cases include tracking unique visitor IDs seen so far, collecting the distinct tags used across a set of posts, or removing duplicate entries from a list of scraped values.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a list plus a manual "have I already added this?" check inside a loop when a set would deduplicate automatically and check membership instantly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>set([1, 2, 2, 3, 3, 3])</code> evaluate to?" (<code>{1, 2, 3}</code> &mdash; every duplicate collapses to a single entry.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What do <code>|</code>, <code>&amp;</code>, and <code>-</code> do between two sets?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>set_a | set_b</code> is the <strong>union</strong> &mdash; every element that appears in either set, with duplicates naturally collapsed. <code>set_a &amp; set_b</code> is the <strong>intersection</strong> &mdash; only elements present in both sets. <code>set_a - set_b</code> is the <strong>difference</strong> &mdash; elements in <code>set_a</code> that are <em>not</em> in <code>set_b</code>. These map directly onto real questions like "which visitors came on both Monday and Tuesday" (intersection), "which visitors came on either day" (union), or "which visitors from Monday never came back on Tuesday" (difference) &mdash; the kind of comparison that would take nested loops on two lists but is one operator on two sets.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Mixing up intersection and difference, or trying to write a manual nested loop to compare two collections for overlap when a set operation already does it directly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>monday = {'u1', 'u2', 'u3'}</code> and <code>tuesday = {'u2', 'u3', 'u4'}</code>, what is <code>monday - tuesday</code>?" (<code>{'u1'}</code> &mdash; the visitor who came Monday but not Tuesday.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> What's the difference between <code>.remove()</code> and <code>.discard()</code> on a set?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both delete an element from a set, but <code>.remove(x)</code> raises a <code>KeyError</code> if <code>x</code> isn't present, while <code>.discard(x)</code> does nothing at all if <code>x</code> isn't present &mdash; no error either way. Use <code>.discard()</code> when "it might already be gone" is a normal, expected case (e.g. removing a visitor ID that may or may not have been tracked yet); use <code>.remove()</code> when you specifically want to be alerted that the element you expected to be there wasn't. This mirrors the <code>.get()</code>-vs-square-brackets safety distinction for dicts, just phrased as two different methods instead of two different access styles.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>.remove()</code> on a set where the element's presence isn't guaranteed, then being surprised by an unhandled <code>KeyError</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>tags = {'a', 'b'}</code>, what happens when you call <code>tags.discard('z')</code>?" (Nothing &mdash; <code>'z'</code> isn't in the set, and <code>.discard()</code> silently does nothing instead of raising an error.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>{'a': 1}.get('z')</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="None" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>{'a': 1}.get('z', 0)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="0" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>hash([1, 2])</code> raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="TypeError" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> After <code>d = {}</code>, <code>d['z'] = 1</code>, <code>d['a'] = 2</code>, the key order when looping is <code>____</code> (two letters, space-separated).</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="z a" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> Given <code>d = {'a': 1}</code>, <code>1 in d</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="False" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Given <code>d = {'a': 1}</code> and <code>d.update({'a': 2, 'b': 3})</code>, the new value stored under <code>'a'</code> is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="2" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> Given <code>d = {'a': 1, 'b': 2}</code>, <code>d.pop('a')</code> returns <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="1" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Given <code>d = {'a': 1, 'b': 2}</code>, <code>d.pop('z', 'N/A')</code> returns <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="N/A" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Two separately built dict literals with identical contents, like <code>{'a': 1}</code> and <code>{'a': 1}</code>, compared with <code>==</code>, evaluate to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="True" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>len(set([1, 1, 2, 2, 3]))</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> Given <code>a = {1, 2, 3}</code> and <code>b = {2, 3, 4}</code>, <code>len(a &amp; b)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="2" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Given <code>a = {1, 2, 3}</code> and <code>b = {2, 3, 4}</code>, <code>a - b</code> evaluates to the single-element set <code>____</code> (just the number).</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="1" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Given <code>tags = {'a', 'b'}</code>, calling <code>tags.discard('z')</code> raises <code>____</code> (one word).</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="nothing,no error,none" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> After <code>original = {'a': [1, 2]}</code>, <code>shallow = original.copy()</code>, <code>shallow['a'].append(3)</code> &mdash; <code>len(original['a'])</code> equals <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 Project: Inventory Tracker — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven inventory tracker using a dict-of-dicts, nested lookups, and the accumulator pattern — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-08">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 8 Project</span>
+    <span class="reading-time">45 min build</span>
+  </div>
+  <h1>Inventory Tracker</h1>
+  <p>A menu-driven mini-app that manages a running store inventory for the whole session &mdash; built entirely out of dictionaries: a dict-of-dicts, nested lookups, <code>.items()</code> loops, and in-place field updates. Every item lives together inside one master dictionary called <code>inventory</code>, mapping the item's name to its own details dictionary, e.g. <code>{"quantity": 10, "price": 4.99}</code>.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Inventory Tracker ===
+
+1. Add a new item
+2. Update stock quantity
+3. Remove an item
+4. View full inventory
+5. Search for an item
+6. View low-stock report
+7. View total inventory value
+8. Quit
+Choose an option (1-8): 1
+Enter the item name: Widget
+Enter starting quantity: 10
+Enter unit price: 4.99
+Added: 'Widget' (qty 10, price $4.99)
+
+1. Add a new item
+2. Update stock quantity
+3. Remove an item
+4. View full inventory
+5. Search for an item
+6. View low-stock report
+7. View total inventory value
+8. Quit
+Choose an option (1-8): 1
+Enter the item name: Gadget
+Enter starting quantity: 3
+Enter unit price: 19.5
+Added: 'Gadget' (qty 3, price $19.50)
+
+1. Add a new item
+2. Update stock quantity
+3. Remove an item
+4. View full inventory
+5. Search for an item
+6. View low-stock report
+7. View total inventory value
+8. Quit
+Choose an option (1-8): 4
+
+--- Full Inventory ---
+Item                Quantity    Price     Line Value
+Widget              10          $4.99     $49.90
+Gadget              3           $19.50    $58.50
+
+1. Add a new item
+2. Update stock quantity
+3. Remove an item
+4. View full inventory
+5. Search for an item
+6. View low-stock report
+7. View total inventory value
+8. Quit
+Choose an option (1-8): 6
+
+--- Low-Stock Report (below 5 units) ---
+Gadget: only 3 left
+
+1. Add a new item
+2. Update stock quantity
+3. Remove an item
+4. View full inventory
+5. Search for an item
+6. View low-stock report
+7. View total inventory value
+8. Quit
+Choose an option (1-8): 7
+
+Total inventory value across 2 item(s): $158.30
+
+1. Add a new item
+2. Update stock quantity
+3. Remove an item
+4. View full inventory
+5. Search for an item
+6. View low-stock report
+7. View total inventory value
+8. Quit
+Choose an option (1-8): 8
+
+Session summary: 2 item(s) tracked, total value $158.30.
+Goodbye!</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A <code>while True</code> menu loop with eight options: add a new item,
+    update stock quantity, remove an item, view full inventory, search for an
+    item, view a low-stock report, view total inventory value, or quit. Every
+    item is a <code>{"quantity": ..., "price": ...}</code> dictionary sitting
+    inside one master <code>inventory</code> dictionary, keyed by item name
+    &mdash; updating, removing, and searching all look the name up as a
+    dictionary key first. Total value and the quit summary use the
+    accumulator pattern: looping over <code>inventory.items()</code> to sum
+    <code>quantity * price</code> into a running total.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The eight operations</h2>
+  <ul>
+    <li>Add a new item &mdash; rejects a blank name, refuses to overwrite an existing item, validates quantity and price, then stores <code>inventory[name] = {"quantity": ..., "price": ...}</code>.</li>
+    <li>Update stock quantity &mdash; looks the name up, validates the new quantity, and updates <code>inventory[name]["quantity"]</code> in place.</li>
+    <li>Remove an item &mdash; looks the name up and uses <code>.pop()</code> to delete it from the master dictionary.</li>
+    <li>View full inventory &mdash; loops over <code>inventory.items()</code>, printing quantity, price, and line value (<code>quantity * price</code>) aligned into columns.</li>
+    <li>Search for an item &mdash; looks up a single name and prints its quantity and price.</li>
+    <li>View low-stock report &mdash; flags every item whose quantity is below <code>LOW_STOCK_THRESHOLD</code> (5 units).</li>
+    <li>View total inventory value &mdash; sums <code>quantity * price</code> across every item.</li>
+    <li>Quit &mdash; prints a session summary with the same running total, then exits the loop.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "restock all low-stock items to threshold" option that loops over <code>inventory</code> and tops up every item below <code>LOW_STOCK_THRESHOLD</code> in one pass.</li>
+    <li>Track which item has the highest total line value (quantity times price) across the whole inventory.</li>
+    <li>Let the user update an item's price, not just its quantity, using the same "look it up, validate, update in place" pattern as option 2.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Every point-of-sale system, warehouse tool, and e-commerce back office keeps some version of this exact shape: a collection of named records, each holding a small bundle of fields, that gets looked up by key, updated in place, and rolled up into summary numbers. A dict-of-dicts is precisely how that maps onto code &mdash; the item name is the key, its <code>{"quantity": ..., "price": ...}</code> bundle is the value, and every operation here (add, update, remove, search, report, total) is just a dictionary lookup or a loop over <code>.items()</code>. The logic is small on purpose, but it's the same shape as real inventory and billing systems in production.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Inventory Tracker above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 8 (variables, operators, <code>if</code>/<code>elif</code>/<code>else</code>, loops, strings, lists, tuples, dictionaries, and sets). No starter or solution files are provided on purpose &mdash; building one of these unassisted, menu loop and all, is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Word Frequency Counter</h3>
+    <p><strong>Problem:</strong> Given a block of text, figure out which words show up most and least often &mdash; the same basic step behind spam filters, search engines, and writing-style tools.</p>
+    <p><strong>What it should do:</strong> Ask the user to paste in a block of text (or type several lines), split it into words, and build a dictionary mapping each word to how many times it appears. Menu options: enter/add more text, show the word count dictionary, report the most common word(s), report the least common word(s), and reset the counts.</p>
+    <p><strong>Suggested approach:</strong> Use <code>text.lower().split()</code> to break the input into a list of lowercase words (this also sidesteps "Word" vs. "word" being counted separately). Loop over that list and for each word do <code>counts[word] = counts.get(word, 0) + 1</code> to build the frequency dict. For "most common," loop over <code>counts.items()</code> tracking a "highest count so far" variable and its word, the same manual-max pattern from Chapter 5 &mdash; do the mirror image for least common.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Student Grade Book</h3>
+    <p><strong>Problem:</strong> A teacher needs one place to record every student's scores across several subjects and quickly see class-wide standouts, without a spreadsheet.</p>
+    <p><strong>What it should do:</strong> Keep one master dictionary mapping each student's name to their own dictionary of <code>{subject: score}</code>. Menu options: add or update a student's grade for a subject, view a single student's full record and average, view every student's average, and find the class topper for a given subject (the student with the highest score in that subject).</p>
+    <p><strong>Suggested approach:</strong> Adding a grade is <code>gradebook[name][subject] = score</code> &mdash; check if <code>name</code> is already a key first, and if not, start it off as <code>gradebook[name] = {}</code> before setting the subject. A student's average is the accumulator pattern over <code>gradebook[name].values()</code>. For the class topper in one subject, loop over every student in <code>gradebook</code>, skip anyone who doesn't have that subject recorded (<code>subject in gradebook[name]</code>), and keep the highest-scoring name seen so far.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Unique Visitor &amp; Tag Tracker</h3>
+    <p><strong>Problem:</strong> A website session needs to know how many <em>distinct</em> visitors showed up and which content tags were used, plus how two days' worth of tags overlap &mdash; the kind of question analytics dashboards answer constantly.</p>
+    <p><strong>What it should do:</strong> Keep two sets: one of unique visitor IDs seen this session, one of unique tags seen this session. Menu options: log a visitor ID, log a tag, show the count of unique visitors and unique tags so far, and compare this session's tag set against a second "previous session" tag set to report which tags are shared, which are new, and which disappeared.</p>
+    <p><strong>Suggested approach:</strong> <code>.add()</code> onto a set is naturally safe against duplicates &mdash; logging the same visitor ID twice just leaves the set unchanged, which is exactly the "unique" behavior wanted. For the comparison feature, keep a second set for the previous session's tags and use <code>&amp;</code> (intersection) for shared tags, <code>-</code> (difference) in each direction for "new this session" and "missing from this session."</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Simple Phonebook / Contact Directory</h3>
+    <p><strong>Problem:</strong> Store contacts with more than one field each (phone <em>and</em> email) and be able to look any of them up by name instantly.</p>
+    <p><strong>What it should do:</strong> Keep one master dictionary mapping each contact's name to a dictionary of <code>{"phone": ..., "email": ...}</code>. Menu options: add a contact, update a contact's phone or email, remove a contact by name, search for a contact by name, and list every contact alphabetically by name.</p>
+    <p><strong>Suggested approach:</strong> This is the same dict-of-dicts shape as the Inventory Tracker above, just with <code>phone</code>/<code>email</code> fields instead of <code>quantity</code>/<code>price</code> &mdash; reuse that "look up the key, check it exists, read/update its nested dict" pattern directly. For "list alphabetically," <code>sorted(directory.keys())</code> gives you the names in order to loop over and print one by one.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
