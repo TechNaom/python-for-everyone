@@ -105,7 +105,14 @@ window.PFE_MODULES = [
     title: "Module 3 — OOP & Robust Code",
     examPath: null,
     chapters: [
-      { id: "chapter-11", num: 11, title: "Modules & Packages", path: null },
+      { id: "chapter-11", num: 11, title: "Modules & Packages", path: "chapters/chapter-11-modules-packages/lesson.html", subtopics: [
+        { id: "what-is-a-module", title: "What is a module?" },
+        { id: "import-variations", title: "Import variations" },
+        { id: "math-module", title: "The math module" },
+        { id: "datetime-module", title: "The datetime module" },
+        { id: "random-module", title: "The random module" },
+        { id: "bringing-together", title: "Real-world module use" }
+      ] },
       { id: "chapter-12", num: 12, title: "Exception Handling", path: null },
       { id: "chapter-13", num: 13, title: "File Handling & CSV", path: null },
       { id: "chapter-14", num: 14, title: "OOP Basics", path: null },

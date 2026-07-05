@@ -22,12 +22,12 @@ moving to the next. The rendered, always-current version lives at
 | 9 | Comprehensions, Lambda & Functional Tools | list/dict/set comprehensions, nested comprehensions & readability limits, lambda functions, `map()`/`filter()`/`sorted(key=lambda)`, real-world data-cleaning use — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. `lambda` is introduced here as a narrow exception ahead of `def` (Chapter 10) |
 | 10 | Functions Deep Dive | `def`/parameters/`return`, default arguments, `*args`/`**kwargs`, scope (`global`/`nonlocal`), recursion, closures, decorators, real-world function-library use — 8 sub-topics (broader than the usual 6), plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas |
 | — | Module 2 Written Exam | covers Chapters 6-10 |
+| 11 | Modules & Packages | what a module is, `import` variations, the `math`/`datetime`/`random` modules, real-world module use — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. First chapter where `import` is allowed |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 11 | Modules & Packages | Expense tracker (`datetime`, `math`) |
 | 12 | Exception Handling | ATM simulator (custom exceptions) |
 | 13 | File Handling & CSV | Log-file analyzer |
 | 14 | OOP Basics | Library management system |
