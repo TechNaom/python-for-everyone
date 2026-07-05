@@ -81,7 +81,14 @@ window.PFE_MODULES = [
         { id: "nested-dicts", title: "Nested dictionaries & real-world records" },
         { id: "bringing-together", title: "Real-world dicts & sets in production" }
       ] },
-      { id: "chapter-09", num: 9, title: "Comprehensions, Lambda & Functional Tools", path: null },
+      { id: "chapter-09", num: 9, title: "Comprehensions, Lambda & Functional Tools", path: "chapters/chapter-09-comprehensions-lambda/lesson.html", subtopics: [
+        { id: "list-comprehensions", title: "List comprehensions" },
+        { id: "dict-set-comprehensions", title: "Dict & set comprehensions" },
+        { id: "nested-comprehensions", title: "Nested comprehensions & readability" },
+        { id: "lambda", title: "Lambda functions" },
+        { id: "functional-tools", title: "map(), filter(), sorted(key=lambda)" },
+        { id: "bringing-together", title: "Real-world use in production" }
+      ] },
       { id: "chapter-10", num: 10, title: "Functions Deep Dive", path: null }
     ]
   },
