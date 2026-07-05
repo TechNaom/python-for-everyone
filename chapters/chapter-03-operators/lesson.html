@@ -58,6 +58,11 @@
     <span class="subtopic-label">Sub-topic 1 of 4</span>
     <h2>1. Arithmetic &amp; assignment operators</h2>
     <p>
+      Picture the register at <strong>TechNaom Store</strong> ringing up a
+      group order. Every line it prints &mdash; the subtotal, a discount, a
+      split three ways &mdash; is just one of these operators at work.
+    </p>
+    <p>
       Python has two division operators that behave differently &mdash; this
       single detail causes more beginner confusion than almost anything
       else in this chapter, so pay close attention to the example below.
@@ -68,16 +73,19 @@
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">arithmetic.py</span>
       </div>
-      <pre><code>x = 10
-y = 3
+      <pre><code>order_total = 47   &#35; dollars: today's group order at TechNaom Store
+friends = 3         &#35; how many friends are splitting the bill
 
-print(x + y)   &#35; 13  &mdash; addition
-print(x - y)   &#35; 7   &mdash; subtraction
-print(x * y)   &#35; 30  &mdash; multiplication
-print(x / y)   &#35; 3.3333...  &mdash; division, ALWAYS returns a float
-print(x // y)  &#35; 3   &mdash; floor division, drops the remainder
-print(x % y)   &#35; 1   &mdash; modulo, gives ONLY the remainder
-print(x ** y)  &#35; 1000 &mdash; power (10 to the power of 3)</code></pre>
+print(order_total + 3)    &#35; 50  &mdash; add a $3 delivery tip
+print(order_total - 7)    &#35; 40  &mdash; a $7 loyalty discount kicks in
+print(order_total * 2)    &#35; 94  &mdash; a friend orders the same amount again
+print(order_total / friends)   &#35; 15.666...  &mdash; splitting evenly, ALWAYS returns a float
+print(order_total // friends)  &#35; 15   &mdash; floor division, drops the remainder
+print(order_total % friends)   &#35; 2    &mdash; modulo, gives ONLY the remainder
+
+bonus_multiplier = 2   &#35; loyalty points double every tier you climb
+tier = 3
+print(bonus_multiplier ** tier)   &#35; 8  &mdash; power: 2 to the power of 3</code></pre>
     </div>
 
     <div class="playground">
@@ -85,29 +93,30 @@ print(x ** y)  &#35; 1000 &mdash; power (10 to the power of 3)</code></pre>
         <span class="filename">try_arithmetic.py</span>
         <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
       </div>
-      <textarea class="playground-code" data-playground-code rows="7">x = 10
-y = 3
-print(x / y)
-print(x // y)
-print(x % y)
-print(x ** y)</textarea>
+      <textarea class="playground-code" data-playground-code rows="7">order_total = 47
+friends = 3
+print(order_total / friends)
+print(order_total // friends)
+print(order_total % friends)
+print(2 ** 3)</textarea>
       <div class="playground-output" data-playground-output>Click "Run Code" to see the output here.</div>
     </div>
 
     <div class="output-block">
-      <span class="output-label">10 // 3 and 10 % 3, visually</span>
-      <pre><code>10 divided by 3  =  3  remainder  1
-                    |             |
-                    10 // 3       10 % 3</code></pre>
+      <span class="output-label">47 // 3 and 47 % 3, visually</span>
+      <pre><code>47 divided by 3  =  15  remainder  2
+                    |              |
+                    47 // 3        47 % 3</code></pre>
     </div>
 
     <div class="what-is">
       <span class="label">What is... floor division vs. modulo?</span>
       <code>//</code> keeps the whole-number <em>quotient</em>, always
-      rounding down (<code>10 // 3</code> is <code>3</code>). <code>%</code>
-      keeps only the <em>remainder</em> left over (<code>10 % 3</code> is
-      <code>1</code>). <code>%</code> is the classic tool for "is this
-      number even?" (<code>n % 2 == 0</code>) and for cycles and wraparounds.
+      rounding down (<code>47 // 3</code> is <code>15</code>). <code>%</code>
+      keeps only the <em>remainder</em> left over (<code>47 % 3</code> is
+      <code>2</code> &mdash; the $2 left over that somebody still has to chip in).
+      <code>%</code> is also the classic tool for "is this number even?"
+      (<code>n % 2 == 0</code>) and for cycles and wraparounds.
     </div>
 
     <p>
@@ -121,23 +130,24 @@ print(x ** y)</textarea>
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">assignment.py</span>
       </div>
-      <pre><code>score = 10
-score += 5    &#35; same as: score = score + 5  -&gt; 15
-score -= 3    &#35; same as: score = score - 3  -&gt; 12
-score *= 2    &#35; same as: score = score * 2  -&gt; 24
-print(score)</code></pre>
+      <pre><code>loyalty_points = 10
+loyalty_points += 5    &#35; same as: loyalty_points = loyalty_points + 5  -&gt; 15
+loyalty_points -= 3    &#35; a redeemed reward costs 3 points          -&gt; 12
+loyalty_points *= 2    &#35; a double-points weekend promo             -&gt; 24
+print(loyalty_points)</code></pre>
     </div>
 
     <details class="go-deeper">
       <summary>Go Deeper: no ++ or -- in Python</summary>
       <p>
         If you've used C, Java, or JavaScript, you might reach for
-        <code>score++</code>. Python doesn't have that operator at all &mdash;
-        it was left out deliberately, partly because <code>++</code> in
-        other languages secretly hides two different behaviors
-        (increment-then-use vs. use-then-increment) that cause subtle bugs.
-        In Python, you always write <code>score += 1</code> instead, which
-        is completely unambiguous.
+        <code>loyalty_points++</code>. Python doesn't have that operator at
+        all &mdash; it was left out deliberately, partly because
+        <code>++</code> in other languages secretly hides two different
+        behaviors (increment-then-use vs. use-then-increment) that cause
+        subtle bugs. In Python, you always write
+        <code>loyalty_points += 1</code> instead, which is completely
+        unambiguous.
       </p>
     </details>
 
@@ -160,19 +170,24 @@ print(score)</code></pre>
       boolean. Logical operators combine multiple boolean results into
       one final decision.
     </p>
+    <p>
+      Back at TechNaom Store, the checkout page needs to decide whether a
+      cart qualifies for free shipping &mdash; that decision is nothing
+      more than a relational comparison combined with a logical operator.
+    </p>
 
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">relational.py</span>
       </div>
-      <pre><code>age = 20
-has_ticket = True
+      <pre><code>order_total = 62   &#35; dollars, in the cart right now
+is_member = True    &#35; TechNaom+ subscribers get free shipping automatically
 
-print(age &gt;= 18)                    &#35; True
-print(age &gt;= 18 and has_ticket)     &#35; True  &mdash; BOTH must be true
-print(age &lt; 13 or has_ticket)       &#35; True  &mdash; only ONE needs to be true
-print(not has_ticket)               &#35; False &mdash; flips it</code></pre>
+print(order_total &gt;= 50)                   &#35; True  &mdash; over the free-shipping threshold
+print(order_total &gt;= 50 and is_member)     &#35; True  &mdash; BOTH must be true
+print(order_total &lt; 20 or is_member)       &#35; True  &mdash; only ONE needs to be true
+print(not is_member)                        &#35; False &mdash; flips it</code></pre>
     </div>
 
     <div class="what-is">
@@ -187,12 +202,14 @@ print(not has_ticket)               &#35; False &mdash; flips it</code></pre>
       <summary>Go Deeper: short-circuit evaluation</summary>
       <p>
         Python stops checking as soon as it knows the answer. In
-        <code>age &gt;= 18 and has_ticket</code>, if <code>age &gt;= 18</code>
-        is already <code>False</code>, Python never even looks at
-        <code>has_ticket</code> &mdash; the whole expression is already
-        guaranteed <code>False</code>. This matters in real code: you can
-        safely write <code>x != 0 and 10 / x &gt; 1</code> because Python
-        won't attempt the division if <code>x</code> is <code>0</code>.
+        <code>order_total &gt;= 50 and is_member</code>, if
+        <code>order_total &gt;= 50</code> is already <code>False</code>,
+        Python never even looks at <code>is_member</code> &mdash; the whole
+        expression is already guaranteed <code>False</code>. This matters
+        in real code: the checkout page can safely write
+        <code>cart_count != 0 and order_total / cart_count &gt; 20</code>
+        because Python won't attempt the division if <code>cart_count</code>
+        is <code>0</code> (an empty cart), avoiding a crash.
       </p>
     </details>
 
@@ -214,8 +231,9 @@ print(not has_ticket)               &#35; False &mdash; flips it</code></pre>
       Every number is stored internally as bits (1s and 0s). Bitwise
       operators work directly on those bits. This sounds academic, but
       it's exactly how real permission systems (like Unix file
-      permissions) and low-level flags work &mdash; you'll use this for
-      real in this chapter's project.
+      permissions) and low-level flags work &mdash; and it's exactly how
+      TechNaom Store decides what its own staff accounts are allowed to
+      do. You'll build a full version of this in this chapter's project.
     </p>
 
     <div class="code-window">
@@ -223,36 +241,39 @@ print(not has_ticket)               &#35; False &mdash; flips it</code></pre>
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">bitwise.py</span>
       </div>
-      <pre><code>a = 5   &#35; binary: 101
-b = 6   &#35; binary: 110
+      <pre><code>alice_perms = 5   &#35; binary: 101 -&gt; view (4) + refund (1)
+bob_perms = 6     &#35; binary: 110 -&gt; view (4) + edit (2)
 
-print(a &amp; b)   &#35; 4   &mdash; AND: 1 only where BOTH have a 1
-print(a | b)   &#35; 7   &mdash; OR: 1 where EITHER has a 1
-print(a ^ b)   &#35; 3   &mdash; XOR: 1 where they DIFFER
-print(a &lt;&lt; 1)  &#35; 10  &mdash; shift bits left (doubles the value)
-print(a &gt;&gt; 1)  &#35; 2   &mdash; shift bits right (halves it, rounding down)</code></pre>
+print(alice_perms &amp; bob_perms)   &#35; 4   &mdash; AND: the permission they BOTH share (view)
+print(alice_perms | bob_perms)   &#35; 7   &mdash; OR: all permissions either one holds
+print(alice_perms ^ bob_perms)   &#35; 3   &mdash; XOR: the permissions where they DIFFER
+print(alice_perms &lt;&lt; 1)  &#35; 10  &mdash; shift bits left (doubles the value)
+print(alice_perms &gt;&gt; 1)  &#35; 2   &mdash; shift bits right (halves it, rounding down)</code></pre>
     </div>
 
     <div class="what-is">
       <span class="label">What is... a bit flag?</span>
       A bit flag uses individual bits of a single number to represent
-      several independent yes/no switches at once. Instead of four
-      separate boolean variables, you can pack four flags into one number
-      and use <code>&amp;</code> (AND) to check one, and <code>|</code> (OR)
-      to turn one on &mdash; this is exactly how Unix file permissions
-      (read=4, write=2, execute=1) work under the hood.
+      several independent yes/no switches at once. Instead of separate
+      boolean variables for <code>can_view</code>, <code>can_edit</code>,
+      and <code>can_refund</code>, TechNaom Store packs all three into one
+      number and uses <code>&amp;</code> (AND) to check one, and
+      <code>|</code> (OR) to turn one on &mdash; this is exactly how Unix
+      file permissions (read=4, write=2, execute=1) work under the hood.
     </div>
 
     <details class="go-deeper">
       <summary>Go Deeper: converting between number systems</summary>
       <p>
         Python can show you any integer in binary, octal, or hexadecimal
-        with built-in functions: <code>bin(10)</code> gives
-        <code>'0b1010'</code>, <code>oct(10)</code> gives <code>'0o12'</code>,
-        and <code>hex(10)</code> gives <code>'0xa'</code>. The prefixes
-        (<code>0b</code>, <code>0o</code>, <code>0x</code>) tell Python (and
-        you) which base you're reading, and you can write literals directly
-        in any of these forms in your source code too.
+        with built-in functions: <code>bin(5)</code> gives
+        <code>'0b101'</code>, <code>oct(5)</code> gives <code>'0o5'</code>,
+        and <code>hex(5)</code> gives <code>'0x5'</code> &mdash; that's
+        Alice's permission number from the example above, laid bare as
+        raw bits. The prefixes (<code>0b</code>, <code>0o</code>,
+        <code>0x</code>) tell Python (and you) which base you're reading,
+        and you can write literals directly in any of these forms in your
+        source code too.
       </p>
     </details>
 
@@ -274,29 +295,35 @@ print(a &gt;&gt; 1)  &#35; 2   &mdash; shift bits right (halves it, rounding dow
       <code>is</code> checks identity (same object in memory, the concept
       from Chapter 2), and <code>in</code> checks membership.
     </p>
+    <p>
+      TechNaom Store uses both every day: <code>in</code> to validate a
+      promo code against this week's active-codes string, and
+      <code>is</code> to compare two variables that are supposed to point
+      at the exact same record.
+    </p>
 
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">special_ops.py</span>
       </div>
-      <pre><code>a = 10
-b = 10
-print(a is b)          &#35; True  &mdash; same small-int object (Chapter 2!)
+      <pre><code>customer_a_id = 42
+customer_b_id = 42
+print(customer_a_id is customer_b_id)   &#35; True  &mdash; same small-int object (Chapter 2!)
 
-fruits = ["apple", "banana", "mango"]
-print("banana" in fruits)      &#35; True
-print("grape" not in fruits)   &#35; True</code></pre>
+valid_codes = "SAVE10 WELCOME20 FREESHIP"
+print("WELCOME20" in valid_codes)       &#35; True
+print("EXPIRED5" not in valid_codes)    &#35; True</code></pre>
     </div>
 
     <div class="what-is">
       <span class="label">What is... the difference between == and is?</span>
       <code>==</code> asks "do these have the <em>same value</em>?"
       <code>is</code> asks "are these the <em>exact same object</em> in
-      memory?" Two different lists with identical contents are
-      <code>==</code> but not <code>is</code>. This distinction rarely
-      matters for numbers and strings, but matters a lot once you start
-      working with lists and objects in later chapters.
+      memory?" Two different pieces of text with identical contents are
+      <code>==</code> but not always <code>is</code>. This distinction
+      rarely matters day-to-day, but matters a lot once you start working
+      with lists and objects in later chapters (Chapter 7 onward).
     </div>
 
     <div class="quick-recap">

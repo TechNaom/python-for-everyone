@@ -52,17 +52,24 @@
     Imagine you could give a computer instructions in plain steps, and it would follow
     them <strong>exactly</strong>, every single time, without getting tired or bored.
     That's what programming is. And Python is one of the friendliest languages ever
-    made for doing it. By the end of this chapter, you'll have written a program
-    that talks back to you personally &mdash; using your own name.
+    made for doing it. To make this chapter's examples feel like a real, connected
+    program instead of a pile of disconnected snippets, we'll build up one tiny
+    project together, one instruction at a time: a little "Corner Cafe" greeter
+    that welcomes a customer, remembers their order, and prints them a receipt
+    &mdash; using their own name.
   </div>
 
   <h2 id="what-is-a-program">1. What is a "program," really?</h2>
   <p>
     A program is just a list of instructions, written in an order the computer can
-    understand, that tells it what to do &mdash; step by step, top to bottom. Think of
-    it like a recipe: "crack two eggs," "whisk them," "pour into the pan." A computer
-    program is the same idea, except the "kitchen" is the computer, and the
-    "ingredients" are things like text, numbers, and questions you ask the user.
+    understand, that tells it what to do &mdash; step by step, top to bottom.
+  </p>
+  <p>
+    Think of it like the little routine behind a coffee shop counter: "greet the
+    customer," "take their order," "print the receipt." Nobody skips a step or
+    does them out of order &mdash; and neither does a computer. A program is the
+    same idea, except the "counter" is the computer, and the "ingredients" are
+    things like text, numbers, and questions you ask the user.
   </p>
 
   <div class="what-is">
@@ -130,26 +137,59 @@
     even though it looks like a number, the quotes make it text.
   </div>
 
-  <h2 id="variables">3. Storing information: variables</h2>
   <p>
-    Printing fixed text is useful, but real programs need to <em>remember</em>
-    things &mdash; a name, a score, an age. That's what a <strong>variable</strong>
-    is for: a labeled box where you can store a piece of information and use it
-    later.
+    <code>print()</code> works with any string you hand it &mdash; not just
+    <code>"Hello, world!"</code>. Here's the line that will open our little
+    project for this chapter: a welcome message for a corner coffee shop.
   </p>
 
   <div class="code-window">
     <div class="code-window-bar">
       <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-      <span class="filename">variables.py</span>
+      <span class="filename">cafe.py</span>
     </div>
-    <pre><code>name = "Asha"
-print(name)</code></pre>
+    <pre><code>print("Welcome to Corner Cafe!")</code></pre>
+  </div>
+
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>Welcome to Corner Cafe!</code></pre>
+  </div>
+
+  <p>
+    Same <code>print()</code>, same idea &mdash; just a different string. We'll
+    keep adding to this <code>cafe.py</code> program for the rest of the chapter.
+  </p>
+
+  <h2 id="variables">3. Storing information: variables</h2>
+  <p>
+    A fixed welcome message is nice, but a real coffee shop needs to
+    <em>remember</em> things about the customer in front of it &mdash; a name, an
+    order, a price. Typing that message over and over for every customer would
+    get old fast, and it wouldn't be personal.
+  </p>
+  <p>
+    That's what a <strong>variable</strong> is for: a labeled box where you can
+    store a piece of information and use it later.
+  </p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">cafe.py</span>
+    </div>
+    <pre><code>customer = "Maya"
+print(customer)</code></pre>
+  </div>
+
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>Maya</code></pre>
   </div>
 
   <div class="code-breakdown">
     <dl>
-      <dt>name</dt>
+      <dt>customer</dt>
       <dd>This is the variable's name &mdash; the label on the box. You can call it
       almost anything (avoid spaces and starting with a number).</dd>
 
@@ -158,24 +198,25 @@ print(name)</code></pre>
       box,"</strong> not "is equal to" like in math class. This trips up a lot of
       beginners &mdash; keep it in mind!</dd>
 
-      <dt>"Asha"</dt>
+      <dt>"Maya"</dt>
       <dd>The value being stored &mdash; a string, in this case.</dd>
 
-      <dt>print(name)</dt>
-      <dd>Notice there are no quotes around <code>name</code> here. That's on
+      <dt>print(customer)</dt>
+      <dd>Notice there are no quotes around <code>customer</code> here. That's on
       purpose: without quotes, Python looks up the <em>variable</em> called
-      <code>name</code> and prints whatever is stored inside it (<code>Asha</code>).
-      With quotes, <code>print("name")</code> would just print the literal word
-      "name."</dd>
+      <code>customer</code> and prints whatever is stored inside it
+      (<code>Maya</code>). With quotes, <code>print("customer")</code> would just
+      print the literal word "customer."</dd>
     </dl>
   </div>
 
   <div class="what-is">
     <span class="label">What is... a variable?</span>
     A variable is a name that points to a value stored in the computer's memory.
-    Think of a variable as a labeled jar: <code>name = "Asha"</code> is like writing
-    "name" on a jar's label and putting the note "Asha" inside it. Whenever you use
-    the label later, Python fetches whatever is currently inside the jar.
+    Think of a variable as a labeled jar: <code>customer = "Maya"</code> is like
+    writing "customer" on a jar's label and putting the note "Maya" inside it.
+    Whenever you use the label later, Python fetches whatever is currently inside
+    the jar.
   </div>
 
   <h2 id="types">4. Basic types: text vs. numbers</h2>
@@ -184,15 +225,19 @@ print(name)</code></pre>
     <strong>types</strong> of information, and the two you'll use constantly as a
     beginner are strings (text) and numbers.
   </p>
+  <p>
+    Our <code>cafe.py</code> program needs both: an order is text, but how many
+    cups and what they cost are numbers.
+  </p>
 
   <div class="code-window">
     <div class="code-window-bar">
       <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-      <span class="filename">types.py</span>
+      <span class="filename">cafe.py</span>
     </div>
-    <pre><code>name = "Asha"       # a string (text)
-age = 12            # an integer (a whole number)
-height = 4.9        # a float (a number with a decimal point)</code></pre>
+    <pre><code>order = "Latte"     # a string (text)
+cups = 2            # an integer (a whole number)
+price = 4.5         # a float (a number with a decimal point)</code></pre>
   </div>
 
   <div class="what-is">
@@ -217,24 +262,29 @@ height = 4.9        # a float (a number with a decimal point)</code></pre>
   <div class="code-window">
     <div class="code-window-bar">
       <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-      <span class="filename">greet.py</span>
+      <span class="filename">cafe.py</span>
     </div>
-    <pre><code>name = input("What's your name? ")
-print("Nice to meet you, " + name + "!")</code></pre>
+    <pre><code>customer = input("Welcome to Corner Cafe! What's your name? ")
+print("Nice to meet you, " + customer + "!")</code></pre>
+  </div>
+
+  <div class="output-block">
+    <span class="output-label">Output (typed reply: <code>Maya</code>)</span>
+    <pre><code>Welcome to Corner Cafe! What's your name? Nice to meet you, Maya!</code></pre>
   </div>
 
   <div class="code-breakdown">
     <dl>
-      <dt>input("What's your name? ")</dt>
+      <dt>input("Welcome to Corner Cafe! What's your name? ")</dt>
       <dd>This displays the question on screen, then pauses the program completely
       until the person types something and presses Enter.</dd>
 
-      <dt>name = input(...)</dt>
-      <dd>Whatever the person typed gets stored in the variable <code>name</code>
+      <dt>customer = input(...)</dt>
+      <dd>Whatever the person typed gets stored in the variable <code>customer</code>
       &mdash; exactly like storing any other value, except this one came from the
       user instead of being written directly in the code.</dd>
 
-      <dt>"Nice to meet you, " + name + "!"</dt>
+      <dt>"Nice to meet you, " + customer + "!"</dt>
       <dd>The <code>+</code> symbol here glues strings together, end to end. This is
       called <strong>concatenation</strong> &mdash; a fancy word for "joining text
       pieces into one longer piece."</dd>
@@ -252,7 +302,7 @@ print("Nice to meet you, " + name + "!")</code></pre>
   <details class="go-deeper">
     <summary>Go Deeper: why can't I add a number and a string with +?</summary>
     <p>
-      If you try <code>print("Your age is " + 12)</code>, Python will raise an
+      If you try <code>print("Your total is $" + 4)</code>, Python will raise an
       error, because <code>+</code> means two different things depending on type:
       for numbers it means "add," for strings it means "join." Python refuses to
       guess which one you meant when the types don't match. To fix it, convert the
@@ -263,36 +313,51 @@ print("Nice to meet you, " + name + "!")</code></pre>
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">fix_type_error.py</span>
       </div>
-      <pre><code>age = 12
-print("Your age is " + str(age))</code></pre>
+      <pre><code>price = 4
+print("Your total is $" + str(price))</code></pre>
+    </div>
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>Your total is $4</code></pre>
     </div>
     <p>
-      <code>str(age)</code> takes the number <code>12</code> and produces the text
-      <code>"12"</code>, which can then be safely joined with other text. This
-      "convert one type into another on purpose" pattern is extremely common in
-      real Python code and is worth getting comfortable with early.
+      <code>str(price)</code> takes the number <code>4</code> and produces the
+      text <code>"4"</code>, which can then be safely joined with other text.
+      This "convert one type into another on purpose" pattern is extremely common
+      in real Python code and is worth getting comfortable with early.
     </p>
   </details>
 
   <h2 id="recap">6. Putting it all together</h2>
-  <p>Here's a small, complete program using everything from this chapter:</p>
+  <p>
+    Here's the finished <code>cafe.py</code> &mdash; the same little coffee shop
+    program we've been building all chapter, now taking a real order and printing
+    a receipt using everything you've learned:
+  </p>
 
   <div class="code-window">
     <div class="code-window-bar">
       <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-      <span class="filename">chapter1_recap.py</span>
+      <span class="filename">cafe.py</span>
     </div>
-    <pre><code>name = input("What's your name? ")
-age = input("How old are you? ")
+    <pre><code>customer = input("Welcome to Corner Cafe! What's your name? ")
+order = input("What would you like to order? ")
 
-print("Hello, " + name + "!")
-print("So you're " + age + " years old. That's a great age to be learning Python!")</code></pre>
+print("Order for " + customer + ": " + order + ".")
+print("Thanks for stopping by, " + customer + " - enjoy!")</code></pre>
+  </div>
+
+  <div class="output-block">
+    <span class="output-label">Output (typed replies: <code>Maya</code>, then <code>a cappuccino</code>)</span>
+    <pre><code>Welcome to Corner Cafe! What's your name? What would you like to order? Order for Maya: a cappuccino.
+Thanks for stopping by, Maya - enjoy!</code></pre>
   </div>
 
   <p>
     Try running this yourself. Every time you run it, it can produce a different,
     personal result &mdash; because it's not printing fixed text anymore, it's
-    printing <em>your</em> answers back to you.
+    printing <em>your</em> answers back to you, just like a real cafe greeting a
+    real customer.
   </p>
 
   <div class="real-world">

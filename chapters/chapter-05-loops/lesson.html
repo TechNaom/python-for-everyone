@@ -47,11 +47,13 @@
   </nav>
 
   <div class="hook">
-    Imagine printing the numbers 1 to 1,000, or checking every item in a
-    10,000-row spreadsheet, or asking a user for input until they type
-    something valid. Writing that logic by hand, one line per number,
-    would be absurd. A loop lets you say "repeat this block until I say
-    stop" &mdash; once, cleanly, no matter how many times it actually runs.
+    You're building the till system for Corner Café, a small coffee shop.
+    The register needs to count down to opening, lock itself behind a
+    manager PIN, print a ticket per order, tally up a shift's sales, and
+    process a queue of orders without crashing on a bad one. Every one of
+    those is really the same idea underneath: "repeat this block until I
+    say stop." This chapter builds that one idea, in four different
+    shapes, using the café's register as the running example.
   </div>
 
   <div class="subtopic" id="while">
@@ -68,23 +70,25 @@
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="filename">while_basics.py</span>
+        <span class="filename">opening_countdown.py</span>
       </div>
-      <pre><code>i = 1              &#35; starting point
-while i <= 5:      &#35; condition
-    print(i)
-    i = i + 1      &#35; the step that eventually stops the loop</code></pre>
+      <pre><code>minutes_to_open = 5              &#35; starting point
+while minutes_to_open > 0:       &#35; condition
+    print("Opening in", minutes_to_open, "minute(s)...")
+    minutes_to_open -= 1         &#35; the step that eventually stops the loop
+print("We're open!")</code></pre>
     </div>
 
     <div class="playground">
       <div class="playground-bar">
-        <span class="filename">try_while.py</span>
+        <span class="filename">try_countdown.py</span>
         <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
       </div>
-      <textarea class="playground-code" data-playground-code rows="5">i = 1
-while i <= 5:
-    print(i)
-    i = i + 1</textarea>
+      <textarea class="playground-code" data-playground-code rows="5">minutes_to_open = 5
+while minutes_to_open > 0:
+    print("Opening in", minutes_to_open, "minute(s)...")
+    minutes_to_open -= 1
+print("We're open!")</textarea>
       <div class="playground-output" data-playground-output>Click "Run Code" — try changing 5 to 10.</div>
     </div>
 
@@ -93,10 +97,55 @@ while i <= 5:
       An infinite loop is one whose condition never becomes
       <code>False</code>, so it runs forever (or until you force-stop the
       program). This almost always happens by forgetting the step that
-      changes the loop variable &mdash; if you removed <code>i = i + 1</code>
-      above, <code>i</code> would stay <code>1</code> forever and the loop
-      would never end.
+      changes the loop variable &mdash; if you removed
+      <code>minutes_to_open -= 1</code> above, <code>minutes_to_open</code>
+      would stay <code>5</code> forever and the café would never open.
     </div>
+
+    <p>
+      A countdown always ends the same way, so it's a safe first example.
+      Real registers need a <code>while</code> loop for something riskier:
+      letting someone retry a few times, then locking them out.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">manager_login.py</span>
+      </div>
+      <pre><code>manager_pin = "4471"
+attempts = 0
+entered = ""
+
+while attempts < 3 and entered != manager_pin:
+    entered = input("Enter manager PIN: ")
+    attempts += 1
+    if entered != manager_pin:
+        print("Incorrect PIN. Try again.")
+
+if entered == manager_pin:
+    print("Register unlocked.")
+else:
+    print("Too many failed attempts. Register locked.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Sample run &mdash; PIN entered wrong twice, then correct on the 3rd try</span>
+      <pre><code>Enter manager PIN: 1111
+Incorrect PIN. Try again.
+Enter manager PIN: 9999
+Incorrect PIN. Try again.
+Enter manager PIN: 4471
+Register unlocked.</code></pre>
+    </div>
+
+    <p>
+      Notice the condition has two parts joined by <code>and</code>:
+      <code>attempts &lt; 3</code> caps how many tries are allowed, and
+      <code>entered != manager_pin</code> stops the loop the moment the
+      correct PIN shows up. Either one becoming false ends the loop &mdash;
+      that's what makes a "retry, but not forever" loop possible.
+    </p>
 
     <details class="go-deeper">
       <summary>Go Deeper: the three parts of every loop, named properly</summary>
@@ -117,6 +166,7 @@ while i <= 5:
         <li><code>while condition:</code> repeats its block as long as the condition is <code>True</code>.</li>
         <li>Every loop needs initialization, a condition, and a step that eventually stops it.</li>
         <li>Forgetting the step creates an infinite loop.</li>
+        <li>Combining conditions with <code>and</code>/<code>or</code> lets a <code>while</code> loop stop for more than one reason &mdash; like "correct PIN" or "too many attempts."</li>
       </ul>
     </div>
   </div>
@@ -166,6 +216,42 @@ for i in range(10, 0, -2):
       once.
     </div>
 
+    <p>
+      Corner Café puts this to work the moment the lunch rush hits: every
+      walk-in order needs its own numbered ticket, printed in one batch.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">print_tickets.py</span>
+      </div>
+      <pre><code>&#35; Corner Café is slammed during the lunch rush — print a numbered
+&#35; ticket for every walk-in order waiting in line.
+first_ticket = 1001
+order_count = 5
+
+for ticket in range(first_ticket, first_ticket + order_count):
+    print("Printing order ticket #" + str(ticket))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>Printing order ticket #1001
+Printing order ticket #1002
+Printing order ticket #1003
+Printing order ticket #1004
+Printing order ticket #1005</code></pre>
+    </div>
+
+    <p>
+      <code>range(first_ticket, first_ticket + order_count)</code> is the
+      same two-argument form from the first example &mdash; only the start
+      and stop are now expressions instead of literal numbers, so the
+      ticket range shifts automatically if the shop changes its starting
+      ticket number tomorrow.
+    </p>
+
     <details class="go-deeper">
       <summary>Go Deeper: for loops work on more than just range()</summary>
       <p>
@@ -181,6 +267,7 @@ for i in range(10, 0, -2):
       <ul>
         <li><code>for i in range(n):</code> counts <code>0</code> to <code>n-1</code>.</li>
         <li><code>range(start, stop, step)</code> gives full control, and the stop value is always excluded.</li>
+        <li><code>range()</code>'s arguments can be expressions, not just literal numbers &mdash; handy for things like a shifting ticket range.</li>
         <li><code>for</code> can iterate directly over strings and other sequences, not just numbers.</li>
       </ul>
     </div>
@@ -195,28 +282,6 @@ for i in range(10, 0, -2):
       memorizing any single example.
     </p>
 
-    <div class="code-window">
-      <div class="code-window-bar">
-        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="filename">accumulator_pattern.py</span>
-      </div>
-      <pre><code>&#35; The "accumulator" pattern: build up a result across iterations
-total = 0
-i = 1
-while i <= 10:
-    total = total + i
-    i += 1
-print("Sum 1-10:", total)   &#35; 55
-
-&#35; Digit-by-digit processing: peel off digits with % and //
-n = 256
-digit_sum = 0
-while n > 0:
-    digit_sum += n % 10   &#35; grab the last digit
-    n = n // 10           &#35; drop the last digit
-print("Digit sum of 256:", digit_sum)   &#35; 2+5+6 = 13</code></pre>
-    </div>
-
     <div class="what-is">
       <span class="label">What is... the accumulator pattern?</span>
       An accumulator is a variable (often started at <code>0</code>) that
@@ -224,6 +289,94 @@ print("Digit sum of 256:", digit_sum)   &#35; 2+5+6 = 13</code></pre>
       count, a product. It's called an accumulator because it "accumulates"
       the answer one step at a time instead of computing it all at once.
     </div>
+
+    <p>
+      At closing time, the shift lead types in that hour's sales one
+      number at a time, and the register keeps a running total &mdash; the
+      accumulator pattern, driven by real input.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">shift_sales_total.py</span>
+      </div>
+      <pre><code>&#35; The "accumulator" pattern: build up a result across iterations
+hours_worked = 5
+total_sales = 0
+
+for hour in range(hours_worked):
+    sale = float(input("Enter sales for hour " + str(hour + 1) + ": $"))
+    total_sales += sale
+
+print("Total sales for the shift: $" + str(total_sales))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Sample run &mdash; five hourly sales entered one at a time</span>
+      <pre><code>Enter sales for hour 1: $120.50
+Enter sales for hour 2: $95
+Enter sales for hour 3: $60.25
+Enter sales for hour 4: $200
+Enter sales for hour 5: $80
+Total sales for the shift: $555.75</code></pre>
+    </div>
+
+    <p>
+      <code>total_sales</code> never sees all five numbers at once &mdash;
+      it just adds whatever <code>input()</code> hands it, one hour at a
+      time, which is exactly why an accumulator works even when the data
+      arrives gradually instead of all up front.
+    </p>
+
+    <p>
+      Every receipt Corner Café prints also carries a check digit &mdash;
+      the sum of all its digits &mdash; so a cashier can spot a mistyped
+      receipt number at a glance. Computing it needs a second pattern:
+      peeling a number apart one digit at a time with <code>%</code> and
+      <code>//</code>.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">receipt_check_digit.py</span>
+      </div>
+      <pre><code>&#35; Digit-by-digit processing: peel off digits with % and //
+receipt_number = 40352
+digit_sum = 0
+n = receipt_number
+while n > 0:
+    digit_sum += n % 10   &#35; grab the last digit
+    n = n // 10           &#35; drop the last digit
+print("Digit sum of receipt", receipt_number, ":", digit_sum)
+check_digit = digit_sum % 10
+print("Expected check digit:", check_digit)</code></pre>
+    </div>
+
+    <p>
+      It's easier to trust this loop once you've watched
+      <code>n</code> and <code>digit_sum</code> change, step by step,
+      instead of just reading the final printed number:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">Variable trace for receipt_number = 40352</span>
+      <pre><code>       n   n % 10  digit_sum  n // 10
+   40352        2          2     4035
+    4035        5          7      403
+     403        3         10       40
+      40        0         10        4
+       4        4         14        0</code></pre>
+    </div>
+
+    <p>
+      Each row is one pass through the loop: <code>n % 10</code> peels off
+      the last digit, that digit is folded into <code>digit_sum</code>,
+      and <code>n // 10</code> drops it before the next pass. Once
+      <code>n</code> reaches <code>0</code>, every digit has been counted
+      and the loop stops on its own.
+    </p>
 
     <details class="go-deeper">
       <summary>Go Deeper: peeling off digits with % and //</summary>
@@ -240,8 +393,9 @@ print("Digit sum of 256:", digit_sum)   &#35; 2+5+6 = 13</code></pre>
     <div class="quick-recap">
       <span class="label">Quick recap</span>
       <ul>
-        <li>The accumulator pattern: a variable that builds up a result across iterations.</li>
+        <li>The accumulator pattern: a variable that builds up a result across iterations, even when the data arrives one <code>input()</code> at a time.</li>
         <li><code>n % 10</code> gets the last digit; <code>n // 10</code> removes it.</li>
+        <li>Tracing a loop's variables row by row makes it obvious why it stops when it does.</li>
       </ul>
     </div>
   </div>
@@ -260,18 +414,19 @@ print("Digit sum of 256:", digit_sum)   &#35; 2+5+6 = 13</code></pre>
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">break_continue.py</span>
       </div>
-      <pre><code>&#35; break: stop the loop immediately
-for number in [4, 7, 11, 15, 3]:
-    if number == 11:
-        print("Found it!")
+      <pre><code>&#35; break: stop the loop immediately once we find the target ticket
+target_ticket = 1004
+for ticket in range(1001, 1006):
+    if ticket == target_ticket:
+        print("Found it:", ticket)
         break
-    print("Checking:", number)
+    print("Checking ticket", ticket)
 
-&#35; continue: skip just this iteration, keep looping
-for number in range(1, 6):
-    if number == 3:
+&#35; continue: skip just this ticket, keep looping
+for ticket in range(1, 6):
+    if ticket == 3:
         continue
-    print(number)   &#35; prints 1, 2, 4, 5 (3 is skipped)</code></pre>
+    print(ticket)   &#35; prints 1, 2, 4, 5 (3 is skipped)</code></pre>
     </div>
 
     <div class="what-is">
@@ -282,11 +437,70 @@ for number in range(1, 6):
       code but continuing to loop.
     </div>
 
+    <p>
+      Corner Café's order queue needs both at once: a bad entry
+      (<code>$0</code>, an empty order) should just be skipped with
+      <code>continue</code>, while a cancel signal (a negative amount)
+      should shut the whole queue down early with <code>break</code>.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">process_order_queue.py</span>
+      </div>
+      <pre><code>&#35; Process up to 5 orders; a negative amount is a "cancel" sentinel
+&#35; that should stop the queue completely.
+total_orders = 0
+total_revenue = 0.0
+
+for order_number in range(1, 6):
+    amount = float(input("Order " + str(order_number) + " amount: $"))
+
+    if amount < 0:
+        print("Cancel signal received -- closing the queue early.")
+        break
+
+    if amount == 0:
+        print("Skipping an empty order.")
+        continue
+
+    total_orders += 1
+    total_revenue += amount
+    print("Processed order", order_number, "for $" + str(amount))
+
+print("Orders processed:", total_orders)
+print("Total revenue: $" + str(total_revenue))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Sample run &mdash; $12.50, then $0 (skipped), then $8, then cancel</span>
+      <pre><code>Order 1 amount: $12.50
+Processed order 1 for $12.5
+Order 2 amount: $0
+Skipping an empty order.
+Order 3 amount: $8
+Processed order 3 for $8.0
+Order 4 amount: $-1
+Cancel signal received -- closing the queue early.
+Orders processed: 2
+Total revenue: $20.5</code></pre>
+    </div>
+
+    <p>
+      The loop never even asked for a 5th order &mdash; <code>break</code>
+      exited on the spot once it saw <code>-1</code>. Compare that to
+      order 2: <code>continue</code> skipped the totals for that one
+      order, but the loop kept going and still asked for order 3
+      afterward.
+    </p>
+
     <div class="quick-recap">
       <span class="label">Quick recap</span>
       <ul>
         <li><code>break</code> exits the loop entirely.</li>
         <li><code>continue</code> skips only the current iteration, then keeps looping.</li>
+        <li>A sentinel value (like a negative amount meaning "cancel") is a common real-world reason to <code>break</code> out of a loop early.</li>
       </ul>
     </div>
   </div>

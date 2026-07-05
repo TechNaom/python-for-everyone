@@ -36,7 +36,7 @@
     <span class="reading-time">16 min read</span>
   </div>
   <h1>Variables &amp; Data Types</h1>
-  <p><em>You already used variables in Chapter 1. Now let's understand exactly what's happening under the hood.</em></p>
+  <p><em>You already used variables in Chapter 1. This chapter follows one running example &mdash; the signup form for a small app called PixelHub &mdash; to show exactly what's happening under the hood every time you create one.</em></p>
 
   <nav class="page-toc" aria-label="On this page">
     <span class="toc-label">On this page</span>
@@ -47,12 +47,14 @@
   </nav>
 
   <div class="hook">
-    Every value your program touches &mdash; a name, a price, a score &mdash;
-    lives somewhere in memory with a specific type and a specific address.
-    Most of the time Python hides this from you. But the moment something
-    goes wrong (a crash, a weird bug, an interview question you can't
-    answer), it's because one of these hidden details mattered. This
-    chapter makes them visible.
+    Say you're building the signup form for PixelHub &mdash; a username
+    field, an age field, an account balance. Every one of those values has
+    to live somewhere in memory with a specific type and a specific
+    address. Most of the time Python hides this from you. But the moment
+    something goes wrong (a crash, a weird bug, an interview question you
+    can't answer), it's because one of these hidden details mattered. This
+    chapter makes them visible, using that one signup form as the thread
+    running through every example.
   </div>
 
   <div class="subtopic" id="naming">
@@ -61,7 +63,9 @@
     <p>
       In Chapter 1 you wrote <code>name = "Asha"</code> without worrying too
       much about what names are allowed. Python actually has firm rules
-      about it &mdash; break them, and your program won't even run.
+      about it &mdash; break them, and your program won't even run. Here's
+      the PixelHub signup form your teammate wrote last week &mdash; and why
+      three of these five lines crashed it before it even started.
     </p>
 
     <div class="code-window">
@@ -69,20 +73,21 @@
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">naming.py</span>
       </div>
-      <pre><code>abc123 = "valid"      &#35; starts with a letter &mdash; OK
-_123 = "valid"        &#35; starts with underscore &mdash; OK
-123abc = "invalid"    &#35; cannot start with a digit
-abc 123 = "invalid"   &#35; no spaces allowed
-abc$123 = "invalid"   &#35; no special symbols allowed</code></pre>
+      <pre><code>username123 = "valid"   &#35; starts with a letter &mdash; OK
+_username = "valid"     &#35; starts with underscore &mdash; OK
+123username = "invalid" &#35; cannot start with a digit
+user name = "invalid"   &#35; no spaces allowed
+user$name = "invalid"   &#35; no special symbols allowed</code></pre>
     </div>
 
     <div class="what-is">
       <span class="label">What is... case-sensitivity?</span>
       Python treats uppercase and lowercase letters as completely different
-      characters in a name. <code>age</code>, <code>Age</code>, and
-      <code>AGE</code> are three separate variables. This trips up beginners
-      constantly &mdash; if your code says a variable is "undefined" but you
-      swear you created it, check the capitalization first.
+      characters in a name. <code>username</code>, <code>Username</code>,
+      and <code>USERNAME</code> are three separate variables. This trips up
+      beginners constantly &mdash; if your code says a variable is
+      "undefined" but you swear you created it, check the capitalization
+      first.
     </div>
 
     <details class="go-deeper">
@@ -119,18 +124,30 @@ abc$123 = "invalid"   &#35; no special symbols allowed</code></pre>
       reasons Python feels so much lighter to write.
     </p>
 
+    <p>
+      Back to the PixelHub signup form: once the name mistakes are fixed,
+      here's what a working profile card actually stores &mdash; five
+      fields, five different types, and Python worked out every one of
+      them without being told.
+    </p>
+
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">auto_types.py</span>
       </div>
-      <pre><code>name = "Asha"        &#35; str    &mdash; text
-age = 12             &#35; int    &mdash; whole number
-height = 4.9         &#35; float  &mdash; decimal number
-is_student = True    &#35; bool   &mdash; True or False
-reading = 3 + 4j     &#35; complex &mdash; rarely needed, but built in
+      <pre><code>username = "asha_codes"   &#35; str     &mdash; text
+user_age = 24              &#35; int     &mdash; whole number
+account_balance = 149.5    &#35; float   &mdash; decimal number
+is_verified = True         &#35; bool    &mdash; True or False
+signal = 3 + 4j             &#35; complex &mdash; rarely needed, but built in
 
-print(name, age, height, is_student, reading)</code></pre>
+print(username, user_age, account_balance, is_verified, signal)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>asha_codes 24 149.5 True (3+4j)</code></pre>
     </div>
 
     <div class="playground">
@@ -138,11 +155,11 @@ print(name, age, height, is_student, reading)</code></pre>
         <span class="filename">try_it.py</span>
         <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
       </div>
-      <textarea class="playground-code" data-playground-code rows="6">name = "Asha"
-age = 12
-height = 4.9
-is_student = True
-print(name, age, height, is_student)</textarea>
+      <textarea class="playground-code" data-playground-code rows="6">username = "asha_codes"
+user_age = 24
+account_balance = 149.5
+is_verified = True
+print(username, user_age, account_balance, is_verified)</textarea>
       <div class="playground-output" data-playground-output>Click "Run Code" to see the output here &mdash; runs a real Python interpreter right in this page.</div>
     </div>
     <p class="playground-note">First click loads a real Python engine in your browser (a few seconds) &mdash; after that, running is instant. This sandbox can't use <code>input()</code>, so try editing the values above instead.</p>
@@ -151,18 +168,19 @@ print(name, age, height, is_student)</textarea>
       <span class="label">What is... a boolean?</span>
       A boolean is a data type with exactly two possible values:
       <code>True</code> or <code>False</code> (capitalized, no quotes &mdash;
-      those are keywords, not strings). Booleans are what every comparison
-      like <code>5 &gt; 3</code> produces, and they're the foundation of
-      every decision your programs will make starting in Chapter 4.
+      those are keywords, not strings). <code>is_verified</code> above is a
+      boolean. Booleans are what every comparison like <code>5 &gt; 3</code>
+      produces, and they're the foundation of every decision your programs
+      will make starting in Chapter 4.
     </div>
 
     <div class="what-is">
       <span class="label">What is... dynamic typing?</span>
       Dynamic typing means a variable's type is determined automatically
       from the value assigned to it, and can even change later in the same
-      program: <code>x = 10</code> then later <code>x = "ten"</code> is
-      completely legal &mdash; <code>x</code> just points to a different type
-      of value now.
+      program: <code>user_age = 24</code> then later
+      <code>user_age = "twenty-four"</code> is completely legal &mdash;
+      <code>user_age</code> just points to a different type of value now.
     </div>
 
     <details class="go-deeper">
@@ -171,8 +189,9 @@ print(name, age, height, is_student)</textarea>
         A complex number has a real and an imaginary part, written as
         <code>a+bj</code> in Python (using <code>j</code> instead of math's
         usual <code>i</code>, a convention borrowed from electrical
-        engineering). Most beginner programs never need this type, but it
-        exists as a first-class built-in type &mdash; useful to know if you
+        engineering). A signup form will basically never need one &mdash;
+        <code>signal</code> above only exists to prove the type is real
+        &mdash; but it's a first-class built-in type, useful to know if you
         ever move into scientific computing.
       </p>
     </details>
@@ -194,7 +213,8 @@ print(name, age, height, is_student)</textarea>
       Since Python decides types automatically, you sometimes need to ask
       it what it decided. Two built-in functions answer that: one tells
       you a value's type, the other tells you exactly where in memory it
-      lives.
+      lives. Let's point them at the <code>user_age</code> field from the
+      PixelHub signup form.
     </p>
 
     <div class="code-window">
@@ -202,12 +222,12 @@ print(name, age, height, is_student)</textarea>
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">type_and_id.py</span>
       </div>
-      <pre><code>x = 10
-print(type(x))   &#35; &lt;class 'int'&gt;
-print(id(x))     &#35; some memory address, e.g. 140713...
+      <pre><code>user_age = 24
+print(type(user_age))   &#35; &lt;class 'int'&gt;
+print(id(user_age))     &#35; some memory address, e.g. 140713...
 
-y = 10
-print(id(y))     &#35; often the SAME address as x!</code></pre>
+second_age = 24
+print(id(second_age))   &#35; often the SAME address as user_age!</code></pre>
     </div>
 
     <div class="what-is">
@@ -220,19 +240,21 @@ print(id(y))     &#35; often the SAME address as x!</code></pre>
     </div>
 
     <details class="go-deeper">
-      <summary>Go Deeper: why do x and y share an address?</summary>
+      <summary>Go Deeper: why do user_age and second_age share an address?</summary>
       <p>
-        For small, unchanging values like the integer <code>10</code>,
+        For small, unchanging values like the integer <code>24</code>,
         Python reuses one object in memory instead of creating a new one
-        every time. When you write <code>x = 10</code> and
-        <code>y = 10</code>, both variables just point at that one shared
-        object &mdash; that's why <code>id(x) == id(y)</code>. This works
-        because numbers, strings, and booleans in Python are
+        every time. When you write <code>user_age = 24</code> and
+        <code>second_age = 24</code>, both variables just point at that
+        one shared object &mdash; that's why
+        <code>id(user_age) == id(second_age)</code>. This works because
+        numbers, strings, and booleans in Python are
         <strong>immutable</strong>: once created, an object's value can
-        never change in place. If you later do <code>x = 20</code>, Python
-        doesn't modify the original object &mdash; it creates a brand new
-        one and points <code>x</code> at that instead, leaving
-        <code>y</code> untouched at <code>10</code>.
+        never change in place. If a birthday later bumps
+        <code>user_age = 25</code>, Python doesn't modify the original
+        object &mdash; it creates a brand new one and points
+        <code>user_age</code> at that instead, leaving
+        <code>second_age</code> untouched at <code>24</code>.
       </p>
     </details>
 
@@ -251,9 +273,12 @@ print(id(y))     &#35; often the SAME address as x!</code></pre>
     <h2>4. Converting between types</h2>
     <p>
       Remember from Chapter 1: <code>input()</code> always returns a
-      string, even if the person types a number. Sooner or later you need
-      to explicitly convert a value from one type to another &mdash; Python
-      gives you one function per type to do it.
+      string, even if the person types a number. On the PixelHub signup
+      form, that's exactly what happens the moment a real person fills it
+      out &mdash; the age box hands back <code>"24"</code>, not
+      <code>24</code>. Sooner or later you need to explicitly convert a
+      value from one type to another, and Python gives you one function
+      per type to do it.
     </p>
 
     <div class="code-window">
@@ -261,13 +286,15 @@ print(id(y))     &#35; often the SAME address as x!</code></pre>
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
         <span class="filename">conversion.py</span>
       </div>
-      <pre><code>age_text = "25"
-age_number = int(age_text)      &#35; str -&gt; int
-print(age_number + 5)           &#35; 30
+      <pre><code>age_text = "24"                        &#35; what input() hands back
+user_age = int(age_text)               &#35; str -&gt; int
+print(user_age + 1)                    &#35; 25 &mdash; next birthday
 
-price = float("19.99")          &#35; str -&gt; float
-name_of_25 = str(25)            &#35; int -&gt; str
-is_ready = bool(1)               &#35; -&gt; True</code></pre>
+balance_text = "149.50"
+account_balance = float(balance_text)  &#35; str -&gt; float
+
+user_id_text = str(1042)               &#35; int -&gt; str
+is_active = bool(1)                     &#35; -&gt; True</code></pre>
     </div>
 
     <div class="playground">
@@ -275,18 +302,18 @@ is_ready = bool(1)               &#35; -&gt; True</code></pre>
         <span class="filename">try_conversion.py</span>
         <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
       </div>
-      <textarea class="playground-code" data-playground-code rows="5">age_text = "25"
-age_number = int(age_text)
-print(age_number + 5)
-print(type(age_number))</textarea>
+      <textarea class="playground-code" data-playground-code rows="5">age_text = "24"
+user_age = int(age_text)
+print(user_age + 1)
+print(type(user_age))</textarea>
       <div class="playground-output" data-playground-output>Click "Run Code" to see the output here.</div>
     </div>
 
     <div class="what-is">
       <span class="label">What is... type conversion?</span>
       Type conversion (also called "casting") is turning a value of one
-      type into another &mdash; <code>int("25")</code> turns the string
-      <code>"25"</code> into the number <code>25</code>. It only works if
+      type into another &mdash; <code>int("24")</code> turns the string
+      <code>"24"</code> into the number <code>24</code>. It only works if
       the value actually makes sense in the new type: <code>int("hello")</code>
       raises an error, because "hello" isn't a number in any language.
     </div>
@@ -300,9 +327,10 @@ print(type(age_number))</textarea>
         <strong>empty or not</strong>. Any non-empty string, including the
         literal text <code>"False"</code>, converts to <code>True</code>.
         Only <code>bool("")</code> (an empty string) gives <code>False</code>.
-        This exact mistake shows up in real bugs when developers read a
-        setting like <code>"false"</code> from a config file as text and
-        forget this rule.
+        This exact mistake shows up in real bugs when a signup form's
+        <code>email_verified</code> setting comes back from a database
+        export as the text <code>"false"</code>, and a developer forgets
+        this rule &mdash; every account reads as verified.
       </p>
     </details>
 

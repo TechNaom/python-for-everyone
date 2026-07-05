@@ -52,6 +52,8 @@
     login check either lets you in or doesn't, a discount either applies or
     doesn't, a grade is A or B or C depending on the score. <code>if</code>
     is how your program branches based on what's actually true right now.
+    To make it concrete, this chapter builds up one running example &mdash;
+    the checkout logic behind an online store &mdash; one decision at a time.
   </div>
 
   <div class="subtopic" id="simple-if">
@@ -62,30 +64,40 @@
       <code>True</code>, the indented block underneath runs. If it's
       <code>False</code>, Python skips that block entirely and moves on.
     </p>
+    <p>
+      Here's the first decision our online store has to make at checkout:
+      does this order qualify for free shipping?
+    </p>
 
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="filename">simple_if.py</span>
+        <span class="filename">free_shipping.py</span>
       </div>
-      <pre><code>age = 20
+      <pre><code>order_total = 62.50
 
-if age >= 18:
-    print("You can vote.")
+if order_total >= 50:
+    print("You qualify for free shipping!")
 
-print("Program continues here either way.")</code></pre>
+print("Thanks for shopping with us.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>You qualify for free shipping!
+Thanks for shopping with us.</code></pre>
     </div>
 
     <div class="playground">
       <div class="playground-bar">
-        <span class="filename">try_if.py</span>
+        <span class="filename">try_shipping.py</span>
         <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
       </div>
-      <textarea class="playground-code" data-playground-code rows="5">age = 16
-if age >= 18:
-    print("You can vote.")
-print("Program continues here either way.")</textarea>
-      <div class="playground-output" data-playground-output>Click "Run Code" — try changing 16 to 20 and running again.</div>
+      <textarea class="playground-code" data-playground-code rows="5">order_total = 30
+if order_total >= 50:
+    print("You qualify for free shipping!")
+print("Thanks for shopping with us.")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing 30 to 75 and running again.</div>
     </div>
 
     <div class="what-is">
@@ -128,27 +140,48 @@ print("Program continues here either way.")</textarea>
       neither. <code>else</code> catches every case the <code>if</code>
       didn't.
     </p>
-
-    <div class="code-window">
-      <div class="code-window-bar">
-        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="filename">if_else.py</span>
-      </div>
-      <pre><code>number = 7
-
-if number % 2 == 0:
-    print(number, "is even")
-else:
-    print(number, "is odd")</code></pre>
-    </div>
+    <p>
+      Before a customer can check out, the store needs to verify their
+      login &mdash; a password either matches or it doesn't.
+    </p>
 
     <div class="what-is">
       <span class="label">What is... a boolean expression?</span>
       A boolean expression is anything that evaluates to <code>True</code>
       or <code>False</code> &mdash; usually built from the relational and
-      logical operators from Chapter 3. <code>number % 2 == 0</code> is a
-      boolean expression: it's either <code>True</code> (even) or
-      <code>False</code> (odd), never anything in between.
+      logical operators from Chapter 3. <code>entered_password ==
+      stored_password</code> is a boolean expression: it's either
+      <code>True</code> (they match) or <code>False</code> (they don't),
+      never anything in between.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">login_check.py</span>
+      </div>
+      <pre><code>stored_password = "hunter2"
+entered_password = "hunter2"
+
+if entered_password == stored_password:
+    print("Welcome back!")
+else:
+    print("Access denied.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>Welcome back!</code></pre>
+    </div>
+
+    <p>
+      Change <code>entered_password</code> to anything else and the
+      <code>else</code> branch takes over instead:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">Output (entered_password = "wrongpass")</span>
+      <pre><code>Access denied.</code></pre>
     </div>
 
     <div class="quick-recap">
@@ -168,46 +201,53 @@ else:
       (short for "else if") lets you check condition after condition, in
       order, stopping at the first one that's true.
     </p>
+    <p>
+      Our store rewards loyal customers with a membership tier based on how
+      much they've spent this year &mdash; Standard, Silver, Gold, or
+      Platinum. That's four outcomes from one number, which is exactly what
+      an <code>elif</code> chain is for.
+    </p>
 
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="filename">grade.py</span>
+        <span class="filename">membership_tier.py</span>
       </div>
-      <pre><code>average = 68
+      <pre><code>annual_spend = 620
 
-if average >= 75:
-    grade = "A"
-elif average >= 60:
-    grade = "B"
-elif average >= 50:
-    grade = "C"
-elif average >= 40:
-    grade = "D"
+if annual_spend >= 1000:
+    tier = "Platinum"
+elif annual_spend >= 500:
+    tier = "Gold"
+elif annual_spend >= 200:
+    tier = "Silver"
 else:
-    grade = "Fail"
+    tier = "Standard"
 
-print("Grade:", grade)   &#35; Grade: B</code></pre>
+print("Membership tier:", tier)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>Membership tier: Gold</code></pre>
     </div>
 
     <div class="playground">
       <div class="playground-bar">
-        <span class="filename">try_grade.py</span>
+        <span class="filename">try_tier.py</span>
         <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
       </div>
-      <textarea class="playground-code" data-playground-code rows="11">average = 45
-if average >= 75:
-    grade = "A"
-elif average >= 60:
-    grade = "B"
-elif average >= 50:
-    grade = "C"
-elif average >= 40:
-    grade = "D"
+      <textarea class="playground-code" data-playground-code rows="11">annual_spend = 150
+if annual_spend >= 1000:
+    tier = "Platinum"
+elif annual_spend >= 500:
+    tier = "Gold"
+elif annual_spend >= 200:
+    tier = "Silver"
 else:
-    grade = "Fail"
-print("Grade:", grade)</textarea>
-      <div class="playground-output" data-playground-output>Click "Run Code" — try a few different average values.</div>
+    tier = "Standard"
+print("Membership tier:", tier)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try a few different annual_spend values.</div>
     </div>
 
     <details class="go-deeper">
@@ -215,12 +255,15 @@ print("Grade:", grade)</textarea>
       <p>
         Python checks each condition top to bottom and stops at the very
         first <code>True</code> one &mdash; it never checks the rest, even
-        if they'd also be true. This is why the grade example checks
-        <code>&gt;= 75</code> before <code>&gt;= 60</code>: if it checked
-        <code>&gt;= 40</code> first, a score of 90 would incorrectly match
-        that condition first and stop there, before ever reaching
-        <code>&gt;= 75</code>. Always order an elif chain from most specific
-        (or highest threshold) to least.
+        if they'd also be true. This is why the membership example checks
+        <code>&gt;= 1000</code> before <code>&gt;= 500</code>: if it checked
+        <code>&gt;= 200</code> first, a customer who spent $1,200 would
+        incorrectly match that condition first and stop there, before ever
+        reaching <code>&gt;= 1000</code> &mdash; a Platinum customer would
+        get downgraded to Silver by a bug in the ordering alone. Always
+        order an elif chain from most specific (or highest threshold) to
+        least. (This is the same pattern this chapter's project applies to
+        letter grades &mdash; A before B before C, never the reverse.)
       </p>
     </details>
 
@@ -242,30 +285,44 @@ print("Grade:", grade)</textarea>
       block. This is useful when the second question only makes sense
       after the first is already answered.
     </p>
+    <p>
+      Shipping cost is a perfect example: the store first checks the
+      customer's membership tier from the last section, and only if
+      they're a Gold member does it bother checking the order's weight
+      &mdash; a Standard customer never needs that second question asked at
+      all.
+    </p>
 
     <div class="code-window">
       <div class="code-window-bar">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="filename">nested_if.py</span>
+        <span class="filename">shipping_cost.py</span>
       </div>
-      <pre><code>a = 10
-b = 5
-c = 4
+      <pre><code>membership_tier = "Gold"
+order_weight_kg = 12
 
-if a > b:
-    if a > c:
-        print("a is the biggest:", a)</code></pre>
+if membership_tier == "Gold":
+    if order_weight_kg <= 20:
+        print("Free shipping applied (Gold member, order under 20kg).")
+
+print("Order confirmed.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>Free shipping applied (Gold member, order under 20kg).
+Order confirmed.</code></pre>
     </div>
 
     <details class="go-deeper">
       <summary>Go Deeper: nested if vs. a single "and"</summary>
       <p>
         The example above could also be written as one line:
-        <code>if a &gt; b and a &gt; c:</code>. Both are correct here.
-        Nesting becomes genuinely necessary once the inner decision needs
-        its own separate <code>else</code>, or depends on something only
-        computed inside the outer block &mdash; you'll see real examples of
-        this once you reach loops and functions.
+        <code>if membership_tier == "Gold" and order_weight_kg &lt;= 20:</code>.
+        Both are correct here. Nesting becomes genuinely necessary once the
+        inner decision needs its own separate <code>else</code>, or depends
+        on something only computed inside the outer block &mdash; you'll see
+        real examples of this once you reach loops and functions.
       </p>
     </details>
 
@@ -281,9 +338,9 @@ if a > b:
   <div class="real-world">
     <span class="label">In the Real World</span>
     <ul>
-      <li>Every pricing tier page ("Free / Pro / Enterprise") is an elif chain checking usage or plan level, ordered exactly the way this chapter taught &mdash; get the order wrong and customers get billed incorrectly.</li>
-      <li>Login systems, fraud checks, and content moderation are almost entirely nested if-statements: "if logged in, if verified, if not flagged, then..."</li>
-      <li>Real bug reports about "wrong tier applied" or "wrong discount shown" are very often exactly the elif-ordering bug you just debugged in this chapter's exercise.</li>
+      <li>Every pricing or membership tier page ("Free / Pro / Enterprise", or the Standard/Silver/Gold/Platinum tiers you just built) is an elif chain checking usage or spend level, ordered exactly the way this chapter taught &mdash; get the order wrong and customers get billed incorrectly.</li>
+      <li>Login systems, fraud checks, and content moderation are almost entirely nested if-statements: "if logged in, if verified, if not flagged, then..." &mdash; the same shape as the shipping-cost check above, just with more layers.</li>
+      <li>Real bug reports about "wrong tier applied" or "wrong shipping cost shown" are very often exactly the elif-ordering bug you just saw in the Go Deeper above.</li>
     </ul>
   </div>
 
