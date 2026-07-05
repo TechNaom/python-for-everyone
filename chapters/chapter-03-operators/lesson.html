@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/style.css">
 </head>
 <body data-active-chapter="chapter-03">
@@ -94,22 +94,20 @@ print(x ** y)</textarea>
       <div class="playground-output" data-playground-output>Click "Run Code" to see the output here.</div>
     </div>
 
-    <div class="what-is">
-      <span class="label">What is... floor division?</span>
-      Floor division (<code>//</code>) divides and then rounds
-      <em>down</em> to the nearest whole number, throwing away anything
-      after the decimal point. <code>10 // 3</code> is <code>3</code>, not
-      <code>3.33</code> and not rounded to <code>3</code> by rounding rules
-      &mdash; it's always rounded toward negative infinity.
+    <div class="output-block">
+      <span class="output-label">10 // 3 and 10 % 3, visually</span>
+      <pre><code>10 divided by 3  =  3  remainder  1
+                    |             |
+                    10 // 3       10 % 3</code></pre>
     </div>
 
     <div class="what-is">
-      <span class="label">What is... modulo?</span>
-      The modulo operator (<code>%</code>) gives you <em>only</em> the
-      remainder left over after division. <code>10 % 3</code> is
-      <code>1</code>, because 3 goes into 10 three times with 1 left over.
-      It's the single most useful operator for "is this number even?"
-      (<code>n % 2 == 0</code>) and for working with cycles and wraparounds.
+      <span class="label">What is... floor division vs. modulo?</span>
+      <code>//</code> keeps the whole-number <em>quotient</em>, always
+      rounding down (<code>10 // 3</code> is <code>3</code>). <code>%</code>
+      keeps only the <em>remainder</em> left over (<code>10 % 3</code> is
+      <code>1</code>). <code>%</code> is the classic tool for "is this
+      number even?" (<code>n % 2 == 0</code>) and for cycles and wraparounds.
     </div>
 
     <p>

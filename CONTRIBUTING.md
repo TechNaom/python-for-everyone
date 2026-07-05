@@ -104,6 +104,17 @@ working before being written down here:
   but a menu-driven tool with several real operations and running session
   state, not a single-purpose script. Chapter 6's Password Strength &
   Policy Auditor is the reference example.
+- **From Chapter 7 onward, `project/README.md` and `project/index.html`
+  also list 4 more real-world project ideas**, on top of the one fully
+  built project (starter.py/solution.py) — five real-world problems
+  total per chapter, giving learners a genuine choice of what to build
+  for their portfolio instead of everyone shipping the identical project.
+  Each of the 4 extra ideas gets a short brief (problem statement, what
+  it should do, a suggested approach/starting point) but **no provided
+  starter.py/solution.py** — building it unassisted is the point. Keep
+  every idea grounded in an actual real-world use case (not abstract
+  practice) and solvable with only that chapter's cumulative allowed
+  features. This does not apply retroactively to Chapters 1-6.
 - **`challenges.html` is a new page: HackerRank-style, auto-graded,
   client-side.** It lives at the chapter root (`../../` asset depth, a
   sibling of `lesson.html`/`quiz.html`/`interview-questions.html`, NOT a
@@ -125,6 +136,32 @@ working before being written down here:
   the grader for a learner who wrote genuinely correct code. See
   `chapters/chapter-06-strings-deep-dive/challenges.html` for a fully
   worked example.
+
+**Readability standard (applies to every chapter, retrofit and new,
+2026-07-05):** early lesson prose read as one dense wall of paragraphs —
+this is a hard "no" going forward. Concrete rules, not vibes:
+
+- **No paragraph should explain more than one idea.** If a paragraph is
+  listing 2+ rules back to back (e.g. "slicing works like X, a third
+  number does Y, and a negative version does Z"), it must become a
+  bulleted list instead — one `<li>` per rule.
+- **Never stack two dense blocks back to back.** A long paragraph
+  immediately followed by a long `.what-is` box (or another paragraph)
+  is the exact failure mode to avoid — break it up with a code window,
+  a visual, or just shorter sentences in between.
+- **If a concept is inherently visual or spatial, show it before
+  explaining it in prose.** String indexing, truth tables for logical
+  operators, a number line for `range()`, a step-by-step trace of a
+  loop's variables — these read far better as a small `.output-block`
+  diagram (monospace `<pre>`, verified character-aligned by actually
+  running a Python script to generate the spacing, never hand-typed —
+  see the fix in `chapters/chapter-06-strings-deep-dive/lesson.html`'s
+  indexing section for the exact pattern and why hand-typed alignment is
+  a trap) than as a paragraph of positional description.
+- **Trim "What is...?" boxes to the one distinction that actually
+  matters**, not every tangential fact about the term.
+- This is a formatting/prose pass, not a content rewrite — don't change
+  what's technically taught, just how densely it's presented.
 
 **Every chapter page needs both a `.md` and an `.html` version** where noted
 above: the `.md` is what a `git clone` / repo browser sees; the `.html` is
