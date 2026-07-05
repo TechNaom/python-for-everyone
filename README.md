@@ -1,3 +1,5 @@
+<a href="https://github.com/TechNaom"><img src="assets/naomtech-logo.png" alt="NaomTech" width="160"></a>
+
 # Python for Everyone
 
 ![Python for Everyone](assets/banner.svg)
