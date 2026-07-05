@@ -89,7 +89,16 @@ window.PFE_MODULES = [
         { id: "functional-tools", title: "map(), filter(), sorted(key=lambda)" },
         { id: "bringing-together", title: "Real-world use in production" }
       ] },
-      { id: "chapter-10", num: 10, title: "Functions Deep Dive", path: null }
+      { id: "chapter-10", num: 10, title: "Functions Deep Dive", path: "chapters/chapter-10-functions-deep-dive/lesson.html", subtopics: [
+        { id: "function-basics", title: "def, parameters & return" },
+        { id: "default-args", title: "Default arguments" },
+        { id: "args-kwargs", title: "*args and **kwargs" },
+        { id: "scope", title: "Scope: local, global, nonlocal" },
+        { id: "recursion", title: "Recursive functions" },
+        { id: "closures", title: "Closures" },
+        { id: "decorators", title: "Decorators" },
+        { id: "bringing-together", title: "Real-world functions in production" }
+      ] }
     ]
   },
   {

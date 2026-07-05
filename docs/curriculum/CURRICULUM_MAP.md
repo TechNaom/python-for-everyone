@@ -20,12 +20,13 @@ moving to the next. The rendered, always-current version lives at
 | 7 | Lists & Tuples | indexing/slicing/mutation, list methods, tuples & packing/unpacking, nested lists, shallow copies & the is-vs-== trap, real-world record processing — plus a Challenges page (8 auto-graded coding problems) and, from this chapter onward, 4 extra real-world project ideas alongside the one fully built project |
 | 8 | Dictionaries & Sets | creating/accessing dicts, dict methods, looping, sets & set operations, nested dicts, real-world lookup/frequency use — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas |
 | 9 | Comprehensions, Lambda & Functional Tools | list/dict/set comprehensions, nested comprehensions & readability limits, lambda functions, `map()`/`filter()`/`sorted(key=lambda)`, real-world data-cleaning use — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. `lambda` is introduced here as a narrow exception ahead of `def` (Chapter 10) |
+| 10 | Functions Deep Dive | `def`/parameters/`return`, default arguments, `*args`/`**kwargs`, scope (`global`/`nonlocal`), recursion, closures, decorators, real-world function-library use — 8 sub-topics (broader than the usual 6), plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas |
+| — | Module 2 Written Exam | covers Chapters 6-10 |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 10 | Functions Deep Dive (params & defaults, `*args`/`**kwargs`, scope & `global`/`nonlocal`, recursion, closures, decorators) | Tip / bill-split calculator library |
 | 11 | Modules & Packages | Expense tracker (`datetime`, `math`) |
 | 12 | Exception Handling | ATM simulator (custom exceptions) |
 | 13 | File Handling & CSV | Log-file analyzer |
