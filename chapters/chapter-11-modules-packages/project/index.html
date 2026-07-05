@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11 Project: Expense Tracker — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven expense tracker using import, the math module, and the datetime module — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-11">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 11 Project</span>
+    <span class="reading-time">50 min build</span>
+  </div>
+  <h1>Expense Tracker</h1>
+  <p>A menu-driven expense tracker built <strong>around the <code>math</code> and <code>datetime</code> modules</strong> as its core organizing principle &mdash; every date calculation goes through <code>datetime</code>, every rounding/aggregation calculation goes through <code>math</code> or plain arithmetic, and each operation lives in its own small function, exactly like Chapter 10's function-library pattern. The <code>while True</code> menu loop at the bottom does nothing but call into those functions and print results.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Expense Tracker ===
+Today's date: 2026-07-05
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 1
+Amount: $50
+Category (e.g. food, rent, transport): food
+Note (optional): lunch
+Date (YYYY-MM-DD, blank = today):
+
+Added: $50.00 in food on 2026-07-05.
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 1
+Amount: $30
+Category (e.g. food, rent, transport): rent
+Note (optional):
+Date (YYYY-MM-DD, blank = today): 2026-06-01
+
+Added: $30.00 in rent on 2026-06-01.
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 1
+Amount: $20
+Category (e.g. food, rent, transport): transport
+Note (optional): bus
+Date (YYYY-MM-DD, blank = today): 2026-07-01
+
+Added: $20.00 in transport on 2026-07-01.
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 2
+
+1. [2026-07-05] food         $50.00  lunch
+2. [2026-06-01] rent         $30.00
+3. [2026-07-01] transport    $20.00  bus
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 3
+
+Total spent: $100.00
+Average per expense: $33.33
+Suggested round-number budget to set aside: $100.00
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 4
+
+2026-06: $30.00
+2026-07: $70.00
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 5
+
+food         $50.00
+rent         $30.00
+transport    $20.00
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 6
+
+Days since last expense (2026-07-01): 4
+Enter a target date (YYYY-MM-DD) to count down to (blank to skip): 2026-12-25
+Days until 2026-12-25: 173
+
+1. Add an expense
+2. Show all expenses
+3. Show totals &amp; average
+4. Show monthly summary
+5. Show category breakdown
+6. Days since last expense / days until a target date
+7. Quit
+Choose an option (1-7): 7
+
+Session summary: 3 expense(s) recorded, $100.00 total.
+Goodbye!</code></pre>
+  </div>
+  <p><em>(Your own <code>Today's date:</code> line will show whatever the actual current date is when you run it &mdash; the run above is a real, verified run from a machine where today happened to be July 5, 2026.)</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A function library built around <code>math</code> and <code>datetime</code>
+    &mdash; <code>parse_date</code>, <code>add_expense</code>,
+    <code>total_spent</code>, <code>average_expense</code>,
+    <code>round_up_to_nearest</code>, <code>days_since</code>,
+    <code>days_until</code>, <code>month_key</code>,
+    <code>summarize_by_month</code>, and <code>summarize_by_category</code>
+    &mdash; wired to a <code>while True</code> menu loop with seven options:
+    add an expense, show all expenses, show totals &amp; average, show a
+    monthly summary, show a category breakdown, check days since/until a
+    date, or quit. Every expense added gets appended to a running
+    <code>expenses</code> list, the same running-state pattern earlier
+    projects have used, just now organized around what <code>math</code>
+    and <code>datetime</code> are each good at.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The function library</h2>
+  <ul>
+    <li><code>parse_date(raw, today)</code> &mdash; turns a typed <code>'YYYY-MM-DD'</code> string into a real <code>datetime.date</code>, or falls back to <code>today</code> if the input was left blank.</li>
+    <li><code>add_expense(expenses, amount, category, note, expense_date)</code> &mdash; builds one expense as a dict (amount rounded to 2 decimals) and appends it to the running <code>expenses</code> list.</li>
+    <li><code>total_spent(expenses)</code> / <code>average_expense(expenses)</code> &mdash; the running total and average across every expense recorded so far.</li>
+    <li><code>round_up_to_nearest(amount, nearest=1)</code> &mdash; uses <strong><code>math.ceil</code></strong> to round a total up to the nearest multiple of <code>nearest</code>, e.g. the nearest $10.</li>
+    <li><code>days_since(expense_date, today)</code> / <code>days_until(target_date, today)</code> &mdash; both subtract two <strong><code>datetime.date</code></strong> objects and read <code>.days</code> off the resulting <code>timedelta</code>.</li>
+    <li><code>month_key(expense_date)</code> &mdash; turns a date into a <code>'YYYY-MM'</code> grouping key using the date's <code>.year</code> and <code>.month</code> attributes.</li>
+    <li><code>summarize_by_month(expenses)</code> / <code>summarize_by_category(expenses)</code> &mdash; group expenses into a <code>{key: total}</code> dict by month or by category.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add an "edit or delete the last expense" option that pops the most recent entry off <code>expenses</code> and lets you re-add it with corrected values, reusing <code>add_expense(...)</code> rather than writing new logic.</li>
+    <li>Add a <code>most_expensive_category(expenses)</code> function that reuses <code>summarize_by_category(...)</code> and returns whichever category has the highest total, for a quick "where is most of my money going" answer.</li>
+    <li>Add a "recurring expense" option that uses <code>datetime.timedelta</code> to automatically log the same expense on the same day for the next N months, reusing <code>add_expense(...)</code> in a loop.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Tracking expenses sounds like a spreadsheet's job, but the real skill this project practices is building a small program <strong>around a standard library module's strengths</strong>: every date-related decision (how many days since, which month something falls in, how far away a target date is) goes through <code>datetime</code> instead of hand-rolled string parsing, and every rounding/aggregation decision goes through <code>math</code> or plain arithmetic instead of guesswork. That's exactly the shape of real production finance and budgeting tools &mdash; a subscription billing system grouping charges by month, a personal-finance app's "days until your next bill" reminder, or an expense-report tool summarizing a trip's spending by category &mdash; all of them lean on the same <code>math</code>/<code>datetime</code> foundation this project practices.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Expense Tracker above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 11 (everything through Chapter 10's functions material, plus <code>import</code> of only <code>math</code>, <code>datetime</code>, and <code>random</code>). No starter or solution files are provided on purpose &mdash; building one of these unassisted, menu loop and all, is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Countdown-to-Event Date Calculator</h3>
+    <p><strong>Problem:</strong> Event planners, students tracking deadlines, and anyone counting down to a big day (a wedding, a launch date, an exam) need a quick, reliable way to see exactly how many days are left &mdash; and how that compares to other upcoming events.</p>
+    <p><strong>What it should do:</strong> Let a user add named events with a target date (<code>datetime.date(year, month, day)</code>, parsed from a typed <code>'YYYY-MM-DD'</code> string the same way this project's <code>parse_date</code> does), store them in a running list, and show days remaining until each one using <code>datetime</code> subtraction. Menu options: add an event, list all events sorted by how soon they happen, show the single soonest upcoming event, and remove an event that's already passed.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's <code>parse_date</code> and <code>days_until</code> pattern directly &mdash; a <code>days_until(target_date, today)</code> function that returns <code>(target_date - today).days</code> is the whole engine. "Sort by soonest" is a <code>sorted(...)</code> call using each event's computed days-remaining value as the sort key.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Geometry Toolkit</h3>
+    <p><strong>Problem:</strong> Anyone working with shapes &mdash; a woodworking hobbyist, a student checking homework, a small business estimating material for circular or triangular signage &mdash; needs quick, correct area and perimeter formulas without re-deriving them by hand each time.</p>
+    <p><strong>What it should do:</strong> Build functions like <code>circle_area(radius)</code> and <code>circle_circumference(radius)</code> (using <code>math.pi</code>), <code>rectangle_area(length, width)</code>, <code>triangle_area(base, height)</code>, and <code>right_triangle_hypotenuse(a, b)</code> (using <code>math.sqrt</code>). Menu options: pick a shape, enter its measurements, and print its area (and perimeter/circumference where it applies), plus an option to compare the area of two different shapes.</p>
+    <p><strong>Suggested approach:</strong> Each formula is its own one-line function with a clear docstring, exactly like <code>round_up_to_nearest</code> in this project &mdash; <code>math.pi</code> and <code>math.sqrt</code> are the only two <code>math</code> tools needed for the whole toolkit. A <code>describe_shape(shape_name, **measurements)</code> function is a natural place to dispatch to the right formula function based on <code>shape_name</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Random Quiz-Question Picker &amp; Shuffler</h3>
+    <p><strong>Problem:</strong> Teachers building practice quizzes, and study apps quizzing users from a question bank, need to serve questions in a random, non-repeating order each time &mdash; not the exact same order every single run.</p>
+    <p><strong>What it should do:</strong> Store a list of question/answer dicts, then use <code>random.shuffle</code> to reorder them at the start of a session and <code>random.choice</code> to pull a single random question for a "quick quiz me" option. Menu options: start a full shuffled quiz (asks every question once, in random order), get one random single question, and add a new question to the bank.</p>
+    <p><strong>Suggested approach:</strong> <code>random.shuffle(questions)</code> reorders the whole list in place before looping over it to ask each one exactly once &mdash; this guarantees no repeats within one shuffled run, unlike repeatedly calling <code>random.choice</code>, which could pick the same question twice. Track a running score across the session the same way this project tracks a running <code>expenses</code> list.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Age &amp; Tenure Calculator</h3>
+    <p><strong>Problem:</strong> HR systems computing an employee's tenure, membership apps showing "member since," and eligibility checks that depend on someone's exact age (in years, not just birth year) all need accurate date-based age math, not a naive year-subtraction that ignores whether a birthday has happened yet this year.</p>
+    <p><strong>What it should do:</strong> Given a birth date (or start date) and today's date, compute a precise age or tenure in full years &mdash; correctly handling the case where this year's birthday/anniversary hasn't happened yet. Menu options: enter a birth date and get an exact age, enter a start date and get tenure in years and days, and show days remaining until the next birthday/anniversary.</p>
+    <p><strong>Suggested approach:</strong> A naive <code>today.year - birth_date.year</code> overcounts by one until the birthday actually happens this year &mdash; the fix is checking whether <code>(today.month, today.day)</code> is still earlier than <code>(birth_date.month, birth_date.day)</code>, and subtracting one more year if so. <code>days_until</code> from this project's own pattern (via a date built with this year's or next year's anniversary) handles the "days until next birthday" option.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

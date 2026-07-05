@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 11: Modules & Packages — import x vs. from x import y, why from module import * is discouraged, module caching, module vs. package, the standard library vs. pip, random.seed() for reproducibility, naive vs. aware datetimes, and circular imports.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-11-interview" data-active-chapter="chapter-11">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 11 Interview Prep</span>
+    <span class="reading-time">20 min read</span>
+  </div>
+  <h1>Interview Questions: Modules &amp; Packages</h1>
+  <p>Every Python codebase, however small, starts with a block of <code>import</code> statements &mdash; which makes this chapter's material come up constantly in real interviews, usually as quick "do you actually understand what's happening" checks rather than deep algorithm questions. This set covers <code>import x</code> vs. <code>from x import y</code>, why <code>from module import *</code> makes senior reviewers wince, module caching (why a module's top-level code only ever runs once), the module-vs-package distinction, why the standard library needs no installer while third-party packages do, <code>random.seed()</code> for reproducible tests, naive vs. aware datetimes at a conceptual level, and circular imports as a real-world gotcha.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the practical difference between <code>import math</code> and <code>from math import sqrt</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>import math</code> brings the whole module into scope under the name <code>math</code>, and every name inside it has to be reached with a dotted prefix: <code>math.sqrt(16)</code>. <code>from math import sqrt</code> instead pulls just the one name <code>sqrt</code> directly into the current file's namespace, callable on its own as <code>sqrt(16)</code> with no prefix at all. The tradeoff is readability versus brevity: <code>math.sqrt</code> makes it obvious at every call site exactly which module a function came from, which matters a lot once a file imports from several modules; <code>from math import sqrt</code> is shorter to type and read when a name is used constantly throughout a file. Neither is "more correct" in general &mdash; it's a call about how many other imported names might create ambiguity in that specific file.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating the two as functionally identical with no tradeoff, or being unable to say what would break if two different modules imported via <code>from x import *</code> both happened to define a function with the same name.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a file has both <code>import math</code> and <code>from math import sqrt</code>, are <code>math.sqrt(4)</code> and <code>sqrt(4)</code> the same function?" (Yes &mdash; both names point at the identical function object inside the one loaded <code>math</code> module; there's only ever one <code>sqrt</code>, just reachable under two different local names.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why is <code>from module import *</code> discouraged, even though it works?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>from module import *</code> dumps every public name from a module directly into the current namespace with no prefix and, critically, no visible list of what just got imported. Two problems follow from that: first, months later (or for anyone else reading the file), it's unclear at a glance which module a given name actually came from, since there's no <code>module.</code> prefix anywhere to check; second, it can silently overwrite an existing name already in use in that file &mdash; if the file already had its own <code>sum</code> or <code>id</code> variable, an unlucky <code>import *</code> from a module that also defines something by that name would quietly replace it, with no error or warning. Both problems get worse as more <code>import *</code> lines pile up in the same file, since there's no longer any single place to check where a given name came from. Nearly every Python style guide, including PEP 8, recommends against it for exactly these reasons.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>import *</code> as just a stylistic preference for shorter code, without being able to name the specific "which module did this come from" and "silent overwrite" risks it introduces.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A file defines <code>def sqrt(x): return 'custom'</code> and later does <code>from math import *</code>. What does calling <code>sqrt(4)</code> return after that?" (<code>2.0</code> &mdash; the wildcard import silently replaced the file's own <code>sqrt</code> with <code>math</code>'s version, with no warning that the name collided.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> If three different files in the same program all do <code>import math</code>, does <code>math</code>'s code run three separate times?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>No &mdash; Python only actually loads and executes a module's top-level code the <strong>first</strong> time it's imported anywhere in a running program. Every subsequent <code>import math</code>, no matter which file it appears in or how many times it appears, just reuses the same already-loaded module object from an internal cache (<code>sys.modules</code>); it doesn't re-run the module's code again. This is why importing the same module from many files across a larger project is completely normal and carries essentially no performance cost, and it's also why a module with meaningful top-level code (not just <code>def</code>s) &mdash; like a print statement or a counter that increments at import time &mdash; will only show that effect once, the first time it's imported, not once per file that imports it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming each new <code>import</code> statement re-executes the module from scratch, which would suggest (incorrectly) that importing a heavy module in many files is expensive, or that top-level module state resets between imports.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A module named <code>counter.py</code> has one top-level line, <code>print('loaded!')</code>, outside any function. If two other files both do <code>import counter</code>, how many times does 'loaded!' print across the whole program?" (Once &mdash; the first import runs the module's top-level code and caches it; the second file's <code>import counter</code> just reuses that cached module without running it again.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between a module and a package?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>module</strong> is a single <code>.py</code> file &mdash; <code>math</code>, a hand-written <code>helpers.py</code>, anything that's just one file of Python code. A <strong>package</strong> is a folder containing multiple related modules, plus (traditionally) a special <code>__init__.py</code> file that tells Python "treat this folder as an importable package, not just an ordinary directory." A package is the next organizational step up once a project outgrows a handful of loose files: instead of one <code>helpers.py</code> with fifty unrelated functions, a package might group them into <code>utils/formatting.py</code>, <code>utils/validation.py</code>, and <code>utils/calculations.py</code>, all importable as <code>utils.formatting</code>, <code>utils.validation</code>, and so on.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using "module" and "package" interchangeably when the distinction is actually being asked about, or not knowing that a package is fundamentally a folder (of modules) rather than a file.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is Python's own <code>math</code> a module or a package?" (A module &mdash; it's a single unit of functionality reached with one <code>import math</code>, not a folder of sub-modules the way a package would be.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Why doesn't <code>math</code> need to be installed with a package manager, while a third-party library does?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>math</code>, <code>datetime</code>, and <code>random</code> are all part of Python's <strong>standard library</strong> &mdash; the collection of modules that ships bundled with Python itself, already present the moment Python is installed on a machine. No separate download or installer step is needed; <code>import math</code> just works anywhere a working Python interpreter exists. A <strong>third-party library</strong> (like <code>requests</code> or <code>pandas</code>) is written and maintained by someone outside Python's core team and distributed separately, so it has to be explicitly installed into that specific Python environment first &mdash; typically with <code>pip</code>, the standard package installer &mdash; before <code>import</code> can find it. The underlying <code>import</code> mechanism is identical either way; the difference is purely about whether the code was already sitting on disk as part of Python itself, or has to be fetched and installed first.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>pip install</code> is somehow required for every module, including standard-library ones, or being unable to name what distinguishes "standard library" from "third-party package" beyond "one needs installing."</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would <code>import random</code> ever fail with a 'module not found' error on a normal Python install?" (No &mdash; <code>random</code> is standard library, bundled with every standard Python installation, so it's always available with no separate install step.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What does <code>random.seed()</code> do, and why would a test suite ever want "random" numbers to be predictable?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>random.seed(some_number)</code>, called once before any other <code>random</code> function runs, makes every subsequent "random" result in that program fully deterministic and repeatable &mdash; the same seed value always produces the exact same sequence of results, every time, on every machine. This matters for testing because a test needs a known, fixed expected value to assert against; a test that calls an unseeded <code>random.randint(1, 6)</code> and asserts the result equals some specific number would be flaky, passing or failing unpredictably from run to run. Seeding first removes that randomness for the duration of the test, without touching the actual production code path that uses <code>random</code> normally (unseeded) everywhere else.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing seeding makes the numbers "not really random" in a way that changes production behavior, rather than understanding it's a deliberate, temporary, test-only tool for reproducibility &mdash; real production code almost never calls <code>random.seed()</code> itself.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>random.seed(42)</code> is called, then <code>random.randint(1, 100)</code> is called once, will calling <code>random.seed(42)</code> again and calling <code>random.randint(1, 100)</code> a second time give the same result as the first?" (Yes &mdash; the same seed always restarts the exact same sequence of pseudo-random results from that point forward.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the conceptual difference between a "naive" and an "aware" datetime?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>naive</strong> datetime stores a year/month/day (and optionally hour/minute/second) with no attached time zone information at all &mdash; it's just a plain calendar point with no notion of "relative to where." An <strong>aware</strong> datetime additionally carries a time zone, so it unambiguously represents one specific moment in universal time, correctly comparable to another aware datetime even if the two were created in different time zones. Every <code>datetime.date</code> and plain <code>datetime.datetime</code> object this course has used is naive &mdash; fine for calendar-day math like "how many days until this birthday," where time zone doesn't matter, but risky for anything that needs to compare exact moments in time across different locations (a global event's start time, a server log timestamped in UTC), where naive datetimes can silently be hours off from each other with no error raised.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming all datetimes are automatically timezone-correct, or not knowing that comparing two naive datetimes that were actually meant to represent different time zones can silently give a wrong answer instead of an error.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why would a global company's server logs, timestamped from data centers in different countries, be risky to compare directly if stored as naive datetimes?" (Because naive datetimes carry no time zone, two timestamps that look identical, or a few hours apart, might actually represent different real moments in universal time &mdash; the comparison would run without error but could be silently wrong.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What is a circular import, and why does it cause problems?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>circular import</strong> happens when module A imports module B, and module B (directly, or through some chain of other modules) imports module A right back &mdash; a loop. Because a module's top-level code only fully finishes running once, per Sub-topic 1's caching behavior, if A is still in the middle of its own top-level execution when it triggers B's import, and B immediately tries to import A back, Python hands B a half-finished version of A &mdash; whatever names A had already defined before the import of B happened, and nothing after. The result is usually an <code>ImportError</code> ("cannot import name X") or an <code>AttributeError</code> on a name that genuinely exists in A, just not yet at that point in A's execution. It's a real-world gotcha specifically because it often doesn't show up until a project has grown to several interdependent files, and the fix is usually restructuring which module owns which shared logic (or moving the import inside a function so it happens later, after both modules have finished loading) rather than anything to do with the imported code itself being wrong.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming circular imports simply "don't work at all" (they sometimes do, if the needed name happens to already be defined by the time the loop crosses back), or having no explanation beyond "it's a common error," without being able to describe why the timing of top-level execution is the actual cause.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Module <code>a.py</code> does <code>import b</code> as its very first line, and <code>b.py</code> does <code>import a</code> as its very first line. If something else imports <code>a</code> first, what's the practical symptom?" (Likely an <code>ImportError</code> or <code>AttributeError</code> when <code>b</code> tries to use something from <code>a</code> that hasn't been defined yet &mdash; <code>a</code>'s import of <code>b</code> ran before <code>a</code> itself had defined anything, so <code>b</code>'s attempt to import back from <code>a</code> finds an incomplete module.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What does <code>as</code> actually do in an import statement, and when is it genuinely useful versus just noise?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>as</code> gives whatever is being imported &mdash; a whole module (<code>import math as m</code>) or one specific name (<code>from math import sqrt as square_root</code>) &mdash; a different local name in the current file. It's genuinely useful in two situations: shortening a long or awkward module name that gets used constantly (common with heavily-used third-party libraries), or avoiding a naming collision when two different modules would otherwise both want to be called the same thing in one file. It becomes noise when it's used without either reason &mdash; renaming <code>math</code> to some unrelated single letter with no length or collision justification just makes the code harder to read, since <code>math.sqrt</code> is already about as short and clear as it gets.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Renaming imports habitually with no real reason, which strips away the readability benefit of a clear, recognizable module name for no actual gain.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>import math as m</code> import a different, smaller version of the math module?" (No &mdash; it imports the exact same, complete <code>math</code> module; only the local name used to refer to it in this file has changed, from <code>math</code> to <code>m</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between <code>math.floor(x)</code>, <code>math.ceil(x)</code>, and Python's built-in <code>round(x)</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>math.floor(x)</code> always rounds toward negative infinity (down, for a positive number), and <code>math.ceil(x)</code> always rounds toward positive infinity (up, for a positive number) &mdash; both are directional and don't care how close <code>x</code> is to the nearer whole number. Built-in <code>round(x)</code> instead rounds to the <em>nearest</em> whole number, in whichever direction is closer, and only reaches for <code>math</code> at all when a program needs to round in a specific, guaranteed direction regardless of how close the value is &mdash; a shipping calculator that must never round a package's billable weight down (favoring the shipper, not the customer) needs <code>math.ceil</code> specifically, since plain <code>round()</code> could round down and undercharge.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>math.ceil</code> and <code>round</code> are interchangeable, or not being able to give a concrete real-world case (like billing or inventory) where rounding in the wrong direction would actually cause a business problem.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"For a value of exactly 4.5, do <code>math.floor</code>, <code>math.ceil</code>, and <code>round</code> all agree?" (No &mdash; <code>math.floor(4.5)</code> is <code>4</code>, <code>math.ceil(4.5)</code> is <code>5</code>, and they represent two fixed directions, while <code>round(4.5)</code> picks the nearest value using its own rounding rule rather than a fixed direction.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Why does subtracting two <code>datetime.date</code> objects give a <code>timedelta</code> instead of just a number?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <code>timedelta</code> represents a <strong>span</strong> of time rather than a single point in time, and Python returns a full object for it (instead of a plain integer) because a span of time can itself be measured in more than one unit &mdash; days, but also, for full <code>datetime</code> objects, seconds and microseconds. Returning a <code>timedelta</code> object keeps all of that information intact and gives it useful attributes like <code>.days</code>, rather than the subtraction silently assuming "the caller definitely just wants days" and discarding everything else. In practice, most simple calendar-day calculations only ever read the <code>.days</code> attribute off the result, which is why it looks, at first glance, like date subtraction "just gives a number" &mdash; it actually gives an object, and <code>.days</code> is how that number gets pulled out of it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to use the result of a date subtraction directly as a number without <code>.days</code> (e.g. printing it expecting an integer), or not knowing a <code>timedelta</code> is an object with its own attributes rather than already being a plain number.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>gap = date2 - date1</code>, what type is <code>gap</code>, and how do you get the plain number of days out of it?" (<code>gap</code> is a <code>datetime.timedelta</code> object; <code>gap.days</code> gives the plain integer number of days between the two dates.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> If a program needs to convert Celsius to Fahrenheit and round the result, why might that not need the <code>math</code> module at all?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Celsius-to-Fahrenheit is pure arithmetic &mdash; <code>celsius * 9 / 5 + 32</code> &mdash; using only operators (<code>*</code>, <code>/</code>, <code>+</code>) that have been available since Chapter 2, with no square root, no directional rounding, and no constant like &pi; involved anywhere. Rounding the final result to a sensible number of decimal places is built-in <code>round(value, 2)</code>, not part of <code>math</code> at all. This is a useful interview instinct to demonstrate: reaching for <code>import math</code> reflexively on every numeric task, rather than recognizing when the built-in operators and functions already taught (arithmetic operators, <code>round()</code>) are entirely sufficient, is a sign of pattern-matching over understanding what <code>math</code> actually adds (square roots, directional rounding, trig, constants) beyond what Python already provides for free.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Importing <code>math</code> automatically for any calculation involving decimals or rounding, without checking whether the specific operation actually needs something <code>math</code> provides beyond ordinary arithmetic and the built-in <code>round()</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would computing a circle's area (&pi;r&sup2;) have the same option of skipping <code>math</code> entirely?" (No &mdash; that specifically needs <code>math.pi</code>, since &pi; isn't a Python built-in constant; arithmetic operators alone can't produce it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Can you import the same module under two different names in the same file, and would that cause any problems?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Yes &mdash; <code>import math</code> followed later by <code>import math as m</code> in the same file is perfectly legal; both names, <code>math</code> and <code>m</code>, end up pointing at the exact same underlying module object, since (per module caching) Python only ever loads <code>math</code> once regardless of how many names end up referring to it. There's no functional problem with this &mdash; <code>math.sqrt(4)</code> and <code>m.sqrt(4)</code> call the identical function either way. The real cost is purely readability: having two different names for the same module in one file makes it harder for a reader to recognize both refer to the same thing, so in practice this is avoided by convention (pick one name per module per file) rather than by any technical restriction.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming this would cause a runtime error, or believing it creates two separate copies of the module in memory rather than two names pointing at the one cached module.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>import math</code> and <code>import math as m</code> both run, is <code>math is m</code> True or False?" (True &mdash; both names refer to the identical cached module object, since a module is only ever loaded once.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> Given <code>import math</code>, <code>math.sqrt(64)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="8.0,8" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Given <code>import math</code>, <code>math.floor(7.9)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="7" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Given <code>import math</code>, <code>math.ceil(7.1)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="8" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> Given <code>import math</code>, <code>math.pow(3, 3)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="27.0,27" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> The import form that brings in an entire module, accessed with a dotted prefix like <code>math.sqrt(...)</code>, is written <code>____ math</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="import" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> The import form that brings in just one specific name, usable with no module prefix at all, starts with the keyword <code>____</code> (e.g. <code>____ math import sqrt</code>).</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="from" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> The keyword used to give an import a different local name, as in <code>import math ____ m</code>, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="as" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Given <code>from math import sqrt as square_root</code>, <code>square_root(25)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="5.0,5" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> A single <code>.py</code> file of reusable code, like <code>math</code> or a hand-written <code>helpers.py</code>, is called a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="module" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> A folder of related modules, typically marked with an <code>__init__.py</code> file, is called a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="package" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> If module <code>a.py</code> and module <code>b.py</code> each try to <code>import</code> the other at the top of their file, this situation is called a <code>____</code> import.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="circular" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Calling <code>random.____(some_number)</code> once, before any other <code>random</code> calls, makes every following "random" result in that run fully repeatable.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="seed" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Given <code>d1 = datetime.date(2026, 1, 1)</code> and <code>d2 = datetime.date(2026, 1, 10)</code>, <code>(d2 - d1).days</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="9" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> Subtracting one <code>datetime.date</code> from another returns an object of type <code>____</code>, whose <code>.days</code> attribute gives the whole number of days between them.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="timedelta" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

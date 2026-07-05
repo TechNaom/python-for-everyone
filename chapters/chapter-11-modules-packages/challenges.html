@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on the math and datetime modules for Chapter 11: Modules & Packages.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-11">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 11 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Modules &amp; Packages</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases like <code>0</code> and leap years). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-11 have covered so far &mdash;
+    <code>def</code>, everything through decorators, and the
+    <code>math</code> and <code>datetime</code> modules. No
+    <code>try</code>/<code>except</code>, file I/O, classes, or any other
+    import.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why no random challenges here?</span>
+    These challenges are graded by comparing your function's output
+    against one fixed, exact expected value per test case. That works
+    great for <code>math</code> and <code>datetime</code>, but
+    <code>random</code>'s whole point is that its output is different
+    every time &mdash; so it's saved for the practice bank instead, where
+    you check a property of the result instead of an exact match. Dates
+    below are always passed in and returned as plain strings (like
+    <code>"2026-07-05"</code>), since that's the only date format that
+    survives being sent as JSON test data.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Hypotenuse <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>hypotenuse(a, b)</code> that returns the length of the hypotenuse of a right triangle with legs <code>a</code> and <code>b</code>, using <code>math.sqrt</code>, rounded to 2 decimal places.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>a</code> and <code>b</code> are non-negative numbers; round the final result with <code>round(..., 2)</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>hypotenuse(3, 4)</code> &rarr; <code>5.0</code><br>
+        <code>hypotenuse(5, 12)</code> &rarr; <code>13.0</code><br>
+        <code>hypotenuse(0, 5)</code> &rarr; <code>5.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+import math
+
+
+def hypotenuse(a, b):
+    # TODO: return round(math.sqrt(a ** 2 + b ** 2), 2)
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "hypotenuse",
+  "cases": [
+    { "args": [3, 4], "expected": 5.0 },
+    { "args": [5, 12], "expected": 13.0 },
+    { "args": [0, 5], "expected": 5.0 },
+    { "args": [8, 15], "expected": 17.0 },
+    { "args": [1, 1], "expected": 1.41 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>import math
+
+
+def hypotenuse(a, b):
+    return round(math.sqrt(a ** 2 + b ** 2), 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Round Up to the Nearest Multiple <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>round_up_to_multiple(n, multiple)</code> that rounds <code>n</code> up to the nearest multiple of <code>multiple</code>, using <code>math.ceil(n / multiple) * multiple</code> &mdash; the same "how many boxes do I need" pattern from a warehouse packing problem.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> may be <code>0</code> or already an exact multiple (in which case it stays the same).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>round_up_to_multiple(23, 5)</code> &rarr; <code>25</code><br>
+        <code>round_up_to_multiple(20, 5)</code> &rarr; <code>20</code><br>
+        <code>round_up_to_multiple(0, 5)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+import math
+
+
+def round_up_to_multiple(n, multiple):
+    # TODO: return math.ceil(n / multiple) * multiple
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "round_up_to_multiple",
+  "cases": [
+    { "args": [23, 5], "expected": 25 },
+    { "args": [20, 5], "expected": 20 },
+    { "args": [1, 10], "expected": 10 },
+    { "args": [0, 5], "expected": 0 },
+    { "args": [97, 25], "expected": 100 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>import math
+
+
+def round_up_to_multiple(n, multiple):
+    return math.ceil(n / multiple) * multiple</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Circle Area <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>circle_area(radius)</code> that returns the area of a circle (<code>math.pi * radius ** 2</code>), rounded to 2 decimal places.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>radius</code> may be <code>0</code>; round the final result with <code>round(..., 2)</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>circle_area(1)</code> &rarr; <code>3.14</code><br>
+        <code>circle_area(2)</code> &rarr; <code>12.57</code><br>
+        <code>circle_area(0)</code> &rarr; <code>0.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+import math
+
+
+def circle_area(radius):
+    # TODO: return round(math.pi * radius ** 2, 2)
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "circle_area",
+  "cases": [
+    { "args": [1], "expected": 3.14 },
+    { "args": [2], "expected": 12.57 },
+    { "args": [0], "expected": 0.0 },
+    { "args": [5], "expected": 78.54 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>import math
+
+
+def circle_area(radius):
+    return round(math.pi * radius ** 2, 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Rounded Power <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>power_rounded(base, exponent)</code> that returns <code>base</code> raised to <code>exponent</code> using <code>math.pow</code>, rounded to 2 decimal places.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>exponent</code> may be <code>0</code> (any base to the 0th power is <code>1.0</code>); <code>base</code>/<code>exponent</code> may be a float.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>power_rounded(2, 10)</code> &rarr; <code>1024.0</code><br>
+        <code>power_rounded(2, 0)</code> &rarr; <code>1.0</code><br>
+        <code>power_rounded(1.5, 2)</code> &rarr; <code>2.25</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+import math
+
+
+def power_rounded(base, exponent):
+    # TODO: return round(math.pow(base, exponent), 2)
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "power_rounded",
+  "cases": [
+    { "args": [2, 10], "expected": 1024.0 },
+    { "args": [3, 3], "expected": 27.0 },
+    { "args": [2, 0], "expected": 1.0 },
+    { "args": [1.5, 2], "expected": 2.25 },
+    { "args": [10, 3], "expected": 1000.0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>import math
+
+
+def power_rounded(base, exponent):
+    return round(math.pow(base, exponent), 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Days Between Two Dates <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>days_between_iso(date_a, date_b)</code> that takes two ISO-formatted date strings (like <code>"2026-07-05"</code>), converts each to a <code>datetime.date</code> with <code>datetime.date.fromisoformat(...)</code>, and returns the number of days from <code>date_a</code> to <code>date_b</code> as an integer (using date subtraction and <code>.days</code>). Dates are passed and returned as plain strings so the test cases can be written as ordinary JSON.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>date_b</code> may come before <code>date_a</code> (return a negative number); the two dates may be equal (return <code>0</code>); test cases include a leap year.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>days_between_iso("2026-01-01", "2026-07-05")</code> &rarr; <code>185</code><br>
+        <code>days_between_iso("2026-01-01", "2026-01-01")</code> &rarr; <code>0</code><br>
+        <code>days_between_iso("2026-07-05", "2026-01-01")</code> &rarr; <code>-185</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import datetime
+
+
+def days_between_iso(date_a, date_b):
+    # TODO: convert both date_a and date_b to datetime.date objects with
+    # datetime.date.fromisoformat(...), then return
+    # (b - a).days.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "days_between_iso",
+  "cases": [
+    { "args": ["2026-01-01", "2026-07-05"], "expected": 185 },
+    { "args": ["2026-01-01", "2026-01-01"], "expected": 0 },
+    { "args": ["2026-07-05", "2026-01-01"], "expected": -185 },
+    { "args": ["2024-01-01", "2025-01-01"], "expected": 366 },
+    { "args": ["2026-02-01", "2026-03-01"], "expected": 28 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>import datetime
+
+
+def days_between_iso(date_a, date_b):
+    a = datetime.date.fromisoformat(date_a)
+    b = datetime.date.fromisoformat(date_b)
+    return (b - a).days</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Day of the Week <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>day_of_week_name(year, month, day)</code> that builds a <code>datetime.date(year, month, day)</code> and returns its weekday name as a string (like <code>"Sunday"</code>), using <code>.strftime("%A")</code>. The date is passed in as three separate integers (year, month, day) since that's a JSON-safe way to represent a date without needing a special date type in the test data.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>year</code>/<code>month</code>/<code>day</code> always form a valid calendar date.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>day_of_week_name(2026, 7, 5)</code> &rarr; <code>"Sunday"</code><br>
+        <code>day_of_week_name(2026, 1, 1)</code> &rarr; <code>"Thursday"</code><br>
+        <code>day_of_week_name(2000, 1, 1)</code> &rarr; <code>"Saturday"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+import datetime
+
+
+def day_of_week_name(year, month, day):
+    # TODO: build d = datetime.date(year, month, day), then return
+    # d.strftime("%A") to get the full weekday name.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "day_of_week_name",
+  "cases": [
+    { "args": [2026, 7, 5], "expected": "Sunday" },
+    { "args": [2026, 1, 1], "expected": "Thursday" },
+    { "args": [2000, 1, 1], "expected": "Saturday" },
+    { "args": [2026, 12, 25], "expected": "Friday" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>import datetime
+
+
+def day_of_week_name(year, month, day):
+    d = datetime.date(year, month, day)
+    return d.strftime("%A")</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Add Days to a Date <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>add_days_iso(date_str, days)</code> that takes an ISO date string and an integer number of days, and returns a new ISO date string that many days later (or earlier, if <code>days</code> is negative). Convert with <code>datetime.date.fromisoformat(...)</code>, add a <code>datetime.timedelta(days=days)</code>, then convert back to a string with <code>.isoformat()</code> so the result stays JSON-safe.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>days</code> may be <code>0</code> or negative; results may cross a month or year boundary.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>add_days_iso("2026-01-01", 30)</code> &rarr; <code>"2026-01-31"</code><br>
+        <code>add_days_iso("2026-01-01", 0)</code> &rarr; <code>"2026-01-01"</code><br>
+        <code>add_days_iso("2026-01-01", 365)</code> &rarr; <code>"2027-01-01"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import datetime
+
+
+def add_days_iso(date_str, days):
+    # TODO: convert date_str to a datetime.date with
+    # datetime.date.fromisoformat(date_str), add
+    # datetime.timedelta(days=days) to it, then return the result
+    # converted back to a string with .isoformat().
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "add_days_iso",
+  "cases": [
+    { "args": ["2026-01-01", 30], "expected": "2026-01-31" },
+    { "args": ["2026-01-01", 0], "expected": "2026-01-01" },
+    { "args": ["2026-01-01", 365], "expected": "2027-01-01" },
+    { "args": ["2026-12-25", 10], "expected": "2027-01-04" },
+    { "args": ["2026-03-01", -1], "expected": "2026-02-28" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>import datetime
+
+
+def add_days_iso(date_str, days):
+    d = datetime.date.fromisoformat(date_str)
+    result = d + datetime.timedelta(days=days)
+    return result.isoformat()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Age in Full Years <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>age_in_years(birth_date_str, on_date_str)</code> that takes two ISO date strings and returns how many full years old someone born on <code>birth_date_str</code> would be on <code>on_date_str</code> &mdash; the same logic a real signup form uses to check a minimum age. Compute the plain year difference first, then subtract 1 if the birthday hasn't happened yet that year (compare <code>(month, day)</code> tuples).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>on_date_str</code> is always on or after <code>birth_date_str</code>; test cases include a birthday that hasn't happened yet in the target year, and a Feb 29 birth date.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>age_in_years("2000-07-05", "2026-07-05")</code> &rarr; <code>26</code><br>
+        <code>age_in_years("2000-07-06", "2026-07-05")</code> &rarr; <code>25</code><br>
+        <code>age_in_years("2000-01-01", "2026-12-31")</code> &rarr; <code>26</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import datetime
+
+
+def age_in_years(birth_date_str, on_date_str):
+    # TODO: convert both strings to datetime.date objects with
+    # datetime.date.fromisoformat(...). Compute
+    # years = on_date.year - birth.year. If
+    # (on_date.month, on_date.day) < (birth.month, birth.day), the
+    # birthday hasn't happened yet this year, so subtract 1 from years.
+    # Return years.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "age_in_years",
+  "cases": [
+    { "args": ["2000-07-05", "2026-07-05"], "expected": 26 },
+    { "args": ["2000-07-06", "2026-07-05"], "expected": 25 },
+    { "args": ["2000-01-01", "2026-12-31"], "expected": 26 },
+    { "args": ["2000-07-04", "2026-07-05"], "expected": 26 },
+    { "args": ["2020-02-29", "2026-02-28"], "expected": 5 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import datetime
+
+
+def age_in_years(birth_date_str, on_date_str):
+    birth = datetime.date.fromisoformat(birth_date_str)
+    on_date = datetime.date.fromisoformat(on_date_str)
+    years = on_date.year - birth.year
+    if (on_date.month, on_date.day) < (birth.month, birth.day):
+        years -= 1
+    return years</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

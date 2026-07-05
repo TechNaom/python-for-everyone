@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 11: Modules & Packages, including interview-style scenario problems on import variations and the math, datetime, and random modules.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-11">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 11 Practice Bank</span>
+    <span class="reading-time">60-80 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Modules &amp; Packages</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Uses
+    everything from Chapters 1-10 plus this chapter's own toolkit:
+    <code>import x</code>, <code>from x import y</code>,
+    <code>import x as y</code>, <code>from x import y as z</code>, and the
+    <code>math</code>, <code>datetime</code>, and <code>random</code>
+    modules. No <code>try</code>/<code>except</code>, file I/O, classes,
+    or any import beyond <code>math</code>/<code>datetime</code>/<code>random</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">A note on randomness and dates</span>
+    Any problem using <code>random</code> or <code>datetime.date.today()</code>
+    prints a different result every time you run it &mdash; that's the
+    point. <code>solution.py</code> checks a <em>property</em> of the
+    result (like "is this in range") instead of one exact value, so your
+    output won't match anyone else's line-for-line, and that's fine.
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-what-is-a-module">1. What Is a Module?</a>
+    <a href="#topic-import-variations">2. Import Variations</a>
+    <a href="#topic-math-module">3. The math Module</a>
+    <a href="#topic-datetime-module">4. The datetime Module</a>
+    <a href="#topic-random-module">5. The random Module</a>
+    <a href="#topic-bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-what-is-a-module">Topic 1: What Is a Module?</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Using a module's constant</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>pi_times_two()</code>, a function that returns <code>math.pi * 2</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Describing a module in your own words</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>describe_module(name, purpose)</code>, returning a formatted sentence about what a module is for.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Hand-typed constant vs. module constant</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Compare a hand-typed <code>3.14159</code> against <code>math.pi</code> to see the difference in precision.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A real formula using a module</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write <code>circle_circumference(radius)</code> using <code>math.pi</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This function uses <code>math.pi</code> but the file never imports the <code>math</code> module, so calling it raises a <code>NameError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Why real projects use modules</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>explain_module_reuse()</code>, explaining what a module is and why <code>math</code>/<code>random</code>/<code>datetime</code> are modules.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why not reinvent pi?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>why_not_reinvent_pi()</code>, explaining in a comment-worthy string why <code>math.pi</code> beats a hand-typed constant.</p>
+  </div>
+
+  <h2 id="topic-import-variations">Topic 2: Import Variations</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Plain <code>import math</code></h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Using the plain <code>import math</code>, write <code>sqrt_via_plain_import(n)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>from math import sqrt</code></h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Add <code>from math import sqrt</code>, then write <code>sqrt_via_from_import(n)</code> calling <code>sqrt(n)</code> directly.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> <code>import math as m</code></h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Add <code>import math as m</code>, then write <code>pi_via_aliased_import()</code> returning <code>m.pi</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> <code>from random import randint as ri</code></h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Add <code>from random import randint as ri</code>, then write a dice-roll function using <code>ri(1, 6)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This function calls the nonexistent <code>math.round()</code> instead of <code>math.ceil()</code>, raising an <code>AttributeError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Picking the right import style</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>compare_import_styles()</code>, explaining when you'd reach for each import style.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>import x</code> vs. <code>from x import y</code></h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_import_variations()</code>, explaining the difference between the import styles and what <code>as</code> actually renames.</p>
+  </div>
+
+  <h2 id="topic-math-module">Topic 3: The math Module</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Hypotenuse with <code>math.sqrt</code></h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>hypotenuse(a, b)</code> using <code>math.sqrt(a ** 2 + b ** 2)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Rounding down and up</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>round_down_and_up(n)</code> returning a tuple of <code>math.floor(n)</code> and <code>math.ceil(n)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Exponents with <code>math.pow</code></h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Write <code>power_of(base, exponent)</code> using <code>math.pow</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Circle area with <code>math.pi</code></h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write <code>circle_area(radius)</code> using <code>math.pi * radius ** 2</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This container-count function uses <code>math.floor</code> instead of <code>math.ceil</code>, silently losing any leftover items. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Shipping box calculator</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>boxes_required(num_items, items_per_box)</code>, rounding up with <code>math.ceil</code> for a warehouse packing tool.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>floor</code> vs. <code>ceil</code> vs. <code>round</code></h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_floor_vs_ceil_vs_round()</code>, explaining the difference between all three.</p>
+  </div>
+
+  <h2 id="topic-datetime-module">Topic 4: The datetime Module</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Creating a date</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>make_date(year, month, day)</code> using <code>datetime.date</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Formatting a date</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>format_date_long(a_date)</code> using <code>.strftime("%B %d, %Y")</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Difference between two dates</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write <code>days_between(date_a, date_b)</code> using date subtraction and <code>.days</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Today's date</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write <code>days_since_today()</code> using <code>datetime.date.today()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This deadline countdown subtracts in the wrong order, so a future deadline comes back negative instead of positive. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Subscription renewal countdown</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>days_until_renewal(signup_date, renewal_days=365)</code> using <code>datetime.timedelta</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>How date subtraction works</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_date_arithmetic()</code>, explaining what a <code>timedelta</code> is and where it comes from.</p>
+  </div>
+
+  <h2 id="topic-random-module">Topic 5: The random Module</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Rolling a die</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>roll_die()</code> using <code>random.randint(1, 6)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Picking a random item</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>pick_random_name(names)</code> using <code>random.choice</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Shuffling a copy</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write <code>shuffled_copy(items)</code> using <code>random.shuffle</code> on a copy, leaving the original list untouched.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A random percentage</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Write <code>random_percentage()</code> using <code>random.randint(0, 100)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This card picker calls <code>random.choice()</code> with no arguments at all, raising a <code>TypeError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Randomized A/B test assignment</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>assign_ab_group()</code>, modeling how a feature-flag system randomly assigns users to a test group.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Testing random code</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_random_vs_deterministic()</code>, explaining why random code needs property-based checks instead of exact-value assertions.</p>
+  </div>
+
+  <h2 id="topic-bringing-together">Topic 6: Bringing It Together &mdash; Modules in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Generating an order ID</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>generate_order_id(order_number)</code>, combining <code>datetime</code> and string formatting.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Distance between two points</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>distance_between_points(x1, y1, x2, y2)</code> using <code>math.sqrt</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A daily special picker</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write <code>pick_daily_special(menu_items)</code> using <code>random.choice</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Subscription status check</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write <code>subscription_status(start_date, length_days=30)</code> using <code>datetime</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This discount function adds the discount instead of subtracting it, making the "discounted" price higher than the original. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Production order confirmation builder</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>build_order_confirmation(order_number, price_per_item, quantity)</code>, combining <code>math</code>, <code>datetime</code>, and a dict return value.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Standard library in production</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_stdlib_value()</code>, explaining how <code>math</code>/<code>random</code>/<code>datetime</code> show up in real production code.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. Remember that any
+    random or "today's date" output will legitimately differ each time
+    you run it.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

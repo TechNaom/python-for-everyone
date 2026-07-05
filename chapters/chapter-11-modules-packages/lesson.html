@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11: Modules &amp; Packages — Python for Everyone</title>
+<meta name="description" content="What a module is, import variations (import x, from x import y, as aliases), and your first three standard-library modules: math, datetime, and random — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-11">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 11 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">40 min read</span>
+  </div>
+  <h1>Modules &amp; Packages</h1>
+  <p><em>Every program up to this point has lived in a single file, using only the tools Python gives you automatically. That's about to change. Python ships with a huge standard library of ready-made code — for math, dates, randomness, and much more — and this chapter opens the door to it with <code>import</code>. You'll also see why organizing your own code across multiple files matters as programs grow, and pick up three genuinely useful modules along the way: <code>math</code>, <code>datetime</code>, and <code>random</code>.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong><code>import</code> is finally allowed</strong> — but only for the three modules this chapter teaches: <code>math</code>, <code>datetime</code>, and <code>random</code>. They're all safe, don't touch the filesystem, and don't need error handling (that's Chapter 12).</li>
+      <li><strong>Sub-topics 3-5 are hands-on tours</strong> of one module each — read them in order, or jump straight to whichever module you need right now.</li>
+      <li><strong>This is where "the standard library" stops being an abstract phrase.</strong> Real production code leans on it constantly, and this chapter is the first taste of why.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-module">1. What is a module, and why organize code this way</a>
+    <a href="#import-variations">2. Import variations</a>
+    <a href="#math-module">3. The math module</a>
+    <a href="#datetime-module">4. The datetime module</a>
+    <a href="#random-module">5. The random module</a>
+    <a href="#bringing-together">6. Real-world use of modules in production</a>
+  </nav>
+
+  <div class="hook">
+    Nobody at a real company writes their own square root function, their own calendar math, or their own random number generator from scratch. Someone already solved those problems carefully, tested them for years, and packaged the result into Python itself. <code>import</code> is the single word that unlocks all of it — instead of reinventing a wheel, you borrow one that millions of other programs already rely on.
+  </div>
+
+  <div class="subtopic" id="what-is-a-module">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. What is a module, and why organize code this way</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>module</strong> is nothing exotic — it's just a <code>.py</code> file containing reusable code.</li>
+        <li>Python ships with a huge collection of ready-made modules called the <strong>standard library</strong>.</li>
+        <li><code>import</code> lets one file use the functions and values defined in another file — yours or Python's own.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every function you've written since Chapter 10 has lived in one file. Real programs eventually outgrow that — modules are how code gets organized across many files instead of one giant script.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a module?</span>
+      A module is simply a file ending in <code>.py</code> that contains
+      Python code — functions, variables, anything. The moment you
+      <code>import</code> that file by name (without the <code>.py</code>),
+      you can use whatever it defines. There's no special ceremony to
+      "make" a module; any Python file already qualifies as one.
+    </div>
+
+    <p>
+      Python comes with hundreds of modules built in — this is called the
+      <strong>standard library</strong>, and it's already installed
+      wherever Python runs. No downloading, no setup:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">first_import.py</span>
+      </div>
+      <pre><code>import math
+
+print(math.sqrt(16))   &#35; 4.0 — sqrt() lives inside the math module</code></pre>
+    </div>
+
+    <p>
+      <code>import math</code> loads the entire <code>math</code> module
+      and makes it available under the name <code>math</code>. Writing
+      <code>math.sqrt(16)</code> — module name, a dot, then the function —
+      is how you reach inside a module to use something it defines.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the standard library?</span>
+      The standard library is the large collection of modules that comes
+      bundled with Python itself — <code>math</code>, <code>datetime</code>,
+      and <code>random</code> (this chapter's three) are just a tiny slice
+      of it. It exists so nobody has to rewrite well-tested, common
+      functionality from scratch.
+    </div>
+
+    <p>
+      Importing your own files works the exact same way, once you have
+      more than one <code>.py</code> file in a project. A small
+      <code>helpers.py</code> file full of functions can be imported into
+      a main script exactly like <code>math</code> can:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">helpers.py</span>
+      </div>
+      <pre><code>def shout(text):
+    return text.upper() + "!"</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">main.py — in the same folder as helpers.py</span>
+      </div>
+      <pre><code>import helpers
+
+print(helpers.shout("hello"))   &#35; HELLO!</code></pre>
+    </div>
+
+    <p>
+      As a program grows from ten lines to a thousand, keeping every
+      function in one file becomes hard to navigate and hard to test.
+      Splitting related functions into their own files — one for
+      validation logic, one for calculations, one for formatting — is
+      exactly how real, production-scale Python projects stay manageable,
+      even with dozens of contributors working on different pieces at
+      once.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_first_import.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="5">import math
+
+print(math.sqrt(81))
+print(math.sqrt(144))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try importing math and using a different number.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: import only runs once per program</summary>
+      <p>
+        No matter how many times <code>import math</code> appears across a
+        program's files, Python only actually loads and runs the module
+        once — every later <code>import math</code> just reuses what's
+        already loaded. This is why importing the same module in several
+        files of a larger project is completely normal and has no real
+        performance cost.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A module is just a <code>.py</code> file of reusable code — nothing more.</li>
+        <li>The standard library is the large set of modules Python ships with automatically.</li>
+        <li>Splitting code across multiple files/modules is how real, larger programs stay organized and maintainable.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="import-variations">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Import variations</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>import x</code> brings in the whole module; use <code>x.name</code> to reach anything inside it.</li>
+        <li><code>from x import y</code> brings in just one name, usable directly without the module prefix.</li>
+        <li><code>as</code> renames whatever's being imported — a module or a specific name.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you know exactly which import style fits — the four variations below cover nearly every import you'll ever write.
+    </div>
+
+    <p>
+      All four variations import the exact same <code>sqrt</code>
+      function from <code>math</code> — they just differ in what name you
+      end up calling it by:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">import_variations.py</span>
+      </div>
+      <pre><code>import math
+print(math.sqrt(2))              &#35; 1.4142135623730951 — full module, dotted access
+
+from math import sqrt
+print(sqrt(2))                   &#35; 1.4142135623730951 — just sqrt, no prefix needed
+
+from math import sqrt as square_root
+print(square_root(2))            &#35; 1.4142135623730951 — sqrt, renamed on the way in
+
+import math as m
+print(m.sqrt(2))                 &#35; 1.4142135623730951 — whole module, renamed to m</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of import_variations.py — every line computes the same value</span>
+      <pre><code>1.4142135623730951
+1.4142135623730951
+1.4142135623730951
+1.4142135623730951</code></pre>
+    </div>
+
+    <p>
+      <code>import x</code> is the safest default — <code>math.sqrt</code>
+      makes it obvious, everywhere it's used, exactly which module a
+      function came from. <code>from x import y</code> trades that clarity
+      for shorter code, which is worth it when a name is used constantly
+      throughout a file.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>as</code>?</span>
+      <code>as</code> gives an import a different local name. <code>import
+      math as m</code> still imports the whole <code>math</code> module —
+      it's just now called <code>m</code> in this file. It's most useful
+      for shortening a long module name, or avoiding a clash with another
+      name already in use.
+    </div>
+
+    <p>
+      One variation is worth knowing about specifically so it can be
+      avoided: <code>from math import *</code> imports <em>everything</em>
+      from a module at once, with no prefix at all.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>It's unclear later which function came from which module, once several <code>import *</code> lines are used in the same file.</li>
+      <li>It can silently overwrite an existing name in your file with something from the module, without any warning.</li>
+      <li>Nearly every real Python style guide, including Python's own official one (PEP 8), recommends against it.</li>
+    </ul>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">avoid_star_import.py</span>
+      </div>
+      <pre><code>&#35; Avoid this:
+from math import *
+print(sqrt(2))       &#35; works, but where did sqrt come from? unclear at a glance
+
+&#35; Prefer this instead:
+from math import sqrt
+print(sqrt(2))        &#35; clearly imported from math, right above</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_import_variations.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">from math import pow as power
+
+print(power(2, 5))
+print(power(3, 3))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try renaming power back to pow with as.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: importing multiple names at once</summary>
+      <p>
+        <code>from math import sqrt, floor, ceil</code> imports several
+        specific names from the same module in a single line, comma
+        separated — each one usable directly, without a module prefix.
+        This is a common middle ground: more explicit than
+        <code>import *</code>, less repetitive than a separate
+        <code>from math import</code> line for every single name.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>import x</code> brings in the whole module, accessed as <code>x.name</code>.</li>
+        <li><code>from x import y</code> brings in just <code>y</code>, usable directly with no prefix.</li>
+        <li><code>as</code> renames an import; avoid <code>from x import *</code> since it hides where names came from and can silently overwrite existing ones.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="math-module">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. The <code>math</code> module</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>math.sqrt(x)</code> returns the square root of <code>x</code> as a float.</li>
+        <li><code>math.floor(x)</code> rounds down, <code>math.ceil(x)</code> rounds up — both to the nearest whole number.</li>
+        <li><code>math.pow(x, y)</code> raises <code>x</code> to the power <code>y</code>; <code>math.pi</code> is the constant &pi;, ready to use.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a calculation needs more than <code>+ - * /</code> and <code>**</code> already cover — square roots, rounding in a specific direction, or geometry involving &pi;.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>math</code> module?</span>
+      <code>math</code> is a standard-library module of common
+      mathematical functions and constants — square roots, rounding,
+      powers, trigonometry, and more — that go beyond Python's built-in
+      arithmetic operators.
+    </div>
+
+    <p>
+      A shipping calculator needs to round a package's weight up to the
+      next whole pound before charging — rounding down would undercharge,
+      so <code>math.ceil</code> is exactly the right tool:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">shipping_weight.py</span>
+      </div>
+      <pre><code>import math
+
+actual_weight = 3.2
+billable_weight = math.ceil(actual_weight)
+print(billable_weight)   &#35; 4 — always rounds up, never in the customer's favor</code></pre>
+    </div>
+
+    <p>
+      <code>math.floor</code> is <code>ceil</code>'s opposite — it always
+      rounds down, which fits a situation like figuring out how many
+      complete boxes of 12 eggs you can fill from a given count:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">floor_ceil_pow_sqrt.py</span>
+      </div>
+      <pre><code>import math
+
+print(math.floor(4.7))    &#35; 4 — rounds down
+print(math.ceil(4.2))     &#35; 5 — rounds up
+print(math.pow(2, 10))    &#35; 1024.0 — 2 to the power of 10, always a float
+print(math.sqrt(16))      &#35; 4.0 — square root, always a float</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of floor_ceil_pow_sqrt.py</span>
+      <pre><code>4
+5
+1024.0
+4.0</code></pre>
+    </div>
+
+    <p>
+      <code>math.pow(x, y)</code> and Python's own <code>**</code>
+      operator (from Chapter 2) compute the same thing — <code>2 **
+      10</code> and <code>math.pow(2, 10)</code> both give <code>1024</code>.
+      The difference is small but worth knowing: <code>**</code> keeps a
+      whole-number result as an <code>int</code>, while
+      <code>math.pow</code> always returns a <code>float</code>.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>math.pi</code>?</span>
+      <code>math.pi</code> isn't a function — it's a constant, the value
+      of &pi; (about <code>3.14159...</code>) stored directly in the
+      module. No parentheses needed; just <code>math.pi</code> on its own.
+    </div>
+
+    <p>
+      A circle's area formula, &pi;r&sup2;, is a natural place to use
+      <code>math.pi</code> directly instead of typing out digits by hand:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">circle_area.py</span>
+      </div>
+      <pre><code>import math
+
+def circle_area(radius):
+    return math.pi * radius ** 2
+
+print(round(circle_area(5), 2))   &#35; 78.54</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_math_module.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">import math
+
+print(math.sqrt(50))
+print(math.floor(9.9))
+print(math.ceil(9.1))
+print(math.pi)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try computing math.pow(5, 3).</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: math.sqrt vs. ** 0.5</summary>
+      <p>
+        <code>16 ** 0.5</code> and <code>math.sqrt(16)</code> both give
+        <code>4.0</code> — Python doesn't strictly require the
+        <code>math</code> module for square roots. <code>math.sqrt</code>
+        is still the clearer, more readable choice for this specific job,
+        and it also raises a clear error for negative numbers rather than
+        returning a confusing complex number, which is why real code
+        reaches for it by name instead of the <code>** 0.5</code> trick.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>math.sqrt(x)</code> returns the square root of <code>x</code> as a float.</li>
+        <li><code>math.floor(x)</code> rounds down, <code>math.ceil(x)</code> rounds up.</li>
+        <li><code>math.pow(x, y)</code> raises <code>x</code> to the power <code>y</code>; <code>math.pi</code> is the constant &pi;.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="datetime-module">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. The <code>datetime</code> module</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>datetime.date.today()</code> and <code>datetime.datetime.now()</code> give the current date, or date-and-time.</li>
+        <li><code>strftime()</code> formats a date/time into a specific, readable string layout.</li>
+        <li>Subtracting one date from another gives a <code>timedelta</code>, whose <code>.days</code> attribute is the number of days between them.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a program needs to know today's date, display a date in a specific format, or calculate how far apart two dates are.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>datetime</code> module?</span>
+      <code>datetime</code> is a standard-library module for working with
+      dates and times — creating them, formatting them for display, and
+      doing arithmetic like "how many days between these two dates."
+    </div>
+
+    <p>
+      <code>datetime.date.today()</code> returns today's date, read
+      straight from the computer's clock — your own output will show
+      whatever today's actual date is when you run it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">todays_date.py</span>
+      </div>
+      <pre><code>import datetime
+
+today = datetime.date.today()
+print(today)   &#35; your output will show today's actual date, e.g. 2026-07-05</code></pre>
+    </div>
+
+    <p>
+      For anything that needs a specific, known date instead of "right
+      now" — like the examples below, so the output here matches exactly
+      what you'll see — <code>datetime.date(year, month, day)</code>
+      builds one directly:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">specific_date.py</span>
+      </div>
+      <pre><code>import datetime
+
+launch_day = datetime.date(2026, 3, 15)
+print(launch_day)   &#35; 2026-03-15</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>strftime</code>?</span>
+      <code>strftime</code> ("string format time") converts a date or
+      datetime object into a string, laid out exactly however you
+      specify — <code>%B</code> for the full month name, <code>%d</code>
+      for the day, <code>%Y</code> for a four-digit year, and more.
+    </div>
+
+    <p>
+      Raw dates print in a plain <code>YYYY-MM-DD</code> shape by default
+      — fine for a computer, awkward for a human-facing message.
+      <code>strftime</code> reformats it into something more readable:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">strftime_formatting.py</span>
+      </div>
+      <pre><code>import datetime
+
+launch_day = datetime.date(2026, 3, 15)
+print(launch_day.strftime("%B %d, %Y"))   &#35; March 15, 2026</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of strftime_formatting.py</span>
+      <pre><code>March 15, 2026</code></pre>
+    </div>
+
+    <p>
+      Subtracting one date from another is where <code>datetime</code>
+      earns its keep in real programs — a countdown page, a subscription
+      renewal reminder, or an age calculator all boil down to this same
+      pattern:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">date_difference.py</span>
+      </div>
+      <pre><code>import datetime
+
+today = datetime.date(2026, 7, 5)
+birthday = datetime.date(2026, 12, 25)
+
+days_left = birthday - today
+print("Today:", today)
+print("Birthday:", birthday)
+print("Days left:", days_left.days)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of date_difference.py</span>
+      <pre><code>Today: 2026-07-05
+Birthday: 2026-12-25
+Days left: 173</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a <code>timedelta</code>?</span>
+      A <code>timedelta</code> is the result of subtracting one date (or
+      datetime) from another — it represents a span of time, not a point
+      in time. Its <code>.days</code> attribute gives that span as a plain
+      whole number of days, which is usually exactly what you want out of
+      it.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_datetime_module.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import datetime
+
+start = datetime.date(2026, 1, 1)
+end = datetime.date(2026, 7, 5)
+
+print(start.strftime("%B %d, %Y"))
+print(end.strftime("%B %d, %Y"))
+print((end - start).days)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing start and end to two dates of your own.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: date vs. datetime</summary>
+      <p>
+        <code>datetime.date</code> stores just a year, month, and day —
+        no time of day at all. <code>datetime.datetime</code> stores all
+        of that plus hours, minutes, and seconds, and its
+        <code>datetime.datetime.now()</code> gives the exact current
+        moment. Use <code>date</code> when only the calendar day matters
+        (a birthday, a deadline); use <code>datetime</code> when the time
+        of day matters too (a log entry, an appointment).
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>datetime.date.today()</code> gives today's date; <code>datetime.date(y, m, d)</code> builds a specific one.</li>
+        <li><code>strftime("%B %d, %Y")</code>-style format strings turn a date into a readable string.</li>
+        <li>Subtracting two dates gives a <code>timedelta</code>; its <code>.days</code> attribute is the number of days between them.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="random-module">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. The <code>random</code> module</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>random.randint(a, b)</code> returns a random whole number between <code>a</code> and <code>b</code>, both included.</li>
+        <li><code>random.choice(sequence)</code> picks one random item out of a list (or any sequence).</li>
+        <li><code>random.shuffle(list)</code> rearranges a list's items into a random order, in place.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a program needs unpredictability on purpose — a dice roll, a shuffled deck, picking a random winner from a list of entries.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>random</code> module?</span>
+      <code>random</code> is a standard-library module for generating
+      randomness — random numbers, random choices from a list, and
+      randomly reordering a list — used anywhere a program needs an
+      outcome that isn't fixed in advance.
+    </div>
+
+    <p>
+      A dice roller is the simplest possible use of <code>random</code>:
+      <code>randint(1, 6)</code> mirrors an actual six-sided die exactly,
+      since both <code>1</code> and <code>6</code> are valid results:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">dice_roller.py</span>
+      </div>
+      <pre><code>import random
+
+roll = random.randint(1, 6)
+print("You rolled:", roll)   &#35; a random whole number from 1 to 6, inclusive</code></pre>
+    </div>
+
+    <p>
+      Because the result is genuinely random, your own output will show a
+      different number practically every time you run it — that's the
+      whole point. <code>random.choice</code> works the same way, but
+      picks a random item out of an existing list instead of a number:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">random_choice.py</span>
+      </div>
+      <pre><code>import random
+
+players = ["Priya", "Amir", "Zoe", "Sam"]
+first_turn = random.choice(players)
+print(first_turn, "goes first!")   &#35; a random name from the list, different each run</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>random.shuffle</code>?</span>
+      <code>random.shuffle(some_list)</code> rearranges a list's items
+      into a random order, directly modifying that list in place — it
+      doesn't return a new shuffled list, it changes the original one and
+      returns <code>None</code>.
+    </div>
+
+    <p>
+      Shuffling a deck of cards (or any list of items) before dealing is a
+      classic use — this is also a good moment to remember that
+      <code>shuffle</code> changes the list itself, so printing it
+      afterward is what shows the new order:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">shuffle_deck.py</span>
+      </div>
+      <pre><code>import random
+
+cards = ["Ace", "King", "Queen", "Jack", "10"]
+random.shuffle(cards)
+print(cards)   &#35; the same 5 cards, in a new random order each run</code></pre>
+    </div>
+
+    <p>
+      Because every example on this page uses genuine randomness, running
+      the playground below more than once will very likely give a
+      different result each time — that's expected, not a bug:
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_random_module.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import random
+
+for roll_number in range(3):
+    print("Roll:", random.randint(1, 6))
+
+topping = random.choice(["pepperoni", "mushroom", "olive"])
+print("Today's topping:", topping)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" a few times — the numbers and topping change each run.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: random.seed() makes randomness repeatable</summary>
+      <p>
+        <code>random.seed(some_number)</code>, called once before any
+        other <code>random</code> function, makes every "random" result
+        after it fully predictable and repeatable — the same seed always
+        produces the same sequence of "random" results. This is genuinely
+        useful for testing code that depends on <code>random</code>, since
+        a test needs a predictable expected answer to check against. It's
+        mentioned here just so the name isn't a surprise later; everyday
+        use of <code>random</code> doesn't need it.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>random.randint(a, b)</code> returns a random whole number from <code>a</code> to <code>b</code>, inclusive.</li>
+        <li><code>random.choice(sequence)</code> picks one random item from a list.</li>
+        <li><code>random.shuffle(list)</code> randomly reorders a list in place, returning <code>None</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world use of modules in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>The standard library exists so common problems only need solving once, by Python's own maintainers, instead of by every programmer separately.</li>
+        <li>Real projects also install modules written by other people — that's a step beyond this course, but worth knowing exists.</li>
+        <li>A <strong>package</strong> is a folder of related modules, bundled together — a natural next step once a project outgrows a handful of loose files.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> reach for the standard library before writing something from scratch — there's a good chance the problem is already solved, tested, and one <code>import</code> away.
+    </div>
+
+    <p>
+      A simple order-confirmation message can combine everything this
+      chapter covered — <code>math</code> for a rounded total,
+      <code>datetime</code> for a delivery estimate, and it's exactly the
+      kind of small utility real order-processing systems run thousands of
+      times a day:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">order_confirmation.py</span>
+      </div>
+      <pre><code>import math
+import datetime
+
+def build_confirmation(item, price, order_date):
+    rounded_price = math.ceil(price)
+    delivery_date = order_date + datetime.timedelta(days=5)
+    return (
+        item
+        + " confirmed at $"
+        + str(rounded_price)
+        + " — arriving by "
+        + delivery_date.strftime("%B %d, %Y")
+    )
+
+order_date = datetime.date(2026, 7, 5)
+print(build_confirmation("Desk Lamp", 24.10, order_date))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of order_confirmation.py</span>
+      <pre><code>Desk Lamp confirmed at $25 — arriving by July 10, 2026</code></pre>
+    </div>
+
+    <p>
+      Every standard-library module exists for the same reason: someone
+      already solved "how do I work with dates" or "how do I generate
+      randomness" carefully, handled the tricky edge cases, and shipped it
+      with Python so nobody else has to solve it again from scratch.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a package?</span>
+      A package is a folder containing multiple related modules, plus a
+      special file named <code>__init__.py</code> that tells Python "this
+      folder is a package, not just an ordinary folder." Real projects
+      often group dozens of modules into packages once they outgrow a
+      handful of loose files — that's a larger-scale organization tool
+      than this course covers yet, but the name is worth recognizing when
+      you see it later.
+    </div>
+
+    <p>
+      This chapter deliberately stuck to three safe, simple modules. The
+      standard library has hundreds more — <code>os</code> for working
+      with files and folders, <code>json</code> for structured data,
+      <code>sys</code> for interacting with the running program itself —
+      each one unlocked by the exact same <code>import</code> keyword
+      learned here, once later chapters cover what they need
+      (exception handling, file I/O) to use them safely.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_bringing_together.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">import math
+import random
+
+def roll_and_round(sides):
+    roll = random.randint(1, sides)
+    bonus = math.ceil(roll / 2)
+    return roll, bonus
+
+result, bonus_points = roll_and_round(20)
+print("Roll:", result)
+print("Bonus points:", bonus_points)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the number of sides on the die.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: modules other people wrote (a preview)</summary>
+      <p>
+        Beyond Python's own standard library, the wider Python community
+        publishes tens of thousands of additional packages — for web
+        development, data analysis, machine learning, and nearly anything
+        else — installed with a tool called <code>pip</code> rather than
+        being built in. That's beyond this course's current scope, but
+        it's the same <code>import</code> keyword doing the work once a
+        package is installed, which is exactly why this chapter's habit of
+        reaching for the standard library first pays off later.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>The standard library exists so common problems are solved once, well, instead of by every programmer separately.</li>
+        <li>A package is a folder of related modules with an <code>__init__.py</code> file — a bigger-scale organization tool than a single module.</li>
+        <li>Real Python projects also install modules written by other people, using the same <code>import</code> keyword this chapter introduced.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Nearly every production Python program starts with a block of <code>import</code> statements — pulling in the standard library and other packages before a single line of the program's own logic runs.</li>
+      <li>Date math like Sub-topic 4's <code>timedelta</code> pattern powers subscription renewal emails, "your order arrives by" estimates, and expiration warnings across countless real applications.</li>
+      <li>Randomness from Sub-topic 5 shows up far beyond games — A/B testing which version of a webpage a visitor sees, shuffling a quiz's question order, or randomly sampling data for testing all lean on the same <code>random</code> module.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A module is just a <code>.py</code> file of reusable code; the standard library is the huge collection of modules Python ships with automatically.</li>
+      <li><code>import x</code> brings in a whole module (accessed as <code>x.name</code>); <code>from x import y</code> brings in one name directly; <code>as</code> renames either — but avoid <code>from x import *</code>, since it hides where names came from.</li>
+      <li>The <code>math</code> module covers calculations beyond basic arithmetic: <code>sqrt</code>, <code>floor</code>, <code>ceil</code>, <code>pow</code>, and the constant <code>pi</code>.</li>
+      <li>The <code>datetime</code> module creates and formats dates (<code>date.today()</code>, <code>strftime</code>) and computes the gap between two dates as a <code>timedelta</code>.</li>
+      <li>The <code>random</code> module generates unpredictability on purpose: <code>randint</code> for a random number, <code>choice</code> for a random pick, <code>shuffle</code> to reorder a list in place.</li>
+      <li>This chapter's <code>import</code> is limited to <code>math</code>, <code>datetime</code>, and <code>random</code> — safe modules that don't need file I/O or exception handling, both covered in later chapters.</li>
+      <li>A package is a folder of related modules with an <code>__init__.py</code> file — a larger-scale organization tool worth recognizing, even though building one is beyond this course so far.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

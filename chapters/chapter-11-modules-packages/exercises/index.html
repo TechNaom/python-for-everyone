@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 11: Modules & Packages, including a Debug the Code task on a NameError from importing incorrectly.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-11">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 11 Exercises</span>
+    <span class="reading-time">25 min, hands-on</span>
+  </div>
+  <h1>Exercises: Modules &amp; Packages</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Importing the math module</h3>
+    <p>Import the <code>math</code> module. Write a function <code>hypotenuse(a, b)</code> that returns the length of a right triangle's hypotenuse, using <code>math.sqrt(a ** 2 + b ** 2)</code>. Call it with <code>3</code> and <code>4</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Import variations</h3>
+    <p>Using <code>from math import ceil, floor</code>, write a function <code>billing_and_stock(actual_weight, egg_count)</code> that returns a tuple of <code>(ceil(actual_weight), floor(egg_count / 12))</code>. Call it with <code>3.2</code> and <code>50</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> The math module</h3>
+    <p>Write a function <code>circle_area(radius)</code> that returns <code>math.pi * radius ** 2</code>, rounded to 2 decimals. Call it with <code>5</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> The datetime module</h3>
+    <p>Using the <code>datetime</code> module, write a function <code>days_until(target_date, from_date)</code> that returns <code>(target_date - from_date).days</code>. Call it with <code>datetime.date(2026, 12, 25)</code> as the target and <code>datetime.date(2026, 7, 5)</code> as the "from" date, and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Formatting dates with strftime</h3>
+    <p>Write a function <code>format_nicely(a_date)</code> that returns <code>a_date.strftime("%B %d, %Y")</code>. Call it with <code>datetime.date(2026, 3, 15)</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> The random module</h3>
+    <p>Write a function <code>roll_dice(sides=6)</code> that returns <code>random.randint(1, sides)</code>. Then write a function <code>pick_winner(names)</code> that returns <code>random.choice(names)</code>. Call <code>roll_dice()</code> once and <code>pick_winner(["Priya", "Amir", "Zoe"])</code> once, and print both results (your output will be different every run — that's expected).</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This code tries to use <code>sqrt</code> directly without importing it correctly, and raises a <code>NameError</code>. Find and fix the bug.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy.py</span>
+      </div>
+      <pre><code>import math
+
+print(sqrt(25))</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Bringing it together: order confirmation</h3>
+    <p>Write a function <code>build_confirmation(item, price, order_date)</code> that: rounds <code>price</code> up to a whole number with <code>math.ceil</code>, computes a delivery date 5 days after <code>order_date</code> using <code>datetime.timedelta(days=5)</code>, and returns a string like <code>"Desk Lamp confirmed at $25 — arriving by July 10, 2026"</code> (use <code>strftime("%B %d, %Y")</code> for the delivery date). Call it with <code>"Desk Lamp"</code>, <code>24.10</code>, and <code>datetime.date(2026, 7, 5)</code>, and print the result.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
