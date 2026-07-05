@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 9: Comprehensions, Lambda & Functional Tools, including interview-style scenario problems.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 9 Practice Bank</span>
+    <span class="reading-time">60-75 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Comprehensions, Lambda &amp; Functional Tools</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Uses
+    everything from Chapters 1-8 plus this chapter's own toolkit: list
+    comprehensions (with and without a filter <code>if</code>), dict and
+    set comprehensions, nested comprehensions, <code>lambda</code>
+    functions, and the functional tools <code>map()</code>,
+    <code>filter()</code>, and <code>sorted()</code>/<code>.sort()</code>
+    with <code>key=lambda</code>. No <code>def</code> (that's Chapter
+    10), <code>try</code>/<code>except</code>, file I/O, classes, or
+    imports yet.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-list-comprehensions">1. List Comprehensions</a>
+    <a href="#topic-dict-set-comprehensions">2. Dict &amp; Set Comprehensions</a>
+    <a href="#topic-nested-comprehensions">3. Nested Comprehensions</a>
+    <a href="#topic-lambda">4. Lambda Functions</a>
+    <a href="#topic-functional-tools">5. map(), filter(), sorted()</a>
+    <a href="#topic-bringing-together">6. Real-World Comprehensions &amp; Tools</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-list-comprehensions">Topic 1: List Comprehensions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Basic comprehension vs. for loop</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Given <code>numbers = [1, 2, 3, 4, 5]</code>, build a list of squares with a plain <code>for</code> loop and <code>.append()</code>, then build the same list with a list comprehension. Print both.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Filtering with if</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Use a list comprehension with an <code>if</code> filter to keep only the even numbers from a list of 1-10.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Filtering strings by length</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Use a list comprehension with an <code>if</code> filter to keep only words longer than 3 letters.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Transform + filter together</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Combine a transform and a filter in one comprehension: square only the even numbers.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This comprehension is missing the expression before the <code>for</code> clause and raises a <code>SyntaxError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Cleaning form input</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Use a list comprehension with <code>.strip()</code> to clean whitespace from a list of raw form entries.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why comprehensions over manual loops?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Build a doubled-prices list with a comprehension, and explain in a comment why it beats a manual <code>for</code> loop with <code>.append()</code> for simple transforms.</p>
+  </div>
+
+  <h2 id="topic-dict-set-comprehensions">Topic 2: Dict &amp; Set Comprehensions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Dict comprehension: word lengths</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Build a dict comprehension mapping each word to its length.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Dict comprehension with a filter</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Use a dict comprehension with an <code>if</code> filter to keep only passing scores (60 or higher).</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Set comprehension: unique lengths</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Use a set comprehension to collect the distinct word lengths that appear in a list.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Dict comprehension from parallel lists</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Use a dict comprehension over <code>range(len(...))</code> to combine two parallel lists into one dict.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This uses square brackets instead of curly braces with a colon, so it doesn't build a dict comprehension. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Price lookup table</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Build a dict comprehension mapping product names to prices from two parallel lists.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Set comprehension vs. list comprehension</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Pull unique email domains with a set comprehension, and explain in a comment when a set comprehension beats a list comprehension.</p>
+  </div>
+
+  <h2 id="topic-nested-comprehensions">Topic 3: Nested Comprehensions &amp; Readability Limits</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Flattening a list of lists</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Use a nested comprehension (<code>for row in nested for value in row</code>) to flatten a list of lists.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Multiplication table</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Build a 3x3 multiplication table as a list of lists using a nested comprehension.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Nested comprehension with a filter</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Flatten only the even numbers out of a list of lists using a nested comprehension with an <code>if</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. This nested comprehension has its <code>for</code> clauses in the wrong order, raising a <code>NameError</code>. Fix the order.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Comprehension vs. readable loop</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Rewrite a flattening comprehension as an equivalent nested <code>for</code> loop, and comment on which reads better.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Flattening nested survey data</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Flatten a list of per-department name lists into one flat list of names.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>When nesting hurts readability</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Flatten a matrix with a nested comprehension, and explain in a comment why deep nesting is usually a readability smell in production code.</p>
+  </div>
+
+  <h2 id="topic-lambda">Topic 4: Lambda Functions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A simple lambda</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write a <code>lambda</code> that doubles a number and call it directly.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Lambda with two arguments</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write a <code>lambda</code> that takes two arguments and returns their sum.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Storing and reusing a lambda</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Store a squaring <code>lambda</code> in a variable and call it with several different arguments.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Conditional expression in a lambda</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Use a conditional expression inside a <code>lambda</code> to return "even" or "odd".</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This lambda incorrectly uses a <code>return</code> statement, raising a <code>SyntaxError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Quick one-off formatter</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write a <code>lambda</code> that formats a price as a currency string.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Lambda's single-expression limit</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write a simple <code>lambda</code>, then explain in a comment the single-expression limitation of <code>lambda</code> and when you'd use <code>def</code> instead.</p>
+  </div>
+
+  <h2 id="topic-functional-tools">Topic 5: map(), filter(), and sorted() with key=lambda</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> map() with a lambda</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Use <code>map()</code> with a <code>lambda</code> to convert a list of strings to their lengths.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> filter() with a lambda</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Use <code>filter()</code> with a <code>lambda</code> to keep only positive numbers.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> sorted() with key=lambda</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Use <code>sorted()</code> with <code>key=lambda</code> to sort a list of tuples by the second element.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> .sort() in place with key=lambda</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Use <code>.sort()</code> with <code>key=lambda</code> to sort a list of dicts by one field, in place.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This <code>sorted(..., key=lambda)</code> call references the wrong field name, raising a <code>KeyError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Sorting employee records</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Sort a list of employee dicts by salary, highest first, using <code>sorted()</code> and <code>key=lambda</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why wrap map()/filter() in list()?</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Print a raw <code>map()</code> object, then its <code>list()</code>-wrapped version, and explain in a comment why the wrapping is necessary.</p>
+  </div>
+
+  <h2 id="topic-bringing-together">Topic 6: Real-World Comprehensions &amp; Functional Tools in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Cleaning raw log lines</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Use a list comprehension to strip whitespace and drop empty lines from a batch of raw log lines.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Building a lookup dict from records</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Build a lookup dictionary from a list of record dicts using a dict comprehension.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> filter() + comprehension pipeline</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Combine <code>filter()</code> and a list comprehension to validate and convert a batch of user-submitted ages.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. This pipeline filters strings before converting them to integers, raising a <code>TypeError</code>. Fix the order.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Ranking with sorted()</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. Use <code>sorted()</code> with <code>key=lambda</code> to rank a list of products by a computed score.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Deduplicating and sorting API results</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Deduplicate a raw list of API results with a set comprehension, then sort the result.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why these tools dominate data-cleaning pipelines</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Clean and rank a batch of raw scores, then explain in a comment why comprehensions and functional tools are so common in real data-cleaning pipelines.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

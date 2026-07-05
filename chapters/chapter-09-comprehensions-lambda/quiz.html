@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive fill-in-the-blank quiz for Chapter 9: Comprehensions, Lambda & Functional Tools.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-09" data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 9 Quiz</span>
+  <h1>Comprehensions, Lambda &amp; Functional Tools</h1>
+  <p>Fill in each blank, then press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="q1"><span class="q-num">1</span> <code>[n ** 2 ____ n in numbers]</code> is the list comprehension that squares every number in <code>numbers</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q1" class="fib-blank" data-answers="for" aria-label="Answer for question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> <code>[n for n in numbers ____ n % 2 == 0]</code> keeps only the even numbers.</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="if" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q3"><span class="q-num">3</span> A list comprehension always builds a brand-new list — it never modifies the ____ iterable it loops over.</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="original" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q4"><span class="q-num">4</span> <code>{name: len(name) ____ name in names}</code> is a dict comprehension mapping each name to its length.</label>
+      <div class="fib-row">
+        <input type="text" id="q4" class="fib-blank" data-answers="for" aria-label="Answer for question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q5"><span class="q-num">5</span> <code>{len(word) for word in words}</code> is a ____ comprehension — it drops the <code>key:</code> part and collapses duplicate results automatically.</label>
+      <div class="fib-row">
+        <input type="text" id="q5" class="fib-blank" data-answers="set" aria-label="Answer for question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> <code>[value for row in grid ____ value in row]</code> flattens a 2D grid into a single list, using two <code>for</code> clauses in one comprehension.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="for" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q7"><span class="q-num">7</span> The practical readability ceiling for a comprehension is one <code>for</code> and at most one simple <code>if</code> — beyond that, it should just be a plain ____ instead.</label>
+      <div class="fib-row">
+        <input type="text" id="q7" class="fib-blank" data-answers="loop,for loop" aria-label="Answer for question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q8"><span class="q-num">8</span> <code>____ n: n ** 2</code> creates a small, unnamed function that squares its input — no <code>def</code>, no name, no <code>return</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q8" class="fib-blank" data-answers="lambda" aria-label="Answer for question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q9"><span class="q-num">9</span> A lambda's body must be a single ____ — it cannot contain statements like <code>if</code>/<code>else</code> blocks or loops.</label>
+      <div class="fib-row">
+        <input type="text" id="q9" class="fib-blank" data-answers="expression" aria-label="Answer for question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> Full, reusable named functions written with <code>def</code> are introduced in Chapter ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="10" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q11"><span class="q-num">11</span> <code>list(____(lambda p: round(p * 1.08, 2), prices))</code> applies a function to every price in the list, adding 8% tax to each.</label>
+      <div class="fib-row">
+        <input type="text" id="q11" class="fib-blank" data-answers="map" aria-label="Answer for question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q12"><span class="q-num">12</span> <code>list(____(lambda p: p > 10, prices))</code> keeps only the prices greater than 10, dropping the rest.</label>
+      <div class="fib-row">
+        <input type="text" id="q12" class="fib-blank" data-answers="filter" aria-label="Answer for question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> <code>sorted(students, ____=lambda s: s["score"])</code> sorts the list of student dictionaries by each one's <code>"score"</code> field.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="key" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> Unlike <code>sorted()</code>, which returns a new list, <code>some_list.____(key=lambda ...)</code> reorders the original list in place.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="sort" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q15"><span class="q-num">15</span> Given a batch of records, <code>[entry for entry in raw_signups if entry["age"].isdigit()]</code> is a comprehension that ____ the dataset down to only valid entries.</label>
+      <div class="fib-row">
+        <input type="text" id="q15" class="fib-blank" data-answers="filters" aria-label="Answer for question 15">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 9 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

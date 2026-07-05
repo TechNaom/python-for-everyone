@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style comprehension, lambda, and functional-tools challenges for Chapter 9: Comprehensions, Lambda & Functional Tools.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 9 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Comprehensions, Lambda &amp; Functional Tools</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases like empty lists and dicts). Stuck? Every
+    challenge has a <strong>Show Solution</strong> reveal at the bottom.
+    Only uses what Chapters 1-9 have covered so far &mdash; list, dict,
+    and set comprehensions, nested comprehensions, <code>lambda</code>,
+    and <code>map()</code>/<code>filter()</code>/<code>sorted()</code>,
+    plus the function stub already given (no <code>def</code> beyond
+    that stub &mdash; you haven't learned to write your own yet).
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Squares of Even Numbers <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>squares_of_evens(numbers)</code> that returns a list of the squares of only the even numbers in <code>numbers</code>, using a single list comprehension.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>numbers</code> may be empty (return <code>[]</code>); numbers may be negative; preserve the original order.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>squares_of_evens([1, 2, 3, 4, 5, 6])</code> &rarr; <code>[4, 16, 36]</code><br>
+        <code>squares_of_evens([])</code> &rarr; <code>[]</code><br>
+        <code>squares_of_evens([1, 3, 5])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def squares_of_evens(numbers):
+    # TODO: use one list comprehension that filters numbers with
+    # `if n % 2 == 0` and transforms each surviving n into n * n.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "squares_of_evens",
+  "cases": [
+    { "args": [[1, 2, 3, 4, 5, 6]], "expected": [4, 16, 36] },
+    { "args": [[]], "expected": [] },
+    { "args": [[1, 3, 5]], "expected": [] },
+    { "args": [[2, 4]], "expected": [4, 16] },
+    { "args": [[-2, -3, 4]], "expected": [4, 16] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def squares_of_evens(numbers):
+    return [n * n for n in numbers if n % 2 == 0]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Build a Lookup Dict From Two Lists <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>build_lookup(keys, values)</code> that returns a dictionary mapping each element of <code>keys</code> to the element at the same position in <code>values</code>, using a dict comprehension over <code>range(len(keys))</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>keys</code> and <code>values</code> are always the same length; both may be empty (return <code>{}</code>).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>build_lookup(["a", "b", "c"], [1, 2, 3])</code> &rarr; <code>{"a": 1, "b": 2, "c": 3}</code><br>
+        <code>build_lookup([], [])</code> &rarr; <code>{}</code><br>
+        <code>build_lookup(["x"], [100])</code> &rarr; <code>{"x": 100}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def build_lookup(keys, values):
+    # TODO: use a dict comprehension over range(len(keys)) that maps
+    # keys[i] to values[i] for each index i.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "build_lookup",
+  "cases": [
+    { "args": [["a", "b", "c"], [1, 2, 3]], "expected": {"a": 1, "b": 2, "c": 3} },
+    { "args": [[], []], "expected": {} },
+    { "args": [["x"], [100]], "expected": {"x": 100} },
+    { "args": [["a", "b"], ["x", "y"]], "expected": {"a": "x", "b": "y"} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def build_lookup(keys, values):
+    return {keys[i]: values[i] for i in range(len(keys))}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Deduplicate and Sort <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>dedupe_sorted(items)</code> that removes duplicates from <code>items</code> using a set comprehension, then returns the unique values as a sorted list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> may be empty (return <code>[]</code>); items are always mutually comparable (all strings or all numbers).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>dedupe_sorted(["b", "a", "b", "c", "a"])</code> &rarr; <code>["a", "b", "c"]</code><br>
+        <code>dedupe_sorted([])</code> &rarr; <code>[]</code><br>
+        <code>dedupe_sorted([3, 1, 2, 1, 3])</code> &rarr; <code>[1, 2, 3]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def dedupe_sorted(items):
+    # TODO: build a set comprehension {item for item in items} to drop
+    # duplicates, then wrap the result in sorted() to return a sorted list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "dedupe_sorted",
+  "cases": [
+    { "args": [["b", "a", "b", "c", "a"]], "expected": ["a", "b", "c"] },
+    { "args": [[]], "expected": [] },
+    { "args": [[3, 1, 2, 1, 3]], "expected": [1, 2, 3] },
+    { "args": [["x"]], "expected": ["x"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def dedupe_sorted(items):
+    return sorted({item for item in items})</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Flatten a Nested List <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>flatten(nested)</code> that takes a list of lists and returns one flat list containing every inner value, in order, using a nested list comprehension.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>nested</code> may be empty, or may contain empty inner lists; values keep their original order.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>flatten([[1, 2], [3], [4, 5, 6]])</code> &rarr; <code>[1, 2, 3, 4, 5, 6]</code><br>
+        <code>flatten([])</code> &rarr; <code>[]</code><br>
+        <code>flatten([[], [1, 2], []])</code> &rarr; <code>[1, 2]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def flatten(nested):
+    # TODO: use a nested list comprehension
+    # (for row in nested for value in row) to collect every value from
+    # every inner list into one flat list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "flatten",
+  "cases": [
+    { "args": [[[1, 2], [3], [4, 5, 6]]], "expected": [1, 2, 3, 4, 5, 6] },
+    { "args": [[]], "expected": [] },
+    { "args": [[[1], [2]]], "expected": [1, 2] },
+    { "args": [[[], [1, 2], []]], "expected": [1, 2] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def flatten(nested):
+    return [value for row in nested for value in row]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Filter Active Records <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>filter_active(records)</code> that takes a list of dictionaries, each with an <code>"active"</code> key, and returns a new list containing only the records where <code>"active"</code> is <code>True</code>, using <code>filter()</code> with a <code>lambda</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>records</code> may be empty (return <code>[]</code>); every record is guaranteed to have an <code>"active"</code> key; preserve original order.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>filter_active([{"name": "a", "active": True}, {"name": "b", "active": False}])</code> &rarr; <code>[{"name": "a", "active": True}]</code><br>
+        <code>filter_active([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def filter_active(records):
+    # TODO: use filter() with a lambda that checks r["active"], then
+    # wrap the result in list() so it's a real list, not a lazy filter
+    # object.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "filter_active",
+  "cases": [
+    { "args": [[{"name": "a", "active": true}, {"name": "b", "active": false}, {"name": "c", "active": true}]],
+      "expected": [{"name": "a", "active": true}, {"name": "c", "active": true}] },
+    { "args": [[]], "expected": [] },
+    { "args": [[{"name": "z", "active": false}]], "expected": [] },
+    { "args": [[{"name": "z", "active": true}]], "expected": [{"name": "z", "active": true}] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def filter_active(records):
+    return list(filter(lambda r: r["active"], records))</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Sort Records By a Field <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>sort_by_field(records, field)</code> that returns a new list of dictionaries sorted by the value at <code>record[field]</code>, ascending, using <code>sorted()</code> with <code>key=lambda</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>records</code> may be empty (return <code>[]</code>); every record is guaranteed to contain <code>field</code>; values at <code>field</code> are always mutually comparable.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>sort_by_field([{"name": "b", "age": 30}, {"name": "a", "age": 20}], "age")</code> &rarr; <code>[{"name": "a", "age": 20}, {"name": "b", "age": 30}]</code><br>
+        <code>sort_by_field([], "age")</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def sort_by_field(records, field):
+    # TODO: use sorted(records, key=lambda r: r[field]) to sort the
+    # records by that field's value, ascending, and return the result.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "sort_by_field",
+  "cases": [
+    { "args": [[{"name": "b", "age": 30}, {"name": "a", "age": 20}, {"name": "c", "age": 25}], "age"],
+      "expected": [{"name": "a", "age": 20}, {"name": "c", "age": 25}, {"name": "b", "age": 30}] },
+    { "args": [[], "age"], "expected": [] },
+    { "args": [[{"name": "x", "age": 1}], "age"], "expected": [{"name": "x", "age": 1}] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def sort_by_field(records, field):
+    return sorted(records, key=lambda r: r[field])</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Transform a List of Strings <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>shout_all(words)</code> that returns a new list where each word in <code>words</code> has been uppercased and had <code>"!"</code> appended, using <code>map()</code> with a <code>lambda</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>words</code> may be empty (return <code>[]</code>); preserve original order.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>shout_all(["hi", "bye"])</code> &rarr; <code>["HI!", "BYE!"]</code><br>
+        <code>shout_all([])</code> &rarr; <code>[]</code><br>
+        <code>shout_all(["a"])</code> &rarr; <code>["A!"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def shout_all(words):
+    # TODO: use map() with a lambda that returns w.upper() + "!" for each
+    # word w, then wrap the result in list() to return a real list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "shout_all",
+  "cases": [
+    { "args": [["hi", "bye"]], "expected": ["HI!", "BYE!"] },
+    { "args": [[]], "expected": [] },
+    { "args": [["a"]], "expected": ["A!"] },
+    { "args": [["ok", "no", "yes"]], "expected": ["OK!", "NO!", "YES!"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def shout_all(words):
+    return list(map(lambda w: w.upper() + "!", words))</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Clean and Rank Raw Scores <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>clean_and_rank_scores(raw_scores)</code> that takes a list of raw strings (some may have stray whitespace, some may not be numbers at all). Keep only the ones that are valid whole numbers after stripping whitespace, convert them to <code>int</code>, and return them sorted from highest to lowest. Combine <code>filter()</code> with a <code>lambda</code>, a list comprehension, and <code>sorted()</code> in one small pipeline.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>raw_scores</code> may be empty (return <code>[]</code>); non-numeric strings (like <code>"abc"</code>) must be dropped, not crash the function; whitespace around a valid number should be ignored.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>clean_and_rank_scores([" 88", "abc", "92 ", " 75 ", "60", "xx"])</code> &rarr; <code>[92, 88, 75, 60]</code><br>
+        <code>clean_and_rank_scores([])</code> &rarr; <code>[]</code><br>
+        <code>clean_and_rank_scores(["10"])</code> &rarr; <code>[10]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def clean_and_rank_scores(raw_scores):
+    # TODO: use filter() with a lambda s: s.strip().isdigit() to keep
+    # only numeric-looking strings, then a list comprehension to
+    # int(s.strip()) each survivor, then sorted(..., reverse=True) to
+    # rank the cleaned numbers from highest to lowest.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "clean_and_rank_scores",
+  "cases": [
+    { "args": [[" 88", "abc", "92 ", " 75 ", "60", "xx"]], "expected": [92, 88, 75, 60] },
+    { "args": [[]], "expected": [] },
+    { "args": [["10"]], "expected": [10] },
+    { "args": [["  ", "5", "bad", "3"]], "expected": [5, 3] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def clean_and_rank_scores(raw_scores):
+    numeric = filter(lambda s: s.strip().isdigit(), raw_scores)
+    cleaned = [int(s.strip()) for s in numeric]
+    return sorted(cleaned, reverse=True)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

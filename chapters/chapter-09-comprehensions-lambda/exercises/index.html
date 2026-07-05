@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 9: Comprehensions, Lambda & Functional Tools, including a Debug the Code task on an off-by-one comprehension filter.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 9 Exercises</span>
+    <span class="reading-time">20 min, hands-on</span>
+  </div>
+  <h1>Exercises: Comprehensions, Lambda &amp; Functional Tools</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> List comprehensions</h3>
+    <p>Given <code>numbers = [3, 8, 12, 15, 20, 27]</code>, build a list comprehension that squares every number. Then build a second list comprehension that keeps only the numbers greater than 10.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Dict &amp; set comprehensions</h3>
+    <p>Given <code>inventory_prices = {"pens": 1.50, "notebooks": 3.00, "erasers": 0.75}</code>, build a dict comprehension that adds 7% tax to every price, rounded to 2 decimal places. Then given <code>tags = ["sale", "new", "sale", "clearance", "new"]</code>, build a set comprehension of the unique tags.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Nested comprehensions</h3>
+    <p>Given a nested <code>seating_chart</code> (a list of rows, each row a list of names), use a nested comprehension to flatten it into one list of every student's name.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Lambda</h3>
+    <p>Write a lambda called <code>to_fahrenheit</code> that converts a Celsius value to Fahrenheit, rounded to 1 decimal place: <code>F = C * 9 / 5 + 32</code>. Call it with <code>20</code> and with <code>0</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Functional tools</h3>
+    <p>Given <code>order_totals = [45.00, 12.50, 99.99, 8.25]</code>, use <code>map()</code> with a lambda to apply a 10% discount (rounded to 2 decimals) to every total. Then use <code>filter()</code> with a lambda to keep only totals over <code>20</code>. Finally, given a list of <code>employees</code> (each a dictionary with <code>"name"</code> and <code>"salary"</code>), use <code>sorted()</code> with a lambda key to sort the list by salary.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 6 — Debug the Code</h3>
+    <p>This is supposed to keep only the scores that pass with a score <em>strictly greater than</em> 60, but it wrongly includes the boundary value 60 itself. Find and fix the off-by-one bug in the filter condition.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy.py</span>
+      </div>
+      <pre><code>scores = [55, 62, 60, 71, 80, 45, 90]
+passing = [s for s in scores if s >= 60]
+print(passing)</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Cleaning, filtering &amp; ranking feedback</h3>
+    <p>Given a list of raw feedback entries (each a dictionary with <code>"comment"</code> and <code>"rating"</code>), clean every comment by stripping whitespace. Then filter the list down to only entries with a valid (digit) rating, and print each remaining comment with its rating, ranked from highest rating to lowest.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

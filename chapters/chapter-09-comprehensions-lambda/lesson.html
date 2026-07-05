@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9: Comprehensions, Lambda &amp; Functional Tools — Python for Everyone</title>
+<meta name="description" content="List, dict, and set comprehensions, nested comprehensions and readability limits, lambda functions, and functional tools like map(), filter(), and sorted() with key= — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 9 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">35 min read</span>
+  </div>
+  <h1>Comprehensions, Lambda &amp; Functional Tools</h1>
+  <p><em>Chapter 8 built dictionaries and sets by looping and building up a result one step at a time — an empty container, a <code>for</code> loop, and an <code>.append()</code> or assignment inside it. That pattern is so common that Python gives it a shorter, single-line spelling: a comprehension. This chapter also introduces <code>lambda</code>, a way to write a tiny, throwaway function in a single line, and the functional tools — <code>map()</code>, <code>filter()</code>, <code>sorted()</code> — that put it to work.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Every comprehension is a loop in disguise.</strong> If a comprehension ever looks confusing, mentally expand it back into the <code>for</code> loop that means the same thing.</li>
+      <li><strong>Read the example first.</strong> The code mirrors real situations like cleaning signups, filtering datasets, and ranking records.</li>
+      <li><strong>Concise isn't always better.</strong> This chapter is as much about when <em>not</em> to use a comprehension as when to use one.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#list-comprehensions">1. List comprehensions</a>
+    <a href="#dict-set-comprehensions">2. Dict &amp; set comprehensions</a>
+    <a href="#nested-comprehensions">3. Nested comprehensions &amp; readability limits</a>
+    <a href="#lambda">4. Lambda functions: small, anonymous, throwaway</a>
+    <a href="#functional-tools">5. Functional tools: map(), filter(), sorted()</a>
+    <a href="#bringing-together">6. Real-world comprehensions &amp; functional tools in production</a>
+  </nav>
+
+  <div class="hook">
+    Building a new list, dictionary, or set by looping over an existing one is one of the most common things real Python code does — cleaning a batch of form input, pulling out just the valid rows, computing a price with tax applied to every item. A comprehension writes that entire loop in a single line. Paired with <code>lambda</code> for small one-off logic, this is the syntax that makes everyday Python code read the way experienced developers actually write it.
+  </div>
+
+  <div class="subtopic" id="list-comprehensions">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. List comprehensions</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>list comprehension</strong> builds a new list from an existing iterable, in one line.</li>
+        <li>The basic shape is <code>[expr for item in iterable]</code>.</li>
+        <li>Adding <code>if condition</code> at the end filters out items you don't want.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you already know you'd write a <code>for</code> loop that does nothing but build a new list.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a list comprehension?</span>
+      A list comprehension is a single-line way to build a new list from an
+      existing one: <code>[expr for item in iterable]</code>. It takes every
+      <code>item</code> in <code>iterable</code>, computes <code>expr</code>
+      from it, and collects the results into a brand-new list — the exact
+      same job as a <code>for</code> loop with an empty list and
+      <code>.append()</code>, just written more compactly.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">loop_vs_comprehension.py</span>
+      </div>
+      <pre><code>numbers = [1, 2, 3, 4, 5]
+
+&#35; the for-loop version you already know from Chapter 5
+squares_loop = []
+for n in numbers:
+    squares_loop.append(n ** 2)
+
+&#35; the exact same result, as a list comprehension
+squares_comp = [n ** 2 for n in numbers]
+
+print(squares_loop)   &#35; [1, 4, 9, 16, 25]
+print(squares_comp)   &#35; [1, 4, 9, 16, 25]</code></pre>
+    </div>
+
+    <p>
+      Both versions do exactly the same work, in exactly the same order —
+      the comprehension is not a different kind of loop, just a shorter way
+      to write the same one:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">for-loop version vs. comprehension version, side by side</span>
+      <pre><code>for-loop version          comprehension version
+----------------          ---------------------
+squares = []              squares = [n ** 2
+for n in numbers:                    for n in numbers]
+    squares.append(n ** 2)
+
+Both produce: [1, 4, 9, 16, 25]</code></pre>
+    </div>
+
+    <p>
+      A comprehension can also filter, the same way an <code>if</code>
+      inside a <code>for</code> loop would — adding
+      <code>if condition</code> at the end keeps only the items where the
+      condition is <code>True</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">filtering_with_if.py</span>
+      </div>
+      <pre><code>numbers = [1, 2, 3, 4, 5]
+
+evens = [n for n in numbers if n % 2 == 0]
+print(evens)   &#35; [2, 4]
+
+even_squares = [n ** 2 for n in numbers if n % 2 == 0]
+print(even_squares)   &#35; [4, 16]</code></pre>
+    </div>
+
+    <p>
+      Read that shape left to right: <code>n ** 2</code> is what goes into
+      the new list, <code>for n in numbers</code> says where each
+      <code>n</code> comes from, and <code>if n % 2 == 0</code> says which
+      values of <code>n</code> are allowed through at all. The equivalent
+      loop makes the same three parts explicit, just spread across more
+      lines:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">filtering_as_a_loop.py</span>
+      </div>
+      <pre><code>numbers = [1, 2, 3, 4, 5]
+
+even_squares = []
+for n in numbers:
+    if n % 2 == 0:
+        even_squares.append(n ** 2)
+
+print(even_squares)   &#35; [4, 16]</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_list_comprehensions.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">words = ["apple", "kiwi", "banana", "fig", "cherry"]
+long_words = [word.upper() for word in words if len(word) > 4]
+print(long_words)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the condition to len(word) &lt;= 4.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: a comprehension always creates a new list</summary>
+      <p>
+        <code>[n for n in numbers]</code> never changes <code>numbers</code>
+        itself — it always builds and returns a brand-new list, the same
+        way slicing (Chapter 6) never changes the original string or list.
+        If you need to change a list in place, a plain <code>for</code>
+        loop with <code>.append()</code> or index assignment is still the
+        right tool.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A list comprehension, <code>[expr for item in iterable]</code>, builds a new list in one line — the same logic as a <code>for</code> loop with <code>.append()</code>.</li>
+        <li>Adding <code>if condition</code> at the end filters which items make it into the new list.</li>
+        <li>A comprehension never modifies the original iterable — it always returns a new list.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="dict-set-comprehensions">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Dict &amp; set comprehensions</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>dict comprehension</strong>, <code>{k: v for ...}</code>, builds a new dictionary.</li>
+        <li>A <strong>set comprehension</strong>, <code>{expr for ...}</code>, builds a new set of unique values.</li>
+        <li>Pick the container that matches the shape of the result you actually need.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Default habit:</strong> if the result needs named lookups, build a dict comprehension; if it just needs uniqueness, build a set comprehension.
+    </div>
+
+    <p>
+      A dict comprehension follows the same shape as a list comprehension,
+      just with a <code>key: value</code> pair in front instead of a single
+      expression:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">dict_comprehension.py</span>
+      </div>
+      <pre><code>names = ["Priya", "Amir", "Zoe"]
+
+name_lengths = {name: len(name) for name in names}
+print(name_lengths)   &#35; {'Priya': 5, 'Amir': 4, 'Zoe': 3}</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a dict comprehension?</span>
+      A dict comprehension, <code>{key_expr: value_expr for item in
+      iterable}</code>, builds a new dictionary from an iterable in one
+      line — the dictionary version of Chapter 8's
+      <code>counts[word] = counts.get(word, 0) + 1</code> loop, but for
+      cases where every entry can be computed directly, with no running
+      state needed.
+    </div>
+
+    <p>
+      It works just as well looping over an existing dictionary's
+      <code>.items()</code> — transforming every value while keeping the
+      same keys:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">transforming_a_dict.py</span>
+      </div>
+      <pre><code>prices = {"coffee": 3.50, "tea": 2.75, "juice": 4.00}
+
+discounted = {drink: round(price * 0.9, 2) for drink, price in prices.items()}
+print(discounted)   &#35; {'coffee': 3.15, 'tea': 2.48, 'juice': 3.6}</code></pre>
+    </div>
+
+    <p>
+      A set comprehension drops the <code>key:</code> part entirely — just
+      curly braces around a single expression, exactly like the set
+      literals from Chapter 8, except the values now come from a loop
+      instead of being typed out by hand:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">set_comprehension.py</span>
+      </div>
+      <pre><code>words = ["the", "cat", "sat", "on", "the", "mat"]
+
+unique_lengths = {len(word) for word in words}
+print(unique_lengths)   &#35; {2, 3} — duplicates collapse automatically</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a set comprehension?</span>
+      A set comprehension, <code>{expr for item in iterable}</code>, builds
+      a new set the same way a list comprehension builds a list — except
+      duplicate results collapse into one, since a set can never hold the
+      same value twice (Chapter 8).
+    </div>
+
+    <p>
+      That collapsing behavior is exactly why set comprehensions show up in
+      real cleanup code — normalizing a batch of emails to lowercase
+      naturally reveals which ones were actually duplicates all along:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">normalizing_emails.py</span>
+      </div>
+      <pre><code>emails = ["a@x.com", "A@X.COM", "b@x.com"]
+
+unique_emails = {email.lower() for email in emails}
+print(len(unique_emails))   &#35; 2 — "a@x.com" and "A@X.COM" were the same address</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_dict_set_comprehensions.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">temps_celsius = {"Monday": 18, "Tuesday": 21, "Wednesday": 15}
+temps_fahrenheit = {day: round(c * 9 / 5 + 32, 1) for day, c in temps_celsius.items()}
+print(temps_fahrenheit)
+
+grades = ["A", "B", "A", "C", "B", "A"]
+unique_grades = {g for g in grades}
+print(unique_grades)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding an if condition to only keep temps above 16°C.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: both accept the same if filter as list comprehensions</summary>
+      <p>
+        Dict and set comprehensions support the exact same trailing
+        <code>if condition</code> as list comprehensions —
+        <code>{k: v for k, v in prices.items() if v &gt; 3}</code> keeps
+        only the entries priced above 3. The filter always goes at the
+        end, after the loop, no matter which container you're building.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A dict comprehension, <code>{k: v for item in iterable}</code>, builds a dictionary in one line — the direct-computation counterpart to Chapter 8's tallying loop.</li>
+        <li>A set comprehension, <code>{expr for item in iterable}</code>, builds a set, automatically collapsing duplicate results.</li>
+        <li>Choose the container by what the result needs to do: named lookups call for a dict, guaranteed uniqueness calls for a set.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="nested-comprehensions">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Nested comprehensions &amp; readability limits</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A comprehension can loop over a nested list (a 2D grid), the same way nested <code>for</code> loops do.</li>
+        <li>Every extra <code>for</code> or <code>if</code> you add makes a comprehension harder to read, not easier.</li>
+        <li>Readability beats cleverness — a comprehension that needs explaining should just be a loop.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Rule of thumb:</strong> one <code>for</code> and, at most, one <code>if</code> — beyond that, write the loop out instead.
+    </div>
+
+    <p>
+      A 2D grid — a list of lists, from Chapter 7 — can be flattened into a
+      single list with two <code>for</code> clauses in one comprehension,
+      read left to right in the same order as nested <code>for</code>
+      loops:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">flattening_a_grid.py</span>
+      </div>
+      <pre><code>grid = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+]
+
+flat = [value for row in grid for value in row]
+print(flat)   &#35; [1, 2, 3, 4, 5, 6, 7, 8, 9]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a nested comprehension?</span>
+      A nested comprehension is a comprehension with more than one
+      <code>for</code> clause, read in the same order they'd appear as
+      nested loops. <code>[value for row in grid for value in row]</code>
+      means "for each <code>row</code> in <code>grid</code>, then for each
+      <code>value</code> in that <code>row</code>" — outer loop first, inner
+      loop second, exactly left to right.
+    </div>
+
+    <p>
+      A comprehension can also build a new grid instead of flattening one,
+      by nesting one comprehension <em>inside</em> another — this doubles
+      every value while keeping the original 2D shape:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">transforming_a_grid.py</span>
+      </div>
+      <pre><code>grid = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+]
+
+doubled_grid = [[value * 2 for value in row] for row in grid]
+print(doubled_grid)
+&#35; [[2, 4, 6], [8, 10, 12], [14, 16, 18]]</code></pre>
+    </div>
+
+    <p>
+      That last example is close to the readability edge already — a
+      comprehension nested inside another comprehension takes real effort
+      to parse. Once a comprehension needs a second condition, a computed
+      value used more than once, or a nested comprehension inside it, the
+      "one-line" version stops being the readable one:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">too_clever_vs_a_loop.py</span>
+      </div>
+      <pre><code>records = [
+    {"name": "Priya", "scores": [91, 85, 78]},
+    {"name": "Amir", "scores": [60, 55]},
+]
+
+&#35; technically valid, but the average is recomputed and hard to spot at a glance
+passing_names = [r["name"] for r in records if sum(r["scores"]) / len(r["scores"]) >= 70]
+print(passing_names)   &#35; ['Priya']
+
+&#35; the loop version names the average, which makes the condition easy to read
+passing_names_loop = []
+for r in records:
+    average = sum(r["scores"]) / len(r["scores"])
+    if average >= 70:
+        passing_names_loop.append(r["name"])
+print(passing_names_loop)   &#35; ['Priya']</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... "too clever"?</span>
+      "Too clever" means code that's technically correct but takes more
+      effort to read than to just rewrite plainly. A comprehension crosses
+      that line the moment you have to pause and mentally unpack it before
+      trusting what it does — at that point, the extra lines a loop costs
+      are worth paying for the time everyone saves reading it later.
+    </div>
+
+    <p>
+      A concrete guideline worth keeping: reach for a comprehension when
+      it's one <code>for</code> and, at most, one simple <code>if</code>. The
+      moment you'd need a second <code>for</code>, a nested comprehension, or
+      a value you wish you could name and reuse — write the plain loop
+      instead. Nobody gets a readability award for cramming logic onto one
+      line; they get a bug report when the next person misreads it.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_nested_comprehensions.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">seating = [
+    ["Priya", "Amir"],
+    ["Zoe", "Leo", "Sam"],
+]
+all_names = [name for row in seating for name in row]
+print(all_names)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a row to seating and re-running.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: the same one-for-one-if rule applies to dict and set comprehensions</summary>
+      <p>
+        Every readability rule in this section applies equally to the dict
+        and set comprehensions from Section 2 — a
+        <code>{k: v for ... for ... if ... if ...}</code> is just as hard
+        to read as its list-comprehension equivalent, regardless of which
+        container it builds.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Nested <code>for</code> clauses in a comprehension flatten a grid, read left to right in the same order as nested loops.</li>
+        <li>A comprehension inside a comprehension can build a new grid, but is already near the readability limit.</li>
+        <li>One <code>for</code> and at most one simple <code>if</code> is the practical ceiling — beyond that, write the loop instead of the one-liner.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="lambda">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Lambda functions: small, anonymous, throwaway</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Lambda</strong> creates a small, unnamed function in a single line: <code>lambda args: expr</code>.</li>
+        <li>A lambda can only hold one expression — no <code>if</code>/<code>else</code> statements, no loops, no multiple lines.</li>
+        <li>Lambdas exist for quick, throwaway logic passed straight to another tool — not for anything you'd want to reuse by name.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you need a tiny piece of logic for one call, and naming it would be more ceremony than it's worth.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a lambda?</span>
+      A lambda is a small, anonymous function written as
+      <code>lambda args: expr</code> — <code>args</code> are its
+      parameters, and <code>expr</code> is the single expression it
+      evaluates and returns automatically. There's no <code>return</code>
+      keyword, no name, and no body beyond that one expression.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">basic_lambda.py</span>
+      </div>
+      <pre><code>square = lambda n: n ** 2
+print(square(5))   &#35; 25
+
+add = lambda a, b: a + b
+print(add(3, 4))   &#35; 7</code></pre>
+    </div>
+
+    <p>
+      <code>square</code> and <code>add</code> here behave like ordinary
+      functions you can call — a lambda is still a real function value, it
+      just skips the ceremony of a full definition. Real named functions
+      with a proper multi-line body are Chapter 10's topic; a lambda is the
+      lightweight version for when the whole function fits in one
+      expression.
+    </p>
+
+    <p>
+      That "one expression" limit is a hard boundary, not a style
+      preference. A lambda cannot contain statements — no
+      <code>if</code>/<code>else</code> blocks, no <code>for</code> or
+      <code>while</code> loops, no <code>print()</code> followed by another
+      line. Anything needing more than a single expression has to be a real
+      function instead, once Chapter 10 introduces <code>def</code>.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">what_fits_in_a_lambda.py</span>
+      </div>
+      <pre><code>&#35; fine — a single expression, using the conditional expression from Chapter 4
+label = lambda score: "pass" if score >= 60 else "fail"
+print(label(75))   &#35; pass
+print(label(40))   &#35; fail
+
+&#35; NOT allowed — a lambda can't hold statements like this:
+&#35; describe = lambda score:
+&#35;     if score >= 60:
+&#35;         return "pass"
+&#35;     else:
+&#35;         return "fail"
+&#35; SyntaxError — that's a job for a real function (Chapter 10)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an expression, versus a statement?</span>
+      An expression produces a single value — <code>n ** 2</code>,
+      <code>a + b</code>, or a conditional expression like
+      <code>"pass" if score >= 60 else "fail"</code> all count. A statement
+      performs an action but doesn't hand back a value on its own —
+      an <code>if</code> block, a <code>for</code> loop, and an assignment
+      are all statements. A lambda's body must be exactly one expression.
+    </div>
+
+    <p>
+      Lambdas are almost never written standalone like <code>square</code>
+      and <code>add</code> above — that's just the clearest way to see the
+      syntax. Their real home is being handed directly to another
+      function, right where they're needed, which is exactly what
+      Section 5 covers next:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">lambda_as_an_argument.py</span>
+      </div>
+      <pre><code>people = [("Zoe", 77), ("Priya", 91), ("Amir", 84)]
+
+by_score = sorted(people, key=lambda person: person[1])
+print(by_score)
+&#35; [('Zoe', 77), ('Amir', 84), ('Priya', 91)]</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_lambda.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">is_even = lambda n: n % 2 == 0
+print(is_even(4))
+print(is_even(7))
+shout = lambda word: word.upper() + "!"
+print(shout("hello"))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try writing your own one-line lambda below it.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does lambda even exist, if def can do everything it does?</summary>
+      <p>
+        A full <code>def</code> function (Chapter 10) can do everything a
+        lambda can and far more — but it needs a name, a
+        <code>return</code> statement, and its own lines in the file, even
+        for something as small as "multiply by 2." Lambda exists for the
+        common case where a function is needed only once, right where
+        it's used, and giving it a permanent name would just add noise to
+        the code without adding any clarity.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>lambda args: expr</code> creates a small, unnamed function that evaluates and returns one expression.</li>
+        <li>A lambda can't contain statements — no <code>if</code>/<code>else</code> blocks, no loops, only a single expression.</li>
+        <li>Lambdas are for quick, throwaway logic, usually passed straight into another function; full reusable functions with <code>def</code> are Chapter 10's topic.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="functional-tools">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Functional tools: map(), filter(), and sorted() with key=</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>map(func, iterable)</code> applies <code>func</code> to every item and hands back the results.</li>
+        <li><code>filter(func, iterable)</code> keeps only the items where <code>func</code> returns <code>True</code>.</li>
+        <li><code>sorted(iterable, key=func)</code> and <code>.sort(key=func)</code> sort by a computed value instead of the item itself.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> you're about to write a comprehension anyway and want to see the alternative most real codebases mix in.
+    </div>
+
+    <p>
+      <code>map()</code> takes a function and an iterable, and applies that
+      function to every item — the result has to be wrapped in
+      <code>list(...)</code> to see or use it directly, the same way
+      <code>.keys()</code> needed wrapping back in Chapter 8:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">using_map.py</span>
+      </div>
+      <pre><code>prices = [19.99, 5.00, 42.50, 3.25]
+
+with_tax = list(map(lambda p: round(p * 1.08, 2), prices))
+print(with_tax)   &#35; [21.59, 5.4, 45.9, 3.51]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... map()?</span>
+      <code>map(func, iterable)</code> applies <code>func</code> to every
+      item in <code>iterable</code> and returns the transformed results.
+      It does exactly the same job as
+      <code>[func(item) for item in iterable]</code> — a list comprehension
+      that just calls a function on each item.
+    </div>
+
+    <p>
+      That last sentence is worth proving directly: the comprehension
+      version of the same tax calculation produces the identical list,
+      just without needing a separate <code>map()</code> call and a
+      <code>list(...)</code> wrapper:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">map_vs_comprehension.py</span>
+      </div>
+      <pre><code>prices = [19.99, 5.00, 42.50, 3.25]
+
+with_tax_map = list(map(lambda p: round(p * 1.08, 2), prices))
+with_tax_comp = [round(p * 1.08, 2) for p in prices]
+
+print(with_tax_map == with_tax_comp)   &#35; True — same result, either way</code></pre>
+    </div>
+
+    <p>
+      <code>filter()</code> works the same way, except the function it's
+      given must return <code>True</code> or <code>False</code> — only the
+      items where it returns <code>True</code> survive:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">using_filter.py</span>
+      </div>
+      <pre><code>prices = [19.99, 5.00, 42.50, 3.25]
+
+expensive = list(filter(lambda p: p > 10, prices))
+print(expensive)   &#35; [19.99, 42.5]
+
+&#35; the equivalent comprehension:
+expensive_comp = [p for p in prices if p > 10]
+print(expensive_comp)   &#35; [19.99, 42.5]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... filter()?</span>
+      <code>filter(func, iterable)</code> keeps only the items where
+      <code>func(item)</code> is <code>True</code>, dropping the rest — the
+      same job as <code>[item for item in iterable if func(item)]</code>,
+      or more commonly just <code>[item for item in iterable if
+      condition]</code> written directly.
+    </div>
+
+    <p>
+      Most working Python developers reach for the comprehension form of
+      both <code>map()</code> and <code>filter()</code> in practice — it
+      reads left to right without the extra <code>list(...)</code>
+      wrapper. Where <code>lambda</code> earns its keep in this section is
+      <code>sorted()</code>'s <code>key=</code> argument, which has no
+      comprehension equivalent at all:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">sorting_with_a_key.py</span>
+      </div>
+      <pre><code>students = [
+    {"name": "Zoe", "score": 77},
+    {"name": "Priya", "score": 91},
+    {"name": "Amir", "score": 84},
+]
+
+by_score = sorted(students, key=lambda s: s["score"])
+print(by_score)
+&#35; [{'name': 'Zoe', 'score': 77}, {'name': 'Amir', 'score': 84}, {'name': 'Priya', 'score': 91}]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a sort key?</span>
+      A sort key is a function that <code>sorted()</code> or
+      <code>.sort()</code> calls on every item to decide the order —
+      instead of comparing the items themselves, Python compares whatever
+      the key function returns for each one. <code>key=lambda s:
+      s["score"]</code> means "sort by each record's <code>score</code>
+      field," not by the dictionaries themselves.
+    </div>
+
+    <p>
+      <code>reverse=True</code> flips the order without changing the key,
+      and <code>.sort()</code> is the in-place version — it reorders the
+      original list instead of returning a new one, the same distinction
+      Chapter 7's <code>sorted()</code> vs <code>.sort()</code> already
+      introduced for plain lists:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">reverse_and_in_place.py</span>
+      </div>
+      <pre><code>students = [
+    {"name": "Zoe", "score": 77},
+    {"name": "Priya", "score": 91},
+    {"name": "Amir", "score": 84},
+]
+
+by_score_desc = sorted(students, key=lambda s: s["score"], reverse=True)
+print(by_score_desc[0]["name"])   &#35; Priya — highest score first
+
+students.sort(key=lambda s: s["name"])   &#35; reorders students itself
+print(students[0]["name"])   &#35; Amir — alphabetically first</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_functional_tools.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">temps = [68, 72, 59, 81, 64]
+above_65 = list(filter(lambda t: t > 65, temps))
+print(above_65)
+
+products = [{"name": "Mouse", "price": 24.99}, {"name": "Keyboard", "price": 49.99}]
+by_price = sorted(products, key=lambda p: p["price"])
+print(by_price)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try sorting by_price with reverse=True.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: sorted() works on any iterable, not just lists</summary>
+      <p>
+        <code>sorted()</code> accepts any iterable — a list, a set, a
+        dictionary's <code>.items()</code> — and always returns a brand-new
+        list, regardless of what it was given. That's different from
+        <code>.sort()</code>, which only exists on lists, since it needs
+        something it can reorder in place.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>map(func, iterable)</code> transforms every item; <code>filter(func, iterable)</code> keeps only items where <code>func</code> returns <code>True</code> — both have a direct comprehension equivalent.</li>
+        <li><code>sorted(iterable, key=func)</code> and <code>.sort(key=func)</code> sort by a computed key instead of the items themselves, and have no comprehension equivalent.</li>
+        <li><code>sorted()</code> returns a new list; <code>.sort()</code> reorders the original list in place.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world comprehensions &amp; functional tools in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Cleaning</strong> a batch of records is a comprehension that transforms each one the same way.</li>
+        <li><strong>Filtering</strong> a dataset down to valid entries is a comprehension with an <code>if</code> condition.</li>
+        <li><strong>Ranking</strong> real records is <code>sorted()</code> with a <code>key=lambda</code> computed from each record's fields.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> comprehensions clean and filter one item at a time; <code>sorted(..., key=lambda ...)</code> ranks the whole collection by a computed value.
+    </div>
+
+    <p>
+      Signup forms rarely arrive clean — extra whitespace, inconsistent
+      casing, and blank or bad fields are the norm, not the exception. A
+      single comprehension normalizes every email in one pass, the same
+      idea as Chapter 6's string cleanup methods, just applied to an entire
+      batch at once:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">cleaning_a_batch.py</span>
+      </div>
+      <pre><code>raw_signups = [
+    {"email": "  Priya@Example.com ", "age": "22"},
+    {"email": "amir@example.com", "age": "not_provided"},
+    {"email": "zoe@example.com ", "age": "19"},
+]
+
+cleaned_emails = [entry["email"].strip().lower() for entry in raw_signups]
+print(cleaned_emails)
+&#35; ['priya@example.com', 'amir@example.com', 'zoe@example.com']</code></pre>
+    </div>
+
+    <p>
+      That same list has a second problem: one entry's <code>"age"</code>
+      is <code>"not_provided"</code>, not a real number. Filtering down to
+      only the valid rows before doing anything else is exactly the shape
+      Section 1's <code>if</code> filter was built for:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">filtering_valid_entries.py</span>
+      </div>
+      <pre><code>raw_signups = [
+    {"email": "  Priya@Example.com ", "age": "22"},
+    {"email": "amir@example.com", "age": "not_provided"},
+    {"email": "zoe@example.com ", "age": "19"},
+]
+
+valid_signups = [entry for entry in raw_signups if entry["age"].isdigit()]
+print(len(valid_signups))   &#35; 2 — the "not_provided" row is dropped</code></pre>
+    </div>
+
+    <p>
+      Once a dataset is clean and filtered, ranking it usually needs a
+      value that isn't stored directly on the record — a unit price
+      computed from an order's total and quantity, for example.
+      <code>sorted()</code> with a <code>key=lambda</code> computes that
+      value on the fly for every record, without ever changing the data
+      itself:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">ranking_by_computed_key.py</span>
+      </div>
+      <pre><code>orders = [
+    {"id": "ORD-1", "amount": 42.50, "qty": 2},
+    {"id": "ORD-2", "amount": 64.75, "qty": 5},
+    {"id": "ORD-3", "amount": 10.00, "qty": 1},
+]
+
+by_unit_price = sorted(orders, key=lambda o: o["amount"] / o["qty"])
+for order in by_unit_price:
+    unit_price = order["amount"] / order["qty"]
+    print(order["id"], "-", round(unit_price, 2))
+&#35; ORD-3 - 10.0
+&#35; ORD-1 - 21.25
+&#35; ORD-2 - 12.95</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a computed key?</span>
+      A computed key is a value derived from a record's fields, rather
+      than a field stored directly — unit price from
+      <code>amount / qty</code>, or full name from combining
+      <code>first_name</code> and <code>last_name</code>. Any expression
+      works inside <code>key=lambda</code>, not just a single field lookup.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_bringing_together.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">reviews = [
+    {"product": "Mouse", "rating": "4", "verified": True},
+    {"product": "Keyboard", "rating": "bad_data", "verified": True},
+    {"product": "Monitor", "rating": "5", "verified": False},
+]
+clean = [r for r in reviews if r["rating"].isdigit()]
+ranked = sorted(clean, key=lambda r: int(r["rating"]), reverse=True)
+for r in ranked:
+    print(r["product"], "-", r["rating"])</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try filtering to only verified reviews too.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: chaining clean → filter → rank in one pipeline</summary>
+      <p>
+        Real data-cleaning code usually chains these three steps one after
+        another — clean, then filter, then rank — exactly in the order
+        shown across this section. Each step stays its own clear line
+        rather than one giant nested comprehension, which is precisely
+        Section 3's readability guideline in action: three simple,
+        readable lines beat one clever, unreadable one.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A one-line comprehension cleans an entire batch of records the same way, one field transformation applied to every item.</li>
+        <li>Filtering a dataset down to valid entries is a comprehension with an <code>if</code> condition checking each record.</li>
+        <li><code>sorted(records, key=lambda r: ...)</code> ranks real records by any computed value, without altering the original data.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Data pipelines and ETL scripts lean on comprehensions constantly — reading raw rows, cleaning each field, and filtering out bad records before anything else happens to the data.</li>
+      <li><code>sorted(..., key=lambda ...)</code> powers "sort by" features in almost every real app: ranking search results by relevance, orders by date, leaderboards by score.</li>
+      <li>Lambda shows up wherever a library expects a small callback function — sort keys, filter conditions, and simple event handlers are the most common places working developers write one.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A list comprehension, <code>[expr for item in iterable]</code>, builds a new list in one line — the same logic as a <code>for</code> loop with <code>.append()</code>; adding <code>if condition</code> filters which items are included.</li>
+      <li>Dict comprehensions (<code>{k: v for ...}</code>) and set comprehensions (<code>{expr for ...}</code>) apply the same idea to build dictionaries and sets, with sets automatically collapsing duplicates.</li>
+      <li>Nested comprehensions can flatten or transform a 2D grid, but readability has a ceiling — one <code>for</code> and at most one simple <code>if</code>; beyond that, write the plain loop instead.</li>
+      <li><code>lambda args: expr</code> creates a small, unnamed function limited to a single expression — no statements, no <code>if</code>/<code>else</code> blocks, no loops; full reusable functions with <code>def</code> arrive in Chapter 10.</li>
+      <li><code>map()</code> and <code>filter()</code> have direct comprehension equivalents; <code>sorted(iterable, key=lambda ...)</code> and <code>.sort(key=lambda ...)</code> sort by a computed value and have no comprehension equivalent.</li>
+      <li>Real-world code chains these tools together: clean a batch with a comprehension, filter it down to valid entries, then rank it with <code>sorted(..., key=lambda ...)</code> — three clear steps instead of one dense one-liner.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

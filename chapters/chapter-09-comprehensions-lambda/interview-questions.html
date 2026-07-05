@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 9: Comprehensions, Lambda &amp; Functional Tools — readability tradeoffs, list vs dict vs set comprehensions, lambda's single-expression limit, map/filter vs comprehensions, and sorted() vs .sort().">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-09-interview" data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 9 Interview Prep</span>
+    <span class="reading-time">19 min read</span>
+  </div>
+  <h1>Interview Questions: Comprehensions, Lambda &amp; Functional Tools</h1>
+  <p>Comprehensions and lambda are where interviewers check whether you reach for Python's idioms naturally or still think in manual for-loops &mdash; and whether you know <em>when</em> a one-liner helps versus when it just compresses code into something unreadable. This set covers readability tradeoffs, the three comprehension flavors, lambda's single-expression limit, <code>map()</code>/<code>filter()</code> versus comprehensions, and the <code>sorted()</code> mechanics that come up in almost every practical coding interview.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> When does a list comprehension improve readability, and when does it hurt it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A comprehension improves readability when it replaces a short, simple for-loop whose only job is building a new list from an existing one &mdash; <code>[x * 2 for x in nums]</code> reads as "double every number" almost like English, faster than scanning a three-line loop with an empty list and an <code>.append()</code> call. It hurts readability once it needs more than one <code>if</code>, nests another comprehension inside it, or the expression itself is doing several unrelated things at once &mdash; at that point it becomes a single dense line that takes longer to decode than the loop it replaced would have taken to read. The practical rule: if you have to pause and mentally "unroll" the comprehension into a loop to understand it, it's already past the point where a real loop would have been clearer.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "comprehensions are more Pythonic" as a rule that always wins, and cramming a multi-condition, multi-step transformation into one line just to avoid writing a for-loop.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You need to build a list of usernames from active users only, but skip anyone whose username is banned, using a lookup against a second list. Comprehension or loop?" (Either can work, but if the banned-check makes the condition multi-part and hard to read on one line, a plain loop with early <code>continue</code> is the more maintainable choice.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> How do you filter items inside a list comprehension, and how is that different from just mapping every item?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Adding an <code>if</code> clause at the end of a comprehension &mdash; <code>[x for x in nums if x % 2 == 0]</code> &mdash; filters which items make it into the result at all, while the expression before <code>for</code> controls what each surviving item becomes. The two are independent and can be combined: <code>[x * 2 for x in nums if x % 2 == 0]</code> both filters (only even numbers) and transforms (doubles them) in the same line. Without the <code>if</code>, every single item from the source is included after being transformed &mdash; that's a pure "map" with no filtering at all.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing filtering with transforming &mdash; e.g. trying to "filter out" an item by transforming it to <code>None</code> instead of just excluding it with an <code>if</code> clause.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>[x * x for x in range(5) if x % 2 == 0]</code> evaluate to?" (<code>[0, 4, 16]</code> &mdash; only 0, 2, 4 pass the filter, then each gets squared.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> When would you reach for a dict comprehension instead of a list comprehension?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Reach for a <strong>dict comprehension</strong>, <code>{key_expr: value_expr for item in iterable}</code>, when the result needs to be looked up by a label afterward &mdash; the same list-vs-dict decision from Chapter 8, just applied while building the collection instead of after. A classic case is turning two matching lists into a lookup table, or building a word-to-length mapping: <code>{word: len(word) for word in words}</code>. A plain list comprehension is the right call when you only need the values themselves, in order, with no need to look any of them up by a key later.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Building a list of tuples like <code>[(word, len(word)) for word in words]</code> and then manually scanning it for a matching first element, when a dict comprehension would give direct key lookup for free.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>{x: x * x for x in range(4)}</code> evaluate to?" (<code>{0: 0, 1: 1, 2: 4, 3: 9}</code> &mdash; each number maps to its own square.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's a set comprehension good for that a list comprehension isn't?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>set comprehension</strong>, <code>{expr for item in iterable}</code>, automatically drops duplicates the same way any set does &mdash; it's the natural choice any time the goal is "give me every distinct X," like unique domains from a list of emails or unique tags across a batch of posts. A list comprehension keeps every result including repeats and preserves order; a set comprehension collapses repeats and gives up any guaranteed order in exchange. If the later code needs fast membership checks (<code>x in result</code>) on the output, a set comprehension is doubly the right call, since set membership checks are hash-based and effectively instant, same as Chapter 8's set lookups.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Building a list comprehension and then manually deduplicating it afterward (e.g. looping and checking "have I added this already"), when a set comprehension does it in the same line for free.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>{x % 3 for x in range(6)}</code> evaluate to?" (<code>{0, 1, 2}</code> &mdash; the remainders repeat, but a set keeps only the distinct values.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What's the readability/performance tradeoff with nested comprehensions?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A nested comprehension, like flattening a list of lists with <code>[x for row in matrix for x in row]</code>, runs at essentially the same speed as the equivalent nested for-loop &mdash; there's no hidden performance win, just a more compact expression of the exact same work. The tradeoff is entirely about readability: one level of nesting (flattening, or building a small multiplication table) is usually still scannable, but two or more levels, or nesting a comprehension with its own <code>if</code> clause inside another one, quickly becomes something that has to be read several times to parse correctly. At that point, a couple of explicit nested for-loops with real variable names communicate the same logic more clearly to the next person reading it &mdash; "readable" beats "clever" once nesting goes past one level.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a nested comprehension is faster than nested for-loops &mdash; it isn't; it's the same underlying work, just less legible past one level of nesting.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>[x for row in [[1, 2], [3, 4]] for x in row]</code> evaluate to?" (<code>[1, 2, 3, 4]</code> &mdash; the outer loop walks each row, the inner loop walks each value in that row, flattening the nested list.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What is a lambda function, and why can it only contain a single expression?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>lambda</strong> is a small, unnamed function written inline as <code>lambda parameters: expression</code> &mdash; it takes input, evaluates exactly one expression, and returns that expression's result automatically, with no explicit <code>return</code> keyword. It's restricted to a single expression by design: a lambda is meant to be a throwaway piece of logic passed directly into something else (a <code>key=</code> argument, a <code>filter()</code> predicate), not a place to define multi-step logic with several statements, loops, or branching blocks. If the logic needs more than one expression's worth of work, that's the signal it should become a real, named function (introduced next chapter) instead of being forced into a lambda.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to cram multiple steps into a lambda with semicolons or nested conditional expressions just to avoid writing a named function &mdash; that's fighting the tool instead of reaching for the right one.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>(lambda x, y: x + y)(3, 4)</code> evaluate to?" (<code>7</code> &mdash; the lambda is defined and immediately called with 3 and 4.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> When is it appropriate to use a lambda versus a real (named) function?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A lambda is appropriate when the logic is short, used once (or in one spot), and is being handed directly to something else as an argument &mdash; the classic case being a sort key or a filter condition where naming the function would add more ceremony than value. A named function is the better choice the moment the logic is reused in more than one place, needs a descriptive name to be understood at a glance, or would benefit from more than one line/expression of logic. In short: lambda is for a "just this once, right here" piece of logic; a named function is for anything that will be called from multiple places or needs a name that documents what it does.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assigning a lambda to a variable name and calling it repeatedly like a regular function (<code>square = lambda x: x ** 2</code> used all over the file) instead of just writing it as a real function once that's introduced.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You need to square a number in exactly one spot, as a sort key. Lambda or named function?" (Lambda &mdash; it's a single-use, single-expression need, exactly what <code>key=lambda x: x ** 2</code> is for.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What does <code>map()</code> do, and how does it compare to an equivalent list comprehension?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>map(function, iterable)</code> applies <code>function</code> to every item in <code>iterable</code> and hands back a lazy map object, which is usually wrapped in <code>list(...)</code> to see the results &mdash; <code>list(map(lambda x: x * 2, nums))</code> doubles every number in <code>nums</code>. A list comprehension, <code>[x * 2 for x in nums]</code>, does the exact same transformation but reads more like plain English and doesn't need the extra <code>list()</code> wrapper or a separate lambda. Most Python style guides and most working Python developers consider the comprehension the more Pythonic choice for this case; <code>map()</code> tends to show up more when the transforming function is already named and defined elsewhere, so there's no lambda needed at all.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for <code>map()</code> with a lambda as a reflex in new code when the equivalent comprehension would be shorter and clearer &mdash; that's usually a sign of habits carried over from another language.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>list(map(lambda x: x * 2, [1, 2, 3]))</code> evaluate to?" (<code>[2, 4, 6]</code> &mdash; each number doubled, same result as <code>[x * 2 for x in [1, 2, 3]]</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What does <code>filter()</code> do, and how does it compare to a comprehension with an <code>if</code> clause?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>filter(function, iterable)</code> keeps only the items from <code>iterable</code> for which <code>function</code> returns a truthy value, and like <code>map()</code>, it hands back a lazy object that's normally wrapped in <code>list(...)</code>: <code>list(filter(lambda x: x > 2, nums))</code>. A comprehension with just an <code>if</code> clause and no transformation, <code>[x for x in nums if x > 2]</code>, does the identical job and is generally considered the more readable, more Pythonic option for the same reason as <code>map()</code> versus a comprehension. <code>filter()</code> earns its keep in this chapter's project-style code specifically when the predicate itself is a lambda checking several conditions at once (blank name, blank email, invalid age) &mdash; at that point, <code>filter(lambda r: ..., records)</code> reads as "keep the records passing this whole rule," which can be clearer than cramming the same multi-part condition into a comprehension's <code>if</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>filter()</code> is required to filter a list &mdash; a comprehension's <code>if</code> clause does the same job and is usually the more idiomatic default.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>list(filter(lambda x: x > 2, [1, 2, 3, 4]))</code> evaluate to?" (<code>[3, 4]</code> &mdash; only the items greater than 2 survive.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> How does the <code>key=</code> parameter work in <code>sorted()</code>, and why is <code>lambda</code> so often paired with it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>sorted(iterable, key=some_function)</code> doesn't sort the raw items directly &mdash; instead, it calls <code>some_function</code> on every item first, and sorts based on <em>those returned values</em> while keeping each original item in place. This is exactly why <code>lambda</code> pairs so naturally with <code>key=</code>: the "what to sort by" logic is almost always a short, single-use expression (grab one field off a dict, compute a length, negate a number) that would be overkill to define as a separate named function just for one sort call. <code>sorted(people, key=lambda p: p["age"])</code> reads as "sort people by their age field" in one line, with no extra function definition needed anywhere else in the file.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>key=</code> transforms the actual items being returned &mdash; it only controls the sort order; the original items come back unchanged.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>people = [{'name': 'Bo', 'age': 30}, {'name': 'Al', 'age': 25}]</code>, what name is first in <code>sorted(people, key=lambda p: p['age'])</code>?" (<code>'Al'</code> &mdash; sorted ascending by age, and 25 is smaller than 30.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What's the difference between <code>sorted()</code> and <code>.sort()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>sorted(some_list)</code> is a function that builds and returns a brand-new sorted list, leaving the original list completely untouched. <code>some_list.sort()</code> is a method that sorts the list <em>in place</em> and returns <code>None</code> &mdash; the original list itself is rearranged, and there's nothing meaningful to capture from the call. A very common beginner mistake is writing <code>result = my_list.sort()</code> expecting <code>result</code> to hold the sorted list, when it actually holds <code>None</code> because <code>.sort()</code> mutates <code>my_list</code> directly instead of returning anything useful. Use <code>sorted()</code> when the original order needs to be preserved elsewhere; use <code>.sort()</code> when mutating the list directly is fine or even desired.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing <code>x = my_list.sort()</code> and then using <code>x</code> as if it were the sorted list &mdash; it's <code>None</code>, and the real sorted list is <code>my_list</code> itself, now mutated.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>lst = [3, 1, 2]</code>, what does <code>lst.sort()</code> return, and what is <code>lst</code> afterward?" (Returns <code>None</code>; <code>lst</code> is now <code>[1, 2, 3]</code>, mutated in place.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What's a common mistake people make trying to put a statement inside a lambda?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A lambda can only hold an <strong>expression</strong> &mdash; something that evaluates to a value &mdash; never a <strong>statement</strong>, which is why trying to write <code>lambda x: print(x)</code> mostly "works" (print is technically a function call, which is an expression) but <code>lambda x: x = 5</code> or <code>lambda x: if x > 0: return x</code> both raise a <code>SyntaxError</code> immediately, because assignment and <code>if</code>/<code>return</code> blocks are statements, not expressions. The reliable fix at this course's level for "I need a condition inside a lambda" is Python's conditional expression syntax, <code>lambda x: "pos" if x > 0 else "neg"</code> &mdash; that's still a single expression, just one that branches, unlike a full <code>if</code>/<code>else</code> block.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to assign a variable, use a full <code>if</code>/<code>elif</code>/<code>else</code> block, or write a <code>for</code> loop inside a lambda body &mdash; all of those are statements, and none of them are legal inside a lambda's single expression.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is <code>lambda x: x if x > 0 else -x</code> valid Python, and what does calling it with <code>-5</code> return?" (Yes, it's valid &mdash; a conditional expression is still one expression &mdash; and it returns <code>5</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> How would you sort a list of dictionaries by a field in descending order?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Pass both <code>key=</code> and <code>reverse=True</code> to <code>sorted()</code>: <code>sorted(people, key=lambda p: p["score"], reverse=True)</code> sorts by the <code>"score"</code> field, highest first. <code>reverse=True</code> simply flips the final order after the sort key has been applied &mdash; it doesn't change what's being sorted by, just the direction. This combination is exactly how a leaderboard or "top sellers" report gets built from a list of records: pick the field to rank by with <code>key=</code>, and pick the direction with <code>reverse=</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to negate the sort key itself for descending order on non-numeric fields (e.g. attempting <code>key=lambda p: -p["name"]</code>, which fails on strings) instead of just using <code>reverse=True</code>, which works for any sort key.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>nums = [5, 2, 9, 1]</code>, what does <code>sorted(nums, reverse=True)</code> evaluate to?" (<code>[9, 5, 2, 1]</code> &mdash; sorted highest to lowest.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>len([x * x for x in range(5) if x % 2 == 0])</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Given <code>squares = {x: x * x for x in range(4)}</code>, <code>squares[3]</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="9" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>len({x % 3 for x in range(6)})</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>(lambda x, y: x + y)(3, 4)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="7" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A lambda body may contain only a single <code>____</code> (one word), never a statement like assignment or a full <code>if</code> block.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="expression" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> <code>sum(list(map(lambda x: x * 2, [1, 2, 3])))</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="12" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>list(filter(lambda x: x > 2, [1, 2, 3, 4]))[0]</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Given <code>words = ["banana", "kiwi", "apple"]</code>, <code>sorted(words, key=len)[0]</code> is <code>____</code> (no quotes).</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="kiwi" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Given <code>nums = [5, 2, 9, 1]</code>, <code>sorted(nums, reverse=True)[0]</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="9" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Given <code>people = [{'name': 'Bo', 'age': 30}, {'name': 'Al', 'age': 25}]</code>, the <code>"name"</code> of the first entry in <code>sorted(people, key=lambda p: p['age'])</code> is <code>____</code> (no quotes).</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="Al" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>len([x for row in [[1, 2], [3, 4]] for x in row])</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="4" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Given <code>lst = [3, 1, 2]</code>, <code>lst.sort()</code> returns <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="None" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Given <code>lst2 = [3, 1, 2]</code>, after calling <code>sorted(lst2)</code> (without reassigning it), <code>lst2[0]</code> is still <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

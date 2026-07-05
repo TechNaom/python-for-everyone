@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 Project: Data-Cleaning One-Liners Kit — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven data-cleaning tool using list/dict comprehensions, lambda, filter(), and sorted(key=lambda...) — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-09">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 9 Project</span>
+    <span class="reading-time">45 min build</span>
+  </div>
+  <h1>Data-Cleaning One-Liners Kit</h1>
+  <p>A menu-driven mini-app that takes a small list of messy, inconsistent records and turns it into a clean, sorted, summarized dataset &mdash; built around this chapter's core tools: <strong>comprehensions, lambda, <code>map()</code>/<code>filter()</code>/<code>sorted()</code></strong>. Every record lives in one running list of dicts, <code>raw_records</code> (the messy input) and <code>cleaned_records</code> (the result of running it through this chapter's one-liners), the same shape a real data-cleaning script works with.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Data-Cleaning One-Liners Kit ===
+
+1. Show raw sample data
+2. Clean whitespace &amp; casing
+3. Filter out invalid records
+4. Sort cleaned data by a field
+5. Generate a summary report
+6. Export final cleaned dataset
+7. Quit
+Choose an option (1-7): 2
+
+Cleaned 8 record(s) -- whitespace stripped, names title-cased, emails lowercased.
+
+1. Show raw sample data
+2. Clean whitespace &amp; casing
+3. Filter out invalid records
+4. Sort cleaned data by a field
+5. Generate a summary report
+6. Export final cleaned dataset
+7. Quit
+Choose an option (1-7): 3
+
+Removed 4 invalid record(s) -- 4 record(s) remain.
+
+1. Show raw sample data
+2. Clean whitespace &amp; casing
+3. Filter out invalid records
+4. Sort cleaned data by a field
+5. Generate a summary report
+6. Export final cleaned dataset
+7. Quit
+Choose an option (1-7): 4
+
+Sort by: 1) name  2) email  3) age
+Choose a field (1-3): 3
+Sorted by age.
+
+{'name': 'Elena Ferreira', 'email': 'elena@example.com', 'age': '27'}
+{'name': 'Ana Silva', 'email': 'ana@example.com', 'age': '29'}
+{'name': 'Gabriela Nunes', 'email': 'gabriela@example.com', 'age': '31'}
+{'name': 'Bruno Costa', 'email': 'bruno@example.com', 'age': '34'}
+
+1. Show raw sample data
+2. Clean whitespace &amp; casing
+3. Filter out invalid records
+4. Sort cleaned data by a field
+5. Generate a summary report
+6. Export final cleaned dataset
+7. Quit
+Choose an option (1-7): 5
+
+--- Summary Report ---
+Total cleaned records: 4
+Average age: 30.2
+Age groups: {'under 30': 2, '30-39': 2, '40 and up': 0}
+Records per email domain: {'example.com': 4}
+
+1. Show raw sample data
+2. Clean whitespace &amp; casing
+3. Filter out invalid records
+4. Sort cleaned data by a field
+5. Generate a summary report
+6. Export final cleaned dataset
+7. Quit
+Choose an option (1-7): 7
+
+Session summary: 4 cleaned record(s) ready for export.
+Goodbye!</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A <code>while True</code> menu loop with seven options: show raw sample data,
+    clean whitespace &amp; casing, filter out invalid records, sort cleaned data
+    by a field, generate a summary report, export the final cleaned dataset, or
+    quit. <code>raw_records</code> is a list of dicts with realistic mess baked in
+    &mdash; stray whitespace, mixed casing, a blank name, a blank email, a
+    non-numeric age, a negative age. Cleaning rebuilds it with a <strong>list
+    comprehension</strong>, filtering drops bad rows with <strong><code>filter()</code>
+    + <code>lambda</code></strong>, sorting reorders it with
+    <strong><code>sorted(key=lambda ...)</code></strong>, and the summary uses
+    comprehensions to compute an average age, age-group counts, and per-domain
+    counts.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The seven operations</h2>
+  <ul>
+    <li>Show raw sample data &mdash; loops over <code>raw_records</code> and prints each dict as-is, mess included.</li>
+    <li>Clean whitespace &amp; casing &mdash; a list comprehension rebuilds every record with <code>.strip()</code> and <code>.title()</code>/<code>.lower()</code> applied to each field, stored in <code>cleaned_records</code>.</li>
+    <li>Filter out invalid records &mdash; <code>filter()</code> with a <code>lambda</code> predicate drops any record with a blank name, a blank email, or a non-positive/non-numeric age.</li>
+    <li>Sort cleaned data by a field &mdash; <code>sorted(cleaned_records, key=lambda r: ...)</code> reorders by name, email, or age (age converted with <code>int()</code> inside the lambda for a numeric sort).</li>
+    <li>Generate a summary report &mdash; comprehensions collect ages for an average, bucket records into age groups, and count records per email domain.</li>
+    <li>Export final cleaned dataset &mdash; prints the final <code>cleaned_records</code> aligned into columns with f-strings.</li>
+    <li>Quit &mdash; prints a one-line session summary of how many records are ready for export, then exits the loop.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "reset to raw data" option that clears <code>cleaned_records</code> back to empty so you can re-run the whole pipeline from scratch.</li>
+    <li>Track and print which record had the largest number of whitespace characters trimmed off during cleaning.</li>
+    <li>Add a fourth sort option that sorts by <em>email domain</em> using <code>sorted(key=lambda r: r["email"].split("@")[-1])</code>.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Almost every real dataset arrives messy &mdash; a CSV export from a spreadsheet, a form submission, a scraped web page &mdash; with inconsistent whitespace, casing, and the occasional invalid or missing field. Data engineers and analysts write exactly this kind of cleaning pipeline constantly: normalize every record with a comprehension, drop the invalid ones with <code>filter()</code>, order the result with <code>sorted(key=lambda ...)</code>, and roll it up into summary counts with a dict comprehension. Those four one-liners, chained together, are the backbone of real-world ETL (extract-transform-load) scripts, and they're far more Pythonic and readable than the equivalent hand-written for-loops once you're comfortable with them.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Data-Cleaning One-Liners Kit above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 9 (variables, operators, <code>if</code>/<code>elif</code>/<code>else</code>, loops, strings, lists, dictionaries, sets, comprehensions, lambda, and <code>map()</code>/<code>filter()</code>/<code>sorted()</code>). No starter or solution files are provided on purpose &mdash; building one of these unassisted, menu loop and all, is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> CSV-Row Data Validator</h3>
+    <p><strong>Problem:</strong> Before any spreadsheet export gets loaded into a real system, someone has to check every row for missing or malformed fields &mdash; the same gatekeeping step every data-import pipeline needs.</p>
+    <p><strong>What it should do:</strong> Keep a list of dicts representing rows (e.g. <code>{"id": "101", "email": "x@y.com", "amount": "49.99"}</code>), some deliberately broken (missing <code>@</code> in the email, a non-numeric amount, a blank id). Menu options: show all rows, validate rows with <code>filter()</code> + <code>lambda</code> (keeping only rows where the email contains <code>"@"</code>, the amount is numeric, and the id isn't blank), show which rows failed validation and why, and show a pass/fail count summary.</p>
+    <p><strong>Suggested approach:</strong> Write one lambda per rule (e.g. <code>lambda r: "@" in r["email"]</code>) and combine them with <code>and</code> inside a single <code>filter()</code> predicate, or chain multiple <code>filter()</code> calls back to back. For "show which rows failed and why," loop over the rows and check each rule individually with <code>if</code>/<code>elif</code> so you can report the <em>specific</em> reason a row was rejected, rather than just a blanket pass/fail.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Leaderboard Ranking Tool</h3>
+    <p><strong>Problem:</strong> A game, a sales contest, or a fitness app needs to turn a list of raw scores into a ranked leaderboard, sorted the right direction, on demand.</p>
+    <p><strong>What it should do:</strong> Keep a list of dicts like <code>{"player": "Ana", "score": 4200}</code>. Menu options: add a new score entry, view the leaderboard sorted highest-to-lowest with <code>sorted(key=lambda ..., reverse=True)</code>, view the bottom N players the same way, and compute the average score across everyone with a comprehension.</p>
+    <p><strong>Suggested approach:</strong> <code>sorted(scores, key=lambda p: p["score"], reverse=True)</code> handles the ranking in one line &mdash; assign the rank number while printing using a running counter variable you increment yourself. The average is <code>sum(p["score"] for p in scores) / len(scores)</code> using a generator expression, the same idea as a list comprehension without the brackets.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Text-Normalization Batch Tool</h3>
+    <p><strong>Problem:</strong> A batch of user-submitted text (comments, product descriptions, form fields) needs consistent formatting before it's displayed or stored &mdash; extra spaces collapsed, casing normalized, empty entries dropped.</p>
+    <p><strong>What it should do:</strong> Keep a list of raw strings with inconsistent spacing and casing (e.g. <code>"  Hello   World  "</code>, <code>"ALL CAPS TEXT"</code>, an empty string). Menu options: show the raw list, normalize every entry with a comprehension (<code>.strip()</code>, <code>.lower()</code> or <code>.title()</code>, <code>" ".join(s.split())</code> to collapse repeated internal spaces), filter out any entry that's empty after normalizing, and show before/after character-count totals.</p>
+    <p><strong>Suggested approach:</strong> <code>" ".join(text.split())</code> is the standard trick for collapsing multiple spaces into one, since <code>.split()</code> with no argument already treats any run of whitespace as one separator. Build the whole normalized list in one comprehension, then a second <code>filter()</code> + <code>lambda</code> pass to drop anything that normalized down to an empty string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Duplicate Record Finder</h3>
+    <p><strong>Problem:</strong> A mailing list, a contact import, or a signup form often ends up with the same person entered more than once, sometimes with slightly different casing or spacing &mdash; finding those duplicates by eye doesn't scale.</p>
+    <p><strong>What it should do:</strong> Keep a list of dicts like <code>{"name": "Ana Silva", "email": "ana@x.com"}</code>, with a few intentional duplicates (identical or same-after-cleaning). Menu options: show all records, show only the unique emails using a <strong>set comprehension</strong>, show which specific records are duplicates (appeared more than once), and show a final deduplicated list (one record per unique email).</p>
+    <p><strong>Suggested approach:</strong> <code>{r["email"].strip().lower() for r in records}</code> is a one-line set comprehension that collapses every email down to its unique, normalized form. To find <em>which</em> records are duplicates, loop over the records while building a "seen so far" set; any record whose normalized email is already in that set is a duplicate &mdash; add it to a separate "duplicates" list as you go.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
