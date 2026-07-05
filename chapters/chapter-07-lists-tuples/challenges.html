@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style list and tuple challenges for Chapter 7: Lists & Tuples.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-07">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 7 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Lists &amp; Tuples</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases like empty lists). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-7 have covered so far &mdash; no dictionaries, no
+    comprehensions, no <code>def</code> beyond the function stub already
+    given.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Reverse a List In Place <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>reverse_in_place(lst)</code> that reverses <code>lst</code> in place &mdash; without calling <code>.reverse()</code> or using slicing &mdash; by swapping elements from the outside in, and returns <code>lst</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>lst</code> may be empty, have one element, or have an even or odd number of elements.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>reverse_in_place([1, 2, 3])</code> &rarr; <code>[3, 2, 1]</code><br>
+        <code>reverse_in_place([5])</code> &rarr; <code>[5]</code><br>
+        <code>reverse_in_place([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def reverse_in_place(lst):
+    # TODO: use two index pointers (one from the front, one from the
+    # back) and swap elements with lst[left], lst[right] = lst[right], lst[left]
+    # while left < right. Return lst.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "reverse_in_place",
+  "cases": [
+    { "args": [[1, 2, 3]], "expected": [3, 2, 1] },
+    { "args": [[1, 2, 3, 4]], "expected": [4, 3, 2, 1] },
+    { "args": [[]], "expected": [] },
+    { "args": [[5]], "expected": [5] },
+    { "args": [[1, 2]], "expected": [2, 1] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def reverse_in_place(lst):
+    left = 0
+    right = len(lst) - 1
+    while left < right:
+        lst[left], lst[right] = lst[right], lst[left]
+        left = left + 1
+        right = right - 1
+    return lst</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Find the Second-Largest Number <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>second_largest(nums)</code> that returns the second-largest <em>distinct</em> value in <code>nums</code>, without using <code>sorted()</code>. If every value in <code>nums</code> is the same, return <code>None</code> (there is no second-largest value).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>nums</code> has at least one element; it may contain duplicates or negative numbers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>second_largest([10, 20, 4, 45, 99])</code> &rarr; <code>45</code><br>
+        <code>second_largest([1, 2])</code> &rarr; <code>1</code><br>
+        <code>second_largest([3, 3, 3])</code> &rarr; <code>None</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def second_largest(nums):
+    # TODO: track the largest and second-largest values seen so far in
+    # one pass with a for loop. When a new value beats the largest,
+    # the old largest becomes the new second. Skip values equal to the
+    # current largest so duplicates don't count as "second".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "second_largest",
+  "cases": [
+    { "args": [[10, 20, 4, 45, 99]], "expected": 45 },
+    { "args": [[1, 2]], "expected": 1 },
+    { "args": [[3, 3, 3]], "expected": null },
+    { "args": [[7, 7, 9, 9, 5]], "expected": 7 },
+    { "args": [[-5, -1, -10]], "expected": -5 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def second_largest(nums):
+    largest = None
+    second = None
+    for n in nums:
+        if largest is None or n > largest:
+            second = largest
+            largest = n
+        elif n != largest and (second is None or n > second):
+            second = n
+    return second</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Remove Duplicates, Keep Order <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>remove_duplicates_preserve_order(lst)</code> that returns a new list with duplicate values removed, keeping only each value's <em>first</em> appearance and preserving the original order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>lst</code> may be empty, contain no duplicates at all, or contain strings instead of numbers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>remove_duplicates_preserve_order([1, 2, 2, 3, 1, 4])</code> &rarr; <code>[1, 2, 3, 4]</code><br>
+        <code>remove_duplicates_preserve_order([1, 1, 1])</code> &rarr; <code>[1]</code><br>
+        <code>remove_duplicates_preserve_order([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="8">
+def remove_duplicates_preserve_order(lst):
+    # TODO: build a new result list; loop over lst and only append a
+    # value if it's not already in result.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "remove_duplicates_preserve_order",
+  "cases": [
+    { "args": [[1, 2, 2, 3, 1, 4]], "expected": [1, 2, 3, 4] },
+    { "args": [[]], "expected": [] },
+    { "args": [[1, 1, 1]], "expected": [1] },
+    { "args": [["a", "b", "a", "c"]], "expected": ["a", "b", "c"] },
+    { "args": [[5, 4, 3, 2, 1]], "expected": [5, 4, 3, 2, 1] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def remove_duplicates_preserve_order(lst):
+    result = []
+    for value in lst:
+        if value not in result:
+            result.append(value)
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Coordinate Distance <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>coordinate_distance_squared(point_a, point_b)</code> that takes two <code>(x, y)</code> coordinate pairs and returns the <em>squared</em> straight-line distance between them (skip the square root, since that hasn't been covered yet).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> coordinates may be zero, negative, or identical (distance <code>0</code>).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>coordinate_distance_squared((0, 0), (3, 4))</code> &rarr; <code>25</code><br>
+        <code>coordinate_distance_squared((1, 1), (1, 1))</code> &rarr; <code>0</code><br>
+        <code>coordinate_distance_squared((-2, -3), (1, 1))</code> &rarr; <code>25</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="8">
+def coordinate_distance_squared(point_a, point_b):
+    # TODO: unpack each point into x, y with tuple unpacking, then
+    # return (x1 - x2) ** 2 + (y1 - y2) ** 2.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "coordinate_distance_squared",
+  "cases": [
+    { "args": [[0, 0], [3, 4]], "expected": 25 },
+    { "args": [[0, 0], [0, 0]], "expected": 0 },
+    { "args": [[1, 1], [1, 1]], "expected": 0 },
+    { "args": [[-2, -3], [1, 1]], "expected": 25 },
+    { "args": [[2, 2], [5, 6]], "expected": 25 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def coordinate_distance_squared(point_a, point_b):
+    x1, y1 = point_a
+    x2, y2 = point_b
+    return (x1 - x2) ** 2 + (y1 - y2) ** 2</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Flatten a Nested List <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>flatten_shallow(nested)</code> that takes a list of lists (one level deep) and returns a single flat list containing every element, in order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>nested</code> may be empty, contain empty sublists, or have sublists of different lengths.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>flatten_shallow([[1, 2], [3, 4], [5]])</code> &rarr; <code>[1, 2, 3, 4, 5]</code><br>
+        <code>flatten_shallow([[], [1], []])</code> &rarr; <code>[1]</code><br>
+        <code>flatten_shallow([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="8">
+def flatten_shallow(nested):
+    # TODO: build a result list. Use a nested for loop — outer loop
+    # over each sublist, inner loop over each item in that sublist —
+    # appending every item to result.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "flatten_shallow",
+  "cases": [
+    { "args": [[[1, 2], [3, 4], [5]]], "expected": [1, 2, 3, 4, 5] },
+    { "args": [[]], "expected": [] },
+    { "args": [[[], [1], []]], "expected": [1] },
+    { "args": [[[1, 2, 3]]], "expected": [1, 2, 3] },
+    { "args": [[[], []]], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def flatten_shallow(nested):
+    result = []
+    for sub in nested:
+        for item in sub:
+            result.append(item)
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Rotate a List <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>rotate_list(lst, k)</code> that returns a new list with <code>lst</code> rotated to the right by <code>k</code> positions (the last <code>k</code> elements move to the front). <code>k</code> may be larger than <code>len(lst)</code> &mdash; handle that by rotating by <code>k % len(lst)</code> instead.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>lst</code> may be empty (return <code>[]</code>); <code>k</code> may be <code>0</code> or greater than <code>len(lst)</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>rotate_list([1, 2, 3, 4, 5], 2)</code> &rarr; <code>[4, 5, 1, 2, 3]</code><br>
+        <code>rotate_list([1, 2, 3], 0)</code> &rarr; <code>[1, 2, 3]</code><br>
+        <code>rotate_list([1, 2, 3], 5)</code> &rarr; <code>[2, 3, 1]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def rotate_list(lst, k):
+    # TODO: handle the empty-list case first. Then reduce k with
+    # k = k % len(lst) so an oversized k wraps around. Finally return
+    # lst[-k:] + lst[:-k] (watch out for k == 0, where lst[-0:] would
+    # be the whole list, not empty — handle that case separately).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "rotate_list",
+  "cases": [
+    { "args": [[1, 2, 3, 4, 5], 2], "expected": [4, 5, 1, 2, 3] },
+    { "args": [[1, 2, 3], 0], "expected": [1, 2, 3] },
+    { "args": [[1, 2, 3], 5], "expected": [2, 3, 1] },
+    { "args": [[], 3], "expected": [] },
+    { "args": [[1, 2, 3, 4], 4], "expected": [1, 2, 3, 4] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def rotate_list(lst, k):
+    if len(lst) == 0:
+        return []
+    k = k % len(lst)
+    if k == 0:
+        return lst[:]
+    return lst[-k:] + lst[:-k]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Merge Two Sorted Lists <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>merge_sorted_lists(a, b)</code> that merges two already-ascending-sorted lists into one ascending-sorted list, without calling <code>sorted()</code> or <code>.sort()</code> &mdash; walk both lists with two index pointers, always taking the smaller of the two current elements.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> either list may be empty; both lists are already sorted ascending and may contain duplicates.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>merge_sorted_lists([1, 3, 5], [2, 4, 6])</code> &rarr; <code>[1, 2, 3, 4, 5, 6]</code><br>
+        <code>merge_sorted_lists([], [1, 2, 3])</code> &rarr; <code>[1, 2, 3]</code><br>
+        <code>merge_sorted_lists([1, 1, 2], [1, 3])</code> &rarr; <code>[1, 1, 1, 2, 3]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def merge_sorted_lists(a, b):
+    # TODO: use two index pointers i (into a) and j (into b). While
+    # both are still in range, append whichever current element is
+    # smaller (or a's if equal) and advance that pointer. Once one
+    # list runs out, append whatever remains of the other one.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "merge_sorted_lists",
+  "cases": [
+    { "args": [[1, 3, 5], [2, 4, 6]], "expected": [1, 2, 3, 4, 5, 6] },
+    { "args": [[], [1, 2, 3]], "expected": [1, 2, 3] },
+    { "args": [[1, 2, 3], []], "expected": [1, 2, 3] },
+    { "args": [[1, 1, 2], [1, 3]], "expected": [1, 1, 1, 2, 3] },
+    { "args": [[], []], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def merge_sorted_lists(a, b):
+    result = []
+    i = 0
+    j = 0
+    while i < len(a) and j < len(b):
+        if a[i] <= b[j]:
+            result.append(a[i])
+            i = i + 1
+        else:
+            result.append(b[j])
+            j = j + 1
+    while i < len(a):
+        result.append(a[i])
+        i = i + 1
+    while j < len(b):
+        result.append(b[j])
+        j = j + 1
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Find a Pair That Sums to a Target <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>find_pair_sum(nums, target)</code> that returns the first pair of values <code>[nums[i], nums[j]]</code> (with <code>i &lt; j</code>, scanning <code>i</code> then <code>j</code> in order) whose sum equals <code>target</code>, or <code>None</code> if no such pair exists.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>nums</code> may contain negative numbers or duplicates; if no pair sums to <code>target</code>, return <code>None</code> instead of crashing.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>find_pair_sum([2, 7, 11, 15], 9)</code> &rarr; <code>[2, 7]</code><br>
+        <code>find_pair_sum([1, 2, 3], 100)</code> &rarr; <code>None</code><br>
+        <code>find_pair_sum([-3, 4, 3, 90], 0)</code> &rarr; <code>[-3, 3]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def find_pair_sum(nums, target):
+    # TODO: use two nested for loops over range(len(nums)), with the
+    # inner loop starting one past the outer loop's index (so you
+    # never pair a value with itself or re-check the same pair twice).
+    # Return [nums[i], nums[j]] as soon as a match is found.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "find_pair_sum",
+  "cases": [
+    { "args": [[2, 7, 11, 15], 9], "expected": [2, 7] },
+    { "args": [[1, 2, 3], 100], "expected": null },
+    { "args": [[3, 3], 6], "expected": [3, 3] },
+    { "args": [[-3, 4, 3, 90], 0], "expected": [-3, 3] },
+    { "args": [[5], 5], "expected": null }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def find_pair_sum(nums, target):
+    for i in range(len(nums)):
+        for j in range(i + 1, len(nums)):
+            if nums[i] + nums[j] == target:
+                return [nums[i], nums[j]]
+    return None</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

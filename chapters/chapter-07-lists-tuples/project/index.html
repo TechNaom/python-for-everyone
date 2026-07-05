@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 Project: To-Do List Manager — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven to-do list manager using lists, indexing, mutation, and the accumulator pattern — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-07">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 7 Project</span>
+    <span class="reading-time">40 min build</span>
+  </div>
+  <h1>To-Do List Manager</h1>
+  <p>A menu-driven mini-app that manages a running list of tasks for the whole session &mdash; built entirely out of lists, indexing, mutation, and the accumulator pattern from Chapter 5. Each task is stored as a small two-item list, <code>[task_text, is_done]</code>, and every task lives together inside one master list called <code>tasks</code>.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== To-Do List Manager ===
+
+1. Add a task
+2. View all tasks
+3. Mark a task complete
+4. Remove a task
+5. View session stats
+6. Quit
+Choose an option (1-6): 1
+Enter the new task: Buy milk
+Added: 'Buy milk'
+
+1. Add a task
+2. View all tasks
+3. Mark a task complete
+4. Remove a task
+5. View session stats
+6. Quit
+Choose an option (1-6): 1
+Enter the new task: Walk the dog
+Added: 'Walk the dog'
+
+1. Add a task
+2. View all tasks
+3. Mark a task complete
+4. Remove a task
+5. View session stats
+6. Quit
+Choose an option (1-6): 2
+
+--- Your Tasks ---
+1. [ ] Buy milk
+2. [ ] Walk the dog
+
+1. Add a task
+2. View all tasks
+3. Mark a task complete
+4. Remove a task
+5. View session stats
+6. Quit
+Choose an option (1-6): 3
+Enter the task number to mark complete: 1
+Marked complete: 'Buy milk'
+
+1. Add a task
+2. View all tasks
+3. Mark a task complete
+4. Remove a task
+5. View session stats
+6. Quit
+Choose an option (1-6): 5
+
+--- Session Stats ---
+Total tasks: 2
+Completed: 1
+Pending: 1
+Completion rate: 50.0%
+
+1. Add a task
+2. View all tasks
+3. Mark a task complete
+4. Remove a task
+5. View session stats
+6. Quit
+Choose an option (1-6): 6
+
+Session summary: 2 task(s) total, 1 completed.
+Goodbye!</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A <code>while True</code> menu loop with six options: add a task, view all
+    tasks, mark a task complete, remove a task, view session stats, or quit.
+    Every task is a <code>[task_text, is_done]</code> list sitting inside one
+    master <code>tasks</code> list &mdash; marking complete and removing both
+    work "by number," converting the displayed number back into a validated
+    list index. Session stats use the accumulator pattern: looping over every
+    task to count how many are done, then deriving pending and a completion
+    rate from that running total.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The six operations</h2>
+  <ul>
+    <li>Add a task &mdash; appends a new <code>[task_text, False]</code> pair (blank input is rejected).</li>
+    <li>View all tasks &mdash; numbered, showing <code>[x]</code> for done and <code>[ ]</code> for pending.</li>
+    <li>Mark a task complete &mdash; by number, flips that task's <code>is_done</code> flag to <code>True</code>.</li>
+    <li>Remove a task &mdash; by number, uses <code>.pop()</code> to delete it from the master list.</li>
+    <li>View session stats &mdash; total, completed, pending, and a completion rate.</li>
+    <li>Quit &mdash; prints a session summary and exits the loop.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "clear all completed tasks" option that removes every task whose <code>is_done</code> flag is <code>True</code> in one pass.</li>
+    <li>Track the longest-pending task (the earliest-added task still marked incomplete).</li>
+    <li>Let the user edit a task's text by number instead of only removing and re-adding it.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>To-do apps are one of the most common "starter portfolio project" shapes in software &mdash; every task tracker, project board, and reminders app is built from the same core idea: a running collection of records, each with its own status, that gets added to, updated, and trimmed over time. The logic here is small on purpose, but it's the same shape as production task-management code: a shared collection, operations that mutate it safely by validated position, and a running tally of where things stand.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>Chapter 7 is the first chapter where you get a genuine choice of what to build. The To-Do List Manager above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 7 (variables, operators, <code>if</code>/<code>elif</code>/<code>else</code>, loops, strings, lists, and tuples). No starter or solution files are provided on purpose &mdash; building one of these unassisted, menu loop and all, is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Contact Book</h3>
+    <p><strong>Problem:</strong> Store a small address book of contacts and be able to find, list, and remove them without a phonebook app.</p>
+    <p><strong>What it should do:</strong> Keep one master list of contacts, where each contact is a tuple <code>(name, phone, email)</code> (a tuple fits well here since a single contact's three fields don't need to change shape once entered). Menu options: add a contact, search for a contact by name (a linear scan through the list, case-insensitive), remove a contact by name, and list all contacts sorted alphabetically by name.</p>
+    <p><strong>Suggested approach:</strong> Start with <code>contacts = []</code>. For "list all, sorted," look at <code>sorted()</code> from this chapter &mdash; since contacts are tuples, sorting a list of tuples sorts by the first element (name) by default. For "search by name," loop over <code>contacts</code> with a plain <code>for</code> loop and compare <code>contact[0].lower()</code> against the search term.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Grade Roster &amp; Class Average</h3>
+    <p><strong>Problem:</strong> A teacher needs a quick way to record each student's score and see class-wide stats without a spreadsheet.</p>
+    <p><strong>What it should do:</strong> Keep one master list of <code>[student_name, score]</code> pairs. Menu options: add a student and their score, compute the class average, find the highest and lowest scorer, and list every student below a passing threshold (e.g. 60).</p>
+    <p><strong>Suggested approach:</strong> Use the accumulator pattern from Chapter 5 to sum every score and divide by <code>len(roster)</code> for the average. For highest/lowest, loop through the roster tracking a "best so far" variable and compare as you go &mdash; the same pattern as finding a maximum manually. For "below threshold," loop and build a filtered list of students whose score is under the cutoff.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Playlist Queue Manager</h3>
+    <p><strong>Problem:</strong> Manage the "up next" queue for a music player &mdash; songs join the back of the line and play from the front, in order.</p>
+    <p><strong>What it should do:</strong> Keep one master list acting as a queue of song names. Menu options: add a song to the end of the queue, "play next" (remove and display the song at the front of the queue), view the upcoming queue in order, and manually shuffle the queue's order.</p>
+    <p><strong>Suggested approach:</strong> <code>.append()</code> adds to the back; <code>.pop(0)</code> removes and returns the front item (that's exactly what a queue needs). For "manually shuffle" without the <code>random</code> module (not taught until later), loop through the queue and swap pairs of songs at picked positions using the tuple-swap idiom from this chapter: <code>queue[i], queue[j] = queue[j], queue[i]</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Shopping Cart Total</h3>
+    <p><strong>Problem:</strong> Track items in a shopping cart and compute a checkout total, the way an e-commerce site's cart page does.</p>
+    <p><strong>What it should do:</strong> Keep one master list of cart items, where each item is a tuple <code>(item_name, price, quantity)</code>. Menu options: add an item to the cart, remove an item by name, view the cart with a computed line total per item (<code>price * quantity</code>), and compute the grand total across the whole cart.</p>
+    <p><strong>Suggested approach:</strong> Loop over the cart list to print each line item, computing <code>price * quantity</code> on the fly for display. For the grand total, use an accumulator variable that adds each item's line total as you loop. Since tuples are immutable, "removing an item" means building a new cart list (or using <code>.pop()</code> by index) rather than editing an item's fields in place &mdash; if you need to change a quantity, replace the whole tuple at that index instead.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

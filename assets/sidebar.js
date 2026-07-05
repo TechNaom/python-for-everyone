@@ -37,7 +37,15 @@
         const activeClass = ch.id === activeChapter ? "active" : "";
         if (ch.path) {
           const check = isComplete(ch.id) ? `<span class="sidebar-check">✓</span>` : `<span>${ch.num}.</span>`;
-          html += `<li class="${activeClass}"><a href="${root}${ch.path}">${check} ${escapeHtml(ch.title)}</a></li>`;
+          html += `<li class="${activeClass}"><a href="${root}${ch.path}">${check} ${escapeHtml(ch.title)}</a>`;
+          if (ch.subtopics && ch.subtopics.length) {
+            html += `<ul class="sidebar-subtopic-list">`;
+            ch.subtopics.forEach((sub) => {
+              html += `<li><a href="${root}${ch.path}#${sub.id}">${escapeHtml(sub.title)}</a></li>`;
+            });
+            html += `</ul>`;
+          }
+          html += `</li>`;
         } else {
           html += `<li><span class="soon">${ch.num}. ${escapeHtml(ch.title)} <em>(soon)</em></span></li>`;
         }

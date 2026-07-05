@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive fill-in-the-blank quiz for Chapter 7: Lists & Tuples.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-07" data-active-chapter="chapter-07">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 7 Quiz</span>
+  <h1>Lists &amp; Tuples</h1>
+  <p>Fill in each blank, then press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="q1"><span class="q-num">1</span> Given <code>fruits = ["apple", "banana", "cherry"]</code>, <code>fruits[____]</code> always refers to the last item, no matter how long the list is.</label>
+      <div class="fib-row">
+        <input type="text" id="q1" class="fib-blank" data-answers="-1" aria-label="Answer for question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> Unlike a string, a list is <code>____</code> — you can overwrite one of its items in place, like <code>fruits[1] = "blueberry"</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="mutable" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q3"><span class="q-num">3</span> <code>cart.____("keyboard")</code> adds <code>"keyboard"</code> to the very end of the list.</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="append" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q4"><span class="q-num">4</span> <code>cart.____(other_list)</code> adds every item from <code>other_list</code> onto the end, one at a time — different from adding <code>other_list</code> as a single item.</label>
+      <div class="fib-row">
+        <input type="text" id="q4" class="fib-blank" data-answers="extend" aria-label="Answer for question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q5"><span class="q-num">5</span> <code>scores.sort()</code> reorders <code>scores</code> in place, while <code>____(scores)</code> returns a new sorted list and leaves the original untouched.</label>
+      <div class="fib-row">
+        <input type="text" id="q5" class="fib-blank" data-answers="sorted" aria-label="Answer for question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> <code>queue.____()</code> removes and returns the last item of a list (or the item at a given position, if you pass an index).</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="pop" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q7"><span class="q-num">7</span> A tuple is written with <code>____</code> instead of square brackets, and is immutable once created.</label>
+      <div class="fib-row">
+        <input type="text" id="q7" class="fib-blank" data-answers="parentheses,()" aria-label="Answer for question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q8"><span class="q-num">8</span> Given <code>point = (3, 7)</code>, running <code>point[0] = 9</code> raises a <code>____</code>, because tuples cannot be changed in place.</label>
+      <div class="fib-row">
+        <input type="text" id="q8" class="fib-blank" data-answers="TypeError,typeerror" aria-label="Answer for question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q9"><span class="q-num">9</span> Given <code>point = (3, 7)</code>, the line <code>x, y = point</code> is called tuple <code>____</code> — it assigns each value to its own variable in one line.</label>
+      <div class="fib-row">
+        <input type="text" id="q9" class="fib-blank" data-answers="unpacking" aria-label="Answer for question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> Given <code>grid = [[1, 2], [3, 4]]</code>, <code>grid[1][0]</code> equals <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="3" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q11"><span class="q-num">11</span> In <code>grid[row][col]</code>, the first index picks the <code>____</code>, and the second index picks the item inside it.</label>
+      <div class="fib-row">
+        <input type="text" id="q11" class="fib-blank" data-answers="row" aria-label="Answer for question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q12"><span class="q-num">12</span> After <code>a = [1, 2]</code> and <code>b = a</code>, appending to <code>b</code> also changes <code>a</code>, because <code>b</code> is not a copy — it's just a second name for the same list, a bug called <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q12" class="fib-blank" data-answers="aliasing" aria-label="Answer for question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> <code>c = a.____()</code> (or <code>c = a[:]</code>) makes a real, independent copy of a list instead of just another name for it.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="copy" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> <code>a ____ b</code> asks whether <code>a</code> and <code>b</code> are literally the same object, while <code>a == b</code> only asks whether their contents currently match.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="is" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 7 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

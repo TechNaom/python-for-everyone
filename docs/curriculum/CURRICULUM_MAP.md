@@ -17,12 +17,12 @@ moving to the next. The rendered, always-current version lives at
 | 5 | Loops (while / for) | while, for + range(), accumulator pattern, break/continue |
 | — | Module 1 Written Exam | covers Chapters 1-5 |
 | 6 | Strings Deep Dive | indexing/slicing, string methods, f-strings, immutability, validation, real-world text processing — plus a Challenges page (8 auto-graded coding problems, HackerRank-style) |
+| 7 | Lists & Tuples | indexing/slicing/mutation, list methods, tuples & packing/unpacking, nested lists, shallow copies & the is-vs-== trap, real-world record processing — plus a Challenges page (8 auto-graded coding problems) and, from this chapter onward, 4 extra real-world project ideas alongside the one fully built project |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 7 | Lists & Tuples | To-do list manager |
 | 8 | Dictionaries & Sets | Inventory tracker |
 | 9 | Comprehensions, Lambda & Functional Tools | Data-cleaning one-liners kit |
 | 10 | Functions Deep Dive (params & defaults, `*args`/`**kwargs`, scope & `global`/`nonlocal`, recursion, closures, decorators) | Tip / bill-split calculator library |

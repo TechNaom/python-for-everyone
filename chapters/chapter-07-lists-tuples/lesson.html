@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7: Lists &amp; Tuples — Python for Everyone</title>
+<meta name="description" content="Creating and slicing lists, list methods, tuples and unpacking, nested lists, copying vs. aliasing, and real-world record processing — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-07">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 7 of 27</span>
+    <span class="badge-difficulty">Beginner</span>
+    <span class="reading-time">28 min read</span>
+  </div>
+  <h1>Lists &amp; Tuples</h1>
+  <p><em>So far, every variable has held one value at a time. Real programs rarely work that way — a shopping cart holds many items, a leaderboard holds many scores, a form submission holds many fields. Lists and tuples are how Python holds a whole collection of values under one name, and this chapter is where that skill starts.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Start with the pattern.</strong> Each section teaches one small collection idea at a time.</li>
+      <li><strong>Read the example first.</strong> The code mirrors real situations like shopping carts, orders, and coordinates.</li>
+      <li><strong>Try one line at a time.</strong> The playgrounds are meant for quick experiments, not long typing.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#creating-accessing">1. Creating lists &amp; accessing elements</a>
+    <a href="#list-methods">2. List methods that grow, shrink, and reorder</a>
+    <a href="#tuples">3. Tuples: immutable sequences &amp; packing/unpacking</a>
+    <a href="#nested-lists">4. Nested lists &amp; 2D data</a>
+    <a href="#copying-lists">5. Copying lists: shallow copies &amp; the is-vs-== trap</a>
+    <a href="#bringing-together">6. Real-world lists &amp; tuples in production</a>
+  </nav>
+
+  <div class="hook">
+    A shopping cart, a class roster, a set of GPS coordinates, a batch of orders waiting to ship — every one of these is just a collection of values that a program needs to hold, loop over, and change. Lists (and their unchangeable cousin, tuples) are Python's everyday tools for exactly that job.
+  </div>
+
+  <div class="subtopic" id="creating-accessing">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Creating lists &amp; accessing elements</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>List</strong> = an ordered collection of values in one variable.</li>
+        <li>Indexing and slicing work exactly like they did for strings in Chapter 6.</li>
+        <li>Unlike strings, a list can be changed in place.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Think in positions:</strong> a list is a row of boxes, and each box has a number — same idea as string indexing.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a list?</span>
+      A list is an ordered, changeable collection of values, written between
+      square brackets and separated by commas:
+      <code>fruits = ["apple", "banana", "cherry"]</code>. A list can hold
+      any number of items, of any type, and — unlike a string — its
+      contents can be changed after it's created.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">creating_lists.py</span>
+      </div>
+      <pre><code>fruits = ["apple", "banana", "cherry", "date", "elderberry"]
+print(fruits)
+print(len(fruits))   &#35; 5 — same len() you already know from strings</code></pre>
+    </div>
+
+    <p>
+      Getting one item out of a list uses the same square-bracket indexing
+      you learned for strings — position numbers count from
+      <code>0</code>, and negative numbers count from the end:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">Index map for a 5-item list</span>
+      <pre><code>apple  banana  cherry  date  elderberry
+[0]    [1]     [2]     [3]   [4]
+[-5]   [-4]    [-3]    [-2]  [-1]</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">indexing_slicing_lists.py</span>
+      </div>
+      <pre><code>fruits = ["apple", "banana", "cherry", "date", "elderberry"]
+
+print(fruits[0])    &#35; 'apple'  — first item
+print(fruits[-1])   &#35; 'elderberry' — last item, no matter the length
+
+&#35; Slicing: [start:stop] — stop is EXCLUDED, same rule as strings/range()
+print(fruits[1:3])   &#35; ['banana', 'cherry']
+print(fruits[-2:])   &#35; ['date', 'elderberry'] — last 2 items
+print(fruits[::-1])  &#35; the whole list, reversed</code></pre>
+    </div>
+
+    <p>
+      Here's the one big difference from strings: a list is
+      <strong>mutable</strong>, so you can reach into it by index and
+      overwrite one item without rebuilding the whole thing.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... mutability?</span>
+      Mutable means "changeable in place." Strings are immutable (Chapter
+      6) — <code>s[0] = "X"</code> crashes with a
+      <code>TypeError</code>. Lists are mutable —
+      <code>fruits[1] = "blueberry"</code> just works, and it edits the
+      same list object instead of creating a new one.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">mutating_a_list.py</span>
+      </div>
+      <pre><code>fruits = ["apple", "banana", "cherry", "date", "elderberry"]
+fruits[1] = "blueberry"   &#35; overwrite one item in place
+print(fruits)   &#35; ['apple', 'blueberry', 'cherry', 'date', 'elderberry']</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_lists.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">cart = ["headphones", "mouse", "keyboard", "webcam"]
+print(cart[0])
+print(cart[-1])
+print(cart[1:3])
+cart[0] = "wireless headphones"
+print(cart)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing an index or slice.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: a list can mix types, but usually shouldn't</summary>
+      <p>
+        Python doesn't stop you from writing
+        <code>mixed = ["Alice", 29, True]</code> — a list can hold any mix
+        of types. In practice, most real lists hold one consistent kind of
+        thing (all prices, all names, all orders), because that's what
+        makes looping over them predictable. Save mixing types for cases
+        where each item genuinely represents a different field, like a
+        single record — which is exactly what tuples (Section 3) are
+        usually for.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A list is written with square brackets: <code>[item1, item2, ...]</code>, and <code>len()</code> counts its items.</li>
+        <li>Indexing (<code>fruits[i]</code>) and slicing (<code>fruits[a:b:step]</code>) work exactly like they did for strings.</li>
+        <li>Unlike strings, lists are mutable — <code>fruits[1] = "x"</code> edits the list in place instead of creating a new one.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="list-methods">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. List methods that grow, shrink, and reorder a list</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Grow</strong> a list with <code>.append()</code>, <code>.insert()</code>, <code>.extend()</code>.</li>
+        <li><strong>Shrink</strong> it with <code>.remove()</code>, <code>.pop()</code>, <code>.clear()</code>.</li>
+        <li><strong>Reorder</strong> it with <code>.sort()</code>, <code>sorted()</code>, <code>.reverse()</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a shopping cart, a queue, or a leaderboard needs to change over time.
+    </div>
+
+    <p>
+      Three methods add new items to a list, each in a slightly different
+      spot:
+    </p>
+
+    <ul>
+      <li><code>.append(x)</code> adds <code>x</code> to the very end.</li>
+      <li><code>.insert(i, x)</code> adds <code>x</code> at position
+        <code>i</code>, shifting everything after it over.</li>
+      <li><code>.extend(other_list)</code> adds every item from
+        <code>other_list</code> onto the end, one at a time.</li>
+    </ul>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">growing_a_list.py</span>
+      </div>
+      <pre><code>cart = ["headphones", "mouse"]
+
+cart.append("keyboard")
+print(cart)   &#35; ['headphones', 'mouse', 'keyboard']
+
+cart.insert(1, "webcam")
+print(cart)   &#35; ['headphones', 'webcam', 'mouse', 'keyboard']
+
+cart.extend(["mousepad", "usb-cable"])
+print(cart)   &#35; ['headphones', 'webcam', 'mouse', 'keyboard', 'mousepad', 'usb-cable']</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the difference between .append() and .extend()?</span>
+      <code>.append(x)</code> always adds exactly one new item, even if
+      <code>x</code> is itself a list — <code>cart.append([1, 2])</code>
+      adds one item that <em>is</em> a list. <code>.extend(x)</code> instead
+      unpacks <code>x</code> and adds each of its items individually. Reach
+      for <code>.extend()</code> whenever you're merging in another list's
+      contents.
+    </div>
+
+    <p>
+      Removing items works a similar way — pick the method based on
+      whether you know the <em>value</em> or the <em>position</em>:
+    </p>
+
+    <ul>
+      <li><code>.remove(value)</code> deletes the first item that matches
+        <code>value</code> (crashes with <code>ValueError</code> if it's
+        not there).</li>
+      <li><code>.pop()</code> removes and <em>returns</em> the last item;
+        <code>.pop(i)</code> removes and returns the item at position
+        <code>i</code>.</li>
+      <li><code>.clear()</code> empties the whole list.</li>
+    </ul>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">shrinking_a_list.py</span>
+      </div>
+      <pre><code>cart = ["headphones", "webcam", "mouse", "keyboard", "mousepad", "usb-cable"]
+
+cart.remove("mouse")
+print(cart)   &#35; drops the first "mouse" it finds
+
+last_item = cart.pop()
+print(last_item, cart)   &#35; 'usb-cable' popped off the end
+
+first_item = cart.pop(0)
+print(first_item, cart)   &#35; 'headphones' popped off the front</code></pre>
+    </div>
+
+    <p>
+      Finally, three methods change a list's <em>order</em> without adding
+      or removing anything:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">reordering_a_list.py</span>
+      </div>
+      <pre><code>scores = [88, 72, 95, 60, 81]
+
+scores.sort()             &#35; sorts scores IN PLACE, ascending
+print(scores)   &#35; [60, 72, 81, 88, 95]
+
+scores.sort(reverse=True)  &#35; in place, descending
+print(scores)   &#35; [95, 88, 81, 72, 60]
+
+&#35; sorted() instead returns a NEW sorted list, leaving the original alone
+names = ["Zoe", "Amir", "Priya"]
+print(sorted(names))   &#35; ['Amir', 'Priya', 'Zoe'] — a new list
+print(names)            &#35; ['Zoe', 'Amir', 'Priya'] — unchanged
+
+letters = ["b", "a", "d", "c"]
+letters.reverse()   &#35; flips the order in place — NOT alphabetical
+print(letters)   &#35; ['c', 'd', 'a', 'b']</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the difference between .sort() and sorted()?</span>
+      <code>.sort()</code> is a list method that reorders the list in
+      place and returns nothing. <code>sorted(some_list)</code> is a
+      built-in function (like <code>len()</code>) that leaves the original
+      list untouched and hands back a brand-new sorted list instead. Use
+      <code>sorted()</code> when you still need the original order for
+      something else.
+    </div>
+
+    <p>
+      Two more small but handy methods: <code>.count()</code> tells you how
+      many times a value shows up, and <code>.index()</code> tells you
+      where the first one is:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">counting_and_finding.py</span>
+      </div>
+      <pre><code>votes = ["yes", "no", "yes", "yes", "no"]
+print(votes.count("yes"))   &#35; 3
+print(votes.index("no"))    &#35; 1 — position of the FIRST "no"</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_list_methods.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">queue = ["Priya", "Amir", "Zoe"]
+queue.append("Sam")
+queue.insert(0, "Bo")
+print(queue)
+next_up = queue.pop(0)
+print(next_up, "is being served. Remaining:", queue)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding or removing different names.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does .remove() crash on a missing value?</summary>
+      <p>
+        <code>.remove("mouse")</code> raises a <code>ValueError</code> if
+        <code>"mouse"</code> isn't in the list — Python has no way to
+        remove something that doesn't exist. Chapter 6 taught you to check
+        with <code>in</code> before doing something risky; the same habit
+        applies here: <code>if "mouse" in cart: cart.remove("mouse")</code>
+        avoids the crash using only what you already know.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>.append()</code>, <code>.insert()</code>, and <code>.extend()</code> add items; <code>.remove()</code>, <code>.pop()</code>, and <code>.clear()</code> take them away.</li>
+        <li><code>.sort()</code> and <code>.reverse()</code> reorder a list in place; <code>sorted()</code> returns a new sorted list and leaves the original untouched.</li>
+        <li><code>.count()</code> and <code>.index()</code> ask "how many?" and "where's the first one?" about a value.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="tuples">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Tuples: immutable sequences &amp; packing/unpacking</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Tuple</strong> = an ordered collection, written with parentheses, that can't be changed.</li>
+        <li>Indexing and slicing work the same as lists.</li>
+        <li><strong>Unpacking</strong> pulls a tuple's values into separate variables in one line.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a value is a fixed record that should never accidentally change — a coordinate, a database row, a fixed-size point in time.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a tuple?</span>
+      A tuple is an ordered collection written with parentheses instead of
+      square brackets: <code>point = (3, 7)</code>. It behaves like a list
+      for reading — indexing, slicing, <code>len()</code> all work the same
+      way — but it is <strong>immutable</strong>: once created, its
+      contents can never change, the same guarantee strings gave you in
+      Chapter 6.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tuple_basics.py</span>
+      </div>
+      <pre><code>point = (3, 7)
+print(point[0], point[1])   &#35; 3 7
+print(point[-1])            &#35; 7 — negative indexing, same as lists
+
+coords = (10, 20, 30, 40)
+print(coords[1:3])          &#35; (20, 30) — slicing works too</code></pre>
+    </div>
+
+    <p>
+      Trying to change a tuple in place fails immediately — that's the
+      whole point of choosing a tuple over a list:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tuples_cannot_change.py</span>
+      </div>
+      <pre><code>point = (3, 7)
+point[0] = 9
+&#35; TypeError: 'tuple' object does not support item assignment</code></pre>
+    </div>
+
+    <p>
+      That crash is a feature, not a limitation. A pair of GPS coordinates,
+      a database row you just read, or a fixed record like
+      <code>(year, month, day)</code> shouldn't be editable by accident —
+      a tuple makes that mistake impossible instead of just unlikely.
+    </p>
+
+    <p>
+      <strong>Packing and unpacking</strong> is the other reason tuples
+      show up constantly. Packing is just creating one:
+      <code>point = (3, 7)</code> "packs" two values into one tuple.
+      <strong>Unpacking</strong> reverses that — one line assigns each
+      value inside a tuple to its own variable:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">packing_unpacking.py</span>
+      </div>
+      <pre><code>point = (3, 7)
+x, y = point           &#35; unpacking: x = 3, y = 7
+print(x, y)             &#35; 3 7
+
+&#35; Unpacking works for any size tuple, as long as the counts match
+record = ("Alice", 29, "Engineering")
+name, age, dept = record
+print(name, age, dept)   &#35; Alice 29 Engineering</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a one-item tuple?</span>
+      <code>(5)</code> is just the number <code>5</code> in parentheses —
+      not a tuple. Python needs a trailing comma to know you mean a tuple:
+      <code>single = (5,)</code>. Easy to forget, and a common source of
+      confusing bugs, so watch for it whenever a tuple has exactly one item.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_tuples.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">location = ("Austin", "TX", 78701)
+city, state, zip_code = location
+print(f"{city}, {state} {zip_code}")
+print(location[1:])</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try unpacking a tuple of your own.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just use a list for everything?</summary>
+      <p>
+        You could — Python won't stop you. But immutability communicates
+        intent: a tuple tells anyone reading the code "this is a fixed
+        record, don't expect it to change," the same way marking something
+        immutable in any language is a promise about how it will be used.
+        A list, by contrast, signals "this collection is expected to grow,
+        shrink, or reorder." Picking the right one is a small but real
+        piece of writing code other people (including future you) can
+        trust.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A tuple is written with parentheses; indexing, slicing, and <code>len()</code> work exactly like lists.</li>
+        <li>Tuples are immutable — <code>point[0] = 9</code> raises a <code>TypeError</code>, by design.</li>
+        <li>Unpacking (<code>x, y = point</code>) assigns each of a tuple's values to its own variable in one line.</li>
+        <li>A one-item tuple needs a trailing comma: <code>(5,)</code>, not <code>(5)</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="nested-lists">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Nested lists &amp; 2D data</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Nested list</strong> = a list whose items are themselves lists.</li>
+        <li>Two indexes reach a single value: row, then column.</li>
+        <li>A common shape for grids, tables, and rows of records.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> data naturally has rows and columns — a spreadsheet, a tic-tac-toe board, a table of student scores.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a nested list?</span>
+      A nested list is simply a list where each item is itself a list —
+      Python doesn't need any new syntax for this, since a list can hold
+      any type of value, including another list. This is how Python
+      represents "2D" data: rows and columns.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">nested_lists.py</span>
+      </div>
+      <pre><code>grid = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+]
+
+print(grid[0])       &#35; [1, 2, 3] — the whole first row
+print(grid[1][2])    &#35; 6 — row 1, column 2</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Reading grid[1][2]</span>
+      <pre><code>grid[0] -> [1, 2, 3]
+grid[1] -> [4, 5, 6]
+grid[2] -> [7, 8, 9]
+
+grid[1]       is the row:     [4, 5, 6]
+grid[1][2]    is that row's item at index 2:   6</code></pre>
+    </div>
+
+    <p>
+      The first index picks a row; the second index picks an item
+      <em>inside</em> that row. Mutating a nested list works the same way
+      — reach in with both indexes, then assign:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">mutating_nested_lists.py</span>
+      </div>
+      <pre><code>grid = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+]
+grid[2][0] = 70
+print(grid)   &#35; [[1, 2, 3], [4, 5, 6], [70, 8, 9]]</code></pre>
+    </div>
+
+    <p>
+      A realistic use case: a small classroom roster, where each row holds
+      one student's name and score. A <code>for</code> loop walks the
+      outer list, and each <code>student</code> is one inner list:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">classroom_roster.py</span>
+      </div>
+      <pre><code>classroom = [
+    ["Priya", 91],
+    ["Amir", 84],
+    ["Zoe", 77],
+]
+
+for student in classroom:
+    print(student[0], "-", student[1])
+&#35; Priya - 91
+&#35; Amir - 84
+&#35; Zoe - 77</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_nested_lists.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">board = [
+    ["X", "O", "X"],
+    [" ", "X", " "],
+    ["O", " ", "O"],
+]
+for row in board:
+    print(row)
+print("Center square:", board[1][1])</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing a square with board[row][col] = "X".</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: nesting isn't limited to two levels</summary>
+      <p>
+        A list can hold a list of lists of lists, as deep as the data
+        actually needs — <code>cube[0][1][2]</code> is perfectly valid
+        Python. In practice, two levels (rows and columns) cover the huge
+        majority of real cases; going deeper usually means the data would
+        be clearer represented some other way, which is exactly the
+        problem dictionaries (Chapter 8) start to solve.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A nested list is a list whose items are themselves lists — no special syntax needed.</li>
+        <li><code>grid[row][col]</code> reaches a single value: the first index picks the row, the second picks the item inside it.</li>
+        <li>Looping over a nested list with <code>for row in grid:</code> gives you one inner list per iteration.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="copying-lists">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Copying lists: shallow copies &amp; the is-vs-== trap</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Assignment</strong> (<code>b = a</code>) doesn't copy a list — it makes a second name for the same list.</li>
+        <li><code>.copy()</code> or <code>a[:]</code> makes an actual second list.</li>
+        <li><code>is</code> checks "same object?"; <code>==</code> checks "same contents?"</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Key idea:</strong> two variable names can secretly point at the exact same list.
+    </div>
+
+    <p>
+      Chapter 3 introduced <code>is</code> alongside <code>==</code>, but
+      the difference barely mattered for numbers and strings. For lists,
+      it matters a lot — because <code>b = a</code> does not create a new
+      list.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">the_aliasing_bug.py</span>
+      </div>
+      <pre><code>original = [1, 2, 3]
+alias = original       &#35; NOT a copy — just a second name for the same list
+alias.append(4)
+
+print("original:", original)   &#35; [1, 2, 3, 4] — changed too!
+print("alias:", alias)          &#35; [1, 2, 3, 4]</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Two names, one list</span>
+      <pre><code>original ----\
+              >---- [1, 2, 3, 4]
+alias    ----/</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... aliasing?</span>
+      Aliasing is when two variable names refer to the exact same list
+      object in memory, instead of two separate lists that happen to look
+      alike. Changing the list through either name changes what both names
+      see — there's really only one list, wearing two labels.
+    </div>
+
+    <p>
+      <code>is</code> and <code>==</code> tell this apart precisely —
+      <code>is</code> asks "are these literally the same object?" while
+      <code>==</code> asks "do these have equal contents right now?":
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">is_vs_equals.py</span>
+      </div>
+      <pre><code>original = [1, 2, 3]
+alias = original
+print(original is alias)   &#35; True — same object
+print(original == alias)    &#35; True — and, of course, equal contents
+
+copy1 = original.copy()     &#35; a real, independent copy
+print(original is copy1)   &#35; False — a different object
+print(original == copy1)    &#35; True — but the contents currently match</code></pre>
+    </div>
+
+    <p>
+      The fix is to make an actual copy before handing a list to code that
+      might change it. Two equivalent ways: <code>.copy()</code>, or the
+      full-range slice trick from Chapter 6, <code>a[:]</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fixing_the_aliasing_bug.py</span>
+      </div>
+      <pre><code>original = [1, 2, 3]
+copy1 = original.copy()   &#35; option 1
+copy2 = original[:]        &#35; option 2 — a full slice also makes a real copy
+
+copy1.append(99)
+print("original:", original)   &#35; [1, 2, 3] — untouched
+print("copy1:", copy1)          &#35; [1, 2, 3, 99]
+print(original is copy2)        &#35; False — a separate list</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a shallow copy?</span>
+      <code>.copy()</code> and <code>a[:]</code> both make a
+      <strong>shallow</strong> copy — a new outer list containing the same
+      items. For a flat list of numbers or strings, that's a completely
+      independent copy in every way that matters here. (Nested lists, from
+      Section 4, add a wrinkle a shallow copy doesn't fully solve — that's
+      a deeper-Python topic for later, and not something this chapter's
+      examples run into.)
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_copying.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="7">team = ["Priya", "Amir"]
+backup = team.copy()
+team.append("Zoe")
+print("team:", team)
+print("backup:", backup)
+print(team is backup)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try backup = team instead of .copy() and see what changes.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does Python work this way?</summary>
+      <p>
+        A variable in Python never "contains" a list directly — it holds a
+        reference (an address) pointing at the list object sitting in
+        memory. <code>b = a</code> copies the reference, not the list
+        itself, which is fast and cheap. It's the same reason two
+        variables can point at the same string too — but since strings are
+        immutable, that sharing is invisible; you can never tell the
+        difference. Lists being mutable is what turns invisible sharing
+        into a real bug if you're not watching for it.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>b = a</code> makes <code>b</code> a second name for the same list — mutating one mutates both.</li>
+        <li><code>.copy()</code> or <code>a[:]</code> creates a real, independent second list.</li>
+        <li><code>is</code> checks whether two names point at the same object; <code>==</code> checks whether their contents currently match.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world lists &amp; tuples in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Batch processing</strong> means looping over a list of records, one at a time.</li>
+        <li>Each record is often a small list or tuple of related fields.</li>
+        <li>Filter, accumulate, and report — the same pattern as Chapter 5's accumulator, just on rows now.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> loop the batch, filter what matters, accumulate a total, then report.
+    </div>
+
+    <p>
+      A very common real shape: a list of orders, where each order is a
+      small nested list of <code>[order_id, amount, status]</code>. A
+      <code>for</code> loop walks every order; an <code>if</code> filters
+      to the ones that matter; an accumulator (Chapter 5) tracks a running
+      total:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">order_report.py</span>
+      </div>
+      <pre><code>orders = [
+    ["ORD-1001", 42.50, "shipped"],
+    ["ORD-1002", 15.00, "pending"],
+    ["ORD-1003", 88.25, "shipped"],
+    ["ORD-1004", 5.75, "cancelled"],
+]
+
+total_shipped = 0
+shipped_count = 0
+
+for order in orders:
+    order_id = order[0]
+    amount = order[1]
+    status = order[2]
+    if status == "shipped":
+        total_shipped = total_shipped + amount
+        shipped_count += 1
+        print(f"{order_id}: ${amount:.2f} — {status}")
+
+print(f"Shipped orders: {shipped_count}, total revenue: ${total_shipped:.2f}")</code></pre>
+    </div>
+
+    <p>
+      Tuples earn their keep here too — a coordinate, unlike an order,
+      shouldn't ever be edited once it's recorded. Warehouses, delivery
+      stops, and map pins are naturally tuples, and unpacking makes them
+      easy to use:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tracking_coordinates.py</span>
+      </div>
+      <pre><code>warehouse_a = (40.71, -74.01)
+warehouse_b = (34.05, -118.24)
+
+print(f"Warehouse A is at {warehouse_a[0]}, {warehouse_a[1]}")
+
+lat, lon = warehouse_b
+print(f"Warehouse B is at {lat}, {lon}")</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a record?</span>
+      A record is one complete "row" of related data treated as a single
+      unit — one order, one student, one coordinate. Whether you represent
+      a record as a small list or a tuple is a real design choice: use a
+      tuple when the fields shouldn't change once created (a coordinate),
+      and a list when they might (an order whose status updates over
+      time).
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_order_report.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">orders = [
+    ["ORD-2001", 19.99, "shipped"],
+    ["ORD-2002", 120.00, "shipped"],
+    ["ORD-2003", 8.50, "cancelled"],
+]
+
+total_shipped = 0
+for order in orders:
+    if order[2] == "shipped":
+        total_shipped = total_shipped + order[1]
+
+print(f"Total shipped revenue: ${total_shipped:.2f}")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding another order to the list.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not one list per field instead?</summary>
+      <p>
+        You could keep <code>order_ids = [...]</code>,
+        <code>amounts = [...]</code>, and <code>statuses = [...]</code> as
+        three separate parallel lists, matched up by position. It works,
+        but it's fragile — sort one list and forget the other two, and
+        every record silently corrupts. Grouping each record's fields
+        together (as one row, list, or tuple) keeps everything about a
+        single order moving as one unit. Chapter 8's dictionaries make
+        this even clearer by naming each field instead of relying on
+        position.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Batch processing loops over a list of records, filtering and accumulating as it goes — the same shape as Chapter 5's accumulator pattern.</li>
+        <li>Each record is often a small list (fields that might change) or tuple (fields that shouldn't).</li>
+        <li>Keeping a record's fields together avoids the fragility of matching up several separate parallel lists by position.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every e-commerce cart, order queue, and to-do app is, underneath, a list being appended to, popped from, and looped over — the exact operations this chapter covers.</li>
+      <li>Spreadsheets, image data, and game boards are all commonly represented as nested lists in real code — <code>grid[row][col]</code> is the same pattern whether it's a tic-tac-toe board or a CSV file loaded into memory.</li>
+      <li>The aliasing bug from Section 5 is a genuine, common source of production bugs — passing a list around and mutating it unexpectedly has caused real data-corruption incidents; knowing when to reach for <code>.copy()</code> is a professional habit, not just a classroom exercise.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>Lists are written with <code>[...]</code> and are mutable — indexing and slicing work like strings, but items can be overwritten in place.</li>
+      <li><code>.append()</code>, <code>.insert()</code>, <code>.extend()</code> grow a list; <code>.remove()</code>, <code>.pop()</code>, <code>.clear()</code> shrink it; <code>.sort()</code>/<code>.reverse()</code> reorder it in place, while <code>sorted()</code> returns a new list.</li>
+      <li>Tuples are written with <code>(...)</code> and are immutable — use them for fixed records like coordinates; unpacking (<code>x, y = point</code>) reads a tuple's values into separate variables in one line.</li>
+      <li>Nested lists (<code>grid[row][col]</code>) represent 2D data like grids and tables; the first index picks a row, the second picks an item inside it.</li>
+      <li><code>b = a</code> aliases a list — both names point at the same object, so mutating one mutates both; <code>.copy()</code> or <code>a[:]</code> makes a real, independent copy.</li>
+      <li><code>is</code> checks whether two names refer to the same object; <code>==</code> checks whether their contents currently match — these can disagree for lists in a way they never do for simple numbers.</li>
+      <li>Real-world batch processing loops over a list of records (orders, rows, coordinates), filtering and accumulating — the exact pattern this chapter's capstone walked through.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

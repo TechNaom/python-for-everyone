@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 7: Lists & Tuples — mutability, the aliasing trap, shallow copies, sort() vs sorted(), tuple unpacking, and nested list gotchas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-07-interview" data-active-chapter="chapter-07">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 7 Interview Prep</span>
+    <span class="reading-time">18 min read</span>
+  </div>
+  <h1>Interview Questions: Lists &amp; Tuples</h1>
+  <p>Lists and tuples are where interviewers start probing whether you actually understand what a variable "holding" a value means. This set goes after the classic traps &mdash; aliasing, shallow copies, mutability by reference &mdash; plus the practical questions about which tool to reach for and why.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> When would you use a list instead of a tuple, and vice versa?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Reach for a <strong>list</strong> when the collection needs to change shape over its lifetime &mdash; items get added, removed, reordered, or updated (a shopping cart, a queue of tasks, scores collected as they come in). Reach for a <strong>tuple</strong> when the collection represents a fixed-size, fixed-meaning record that shouldn't change once created &mdash; a coordinate pair <code>(x, y)</code>, an RGB color <code>(255, 0, 0)</code>, a database row. Tuples also signal intent to anyone reading the code: "this is a small fixed bundle, not a growing collection."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating the choice as purely stylistic, or answering "tuples are just faster" without being able to explain when that speed difference would actually matter.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would you use a list or a tuple to represent a single point on a 2D grid?" (A tuple &mdash; <code>(x, y)</code> is a fixed two-item record that shouldn't be resized.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What does it actually mean for a list to be "mutable" in practice?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A list's contents can be changed <em>in place</em> without creating a new object &mdash; <code>my_list[0] = "new"</code> overwrites the first slot directly, and methods like <code>.append()</code>, <code>.sort()</code>, and <code>.remove()</code> modify the same object rather than returning a new one. This is the opposite of a string, which must always build a brand-new object for any "change." The practical consequence is that anyone else holding a reference to that same list sees the change too &mdash; mutation isn't private to the variable name you used.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>my_list.append(x)</code> returns a new list you need to capture with <code>=</code> &mdash; it returns <code>None</code> and mutates the original in place.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>x = my_list.append(5)</code> store in <code>x</code>?" (<code>None</code> &mdash; <code>.append()</code> mutates <code>my_list</code> in place and doesn't return anything useful.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> If <code>b = a</code> and then you modify <code>b</code>, why does <code>a</code> change too?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because <code>b = a</code> doesn't copy the list &mdash; it makes <code>b</code> a second name pointing at the exact same list object in memory. There's only ever one list here, with two labels on it. So <code>b.append(3)</code> mutates that one shared object, and looking at it through either name (<code>a</code> or <code>b</code>) shows the same updated contents. This is the single most common real-world list bug: passing a list around and accidentally mutating a copy someone else still expects to be untouched.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>b = a</code> creates an independent copy of a list the way it might feel like it does for a number or a string.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you check whether <code>a</code> and <code>b</code> are the same object versus just equal in value?" (<code>a is b</code> checks identity/same-object; <code>a == b</code> checks value equality &mdash; two independent lists with the same contents are <code>==</code> but not <code>is</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How do you actually make an independent copy of a list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Any of <code>b = a.copy()</code>, <code>b = a[:]</code> (a full slice), or <code>b = list(a)</code> creates a new, separate list object holding the same elements &mdash; from then on, appending to <code>b</code> does not affect <code>a</code>. All three do the same job at this level: a <strong>shallow</strong> copy, meaning the new outer list is independent, but if any element inside it is itself a mutable object (like a nested list), that inner object is still shared between the two copies.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing <code>b = a</code> and calling it "making a copy" &mdash; that's aliasing, not copying.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>a = [1, 2]</code>, <code>b = a.copy()</code>, <code>b.append(3)</code> &mdash; what is <code>a</code>?" (Still <code>[1, 2]</code> &mdash; the copy was independent, so appending to <code>b</code> never touched <code>a</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What's the gotcha with a shallow copy when the list contains nested lists?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A shallow copy only copies the <em>outer</em> list &mdash; each inner list is still the same shared object in both copies. So if <code>grid = [[0, 0, 0]] * 3</code> is built by repeating one inner list three times, all three "rows" are actually the same list in memory, not three independent ones. Mutating <code>grid[0][0] = 1</code> silently changes <code>grid[1][0]</code> and <code>grid[2][0]</code> too, because there's really only one row object being pointed at three times. The fix at this course's level is building each row separately in a loop (e.g. <code>grid.append([0, 0, 0])</code> three times) instead of multiplying one shared row.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>[[0] * n] * m</code> to build a 2D grid and being surprised when editing one "row" changes every row.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>grid = [[0, 0, 0]] * 3</code> and <code>grid[0][0] = 1</code>, what does <code>grid</code> look like?" (<code>[[1, 0, 0], [1, 0, 0], [1, 0, 0]]</code> &mdash; every row shows the change, since all three are the same underlying list object.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> Why is <code>.append()</code> considered cheap, but <code>.insert(0, x)</code> considered expensive on a long list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.append(x)</code> just drops <code>x</code> onto the end &mdash; nothing else in the list has to move. <code>.insert(0, x)</code> has to shift <em>every single existing element</em> one slot to the right to make room at the front, before <code>x</code> can go in. On a list of length <code>n</code>, that's roughly <code>n</code> elements moved for one insert at the front, versus a constant amount of work for one append at the end. Repeatedly inserting at the front of a large list in a loop is a common performance smell; repeatedly appending is not.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>.append()</code> and <code>.insert(0, x)</code> as equally cheap operations regardless of list size.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you needed to repeatedly add items to the front of a large collection, is a plain list your best structural choice?" (Not ideally &mdash; every front-insert re-shifts the whole list; this is a case where a different structure, covered later in the course, would do better. For now, appending and reversing at the end, or restructuring the problem so you append instead, avoids the repeated shifting.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the difference between <code>.sort()</code> and <code>sorted()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>my_list.sort()</code> sorts the list <em>in place</em> and returns <code>None</code> &mdash; the original list itself is now rearranged. <code>sorted(my_list)</code> leaves the original list untouched and returns a brand-new sorted list, which you have to capture in a variable to use. A very common bug is writing <code>my_list = my_list.sort()</code>, expecting a sorted list back, and instead wiping out the variable with <code>None</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing <code>x = some_list.sort()</code> and being confused why <code>x</code> is <code>None</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you need the original list's order preserved but also want a sorted version, which do you use?" (<code>sorted(my_list)</code> &mdash; it returns a new list without touching the original.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> Does slicing a list (e.g. <code>my_list[1:3]</code>) modify the original list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>No &mdash; slicing always builds and returns a <strong>new</strong> list containing copies of the references to the selected elements; the original list is completely untouched. This is true even for a full slice like <code>my_list[:]</code>, which is actually a common, deliberate way to make a shallow copy of an entire list. Slicing never mutates in place the way <code>.sort()</code> or <code>.append()</code> do.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a slice is a "view" into the same list that shares mutations both ways &mdash; in Python, a list slice is always an independent new list.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>a = [1, 2, 3, 4]</code>, <code>b = a[1:3]</code>, <code>b.append(99)</code> &mdash; what is <code>a</code>?" (Still <code>[1, 2, 3, 4]</code> &mdash; <code>b</code> is an independent new list, so mutating it never touches <code>a</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What's a practical use case for tuple packing and unpacking?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Packing is bundling several values into one tuple, like <code>point = (3, 4)</code>. Unpacking is pulling a tuple's values back out into separate variables in one line: <code>x, y = point</code>. The classic everyday use is swapping two variables without a temp variable &mdash; <code>a, b = b, a</code> works because Python first packs the right side into a temporary tuple <code>(b, a)</code>, then unpacks it into <code>a</code> and <code>b</code>. It's also used constantly when looping over a list of paired records, e.g. <code>for name, score in student_scores:</code>, unpacking each pair on every iteration.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing <code>a, b = b, a</code> as tuple packing/unpacking under the hood, or unpacking into the wrong number of variables and not knowing that raises a <code>ValueError</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What happens if you try <code>x, y = (1, 2, 3)</code>?" (<code>ValueError</code> &mdash; there are 3 values but only 2 variables to unpack into; the counts must match exactly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between <code>==</code> and <code>is</code> when comparing two lists?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>==</code> compares <em>values</em> element by element &mdash; two separate list objects with identical contents in the same order are <code>==</code>. <code>is</code> compares <em>identity</em> &mdash; whether both names point at the literal same object in memory. Unlike small integers or interned strings, two separately built lists with equal contents are essentially never <code>is</code> the same object, even though they're <code>==</code>. This is the same distinction that causes the <code>b = a</code> aliasing trap in question 3, just from the comparison side.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>is</code> to check whether two lists have the same contents &mdash; that's what <code>==</code> is for.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Are <code>[1, 2]</code> and <code>[1, 2]</code>, written as two separate literals, ever the same object?" (Practically no &mdash; each list literal creates a brand-new list object, so <code>[1, 2] is [1, 2]</code> is <code>False</code> even though <code>[1, 2] == [1, 2]</code> is <code>True</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What's the difference between <code>.remove()</code> and <code>.pop()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.remove(value)</code> searches for the first element that <em>equals</em> <code>value</code> and deletes it &mdash; you specify what the element looks like, not where it is. It raises <code>ValueError</code> if no matching value exists. <code>.pop(index)</code> deletes and <em>returns</em> the element at a specific position &mdash; you specify where, not what's there &mdash; and defaults to removing the last element if no index is given. It raises <code>IndexError</code> for an out-of-range index. The two solve different problems: use <code>.remove()</code> when you know the value but not its position; use <code>.pop()</code> when you know the position (or just want "the last one") and need the removed value back.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Calling <code>.remove(2)</code> expecting it to remove the element <em>at index</em> 2, rather than the first element <em>equal to</em> 2.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>nums = [5, 10, 15]</code>, what does <code>nums.remove(2)</code> do?" (Raises <code>ValueError</code> &mdash; there is no element equal to <code>2</code> in the list, even though index <code>2</code> exists.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What's the difference between <code>.append()</code> and <code>.extend()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.append(x)</code> adds exactly one new element to the end of the list &mdash; even if <code>x</code> is itself a list, it gets added whole, as one single nested element. <code>.extend(iterable)</code> adds each element <em>of</em> the given iterable individually, growing the list by however many items the iterable contains. So <code>[1, 2].append([3, 4])</code> gives <code>[1, 2, [3, 4]]</code> (three elements, one of which is a nested list), while <code>[1, 2].extend([3, 4])</code> gives <code>[1, 2, 3, 4]</code> (four flat elements).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using <code>.append()</code> when trying to merge two lists together and ending up with an accidentally nested list.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>[1, 2].append([3, 4])</code> produce, versus <code>[1, 2].extend([3, 4])</code>?" (<code>[1, 2, [3, 4]]</code> versus <code>[1, 2, 3, 4]</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Why can a tuple be used as a dictionary key, but a list can't?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Dictionary keys (and set elements, coming in Chapter 8) must be <strong>hashable</strong> &mdash; Python needs to compute a stable hash value for a key that never changes for the object's lifetime, so it can look the key up quickly. Because tuples are immutable, their contents (and therefore their hash) can never change after creation, so they're hashable and valid as keys &mdash; as long as everything inside the tuple is also hashable. Lists are mutable, so their contents (and hash) could change at any time; Python refuses to hash them at all, and <code>hash([1, 2])</code> raises <code>TypeError: unhashable type: 'list'</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to use a list as a dictionary key and expecting it to work like a tuple would.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would <code>(1, [2, 3])</code> &mdash; a tuple containing a list &mdash; be hashable?" (No &mdash; a tuple is only hashable if every element inside it is also hashable; a mutable list inside it makes the whole tuple unhashable too.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> What's a common gotcha when checking membership or looping over a list of records?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The <code>in</code> operator on a list has to scan element by element from the start until it finds a match (or reaches the end) &mdash; there's no shortcut, so checking membership repeatedly inside a loop over a large list can quietly turn an <code>O(n)</code> task into an <code>O(n&sup2;)</code> one, the same shape of problem as repeated string concatenation from Chapter 6. A second common gotcha is looping over a list of paired records (like <code>[name, score]</code> pairs) with a plain <code>for item in records:</code> and then having to manually index <code>item[0]</code>/<code>item[1]</code> &mdash; unpacking directly in the loop header, <code>for name, score in records:</code>, is clearer and less error-prone.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Running an <code>in</code> check on a large list inside a loop without recognizing the repeated linear-scan cost, or manually indexing <code>item[0]</code>/<code>item[1]</code> when direct unpacking in the loop header is available and clearer.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>records = [["Ana", 91], ["Ben", 78]]</code>, how would you loop over it and print each name and score cleanly?" (<code>for name, score in records: print(name, score)</code> &mdash; unpacking each inner pair directly in the loop header.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>[10, 20, 30][-1]</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="30" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>[10, 20, 30][0:2]</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="[10, 20]" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Running <code>(1, 2, 3)[0] = 99</code> raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="TypeError" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>.append(x)</code> always adds <code>x</code> to the <code>____</code> of the list.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="end" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> <code>sorted([3, 1, 2])</code> returns <code>____</code>, leaving the original list unchanged.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="[1, 2, 3]" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> <code>[3, 1, 2].sort()</code> returns <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="None" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> After <code>a = [1, 2]</code> and <code>b = a</code>, calling <code>b.append(3)</code> changes <code>a</code> to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="[1, 2, 3]" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> After <code>a = [1, 2]</code> and <code>b = a.copy()</code>, calling <code>b.append(3)</code> leaves <code>a</code> as <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="[1, 2]" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>[1, 2] is [1, 2]</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="False" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> The swap idiom for two variables without a temp variable is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="a, b = b, a" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>[1, 2, 3].pop()</code> returns <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="3" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> After <code>nums = [1, 2, 3]</code> and <code>nums.remove(2)</code>, <code>nums</code> equals <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="[1, 3]" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> <code>hash([1, 2])</code> raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="TypeError" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> <code>list((1, 2, 3))</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="[1, 2, 3]" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -6,6 +6,12 @@
   `path` is the file path from the repo root to that chapter's lesson.html.
   Leave `path: null` for chapters that haven't been built yet — the
   sidebar renders those as plain, non-clickable "coming soon" text.
+
+  `subtopics`, when present, is the list of that chapter's lesson.html
+  sub-sections — `{ id, title }`, where `id` matches the anchor id on that
+  section's <h2> (or its wrapping <div class="subtopic">) in lesson.html.
+  The sidebar renders these nested under the chapter link as `#id` anchors.
+  Leave it off (or empty) for chapters without a `path` yet.
 */
 
 window.PFE_MODULES = [
@@ -13,19 +19,60 @@ window.PFE_MODULES = [
     title: "Module 1 — Foundations",
     examPath: "assessments/written-exams/module-1-exam.md",
     chapters: [
-      { id: "chapter-01", num: 1, title: "Your First Python Program", path: "chapters/chapter-01-first-program/lesson.html" },
-      { id: "chapter-02", num: 2, title: "Variables & Data Types", path: "chapters/chapter-02-variables-data-types/lesson.html" },
-      { id: "chapter-03", num: 3, title: "Operators", path: "chapters/chapter-03-operators/lesson.html" },
-      { id: "chapter-04", num: 4, title: "Control Flow (if / elif / else)", path: "chapters/chapter-04-control-flow/lesson.html" },
-      { id: "chapter-05", num: 5, title: "Loops (while / for)", path: "chapters/chapter-05-loops/lesson.html" }
+      { id: "chapter-01", num: 1, title: "Your First Python Program", path: "chapters/chapter-01-first-program/lesson.html", subtopics: [
+        { id: "what-is-a-program", title: "What is a \"program,\" really?" },
+        { id: "print", title: "Your first instruction: print()" },
+        { id: "variables", title: "Storing information: variables" },
+        { id: "types", title: "Basic types: text vs. numbers" },
+        { id: "input", title: "Asking the user a question: input()" },
+        { id: "recap", title: "Putting it all together" }
+      ] },
+      { id: "chapter-02", num: 2, title: "Variables & Data Types", path: "chapters/chapter-02-variables-data-types/lesson.html", subtopics: [
+        { id: "naming", title: "Naming variables properly" },
+        { id: "auto-types", title: "Python decides the type for you" },
+        { id: "type-id", title: "Peeking under the hood: type() and id()" },
+        { id: "conversion", title: "Converting between types" }
+      ] },
+      { id: "chapter-03", num: 3, title: "Operators", path: "chapters/chapter-03-operators/lesson.html", subtopics: [
+        { id: "arithmetic", title: "Arithmetic & assignment operators" },
+        { id: "relational-logical", title: "Relational & logical operators" },
+        { id: "bitwise", title: "Bitwise operators" },
+        { id: "special", title: "Special operators: is / in" }
+      ] },
+      { id: "chapter-04", num: 4, title: "Control Flow (if / elif / else)", path: "chapters/chapter-04-control-flow/lesson.html", subtopics: [
+        { id: "simple-if", title: "Simple if" },
+        { id: "if-else", title: "if-else" },
+        { id: "elif", title: "elif — more than two possibilities" },
+        { id: "nested", title: "Nested if" }
+      ] },
+      { id: "chapter-05", num: 5, title: "Loops (while / for)", path: "chapters/chapter-05-loops/lesson.html", subtopics: [
+        { id: "while", title: "while loops" },
+        { id: "for-range", title: "for loops and range()" },
+        { id: "patterns", title: "Common loop patterns" },
+        { id: "break-continue", title: "break & continue" }
+      ] }
     ]
   },
   {
     title: "Module 2 — Data Structures & Functions",
     examPath: null,
     chapters: [
-      { id: "chapter-06", num: 6, title: "Strings Deep Dive", path: "chapters/chapter-06-strings-deep-dive/lesson.html" },
-      { id: "chapter-07", num: 7, title: "Lists & Tuples", path: null },
+      { id: "chapter-06", num: 6, title: "Strings Deep Dive", path: "chapters/chapter-06-strings-deep-dive/lesson.html", subtopics: [
+        { id: "indexing-slicing", title: "Indexing & slicing" },
+        { id: "string-methods", title: "Common string methods" },
+        { id: "f-strings", title: "String formatting: f-strings" },
+        { id: "immutability", title: "Immutability & string identity" },
+        { id: "searching-validating", title: "Searching & validating strings" },
+        { id: "bringing-together", title: "Real-world text processing" }
+      ] },
+      { id: "chapter-07", num: 7, title: "Lists & Tuples", path: "chapters/chapter-07-lists-tuples/lesson.html", subtopics: [
+        { id: "creating-accessing", title: "Creating lists & accessing elements" },
+        { id: "list-methods", title: "List methods: grow, shrink, reorder" },
+        { id: "tuples", title: "Tuples: immutability & packing/unpacking" },
+        { id: "nested-lists", title: "Nested lists & 2D data" },
+        { id: "copying-lists", title: "Copying lists & the is-vs-== trap" },
+        { id: "bringing-together", title: "Real-world lists & tuples in production" }
+      ] },
       { id: "chapter-08", num: 8, title: "Dictionaries & Sets", path: null },
       { id: "chapter-09", num: 9, title: "Comprehensions, Lambda & Functional Tools", path: null },
       { id: "chapter-10", num: 10, title: "Functions Deep Dive", path: null }
