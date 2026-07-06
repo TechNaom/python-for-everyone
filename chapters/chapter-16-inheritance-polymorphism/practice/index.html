@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 16: Inheritance & Polymorphism, including interview-style scenario problems on super().__init__(), method overriding, polymorphism, and isinstance() vs type().">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 16 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Inheritance &amp; Polymorphism</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This is the
+    chapter where inheritance becomes allowed:
+    <code>class Child(Parent):</code>, <code>super().__init__(...)</code>,
+    method overriding, polymorphism, and <code>isinstance()</code>/<code>type()</code>
+    checks, on top of everything from Chapters 1-15 (including general
+    classes, <code>__init__</code>, instance/class attributes, instance
+    methods, dunder methods, <code>@staticmethod</code>,
+    <code>@classmethod</code>, and <code>@property</code>). No import
+    beyond <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#basic-inheritance">1. Basic Inheritance</a>
+    <a href="#super-init">2. super().__init__()</a>
+    <a href="#method-overriding">3. Method Overriding</a>
+    <a href="#polymorphism">4. Polymorphism</a>
+    <a href="#isinstance-type-checking">5. isinstance() vs type()</a>
+    <a href="#bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="basic-inheritance">Topic 1: Basic Inheritance</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A subclass with zero new code</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write an <code>Animal</code> class and a <code>Dog</code> class inheriting from it, showing what a subclass gets automatically.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Inheriting a method unchanged</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write a <code>Vehicle</code> class and a <code>Car</code> class that inherits its methods without redefining them.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Inheriting attributes</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Write an <code>Employee</code> class and a <code>Manager</code> class that inherits its attributes.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Inheriting an unmodified method</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write a <code>Shape</code> class and a <code>Square</code> class that inherits an unmodified method.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This subclass definition forgot to put the parent class in parentheses. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Modeling a fleet of vehicles</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write a <code>Vehicle</code> base class and a <code>Truck</code> subclass that reuses it without any new code.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What does inheritance actually mean?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_basic_inheritance()</code>, explaining what "inheritance" means and what a subclass gets for free.</p>
+  </div>
+
+  <h2 id="super-init">Topic 2: <code>super().__init__()</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reusing parent setup, adding an attribute</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write an <code>Animal</code> class and a <code>Dog</code> subclass that uses <code>super().__init__()</code> to reuse the parent's setup and adds a breed attribute.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A student extending a person</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write a <code>Person</code> class and a <code>Student</code> subclass that uses <code>super().__init__()</code> plus a school attribute.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A rectangle extending a shape</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write a <code>Shape</code> class and a <code>Rectangle</code> subclass that uses <code>super().__init__()</code> plus extra attributes.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A motorcycle extending a vehicle</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Write a <code>Vehicle</code> class and a <code>Motorcycle</code> subclass that uses <code>super().__init__()</code> plus a has_sidecar attribute.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This subclass <code>__init__</code> forgot to call <code>super().__init__()</code>, leaving a parent attribute unset. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Extending a base employee record</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write an <code>Employee</code> class and a <code>Manager</code> subclass using <code>super().__init__()</code> plus a <code>direct_reports</code> attribute.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why super().__init__() over copy-paste?</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_super_init_reuse()</code>, explaining why <code>super().__init__()</code> is preferred over copy-pasting the parent's setup code.</p>
+  </div>
+
+  <h2 id="method-overriding">Topic 3: Method Overriding</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Fully replacing a parent method</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write an <code>Animal</code> class with a <code>speak</code> method and a <code>Cat</code> subclass that overrides it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Extending with super()</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write a <code>Shape</code> class with a <code>describe</code> method and a <code>Circle</code> subclass that overrides and extends it with <code>super().describe()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Extending an employee description</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Write an <code>Employee</code> class with a <code>describe</code> method and a <code>Manager</code> subclass that overrides and extends it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Overriding a send method</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write a <code>Notification</code> class with a <code>send</code> method and an <code>SMSNotification</code> subclass that overrides it.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This overriding method misspelled the parent method's name, defining a new method instead of overriding. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Customizing a shared receipt formatter</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write a <code>Receipt</code> class with a <code>format_line</code> method and a <code>DiscountedReceipt</code> subclass that overrides and extends it with <code>super()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Overriding vs. extending</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_overriding_vs_extending()</code>, explaining the difference between overriding a method and extending it with <code>super()</code>.</p>
+  </div>
+
+  <h2 id="polymorphism">Topic 4: Polymorphism</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Same call, different behavior</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>Cat</code> and <code>Dog</code> subclasses of <code>Animal</code>, each overriding <code>speak</code>, then loop over a list of both and call <code>speak()</code> on each without checking type.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Totaling mixed shape areas</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>Circle</code> and <code>Rectangle</code> subclasses of <code>Shape</code>, each overriding <code>area</code>, then loop over a list of both to total their areas.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Describing mixed staff</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write <code>Manager</code> and <code>Developer</code> subclasses of <code>Employee</code>, each overriding <code>describe</code>, then loop over a list of both and print each description.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Sending mixed notifications</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write <code>EmailNotification</code> and <code>SMSNotification</code> subclasses of <code>Notification</code>, each overriding <code>send</code>, then loop over a list of both and collect each result.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This loop uses <code>if</code>/<code>elif</code> type-checks before calling a method, defeating the point of polymorphism. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A payment processor supporting multiple payment types</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>CardPayment</code> and <code>PayPalPayment</code> subclasses of <code>Payment</code>, each overriding <code>process</code>, and process a mixed list polymorphically.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why polymorphism beats if/elif chains</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_polymorphism_benefit()</code>, explaining why polymorphism removes the need for type-checking <code>if</code>/<code>elif</code> chains.</p>
+  </div>
+
+  <h2 id="isinstance-type-checking">Topic 5: <code>isinstance()</code> vs <code>type()</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Comparing the two checks</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write an <code>Animal</code> class and a <code>Dog</code> subclass, then compare what <code>isinstance(dog, Animal)</code> returns versus <code>type(dog) == Animal</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Counting membership in a mixed list</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write a <code>Shape</code> class and a <code>Circle</code> subclass, then use <code>isinstance()</code> to safely check membership in a mixed list.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Subclass vs. exact-class matching</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write a <code>Vehicle</code> class and a <code>Car</code> subclass, then show <code>isinstance()</code> returning <code>True</code> for both <code>Car</code> and <code>Vehicle</code> while <code>type()</code> only matches the exact class.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Filtering a mixed staff list</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Write an <code>Employee</code> class and a <code>Manager</code> subclass, then use <code>isinstance()</code> to filter a list down to only manager-type entries.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This code uses <code>type(obj) == ParentClass</code> to check membership, which fails for subclass instances. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Validating mixed input before processing</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write a function that uses <code>isinstance()</code> to accept both a <code>Payment</code> and any of its subclasses safely.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>When to reach for isinstance() over type()</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_isinstance_vs_type()</code>, explaining when you'd reach for <code>isinstance()</code> over <code>type()</code>, and why <code>isinstance()</code> is usually the safer choice.</p>
+  </div>
+
+  <h2 id="bringing-together">Topic 6: Bringing It Together &mdash; Inheritance &amp; Polymorphism in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Shapes with an overridden area and a polymorphic total</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write a <code>Shape</code> base class and <code>Rectangle</code>/<code>Circle</code> subclasses combining <code>super().__init__()</code>, an overridden <code>area</code> method, and a polymorphic total.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Staff descriptions with isinstance() filtering</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write an <code>Employee</code> base class and <code>Manager</code>/<code>Developer</code> subclasses combining <code>super().__init__()</code>, an overridden <code>describe</code> method, and <code>isinstance()</code> filtering.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A polymorphic notification loop</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write a <code>Notification</code> base class and <code>EmailNotification</code>/<code>SMSNotification</code> subclasses combining <code>super().__init__()</code>, an overridden <code>send</code> method, and a polymorphic loop.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A vehicle fleet with isinstance()-based categorization</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write a <code>Vehicle</code> base class and <code>Car</code>/<code>Truck</code> subclasses combining <code>super().__init__()</code>, an overridden <code>describe</code> method, and <code>isinstance()</code>-based categorization.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This subclass's overriding method entirely skips calling <code>super()</code>, silently dropping shared parent behavior it was supposed to extend. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A small media library</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write a <code>MediaItem</code> base class and <code>Book</code>/<code>Movie</code> subclasses combining <code>super().__init__()</code>, an overridden <code>summary</code> method, and a polymorphic report.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Inheritance vs. composition</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_inheritance_vs_composition()</code>, describing a real system where inheritance was the right tool, and a case where composition would have been the better choice.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -49,16 +49,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
-    <div class="quiz-question">
-      <label for="q2"><span class="q-num">2</span> A ____ method is marked with <code>@staticmethod</code> and behaves like a regular function that just happens to live inside the class's namespace.</label>
-      <div class="fib-row">
-        <input type="text" id="q2" class="fib-blank" data-answers="static" aria-label="Answer for question 2">
-        <button type="button" class="check-btn">Check</button>
-        <span class="fib-feedback" aria-live="polite"></span>
-      </div>
-    </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq3-label"><span class="q-num">3</span> Given <code>Account.is_valid_amount(-10)</code> defined as <code>isinstance(amount, (int, float)) and amount &gt; 0</code>, what does it return?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
@@ -68,7 +58,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq4-label"><span class="q-num">4</span> Which decorator marks a method whose first parameter is <code>cls</code>, the class itself?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
@@ -78,7 +67,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq5-label"><span class="q-num">5</span> What is the single most common real-world use case for <code>@classmethod</code>?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
@@ -88,16 +76,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
-    <div class="quiz-question">
-      <label for="q6"><span class="q-num">6</span> Inside a <code>@classmethod</code>, calling <code>____(owner, balance)</code> instead of hardcoding the class name keeps the method correct even if the class is later renamed.</label>
-      <div class="fib-row">
-        <input type="text" id="q6" class="fib-blank" data-answers="cls" aria-label="Answer for question 6">
-        <button type="button" class="check-btn">Check</button>
-        <span class="fib-feedback" aria-live="polite"></span>
-      </div>
-    </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq7-label"><span class="q-num">7</span> What does <code>Account.from_string("Bob,250.0")</code> most likely return, given <code>from_string</code> splits on the comma and calls <code>cls(owner, float(balance))</code>?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
@@ -107,7 +85,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq8-label"><span class="q-num">8</span> In Python, what does a single leading underscore, like <code>_balance</code>, actually do?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
@@ -117,7 +94,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq9-label"><span class="q-num">9</span> Inside a class named <code>Account</code>, what does Python internally rename <code>self.__balance</code> to?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
@@ -127,16 +103,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
-    <div class="quiz-question">
-      <label for="q10"><span class="q-num">10</span> A double leading underscore, like <code>__balance</code>, triggers name ____, a stronger (but still not unbreakable) hint that an attribute is internal.</label>
-      <div class="fib-row">
-        <input type="text" id="q10" class="fib-blank" data-answers="mangling" aria-label="Answer for question 10">
-        <button type="button" class="check-btn">Check</button>
-        <span class="fib-feedback" aria-live="polite"></span>
-      </div>
-    </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq11-label"><span class="q-num">11</span> Python's privacy philosophy is often summarized as which phrase?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
@@ -146,7 +112,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq12-label"><span class="q-num">12</span> Which decorator turns a getter method into something accessed like a plain attribute, without parentheses?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
@@ -156,7 +121,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq13-label"><span class="q-num">13</span> Given a <code>balance</code> property with only a getter defined, what happens when you write <code>acct.balance()</code> with parentheses?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
@@ -166,16 +130,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
-    <div class="quiz-question">
-      <label for="q14"><span class="q-num">14</span> <code>acct.balance</code> reads more naturally than <code>acct.get_balance()</code> because a property is accessed like a plain ____, not called like a method.</label>
-      <div class="fib-row">
-        <input type="text" id="q14" class="fib-blank" data-answers="attribute" aria-label="Answer for question 14">
-        <button type="button" class="check-btn">Check</button>
-        <span class="fib-feedback" aria-live="polite"></span>
-      </div>
-    </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq15-label"><span class="q-num">15</span> What happens if a property has a getter defined but no setter, and code tries <code>acct.balance = 300</code>?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
@@ -185,7 +139,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq16-label"><span class="q-num">16</span> Which decorator, written just below a <code>@property</code> getter, marks the method that runs on <code>obj.name = value</code>?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq16-label">
@@ -195,7 +148,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq17-label"><span class="q-num">17</span> Given a <code>balance.setter</code> that raises <code>ValueError</code> when <code>value &lt; 0</code>, what happens after <code>acct.balance = -50</code> fails?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq17-label">
@@ -205,16 +157,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
-    <div class="quiz-question">
-      <label for="q18"><span class="q-num">18</span> A property setter is the natural place to ____ data right at the point of assignment, instead of trusting every caller to remember a separate check.</label>
-      <div class="fib-row">
-        <input type="text" id="q18" class="fib-blank" data-answers="validate" aria-label="Answer for question 18">
-        <button type="button" class="check-btn">Check</button>
-        <span class="fib-feedback" aria-live="polite"></span>
-      </div>
-    </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq19-label"><span class="q-num">19</span> Why can a class safely upgrade a plain attribute to a validated property later on?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq19-label">
@@ -224,7 +166,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq20-label"><span class="q-num">20</span> Which of these is still off-limits in Chapter 15, saved for Chapter 16?</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq20-label">
@@ -234,7 +175,6 @@
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
     </div>
-
     <div class="quiz-question mcq-question">
       <label id="mcq21-label"><span class="q-num">21</span> A validation helper like <code>is_valid_amount</code> is a good candidate for <code>@staticmethod</code> mainly because:</label>
       <div class="mcq-options" role="group" aria-labelledby="mcq21-label">
@@ -243,6 +183,46 @@
         <button type="button" class="mcq-option" data-correct="false">It must run before <code>__init__</code> every time</button>
       </div>
       <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> A ____ method is marked with <code>@staticmethod</code> and behaves like a regular function that just happens to live inside the class's namespace.</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="static" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> Inside a <code>@classmethod</code>, calling <code>____(owner, balance)</code> instead of hardcoding the class name keeps the method correct even if the class is later renamed.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="cls" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> A double leading underscore, like <code>__balance</code>, triggers name ____, a stronger (but still not unbreakable) hint that an attribute is internal.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="mangling" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> <code>acct.balance</code> reads more naturally than <code>acct.get_balance()</code> because a property is accessed like a plain ____, not called like a method.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="attribute" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A property setter is the natural place to ____ data right at the point of assignment, instead of trusting every caller to remember a separate check.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="validate" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
     </div>
 
     <div id="check-all-wrap">

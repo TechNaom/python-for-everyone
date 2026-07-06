@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 16: Inheritance & Polymorphism.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-16" data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 16 Quiz</span>
+  <h1>Inheritance &amp; Polymorphism</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> How is <code>Car</code> written as a subclass of <code>Vehicle</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>class Car use Vehicle:</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>class Car(Vehicle):</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>class Car extends Vehicle:</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> Given <code>class Car(Vehicle): pass</code> where <code>Vehicle</code> defines <code>__init__</code> and <code>describe()</code>, what does a <code>Car</code> object have access to?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing — an empty body means no inherited behavior</button>
+        <button type="button" class="mcq-option" data-correct="true">Both <code>__init__</code> and <code>describe()</code>, automatically inherited</button>
+        <button type="button" class="mcq-option" data-correct="false">Only <code>__init__</code>, not <code>describe()</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What does <code>super().__init__(make, model)</code> do when called from inside a child class's own <code>__init__</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="true">Runs the parent class's <code>__init__</code>, reusing its setup</button>
+        <button type="button" class="mcq-option" data-correct="false">Creates a brand-new, unrelated object</button>
+        <button type="button" class="mcq-option" data-correct="false">Deletes the parent class's <code>__init__</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> Why call <code>super().__init__(make, model)</code> instead of just retyping <code>self.make = make</code> and <code>self.model = model</code> again in the child?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Retyping them would cause a syntax error</button>
+        <button type="button" class="mcq-option" data-correct="true">It reuses the parent's setup, so any future change to the parent's <code>__init__</code> stays in sync automatically</button>
+        <button type="button" class="mcq-option" data-correct="false">Python requires every subclass to call <code>super()</code> or it won't run at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What is it called when a subclass defines a method with the exact same name as one already on its parent class?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Encapsulation</button>
+        <button type="button" class="mcq-option" data-correct="true">Overriding</button>
+        <button type="button" class="mcq-option" data-correct="false">Name mangling</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> Given <code>Vehicle.describe()</code> and an overriding <code>Car.describe()</code>, what does <code>car.describe()</code> run when <code>car</code> is a <code>Car</code> object?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>Vehicle</code>'s version, since it was defined first</button>
+        <button type="button" class="mcq-option" data-correct="false">Both versions, one after another, automatically</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>Car</code>'s version, since it overrides the parent's</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> Inside <code>Car</code>'s override of <code>describe()</code>, what does calling <code>super().describe()</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="true">Runs <code>Vehicle</code>'s original <code>describe()</code>, so the override can build on top of its result</button>
+        <button type="button" class="mcq-option" data-correct="false">Raises an error, since a method can't call its own overridden version</button>
+        <button type="button" class="mcq-option" data-correct="false">Calls <code>Car</code>'s own <code>describe()</code> again, causing infinite recursion</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What is polymorphism?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">Storing multiple values in one variable at once</button>
+        <button type="button" class="mcq-option" data-correct="true">Different subclasses responding to the same method call, each in their own way</button>
+        <button type="button" class="mcq-option" data-correct="false">A class having more than one <code>__init__</code> method</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> Given a list mixing <code>Car</code>, <code>Motorcycle</code>, and <code>Truck</code> objects (all overriding <code>describe()</code>), what does <code>for v in vehicles: print(v.describe())</code> need to check the type of each object?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">An <code>if/elif</code> chain checking <code>type(v)</code> for each branch</button>
+        <button type="button" class="mcq-option" data-correct="true">Nothing — each object automatically runs its own class's overridden <code>describe()</code></button>
+        <button type="button" class="mcq-option" data-correct="false">A separate loop for each vehicle type</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> Given <code>class Car(Vehicle): pass</code> and <code>car = Car("Toyota", "Corolla")</code>, what does <code>isinstance(car, Vehicle)</code> return?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="true">True</button>
+        <button type="button" class="mcq-option" data-correct="false">False</button>
+        <button type="button" class="mcq-option" data-correct="false">Raises a <code>TypeError</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> Using the same <code>car = Car("Toyota", "Corolla")</code> from the previous question, what does <code>type(car) == Vehicle</code> return?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">True</button>
+        <button type="button" class="mcq-option" data-correct="true">False</button>
+        <button type="button" class="mcq-option" data-correct="false">None</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq16-label"><span class="q-num">16</span> Why is <code>isinstance()</code> usually the right choice over <code>type(obj) == SomeClass</code> for checking an object's relationship to a class?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq16-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>isinstance()</code> runs faster in every case</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>isinstance()</code> respects inheritance, so a subclass object still correctly counts as its parent's type too</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>type()</code> only works on built-in types, never custom classes</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq18-label"><span class="q-num">18</span> Why do real production codebases favor polymorphism over long <code>if/elif</code> chains checking an object's type?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq18-label">
+        <button type="button" class="mcq-option" data-correct="true">Adding a new subclass never requires changing the code that already loops over and calls methods on existing objects</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>if/elif</code> chains are not allowed once inheritance is introduced</button>
+        <button type="button" class="mcq-option" data-correct="false">Polymorphism removes the need for classes to have any methods at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq19-label"><span class="q-num">19</span> What is the honest caution about inheritance this chapter raises?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq19-label">
+        <button type="button" class="mcq-option" data-correct="false">Inheritance should never be used in real projects</button>
+        <button type="button" class="mcq-option" data-correct="true">Very deep inheritance hierarchies can be a smell — composition is sometimes the better fit</button>
+        <button type="button" class="mcq-option" data-correct="false">A subclass can only ever override one method total</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq20-label"><span class="q-num">20</span> A <code>Car</code> being a specific kind of <code>Vehicle</code> is an example of which relationship, the core test for whether inheritance is the right tool?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq20-label">
+        <button type="button" class="mcq-option" data-correct="false">A "has-a" relationship</button>
+        <button type="button" class="mcq-option" data-correct="true">An "is-a" relationship</button>
+        <button type="button" class="mcq-option" data-correct="false">A "uses-a" relationship</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question">
+      <label for="q3"><span class="q-num">3</span> In <code>class Car(Vehicle):</code>, <code>Vehicle</code> is called the ____ class (also called the superclass or base class).</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="parent" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> After calling <code>super().__init__(make, model)</code>, a child's <code>__init__</code> can go on to set its own ____-specific attributes, like <code>num_doors</code> for a <code>Car</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="child,subclass" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> Calling <code>super().method()</code> from inside an override lets a subclass ____ the parent's behavior instead of fully replacing it.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="extend" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> Polymorphism means the calling code doesn't need to know or ____ which specific class an object belongs to before calling a shared method name on it.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="check" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> <code>isinstance(obj, SomeClass)</code> returns <code>True</code> for <code>SomeClass</code> and any of its ____, while <code>type(obj) == SomeClass</code> only matches the exact class.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="subclasses" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 16 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

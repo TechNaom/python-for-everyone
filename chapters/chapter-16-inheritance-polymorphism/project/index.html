@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 Project: Vehicle Rental System — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven vehicle rental system built around a Vehicle base class with Car, Motorcycle, and Truck subclasses using inheritance, super(), method overriding, and polymorphism — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 16 Project</span>
+    <span class="reading-time">60 min build</span>
+  </div>
+  <h1>Vehicle Rental System</h1>
+  <p>A menu-driven vehicle rental system built <strong>around this chapter's core tools</strong> as its organizing principle &mdash; a base <code>Vehicle</code> class holds shared attributes (<code>make</code>, <code>model</code>, <code>daily_rate</code>) and a shared <code>__init__</code>, plus a base <code>calculate_rental_cost()</code> formula and a base <code>describe()</code> method. Three subclasses &mdash; <code>Car</code>, <code>Motorcycle</code>, and <code>Truck</code> &mdash; each call <code>super().__init__()</code> to reuse the parent's setup instead of duplicating it, and each overrides <code>calculate_rental_cost()</code> and/or <code>describe()</code> with genuinely different behavior: a <code>Motorcycle</code> gets a 10% discount on week-long-or-longer rentals, a <code>Truck</code> adds a flat per-day surcharge for its cargo capacity, and every subclass's <code>describe()</code> extends the base string with its own specific detail rather than replacing it outright. The menu loop treats every vehicle the same way &mdash; looping over a list of mixed subclasses and calling <code>describe()</code>/<code>calculate_rental_cost()</code> <strong>polymorphically</strong>, with no <code>if type(vehicle) == Car: ... elif ...</code> chain anywhere. <code>isinstance()</code> (not <code>type()</code>) is used for the one place a real type check is needed &mdash; counting vehicles by subclass in the fleet summary &mdash; specifically because <code>isinstance()</code> respects the whole <code>Vehicle</code> family.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Vehicle Rental System ===
+Loaded 3 vehicle(s).
+
+1. Register a new vehicle
+2. List all vehicles
+3. Rent a vehicle / calculate cost
+4. View fleet summary
+5. Quit
+Choose an option (1-5): 2
+
+All vehicles (3):
+  1. Toyota Camry ($55.00/day) -- Car, 4 doors
+  2. Harley-Davidson Street 750 ($40.00/day) -- Motorcycle, no sidecar
+  3. Ford F-150 ($90.00/day) -- Truck, 2.5 ton capacity
+
+1. Register a new vehicle
+2. List all vehicles
+3. Rent a vehicle / calculate cost
+4. View fleet summary
+5. Quit
+Choose an option (1-5): 3
+
+All vehicles (3):
+  1. Toyota Camry ($55.00/day) -- Car, 4 doors
+  2. Harley-Davidson Street 750 ($40.00/day) -- Motorcycle, no sidecar
+  3. Ford F-150 ($90.00/day) -- Truck, 2.5 ton capacity
+Rent which vehicle number? 2
+Number of rental days: 10
+Rental cost for 10 day(s): $360.00
+
+1. Register a new vehicle
+2. List all vehicles
+3. Rent a vehicle / calculate cost
+4. View fleet summary
+5. Quit
+Choose an option (1-5): 4
+
+Fleet summary (3 vehicle(s)):
+  Cars: 1  Motorcycles: 1  Trucks: 1
+  Combined daily rate: $185.00
+  Total rental-days booked this session: 10
+
+1. Register a new vehicle
+2. List all vehicles
+3. Rent a vehicle / calculate cost
+4. View fleet summary
+5. Quit
+Choose an option (1-5): 5
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice the motorcycle's rental cost above: $40/day * 10 days = $400, then a 10% discount for the 10-day rental brings it to $360.00 &mdash; a rule that lives entirely inside <code>Motorcycle.calculate_rental_cost()</code> and nowhere else. The "List all vehicles" and fleet-summary options never ask "is this a Car, a Motorcycle, or a Truck?" before deciding what to print &mdash; each vehicle already knows how to describe itself and price its own rental through its own overridden methods, and the calling code just calls <code>describe()</code>/<code>calculate_rental_cost()</code> the same way on every single object in the list. That's the whole point of polymorphism: the loop is written once, and stays correct even if a fourth subclass gets added later.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    An object model built around a <code>Vehicle</code> base class
+    (shared <code>__init__</code>, <code>describe()</code>,
+    <code>calculate_rental_cost()</code>, <code>rent()</code>) with three
+    subclasses &mdash; <code>Car</code>, <code>Motorcycle</code>,
+    <code>Truck</code> &mdash; each calling <code>super().__init__()</code>
+    and overriding at least one method with genuinely different behavior
+    &mdash; wired to a <code>while True</code> menu loop with five options:
+    register a new vehicle, list all vehicles, rent a vehicle / calculate
+    cost, view fleet summary, or quit. Three vehicles (one of each
+    subclass) are seeded into the session at startup so the menu has
+    something to work with right away.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    This project doesn't read any external file, so it can be run from
+    anywhere. Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The object model</h2>
+  <ul>
+    <li><code>Vehicle.__init__(self, make, model, daily_rate)</code> &mdash; sets <code>self.make</code>, <code>self.model</code>, <code>self.daily_rate</code>, and <code>self.rented_days = 0</code> (a running total used by the fleet summary).</li>
+    <li><code>Vehicle.describe()</code> &mdash; returns a base description string like <code>Toyota Camry ($55.00/day)</code>. Every subclass calls <code>super().describe()</code> inside its own override and extends that string, rather than rewriting it from scratch.</li>
+    <li><code>Vehicle.calculate_rental_cost(days)</code> &mdash; the base formula, just <code>daily_rate * days</code>. <code>Car</code> doesn't override this at all (it inherits the base formula unchanged); <code>Motorcycle</code> and <code>Truck</code> do, each with a genuinely different rule.</li>
+    <li><code>Vehicle.rent(days)</code> &mdash; calls <code>self.calculate_rental_cost(days)</code> (polymorphic &mdash; runs whichever subclass's version actually applies), updates <code>self.rented_days</code>, and returns the cost.</li>
+    <li><code>Car(Vehicle)</code> &mdash; adds <code>num_doors</code>. <code>__init__</code> calls <code>super().__init__(make, model, daily_rate)</code> first, then sets <code>self.num_doors</code>. Overrides <code>describe()</code> to add <code>"-- Car, {num_doors} doors"</code>.</li>
+    <li><code>Motorcycle(Vehicle)</code> &mdash; adds <code>has_sidecar</code>. Overrides <code>calculate_rental_cost()</code>: gets the base cost via <code>super().calculate_rental_cost(days)</code>, then applies a 10% discount if <code>days >= 7</code>. Overrides <code>describe()</code> to mention the sidecar.</li>
+    <li><code>Truck(Vehicle)</code> &mdash; adds <code>cargo_capacity_tons</code>. Overrides <code>calculate_rental_cost()</code>: gets the base cost via <code>super()</code>, then adds a flat <code>SURCHARGE_PER_DAY * days</code> on top. Overrides <code>describe()</code> to mention cargo capacity.</li>
+    <li><code>find_vehicle(fleet, index)</code> &mdash; looks up a vehicle by its 1-based display position in the fleet list, returning <code>None</code> if the index is out of range.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a <code>return_vehicle()</code> menu option and an <code>is_rented</code> flag on <code>Vehicle</code> so a vehicle can't be rented twice at once &mdash; notice this only needs to be added to the base <code>Vehicle</code> class, since every subclass inherits it automatically.</li>
+    <li>Add a fourth subclass, <code>Van(Vehicle)</code>, with its own passenger-capacity attribute and its own <code>calculate_rental_cost()</code> rule &mdash; confirm the existing "list all vehicles" and "fleet summary" menu code needs zero changes to support it, since both already work polymorphically.</li>
+    <li>Add a <code>late_fee(days_late)</code> method on <code>Vehicle</code> that every subclass inherits unchanged (no override needed), to see that not every method has to be overridden just because a subclass exists.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Real rental, logistics, and fleet-management platforms (car rental chains, equipment rental yards, delivery fleets) all model exactly this kind of hierarchy: a shared base concept (<code>Vehicle</code>, <code>Asset</code>, <code>Equipment</code>) with several distinct categories underneath it that each need their own pricing rules, capacity rules, or maintenance schedules, but that the rest of the system should be able to treat uniformly wherever possible. A checkout screen, a search results page, or a billing report in a real system loops over a list of mixed items and calls the same handful of methods on every one of them &mdash; exactly like this project's fleet list &mdash; without needing a type-check chain that has to be manually updated every time a new category of item is introduced. That's precisely what inheritance and polymorphism buy a real codebase: new categories slot in by writing one new subclass, not by hunting down and editing every place that already handles the existing ones.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Vehicle Rental System above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 16 (everything through Chapter 15's <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code>, plus this chapter's inheritance, <code>super()</code>, method overriding, polymorphism, and <code>isinstance()</code>). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Shape Area Calculator</h3>
+    <p><strong>Problem:</strong> A drawing tool, CAD program, or geometry teaching app needs to work with many different kinds of shapes, computing each one's area with its own correct formula, while still being able to treat "a list of shapes" generically anywhere the program needs to sum or display areas.</p>
+    <p><strong>What it should do:</strong> Build a base <code>Shape</code> class (perhaps with a <code>name</code> attribute and a placeholder <code>area()</code> that isn't meant to be called directly on the base class itself), then <code>Circle</code>, <code>Rectangle</code>, and <code>Triangle</code> subclasses that each call <code>super().__init__()</code> for shared setup and override <code>area()</code> with their own correct formula (<code>pi * radius ** 2</code>, <code>width * height</code>, and <code>0.5 * base * height</code> respectively). Menu options: add a circle, add a rectangle, add a triangle, list all shapes with their computed areas (polymorphic &mdash; no <code>type()</code> checks), view the total area of every shape combined, and quit.</p>
+    <p><strong>Suggested approach:</strong> Loop over a single mixed list of <code>Shape</code> objects for both the listing and total-area options, calling <code>.area()</code> the same way on every one regardless of its actual subclass &mdash; exactly the pattern this chapter's Vehicle project uses for <code>describe()</code>/<code>calculate_rental_cost()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Employee Payroll System</h3>
+    <p><strong>Problem:</strong> A payroll or HR system needs to calculate pay correctly for very different kinds of employees &mdash; a salaried employee's pay doesn't depend on hours worked, while an hourly employee's does, and the payroll run needs to process every employee the same way regardless of which kind they are.</p>
+    <p><strong>What it should do:</strong> Build a base <code>Employee</code> class with shared attributes (<code>name</code>, plus whatever each employee type needs) and a placeholder <code>calculate_pay()</code>, then <code>SalariedEmployee</code> and <code>HourlyEmployee</code> subclasses that each override <code>calculate_pay()</code> with their own formula (a fixed monthly/annual amount divided appropriately, versus <code>hours_worked * hourly_rate</code>, with an overtime multiplier above 40 hours a reasonable stretch addition). Menu options: add a salaried employee, add an hourly employee, run payroll (looping polymorphically over every employee and printing/summing each one's pay), list all employees, and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep <code>calculate_pay()</code> as the one method every subclass must override with genuinely different logic, and make sure the "run payroll" menu option never checks <code>isinstance()</code> or <code>type()</code> at all &mdash; it should just call <code>.calculate_pay()</code> on every employee in the list.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Notification Delivery System</h3>
+    <p><strong>Problem:</strong> A real application (an e-commerce site, a banking app, a scheduling tool) often needs to send the same logical notification through several different channels &mdash; email, SMS, push &mdash; each with its own actual delivery mechanism, formatting rules, and character limits, while the rest of the app just wants to say "notify this user" without caring which channel handles it.</p>
+    <p><strong>What it should do:</strong> Build a base <code>Notification</code> class with a shared <code>recipient</code> and <code>message</code> attribute and a placeholder <code>send()</code> method, then <code>EmailNotification</code> and <code>SMSNotification</code> subclasses that each override <code>send()</code> with channel-appropriate behavior &mdash; an email version might print a formatted "From/To/Subject/Body" block, while an SMS version might truncate the message to a fixed character limit (e.g. 160 characters) before printing it. Menu options: queue an email notification, queue an SMS notification, send all queued notifications (polymorphic loop calling <code>.send()</code> on each), list queued notifications, and quit.</p>
+    <p><strong>Suggested approach:</strong> Have <code>send()</code> on each subclass simply <code>print()</code> a realistic-looking representation of what would actually be sent (this project doesn't need real email/SMS APIs) &mdash; the point is the shared interface and the different formatting/validation logic underneath it, not actual delivery.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Media Library Cataloger</h3>
+    <p><strong>Problem:</strong> A media library, streaming catalog, or personal collection tracker (books, movies, songs) needs to store very different kinds of media with different relevant attributes (a book has a page count, a movie has a runtime, a song has a duration and an artist), while still listing and searching the whole collection as one uniform list.</p>
+    <p><strong>What it should do:</strong> Build a base <code>Media</code> class with shared attributes (<code>title</code>, <code>year</code>) and a placeholder <code>get_info()</code> method, then <code>Book</code>, <code>Movie</code>, and <code>Song</code> subclasses that each add their own extra attribute(s) and override <code>get_info()</code> to return a description appropriate to that kind of media (a book's info mentions its page count and author, a movie's mentions its runtime and director, a song's mentions its artist and duration). Menu options: add a book, add a movie, add a song, list the whole library (polymorphic &mdash; prints each item's own <code>get_info()</code> output), search the library by year, and quit.</p>
+    <p><strong>Suggested approach:</strong> Store every item in one shared <code>library</code> list regardless of its actual subclass, and make sure both "list the library" and "search by year" loop over that one list calling shared methods (<code>get_info()</code>, and comparing a shared <code>year</code> attribute) without ever checking which specific subclass an item is.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

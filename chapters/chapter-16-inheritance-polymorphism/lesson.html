@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16: Inheritance &amp; Polymorphism — Python for Everyone</title>
+<meta name="description" content="Subclasses that inherit attributes and methods from a parent class, super().__init__() to reuse setup instead of duplicating it, overriding methods, and polymorphism — different subclasses responding to the same method call, each in their own way.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 16 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">65 min read</span>
+  </div>
+  <h1>Inheritance &amp; Polymorphism</h1>
+  <p><em>Every class so far has stood alone. Chapter 15's <code>Account</code> class never shared code with any other class, even though a real bank actually has several kinds of accounts — a checking account, a savings account, a business account — that are all clearly "accounts," but each with its own twist. This chapter finally lets one class build directly on another, so that shared behavior is written once, and each subclass only adds or changes what makes it different.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Inheritance is a "is-a" relationship.</strong> A <code>Car</code> <em>is a</em> <code>Vehicle</code>, plus some extra car-specific details. That phrase is the test for whether inheritance is the right tool at all.</li>
+      <li><strong>Sub-topics build in order:</strong> basic inheritance first, then reusing the parent's setup, then changing behavior, and finally the payoff — polymorphism, where different subclasses respond to the same method call each in their own way.</li>
+      <li><strong>Everything from Chapters 1-15 still applies</strong> inside every class in this chapter — <code>__init__</code>, instance/class attributes, dunder methods, <code>@property</code>, all of it. Inheritance and <code>super()</code> are the only genuinely new ingredients.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#basic-inheritance">1. Basic inheritance</a>
+    <a href="#super-init">2. <code>super().__init__()</code></a>
+    <a href="#method-overriding">3. Method overriding</a>
+    <a href="#polymorphism">4. Polymorphism</a>
+    <a href="#isinstance-type-checking">5. <code>isinstance()</code> vs <code>type()</code></a>
+    <a href="#bringing-together">6. Real-world inheritance &amp; polymorphism in production</a>
+  </nav>
+
+  <div class="hook">
+    Picture a ride-sharing app's backend modeling every vehicle on the road: cars, motorcycles, and delivery trucks. All three need a make, a model, and a way to describe themselves to a rider. Without inheritance, that means three separate classes, each retyping the exact same <code>make</code>/<code>model</code> setup, and a giant <code>if vehicle_type == "car": ... elif vehicle_type == "motorcycle": ...</code> chain anywhere the app needs to display one. This chapter's tools — inheritance and polymorphism — are exactly how real production code avoids both problems at once.
+  </div>
+
+  <div class="subtopic" id="basic-inheritance">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Basic inheritance</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>subclass</strong> is written as <code>class Child(Parent):</code>, with the parent class's name in parentheses.</li>
+        <li>A subclass automatically gets every attribute and method the parent class defines — nothing needs to be retyped.</li>
+        <li>An empty subclass body, just <code>pass</code>, is already a fully working class that behaves exactly like its parent.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> real systems always have families of related things — vehicles, employees, shapes, accounts. Inheritance is how code expresses "this new thing is a specific kind of that existing thing," instead of writing every kind from scratch.
+    </div>
+
+    <p>
+      A <code>Vehicle</code> class stores what every vehicle has in common:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... inheritance?</span>
+      Inheritance lets one class (the <strong>subclass</strong>, or
+      "child") automatically receive all the attributes and methods of
+      another class (the <strong>parent class</strong>, or
+      "superclass"), without retyping any of them. It's written as
+      <code>class Child(Parent):</code>.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">basic_inheritance_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Car(Vehicle):
+    pass
+
+car = Car("Toyota", "Corolla")
+print(car.describe())
+print(car.make, car.model)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of basic_inheritance_demo.py</span>
+      <pre><code>Toyota Corolla
+Toyota Corolla</code></pre>
+    </div>
+
+    <p>
+      <code>Car(Vehicle)</code> means "<code>Car</code> is a
+      <code>Vehicle</code>, plus whatever <code>Car</code> adds." The
+      body is just <code>pass</code> — no new code at all — yet
+      <code>car.describe()</code> and <code>car.make</code> both work.
+      Python looks up <code>describe</code> on <code>Car</code> first,
+      doesn't find it there, then checks <code>Vehicle</code> and finds
+      it — this lookup chain is exactly what "inherits automatically"
+      means.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a parent class / subclass?</span>
+      The <strong>parent class</strong> (also called the superclass or
+      base class) is the class being built on top of. The
+      <strong>subclass</strong> (also called the child class) is the
+      new class that inherits from it. <code>Vehicle</code> is the
+      parent; <code>Car</code> is the subclass.
+    </div>
+
+    <p>
+      A subclass isn't limited to an empty body — it can also add
+      brand-new methods that only it has, on top of everything it
+      already inherited:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">subclass_extra_method.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Car(Vehicle):
+    def honk(self):
+        return "Beep beep!"
+
+car = Car("Honda", "Civic")
+print(car.describe())
+print(car.honk())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of subclass_extra_method.py</span>
+      <pre><code>Honda Civic
+Beep beep!</code></pre>
+    </div>
+
+    <p>
+      <code>honk</code> exists only on <code>Car</code> — a plain
+      <code>Vehicle</code> object would have no <code>honk()</code>
+      method at all. Inheritance flows one direction: a subclass gains
+      everything its parent has, but a parent knows nothing about what
+      any of its subclasses might add later.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="12">class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Car(Vehicle):
+    pass
+
+car = Car("Ford", "Mustang")
+print(car.describe())</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a Motorcycle(Vehicle) class and creating one.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: every class already inherits from something</summary>
+      <p>
+        Even a class written as <code>class Vehicle:</code>, with no
+        parentheses at all, secretly inherits from Python's built-in
+        base class, <code>object</code>. That's where dunder methods
+        like a default <code>__eq__</code> or <code>__repr__</code>
+        actually come from before a class overrides them — inheritance
+        has quietly been part of every class since Chapter 14.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>class Child(Parent):</code> makes <code>Child</code> a subclass of <code>Parent</code>.</li>
+        <li>A subclass automatically gets every attribute and method its parent defines, with no retyping.</li>
+        <li>A subclass can also add its own new methods that the parent doesn't have.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="super-init">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. <code>super().__init__()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>super().__init__(...)</code> calls the parent class's <code>__init__</code> from inside the child's own <code>__init__</code>.</li>
+        <li>It reuses the parent's setup instead of duplicating those same lines of code in every subclass.</li>
+        <li>After calling <code>super().__init__(...)</code>, the child's <code>__init__</code> can go on to set its own extra attributes.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 1's <code>Car</code> never defined its own <code>__init__</code> at all. A subclass that needs one extra attribute, like a car's number of doors, needs its own <code>__init__</code> — and <code>super()</code> is how it avoids retyping the parent's setup to get there.
+    </div>
+
+    <p>
+      A plain <code>Car</code> needs everything <code>Vehicle</code>
+      already sets up, plus one extra detail of its own:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>super()</code>?</span>
+      <code>super()</code> gives access to the parent class from
+      inside a subclass, most often to call one of the parent's
+      methods. <code>super().__init__(...)</code> specifically calls
+      the parent class's <code>__init__</code>, passing along whatever
+      arguments it needs.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">super_init_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Car(Vehicle):
+    def __init__(self, make, model, num_doors):
+        super().__init__(make, model)
+        self.num_doors = num_doors
+
+car = Car("Toyota", "Corolla", 4)
+print(car.describe())
+print(car.make, car.num_doors)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of super_init_demo.py</span>
+      <pre><code>Toyota Corolla
+Toyota 4</code></pre>
+    </div>
+
+    <p>
+      <code>super().__init__(make, model)</code> runs
+      <code>Vehicle</code>'s <code>__init__</code> exactly as if it had
+      been called directly, setting <code>self.make</code> and
+      <code>self.model</code>. The line right after it,
+      <code>self.num_doors = num_doors</code>, then adds the one thing
+      that's specific to a <code>Car</code> — everything shared lives
+      in <code>Vehicle</code>, and everything car-specific lives in
+      <code>Car</code>.
+    </p>
+
+    <p>
+      Compare that to skipping <code>super()</code> and duplicating the
+      parent's setup by hand instead:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">duplicated_without_super.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+class Car(Vehicle):
+    def __init__(self, make, model, num_doors):
+        self.make = make
+        self.model = model
+        self.num_doors = num_doors
+
+car = Car("Honda", "Civic", 4)
+print(car.make, car.model, car.num_doors)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of duplicated_without_super.py — same result, but the risk is hidden</span>
+      <pre><code>Honda Civic 4</code></pre>
+    </div>
+
+    <p>
+      Both versions print the same thing today. But if
+      <code>Vehicle.__init__</code> later added validation, like
+      rejecting a blank <code>make</code>, the duplicated version in
+      <code>Car</code> would silently miss that fix — <code>super()</code>
+      keeps every subclass automatically in sync with whatever the
+      parent's setup actually does, now and later.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+class Car(Vehicle):
+    def __init__(self, make, model, num_doors):
+        super().__init__(make, model)
+        self.num_doors = num_doors
+
+car = Car("Mazda", "CX-5", 5)
+print(car.make, car.model, car.num_doors)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a trunk_capacity parameter the same way num_doors was added.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what if the child defines no __init__ at all?</summary>
+      <p>
+        Sub-topic 1's <code>Car(Vehicle): pass</code> never needed
+        <code>super().__init__()</code> at all — with no
+        <code>__init__</code> of its own, Python automatically uses the
+        parent's <code>__init__</code> unchanged. <code>super()</code>
+        only becomes necessary once the child defines its own
+        <code>__init__</code> and still wants the parent's setup to run
+        too.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>super().__init__(...)</code> calls the parent's <code>__init__</code> from inside the child's own <code>__init__</code>.</li>
+        <li>It reuses the parent's setup instead of duplicating those lines in every subclass.</li>
+        <li>The child's <code>__init__</code> can add its own extra attributes right after calling <code>super().__init__(...)</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="method-overriding">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Method overriding</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Overriding</strong> means a subclass defines a method with the exact same name as one on its parent, replacing that behavior for the subclass.</li>
+        <li>An override can fully replace the parent's version, or call <code>super().method()</code> from inside itself to build on top of it instead.</li>
+        <li>Overriding is what lets each subclass genuinely behave differently while still sharing the same method name.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a generic <code>describe()</code> works fine for any <code>Vehicle</code>, but a <code>Car</code> can describe itself more specifically. Overriding is how a subclass says "use my version of this method instead."
+    </div>
+
+    <p>
+      Giving <code>Car</code> its own <code>describe</code> method,
+      with the same name as <code>Vehicle</code>'s, replaces it:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... overriding?</span>
+      Overriding happens when a subclass defines a method with the
+      same name as one already defined on its parent class. Calling
+      that method on a subclass object runs the subclass's version,
+      not the parent's — the subclass's definition takes priority.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">method_overriding_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Car(Vehicle):
+    def __init__(self, make, model, num_doors):
+        super().__init__(make, model)
+        self.num_doors = num_doors
+
+    def describe(self):
+        return f"{self.make} {self.model} ({self.num_doors}-door sedan)"
+
+vehicle = Vehicle("Generic", "Transport")
+car = Car("Toyota", "Corolla", 4)
+print(vehicle.describe())
+print(car.describe())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of method_overriding_demo.py</span>
+      <pre><code>Generic Transport
+Toyota Corolla (4-door sedan)</code></pre>
+    </div>
+
+    <p>
+      Both classes have a method named <code>describe</code>, but each
+      object runs its own class's version — <code>vehicle.describe()</code>
+      uses <code>Vehicle</code>'s, and <code>car.describe()</code> uses
+      <code>Car</code>'s completely separate one. Nothing about
+      <code>Vehicle</code>'s version changed; <code>Car</code> simply
+      supplied a replacement for itself.
+    </p>
+
+    <p>
+      Sometimes a subclass doesn't want to fully replace the parent's
+      behavior — just extend it. Calling <code>super().describe()</code>
+      from inside the override runs the parent's version first, then
+      adds more on top:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">super_method_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Car(Vehicle):
+    def __init__(self, make, model, num_doors):
+        super().__init__(make, model)
+        self.num_doors = num_doors
+
+    def describe(self):
+        base = super().describe()
+        return f"{base} — {self.num_doors}-door car"
+
+car = Car("Toyota", "Corolla", 4)
+print(car.describe())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of super_method_demo.py</span>
+      <pre><code>Toyota Corolla — 4-door car</code></pre>
+    </div>
+
+    <p>
+      <code>super().describe()</code> inside <code>Car</code>'s
+      override calls <code>Vehicle</code>'s original
+      <code>describe()</code>, returning <code>"Toyota Corolla"</code>
+      into the local variable <code>base</code>. <code>Car</code>'s
+      version then builds on that result instead of retyping
+      <code>f"{self.make} {self.model}"</code> all over again — the
+      same "reuse instead of duplicate" idea <code>super().__init__()</code>
+      already used for setup, now applied to any method.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model}"
+
+class Motorcycle(Vehicle):
+    def describe(self):
+        base = super().describe()
+        return f"{base} — two wheels only"
+
+bike = Motorcycle("Kawasaki", "Ninja")
+print(bike.describe())</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the extra text after the em dash.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: overriding __init__ vs overriding any other method</summary>
+      <p>
+        Sub-topic 2's <code>super().__init__(...)</code> is really the
+        exact same idea as this sub-topic's <code>super().describe()</code>
+        — <code>__init__</code> is just a method like any other, and
+        it's just as overridable. There's nothing special about it
+        needing its own separate rule.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A subclass overrides a parent's method by defining a new method with the exact same name.</li>
+        <li>An override can fully replace the parent's behavior, or call <code>super().method()</code> to build on top of it.</li>
+        <li>Each object always runs its own class's version of an overridden method.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="polymorphism">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Polymorphism</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Polymorphism</strong> means different subclasses respond to the exact same method call, each in their own way.</li>
+        <li>Looping over a list of different subclass objects and calling the same method name on each gets different, correct output per type — automatically.</li>
+        <li>No <code>if/elif</code> chain checking each object's type is needed at all; overriding already handles it.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 3 showed one <code>Car</code> overriding <code>describe()</code>. Polymorphism is what happens when a whole list mixes several different subclasses together, and the exact same one line of calling code just works for all of them.
+    </div>
+
+    <p>
+      Three different vehicle subclasses, each overriding
+      <code>describe()</code> in their own way:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... polymorphism?</span>
+      Polymorphism ("many forms") is the ability to call the exact
+      same method name on objects of different classes and have each
+      one respond correctly in its own way, without the calling code
+      needing to know or check which specific class it's dealing with.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">polymorphism_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model} is a generic vehicle."
+
+class Car(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a car built for the road."
+
+class Motorcycle(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a motorcycle built for speed."
+
+class Truck(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a truck built to haul cargo."
+
+vehicles = [
+    Car("Toyota", "Corolla"),
+    Motorcycle("Harley-Davidson", "Iron 883"),
+    Truck("Ford", "F-150"),
+]
+
+for vehicle in vehicles:
+    print(vehicle.describe())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of polymorphism_demo.py</span>
+      <pre><code>Toyota Corolla is a car built for the road.
+Harley-Davidson Iron 883 is a motorcycle built for speed.
+Ford F-150 is a truck built to haul cargo.</code></pre>
+    </div>
+
+    <p>
+      The loop body is just <code>print(vehicle.describe())</code> —
+      one line, run three times, with no
+      <code>if isinstance(vehicle, Car): ... elif ...</code> anywhere
+      in sight. Each object already "knows" which <code>describe()</code>
+      to run, because that decision was already made once, correctly,
+      back when each subclass overrode the method.
+    </p>
+
+    <p>
+      This is the direct payoff of Sub-topic 3: overriding is what
+      makes each class's behavior different, and polymorphism is what
+      that difference looks like from the outside, at the exact moment
+      the same method call is used across a mixed list of types.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="20">class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model} is a generic vehicle."
+
+class Car(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a car."
+
+class Motorcycle(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a motorcycle."
+
+vehicles = [Car("Kia", "Soul"), Motorcycle("Ducati", "Monster")]
+for vehicle in vehicles:
+    print(vehicle.describe())</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a Truck subclass and one more object to the list.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: the same idea works without inheritance too</summary>
+      <p>
+        Python's polymorphism is actually looser than some other
+        languages' — any two classes with a method of the same name
+        can be swapped in a loop like this, even without sharing a
+        common parent (this is often called "duck typing": if it
+        walks like a duck and quacks like a duck...). This chapter
+        focuses on the inheritance-based version, since that's the
+        far more common and predictable pattern in real codebases.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Polymorphism: different subclasses respond to the same method call, each in their own way.</li>
+        <li>Looping over mixed subclass objects and calling one shared method name just works — no type-checking needed.</li>
+        <li>Overriding (Sub-topic 3) is what makes each subclass's response different in the first place.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="isinstance-type-checking">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. <code>isinstance()</code> vs <code>type()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>isinstance(obj, SomeClass)</code> checks whether <code>obj</code> is that class <em>or any subclass of it</em>.</li>
+        <li><code>type(obj) == SomeClass</code> checks for an exact class match only, ignoring the inheritance relationship entirely.</li>
+        <li><code>isinstance()</code> is usually the right choice, since a <code>Car</code> genuinely still is a <code>Vehicle</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> polymorphism means code often doesn't need to check an object's type at all — but sometimes a real check is genuinely necessary, and the two ways to write that check don't behave the same.
+    </div>
+
+    <p>
+      A <code>Car</code> object satisfies both "is it a <code>Car</code>?"
+      and "is it a <code>Vehicle</code>?" — but not "is it a
+      <code>Motorcycle</code>?":
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>isinstance()</code>?</span>
+      <code>isinstance(obj, SomeClass)</code> returns <code>True</code>
+      if <code>obj</code> is an object of <code>SomeClass</code>, or of
+      any class that inherits from <code>SomeClass</code>. It respects
+      the full inheritance relationship, not just an exact class match.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">isinstance_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+class Car(Vehicle):
+    pass
+
+class Motorcycle(Vehicle):
+    pass
+
+car = Car("Toyota", "Corolla")
+print(isinstance(car, Car))
+print(isinstance(car, Vehicle))
+print(isinstance(car, Motorcycle))
+print(type(car) == Car)
+print(type(car) == Vehicle)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of isinstance_demo.py</span>
+      <pre><code>True
+True
+False
+True
+False</code></pre>
+    </div>
+
+    <p>
+      <code>isinstance(car, Vehicle)</code> is <code>True</code>,
+      because <code>Car</code> inherits from <code>Vehicle</code> — a
+      <code>Car</code> genuinely still counts as a <code>Vehicle</code>.
+      But <code>type(car) == Vehicle</code> is <code>False</code>,
+      because <code>type(car)</code> is exactly <code>Car</code>, never
+      <code>Vehicle</code>, even though <code>Car</code> is built on
+      top of it.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>type()</code> for class checking?</span>
+      <code>type(obj) == SomeClass</code> checks whether
+      <code>obj</code>'s class is <em>exactly</em>
+      <code>SomeClass</code> — a subclass never counts as a match, even
+      though it inherits everything <code>SomeClass</code> has.
+    </div>
+
+    <p>
+      This difference matters most inside a function meant to accept
+      any kind of vehicle:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">isinstance_vs_type_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+class Car(Vehicle):
+    pass
+
+def print_if_vehicle(obj):
+    if isinstance(obj, Vehicle):
+        print(f"{obj.make} {obj.model} is some kind of vehicle.")
+    else:
+        print("Not a vehicle.")
+
+car = Car("Honda", "Civic")
+print_if_vehicle(car)
+print(type(car) == Vehicle)
+print(isinstance(car, Vehicle))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of isinstance_vs_type_demo.py</span>
+      <pre><code>Honda Civic is some kind of vehicle.
+False
+True</code></pre>
+    </div>
+
+    <p>
+      <code>print_if_vehicle</code> correctly recognizes the
+      <code>Car</code> object as a vehicle, because it uses
+      <code>isinstance()</code>. Had it used
+      <code>type(obj) == Vehicle</code> instead, every single subclass
+      — <code>Car</code>, <code>Motorcycle</code>, anything else built
+      later — would incorrectly fail the check, which is almost never
+      the intended behavior.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">class Vehicle:
+    pass
+
+class Car(Vehicle):
+    pass
+
+class Motorcycle(Vehicle):
+    pass
+
+car = Car()
+bike = Motorcycle()
+print(isinstance(car, Vehicle))
+print(isinstance(bike, Vehicle))
+print(type(car) == Vehicle)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try isinstance(bike, Car) to see it return False.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: isinstance() also accepts a tuple of classes</summary>
+      <p>
+        <code>isinstance(amount, (int, float))</code> — the exact check
+        Chapter 15's <code>is_valid_amount</code> used — passes a tuple
+        of classes, returning <code>True</code> if the object matches
+        any one of them. The same tuple form works with custom classes
+        too: <code>isinstance(obj, (Car, Motorcycle))</code>.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>isinstance(obj, SomeClass)</code> is <code>True</code> for <code>SomeClass</code> and any of its subclasses.</li>
+        <li><code>type(obj) == SomeClass</code> only matches the exact class, ignoring inheritance entirely.</li>
+        <li><code>isinstance()</code> is usually the right choice, since a subclass object genuinely still "is" its parent's type too.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world inheritance &amp; polymorphism in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Polymorphism is exactly why long <code>if/elif</code> chains checking an object's type keep disappearing from mature codebases.</li>
+        <li>Inheritance, <code>super()</code>, overriding, and polymorphism all combine naturally in one small family of classes.</li>
+        <li>Deep inheritance hierarchies aren't automatically good — sometimes composition (one object containing another) fits better than "is-a" does.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> reach for inheritance when the "is-a" test genuinely holds (a <code>Car</code> is a <code>Vehicle</code>) — not just because two classes happen to share a few fields.
+    </div>
+
+    <p>
+      This chapter's opening hook described three vehicle types needing
+      shared setup and a rider-facing description. Here's the full
+      picture, combining every sub-topic:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">bringing_together_demo.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model} is a generic vehicle."
+
+    def fuel_type(self):
+        return "unknown fuel"
+
+class Car(Vehicle):
+    def describe(self):
+        base = super().describe()
+        return f"{base} It's a car that runs on {self.fuel_type()}."
+
+    def fuel_type(self):
+        return "gasoline"
+
+class ElectricCar(Car):
+    def fuel_type(self):
+        return "electricity"
+
+vehicles = [
+    Vehicle("Generic", "Transport"),
+    Car("Toyota", "Corolla"),
+    ElectricCar("Tesla", "Model 3"),
+]
+
+for vehicle in vehicles:
+    print(vehicle.describe())
+    if isinstance(vehicle, Car):
+        print(f"  -&gt; This is also a Car (isinstance check).")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of bringing_together_demo.py</span>
+      <pre><code>Generic Transport is a generic vehicle.
+Toyota Corolla is a generic vehicle. It's a car that runs on gasoline.
+  -> This is also a Car (isinstance check).
+Tesla Model 3 is a generic vehicle. It's a car that runs on electricity.
+  -> This is also a Car (isinstance check).</code></pre>
+    </div>
+
+    <p>
+      <code>ElectricCar</code> inherits from <code>Car</code>, which
+      itself inherits from <code>Vehicle</code> — a chain two levels
+      deep. <code>ElectricCar</code> only overrides <code>fuel_type()</code>,
+      yet <code>describe()</code> (inherited from <code>Car</code>,
+      which itself calls <code>super().describe()</code> up to
+      <code>Vehicle</code>) automatically picks up that override
+      through <code>self.fuel_type()</code> — polymorphism reaching
+      through two layers of inheritance at once. And
+      <code>isinstance(vehicle, Car)</code> correctly recognizes the
+      <code>ElectricCar</code> object as a <code>Car</code> too, since
+      it inherits from it.
+    </p>
+
+    <p>
+      Notice the loop never checks
+      <code>if type(vehicle) == Car or type(vehicle) == ElectricCar: ...</code>
+      to decide how to describe each one — that entire chain of checks
+      is replaced by each subclass simply overriding the methods it
+      needs to. This is the concrete reason polymorphism replaces long
+      <code>if/elif</code> type-checking chains in real production
+      code: every time a new vehicle type gets added, the loop itself
+      never has to change.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>GUI frameworks model every on-screen element (buttons, checkboxes, sliders) as subclasses of one shared <code>Widget</code> base class, calling the same <code>.render()</code> or <code>.on_click()</code> on any of them without ever checking which specific widget it is.</li>
+      <li>Game engines model player characters, enemies, and NPCs as subclasses of one shared base class, so a single main loop can call <code>.update()</code> on every object in the scene regardless of type.</li>
+      <li>Payment processing systems model different payment methods (credit card, bank transfer, digital wallet) as subclasses sharing one <code>.charge()</code> method, so checkout code stays identical no matter which payment method a customer picks.</li>
+    </ul>
+
+    <div class="lesson-note">
+      <strong>Honest caution:</strong> inheritance chains can go too deep. A <code>SportsCar(Car(Vehicle))</code> that's really only reusing one small piece of <code>Car</code> is often better modeled with <strong>composition</strong> — giving <code>SportsCar</code> an <code>engine</code> attribute that's itself an object, rather than stretching the "is-a" chain further than it comfortably holds. Real codebases favor "prefer composition over inheritance" once a hierarchy gets more than two or three levels deep.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's still missing after this chapter?</summary>
+      <p>
+        Every subclass here still relies on Python correctly finding
+        the right overridden method automatically. What happens when a
+        class needs to inherit from <em>two</em> parents at once, or
+        when a whole family of classes needs to guarantee every
+        subclass implements a certain method — those are genuinely
+        more advanced topics (multiple inheritance, abstract base
+        classes) that build directly on everything in this chapter,
+        saved for later in the course.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Polymorphism is why long <code>if/elif</code> type-checking chains keep disappearing from mature, growing codebases.</li>
+        <li>Inheritance, <code>super()</code>, overriding, and polymorphism combine naturally, even across multiple inheritance levels.</li>
+        <li>Deep inheritance hierarchies aren't automatically the right call — composition is sometimes the better fit.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>GUI frameworks, game engines, and payment systems all lean on polymorphism so that adding a new subclass never requires touching the code that already loops over and calls methods on existing objects.</li>
+      <li><code>isinstance()</code> checks show up constantly in real codebases wherever a function needs to safely handle several related types — logging, error handling, and data validation all use this pattern.</li>
+      <li>Mature engineering teams treat "prefer composition over inheritance" as a genuine guideline, not a rule against inheritance altogether — inheritance is the right tool exactly when the "is-a" relationship truly holds.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>class Child(Parent):</code> makes <code>Child</code> a subclass that automatically inherits every attribute and method <code>Parent</code> defines.</li>
+      <li><code>super().__init__(...)</code>, called from inside the child's own <code>__init__</code>, reuses the parent's setup instead of duplicating it — the child can then add its own extra attributes.</li>
+      <li>Overriding means a subclass defines a method with the same name as its parent's; <code>super().method()</code> inside the override extends the parent's behavior instead of fully replacing it.</li>
+      <li>Polymorphism: different subclasses respond to the same method call, each in their own way — looping and calling one shared method name works with no type-checking needed.</li>
+      <li><code>isinstance(obj, SomeClass)</code> respects inheritance (true for subclasses too); <code>type(obj) == SomeClass</code> only matches the exact class — <code>isinstance()</code> is usually the right choice.</li>
+      <li>Polymorphism is why long <code>if/elif</code> type-checking chains disappear from real codebases — but a very deep inheritance hierarchy is a real smell; composition is sometimes the better fit.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

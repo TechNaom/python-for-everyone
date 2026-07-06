@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on basic inheritance, super().__init__(), method overriding, polymorphism, and isinstance() vs type(), for Chapter 16: Inheritance & Polymorphism.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 16 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Inheritance &amp; Polymorphism</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-16 have covered so far &mdash; including
+    <code>class Child(Parent):</code>, <code>super().__init__(...)</code>,
+    method overriding, polymorphism, and <code>isinstance()</code>/<code>type()</code>
+    checks. No import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why every challenge returns a plain value, not an object</span>
+    The auto-grader compares your function's return value to a JSON-safe
+    expected value (a number, string, boolean, list, or dict) &mdash; it
+    can't compare custom class instances directly. So every challenge here
+    asks you to <strong>build a small class hierarchy inside your
+    function</strong> to model the problem (an <code>Animal</code> with
+    <code>Dog</code>/<code>Cat</code> subclasses, a <code>Shape</code>
+    with <code>Rectangle</code>/<code>Circle</code> subclasses, and so
+    on), but the function itself always returns a plain number, string,
+    boolean, list, or dict &mdash; exactly what a real caller elsewhere in
+    a program would want back, without needing to know anything about the
+    classes you used internally to compute it.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Animal Sounds Roll Call <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>animal_sounds(names_and_kinds)</code> that builds an <code>Animal</code> class internally with <code>__init__(self, name)</code> storing <code>self.name</code> and a method <code>speak(self)</code> returning <code>f"{self.name} makes a sound."</code>, a <code>Dog(Animal)</code> subclass overriding <code>speak(self)</code> to return <code>f"{self.name} says Woof!"</code>, and a <code>Cat(Animal)</code> subclass overriding <code>speak(self)</code> to return <code>f"{self.name} says Meow!"</code>. For each <code>[name, kind]</code> pair in <code>names_and_kinds</code>, create a <code>Dog</code> if <code>kind == "dog"</code>, a <code>Cat</code> if <code>kind == "cat"</code>, otherwise a plain <code>Animal</code>. Return a list of each animal's <code>speak()</code> result, in order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>names_and_kinds</code> may be empty, in which case return an empty list; <code>kind</code> may be any string, including one that isn't <code>"dog"</code> or <code>"cat"</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>animal_sounds([["Rex", "dog"], ["Whiskers", "cat"]])</code> &rarr; <code>["Rex says Woof!", "Whiskers says Meow!"]</code><br>
+        <code>animal_sounds([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def animal_sounds(names_and_kinds):
+    # TODO: define a class Animal with __init__(self, name) storing
+    # self.name, and a method speak(self) returning
+    # f"{self.name} makes a sound.". Define Dog(Animal) overriding
+    # speak(self) to return f"{self.name} says Woof!", and Cat(Animal)
+    # overriding speak(self) to return f"{self.name} says Meow!". For
+    # each [name, kind] in names_and_kinds, create a Dog if
+    # kind == "dog", a Cat if kind == "cat", otherwise a plain Animal.
+    # Return a list of each animal's speak() result, in order.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "animal_sounds",
+  "cases": [
+    { "args": [[["Rex", "dog"], ["Whiskers", "cat"]]], "expected": ["Rex says Woof!", "Whiskers says Meow!"] },
+    { "args": [[["Buddy", "dog"]]], "expected": ["Buddy says Woof!"] },
+    { "args": [[]], "expected": [] },
+    { "args": [[["Generic", "bird"]]], "expected": ["Generic makes a sound."] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def animal_sounds(names_and_kinds):
+    class Animal:
+        def __init__(self, name):
+            self.name = name
+
+        def speak(self):
+            return f"{self.name} makes a sound."
+
+    class Dog(Animal):
+        def speak(self):
+            return f"{self.name} says Woof!"
+
+    class Cat(Animal):
+        def speak(self):
+            return f"{self.name} says Meow!"
+
+    animals = []
+    for name, kind in names_and_kinds:
+        if kind == "dog":
+            animals.append(Dog(name))
+        elif kind == "cat":
+            animals.append(Cat(name))
+        else:
+            animals.append(Animal(name))
+
+    return [animal.speak() for animal in animals]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Build a Manager From an Employee <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>build_manager(name, salary, team_size)</code> that builds an <code>Employee</code> class internally with <code>__init__(self, name, salary)</code> storing both, and a <code>Manager(Employee)</code> subclass with <code>__init__(self, name, salary, team_size)</code> that calls <code>super().__init__(name, salary)</code> to reuse the parent's setup, then stores <code>self.team_size = team_size</code>. Create <code>manager = Manager(name, salary, team_size)</code> and return <code>{"name": manager.name, "salary": manager.salary, "team_size": manager.team_size}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>salary</code> and <code>team_size</code> are non-negative numbers, including <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>build_manager("Dana", 95000, 4)</code> &rarr; <code>{"name": "Dana", "salary": 95000, "team_size": 4}</code><br>
+        <code>build_manager("Priya", 60000, 0)</code> &rarr; <code>{"name": "Priya", "salary": 60000, "team_size": 0}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def build_manager(name, salary, team_size):
+    # TODO: define a class Employee with __init__(self, name, salary)
+    # storing both, and a class Manager(Employee) with
+    # __init__(self, name, salary, team_size) that calls
+    # super().__init__(name, salary) and then stores self.team_size.
+    # Create manager = Manager(name, salary, team_size) and return
+    # {"name": manager.name, "salary": manager.salary,
+    #  "team_size": manager.team_size}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "build_manager",
+  "cases": [
+    { "args": ["Dana", 95000, 4], "expected": { "name": "Dana", "salary": 95000, "team_size": 4 } },
+    { "args": ["Priya", 60000, 0], "expected": { "name": "Priya", "salary": 60000, "team_size": 0 } },
+    { "args": ["Sam", 0, 1], "expected": { "name": "Sam", "salary": 0, "team_size": 1 } },
+    { "args": ["Ada", 120000, 12], "expected": { "name": "Ada", "salary": 120000, "team_size": 12 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def build_manager(name, salary, team_size):
+    class Employee:
+        def __init__(self, name, salary):
+            self.name = name
+            self.salary = salary
+
+    class Manager(Employee):
+        def __init__(self, name, salary, team_size):
+            super().__init__(name, salary)
+            self.team_size = team_size
+
+    manager = Manager(name, salary, team_size)
+    return {
+        "name": manager.name,
+        "salary": manager.salary,
+        "team_size": manager.team_size,
+    }</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Total Area of Mixed Shapes <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>total_shape_area(shapes_spec)</code> that builds a <code>Shape</code> class internally with a method <code>area(self)</code> returning <code>0</code>, a <code>Rectangle(Shape)</code> subclass with <code>__init__(self, width, height)</code> and an overriding <code>area(self)</code> returning <code>self.width * self.height</code>, and a <code>Circle(Shape)</code> subclass with <code>__init__(self, radius)</code> and an overriding <code>area(self)</code> returning <code>round(3.14159 * self.radius ** 2, 2)</code>. Each entry in <code>shapes_spec</code> is either <code>["rectangle", width, height]</code> or <code>["circle", radius]</code> &mdash; build the matching shape for every entry, then return <code>round(</code>the sum of every shape's <code>area()</code><code>, 2)</code>, calling <code>area()</code> the same way on every shape regardless of its type.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>shapes_spec</code> may be empty, in which case return <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>total_shape_area([["rectangle", 4, 5], ["circle", 3]])</code> &rarr; <code>48.27</code><br>
+        <code>total_shape_area([])</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def total_shape_area(shapes_spec):
+    # TODO: define a class Shape with area(self) returning 0, a
+    # Rectangle(Shape) with __init__(self, width, height) overriding
+    # area(self) to return self.width * self.height, and a
+    # Circle(Shape) with __init__(self, radius) overriding area(self)
+    # to return round(3.14159 * self.radius ** 2, 2). Build one shape
+    # per entry in shapes_spec (["rectangle", w, h] or
+    # ["circle", r]), then return round(sum of every shape.area(), 2)
+    # -- calling area() the same way regardless of shape type.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "total_shape_area",
+  "cases": [
+    { "args": [[["rectangle", 4, 5], ["circle", 3]]], "expected": 48.27 },
+    { "args": [[]], "expected": 0 },
+    { "args": [[["circle", 0]]], "expected": 0.0 },
+    { "args": [[["rectangle", 2, 2], ["rectangle", 3, 3]]], "expected": 13 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def total_shape_area(shapes_spec):
+    class Shape:
+        def area(self):
+            return 0
+
+    class Rectangle(Shape):
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+
+        def area(self):
+            return self.width * self.height
+
+    class Circle(Shape):
+        def __init__(self, radius):
+            self.radius = radius
+
+        def area(self):
+            return round(3.14159 * self.radius ** 2, 2)
+
+    shapes = []
+    for spec in shapes_spec:
+        if spec[0] == "rectangle":
+            shapes.append(Rectangle(spec[1], spec[2]))
+        elif spec[0] == "circle":
+            shapes.append(Circle(spec[1]))
+
+    total = 0
+    for shape in shapes:
+        total += shape.area()
+    return round(total, 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Extend, Don't Replace <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>describe_employee(name, team_size)</code> that builds an <code>Employee</code> class internally with <code>__init__(self, name)</code> storing <code>self.name</code>, and a method <code>describe(self)</code> returning <code>f"{self.name} is an employee."</code>. Build a <code>Manager(Employee)</code> subclass with <code>__init__(self, name, team_size)</code> that calls <code>super().__init__(name)</code> and stores <code>self.team_size</code>, and an overriding <code>describe(self)</code> that calls <code>base = super().describe()</code> to get the parent's version, then returns <code>base + f" They manage a team of {self.team_size}."</code> &mdash; extending the parent's behavior rather than replacing it. Create <code>manager = Manager(name, team_size)</code> and return <code>manager.describe()</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>team_size</code> is a non-negative integer, including <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>describe_employee("Priya", 6)</code> &rarr; <code>"Priya is an employee. They manage a team of 6."</code><br>
+        <code>describe_employee("Dana", 0)</code> &rarr; <code>"Dana is an employee. They manage a team of 0."</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="24">
+def describe_employee(name, team_size):
+    # TODO: define a class Employee with __init__(self, name) storing
+    # self.name, and describe(self) returning
+    # f"{self.name} is an employee.". Define a class Manager(Employee)
+    # with __init__(self, name, team_size) calling
+    # super().__init__(name) and storing self.team_size, and an
+    # overriding describe(self) that calls
+    # base = super().describe(), then returns
+    # base + f" They manage a team of {self.team_size}.". Create
+    # manager = Manager(name, team_size) and return
+    # manager.describe().
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "describe_employee",
+  "cases": [
+    { "args": ["Priya", 6], "expected": "Priya is an employee. They manage a team of 6." },
+    { "args": ["Dana", 0], "expected": "Dana is an employee. They manage a team of 0." },
+    { "args": ["Sam", 1], "expected": "Sam is an employee. They manage a team of 1." },
+    { "args": ["Ada", 20], "expected": "Ada is an employee. They manage a team of 20." }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def describe_employee(name, team_size):
+    class Employee:
+        def __init__(self, name):
+            self.name = name
+
+        def describe(self):
+            return f"{self.name} is an employee."
+
+    class Manager(Employee):
+        def __init__(self, name, team_size):
+            super().__init__(name)
+            self.team_size = team_size
+
+        def describe(self):
+            base = super().describe()
+            return base + f" They manage a team of {self.team_size}."
+
+    manager = Manager(name, team_size)
+    return manager.describe()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Notification Broadcast <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>broadcast(messages_and_channels)</code> that builds a <code>Notification</code> class internally with <code>__init__(self, message)</code> storing <code>self.message</code>, and a method <code>send(self)</code> returning <code>f"Generic: {self.message}"</code>. Build an <code>EmailNotification(Notification)</code> subclass overriding <code>send(self)</code> to return <code>f"Email: {self.message}"</code>, and an <code>SMSNotification(Notification)</code> subclass overriding <code>send(self)</code> to return <code>f"SMS: {self.message}"</code>. For each <code>[message, channel]</code> pair in <code>messages_and_channels</code>, create an <code>EmailNotification</code> if <code>channel == "email"</code>, an <code>SMSNotification</code> if <code>channel == "sms"</code>, otherwise a plain <code>Notification</code>. Return a list of each notification's <code>send()</code> result, calling <code>send()</code> the identical way on every one.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>messages_and_channels</code> may be empty, in which case return an empty list; <code>channel</code> may be any string, including one that isn't <code>"email"</code> or <code>"sms"</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>broadcast([["Welcome!", "email"], ["Code: 1234", "sms"]])</code> &rarr; <code>["Email: Welcome!", "SMS: Code: 1234"]</code><br>
+        <code>broadcast([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def broadcast(messages_and_channels):
+    # TODO: define a class Notification with __init__(self, message)
+    # storing self.message, and send(self) returning
+    # f"Generic: {self.message}". Define EmailNotification(Notification)
+    # overriding send(self) to return f"Email: {self.message}", and
+    # SMSNotification(Notification) overriding send(self) to return
+    # f"SMS: {self.message}". For each [message, channel] in
+    # messages_and_channels, create the matching subclass (or a plain
+    # Notification if channel matches neither), and return a list of
+    # each notification's send() result, in order.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "broadcast",
+  "cases": [
+    { "args": [[["Welcome!", "email"], ["Code: 1234", "sms"]]], "expected": ["Email: Welcome!", "SMS: Code: 1234"] },
+    { "args": [[]], "expected": [] },
+    { "args": [[["Hi", "fax"]]], "expected": ["Generic: Hi"] },
+    { "args": [[["A", "sms"], ["B", "sms"], ["C", "email"]]], "expected": ["SMS: A", "SMS: B", "Email: C"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def broadcast(messages_and_channels):
+    class Notification:
+        def __init__(self, message):
+            self.message = message
+
+        def send(self):
+            return f"Generic: {self.message}"
+
+    class EmailNotification(Notification):
+        def send(self):
+            return f"Email: {self.message}"
+
+    class SMSNotification(Notification):
+        def send(self):
+            return f"SMS: {self.message}"
+
+    results = []
+    for message, channel in messages_and_channels:
+        if channel == "email":
+            notification = EmailNotification(message)
+        elif channel == "sms":
+            notification = SMSNotification(message)
+        else:
+            notification = Notification(message)
+        results.append(notification.send())
+    return results</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> isinstance() vs. type() Report <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>membership_report(kind)</code> that builds a <code>Vehicle</code> class internally with no body other than <code>pass</code>, and a <code>Car(Vehicle)</code> subclass also with no body other than <code>pass</code>. Create <code>obj = Vehicle()</code> if <code>kind == "vehicle"</code>, otherwise <code>obj = Car()</code>. Return <code>{"isinstance_vehicle": isinstance(obj, Vehicle), "isinstance_car": isinstance(obj, Car), "type_is_vehicle": type(obj) == Vehicle, "type_is_car": type(obj) == Car}</code> &mdash; showing exactly how <code>isinstance()</code> follows the inheritance chain while <code>type()</code> only matches the exact class.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>kind</code> is always either <code>"vehicle"</code> or <code>"car"</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>membership_report("vehicle")</code> &rarr; <code>{"isinstance_vehicle": true, "isinstance_car": false, "type_is_vehicle": true, "type_is_car": false}</code><br>
+        <code>membership_report("car")</code> &rarr; <code>{"isinstance_vehicle": true, "isinstance_car": true, "type_is_vehicle": false, "type_is_car": true}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="22">
+def membership_report(kind):
+    # TODO: define a class Vehicle (pass), and a class Car(Vehicle)
+    # (pass). Create obj = Vehicle() if kind == "vehicle", otherwise
+    # obj = Car(). Return
+    # {"isinstance_vehicle": isinstance(obj, Vehicle),
+    #  "isinstance_car": isinstance(obj, Car),
+    #  "type_is_vehicle": type(obj) == Vehicle,
+    #  "type_is_car": type(obj) == Car}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "membership_report",
+  "cases": [
+    { "args": ["vehicle"], "expected": { "isinstance_vehicle": true, "isinstance_car": false, "type_is_vehicle": true, "type_is_car": false } },
+    { "args": ["car"], "expected": { "isinstance_vehicle": true, "isinstance_car": true, "type_is_vehicle": false, "type_is_car": true } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def membership_report(kind):
+    class Vehicle:
+        pass
+
+    class Car(Vehicle):
+        pass
+
+    if kind == "vehicle":
+        obj = Vehicle()
+    else:
+        obj = Car()
+
+    return {
+        "isinstance_vehicle": isinstance(obj, Vehicle),
+        "isinstance_car": isinstance(obj, Car),
+        "type_is_vehicle": type(obj) == Vehicle,
+        "type_is_car": type(obj) == Car,
+    }</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Filter Managers From Staff <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>manager_names(staff_spec)</code> that builds an <code>Employee</code> class internally with <code>__init__(self, name)</code> storing <code>self.name</code>, and a <code>Manager(Employee)</code> subclass with no body other than <code>pass</code>. For each <code>[name, kind]</code> pair in <code>staff_spec</code>, create a <code>Manager</code> if <code>kind == "manager"</code>, otherwise a plain <code>Employee</code>. Return a list of the <code>.name</code> of every staff member for which <code>isinstance(person, Manager)</code> is <code>True</code>, preserving the original order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>staff_spec</code> may be empty, or contain no managers at all, in which case return an empty list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>manager_names([["Sam", "employee"], ["Dana", "manager"]])</code> &rarr; <code>["Dana"]</code><br>
+        <code>manager_names([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="22">
+def manager_names(staff_spec):
+    # TODO: define a class Employee with __init__(self, name) storing
+    # self.name, and a class Manager(Employee) (pass). For each
+    # [name, kind] in staff_spec, create a Manager if
+    # kind == "manager", otherwise a plain Employee. Return a list of
+    # the .name of every staff member for which
+    # isinstance(person, Manager) is True, in order.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "manager_names",
+  "cases": [
+    { "args": [[["Sam", "employee"], ["Dana", "manager"], ["Ada", "employee"], ["Priya", "manager"]]], "expected": ["Dana", "Priya"] },
+    { "args": [[]], "expected": [] },
+    { "args": [[["Sam", "employee"]]], "expected": [] },
+    { "args": [[["A", "manager"], ["B", "manager"]]], "expected": ["A", "B"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def manager_names(staff_spec):
+    class Employee:
+        def __init__(self, name):
+            self.name = name
+
+    class Manager(Employee):
+        pass
+
+    staff = []
+    for name, kind in staff_spec:
+        if kind == "manager":
+            staff.append(Manager(name))
+        else:
+            staff.append(Employee(name))
+
+    return [person.name for person in staff if isinstance(person, Manager)]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Bank Account Hierarchy With a Bonus Subclass <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>account_after_operations(owner, starting_balance, is_premium, operations)</code> that builds a <code>BankAccount</code> class internally with <code>__init__(self, owner, balance)</code> storing both, and <code>deposit(self, amount)</code>/<code>withdraw(self, amount)</code> methods that add to or subtract from <code>self.balance</code>. Build a <code>PremiumAccount(BankAccount)</code> subclass with <code>__init__(self, owner, balance)</code> that calls <code>super().__init__(owner, balance + 50)</code> &mdash; modeling a signup bonus &mdash; with no other overrides. Create a <code>PremiumAccount</code> if <code>is_premium</code> is <code>True</code>, otherwise a plain <code>BankAccount</code>, using <code>starting_balance</code>. Apply every <code>[op, amount]</code> pair in <code>operations</code> in order (calling <code>deposit</code> or <code>withdraw</code> as appropriate). Return <code>{"owner": account.owner, "balance": round(account.balance, 2), "is_premium": isinstance(account, PremiumAccount)}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>operations</code> may be empty; every operation always succeeds (no validation is required here).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>account_after_operations("Dana", 100, false, [["deposit", 50], ["withdraw", 30]])</code> &rarr; <code>{"owner": "Dana", "balance": 120, "is_premium": false}</code><br>
+        <code>account_after_operations("Sam", 100, true, [])</code> &rarr; <code>{"owner": "Sam", "balance": 150, "is_premium": true}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="30">
+def account_after_operations(owner, starting_balance, is_premium, operations):
+    # TODO: define a class BankAccount with __init__(self, owner,
+    # balance) storing both, and deposit(self, amount)/
+    # withdraw(self, amount) methods that add to or subtract from
+    # self.balance. Define a class PremiumAccount(BankAccount) with
+    # __init__(self, owner, balance) calling
+    # super().__init__(owner, balance + 50) and no other overrides.
+    # Create a PremiumAccount if is_premium else a plain BankAccount,
+    # using starting_balance. Apply every [op, amount] in operations
+    # in order. Return
+    # {"owner": account.owner, "balance": round(account.balance, 2),
+    #  "is_premium": isinstance(account, PremiumAccount)}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "account_after_operations",
+  "cases": [
+    { "args": ["Dana", 100, false, [["deposit", 50], ["withdraw", 30]]], "expected": { "owner": "Dana", "balance": 120, "is_premium": false } },
+    { "args": ["Sam", 100, true, []], "expected": { "owner": "Sam", "balance": 150, "is_premium": true } },
+    { "args": ["Ada", 100, true, [["withdraw", 100]]], "expected": { "owner": "Ada", "balance": 50, "is_premium": true } },
+    { "args": ["Priya", 0, false, [["deposit", 10], ["deposit", 5]]], "expected": { "owner": "Priya", "balance": 15, "is_premium": false } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def account_after_operations(owner, starting_balance, is_premium, operations):
+    class BankAccount:
+        def __init__(self, owner, balance):
+            self.owner = owner
+            self.balance = balance
+
+        def deposit(self, amount):
+            self.balance += amount
+
+        def withdraw(self, amount):
+            self.balance -= amount
+
+    class PremiumAccount(BankAccount):
+        def __init__(self, owner, balance):
+            super().__init__(owner, balance + 50)
+
+    if is_premium:
+        account = PremiumAccount(owner, starting_balance)
+    else:
+        account = BankAccount(owner, starting_balance)
+
+    for op, amount in operations:
+        if op == "deposit":
+            account.deposit(amount)
+        elif op == "withdraw":
+            account.withdraw(amount)
+
+    return {
+        "owner": account.owner,
+        "balance": round(account.balance, 2),
+        "is_premium": isinstance(account, PremiumAccount),
+    }</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

@@ -145,7 +145,14 @@ window.PFE_MODULES = [
         { id: "property-setters", title: "Property setters" },
         { id: "bringing-together", title: "Real-world deeper OOP" }
       ] },
-      { id: "chapter-16", num: 16, title: "Inheritance & Polymorphism", path: null }
+      { id: "chapter-16", num: 16, title: "Inheritance & Polymorphism", path: "chapters/chapter-16-inheritance-polymorphism/lesson.html", subtopics: [
+        { id: "basic-inheritance", title: "Basic inheritance" },
+        { id: "super-init", title: "super().__init__()" },
+        { id: "method-overriding", title: "Method overriding" },
+        { id: "polymorphism", title: "Polymorphism" },
+        { id: "isinstance-type-checking", title: "isinstance() vs type()" },
+        { id: "bringing-together", title: "Real-world inheritance & polymorphism" }
+      ] }
     ]
   },
   {

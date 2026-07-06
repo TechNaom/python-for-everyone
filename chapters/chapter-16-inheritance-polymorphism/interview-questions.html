@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 16: Inheritance & Polymorphism — super().__init__(), method overriding vs. overloading, what polymorphism actually means, isinstance() vs. type(), duck typing, and when composition beats inheritance.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-16-interview" data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 16 Interview Prep</span>
+    <span class="reading-time">28 min read</span>
+  </div>
+  <h1>Interview Questions: Inheritance &amp; Polymorphism</h1>
+  <p>Inheritance and polymorphism are where OOP interview questions get genuinely conceptual, not just syntax recall. This set covers what a subclass actually inherits "for free" versus what still has to be written, why forgetting <code>super().__init__()</code> silently breaks things, the real difference between overriding and overloading (Python doesn't have true method overloading), what polymorphism actually buys a program with a concrete example, <code>isinstance()</code> vs. <code>type()</code> and why <code>isinstance()</code> respects subclassing, duck typing as a related but distinct idea, and one of the most common real interview questions on this topic: when composition beats inheritance.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> When a class inherits from another class, what does it actually get "for free," and what still has to be written by hand?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A subclass automatically gets every attribute and method the parent class defines, without retyping any of that code &mdash; if <code>Vehicle</code> defines <code>describe()</code> and <code>calculate_rental_cost()</code>, a new <code>class Car(Vehicle):</code> can call <code>my_car.describe()</code> immediately, even before <code>Car</code> defines a single line of its own, simply because Python looks up an attribute or method on the instance's own class first and then walks up to its parent if it isn't found there. What still has to be written by hand is anything genuinely specific to the subclass: its own <code>__init__</code> if it needs extra attributes the parent doesn't have (like <code>num_doors</code> on a <code>Car</code>), any method it wants to override with different behavior, and any brand-new method that only makes sense for that subclass and isn't part of the shared parent interface at all. Inheritance is a shortcut for <em>shared</em> structure and behavior &mdash; it doesn't write subclass-specific logic for you.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing a subclass has to redeclare every parent method just to "have" it, or not being able to name anything a subclass still has to write itself.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>Car(Vehicle)</code> defines no <code>__init__</code> of its own at all, and code does <code>Car("Toyota", "Camry", 55)</code>, whose <code>__init__</code> actually runs?" (<code>Vehicle.__init__</code> &mdash; if a subclass doesn't define its own <code>__init__</code>, Python walks up to the parent's and uses that one instead, exactly like any other inherited method.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What does <code>super().__init__()</code> actually do, and why does it matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>super()</code> gives access to the parent class from inside a subclass, and <code>super().__init__(...)</code> specifically calls the parent's <code>__init__</code> method &mdash; running whatever setup logic the parent already defines (typically setting up its own instance attributes) before or alongside the subclass's own setup. This matters because a subclass's <code>__init__</code> almost always needs to do two things: everything the parent already knows how to do (set up shared attributes like <code>make</code>, <code>model</code>, <code>daily_rate</code>), plus something extra specific to the subclass (like <code>num_doors</code> on a <code>Car</code>). Calling <code>super().__init__(make, model, daily_rate)</code> reuses the parent's existing setup code instead of copy-pasting it into every subclass, which is exactly the point of inheritance in the first place &mdash; write the shared setup once, in one place, and every subclass calls it rather than duplicating it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking <code>super()</code> refers to the subclass itself rather than the parent, or not recognizing that skipping it just means the parent's setup logic simply never runs.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Inside <code>Car.__init__(self, make, model, daily_rate, num_doors)</code>, what's the typical first line, and why first?" (<code>super().__init__(make, model, daily_rate)</code>, typically first, so the shared attributes the parent sets up exist before the subclass's own <code>__init__</code> body goes on to set <code>self.num_doors</code> or do anything else that might depend on the parent's setup already being done.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> A subclass defines its own <code>__init__</code> but forgets to call <code>super().__init__()</code>. What actually breaks?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Nothing crashes immediately at class-definition time, which is exactly why this bug is sneaky &mdash; the program runs, the object gets created, and the crash only shows up later, whenever code tries to use an attribute the parent's <code>__init__</code> was supposed to set up. Concretely: if <code>Vehicle.__init__</code> sets <code>self.make</code>, <code>self.model</code>, and <code>self.daily_rate</code>, but <code>Car.__init__</code> only sets <code>self.num_doors</code> and never calls <code>super().__init__(...)</code>, then a newly created <code>Car</code> instance simply has no <code>make</code>, <code>model</code>, or <code>daily_rate</code> attribute at all. The moment any code tries <code>my_car.make</code> or calls <code>my_car.describe()</code> (if <code>describe()</code> reads <code>self.make</code>), it raises an <code>AttributeError</code>, often far away from and much later than where the actual mistake was made, which makes it a genuinely realistic bug to hunt down in a real codebase.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming Python automatically calls the parent's <code>__init__</code> even if the subclass defines its own without calling <code>super().__init__()</code> (it does not &mdash; defining any <code>__init__</code> in the subclass completely replaces the parent's, unless <code>super().__init__()</code> is called explicitly).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>Car</code> defines no <code>__init__</code> at all (not even one that forgets <code>super()</code>), does the same bug happen?" (No &mdash; if the subclass defines zero <code>__init__</code> methods, Python uses the parent's automatically, exactly as normal inheritance lookup works; the bug only appears once the subclass writes its own <code>__init__</code> and forgets the <code>super()</code> call inside it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the actual difference between method overriding and method overloading? Does Python support both?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>Overriding</strong> is when a subclass redefines a method that already exists on its parent class, giving that same method name different behavior for that subclass &mdash; e.g. <code>Motorcycle.calculate_rental_cost()</code> applying a multi-day discount that <code>Vehicle.calculate_rental_cost()</code> doesn't. Python fully supports this, and it's one of the core tools of this chapter. <strong>Overloading</strong>, in languages that support it (like Java or C++), means defining multiple versions of the <em>same method name</em> in the <em>same class</em>, distinguished by how many arguments they take or what types those arguments are, and the language picks which version to run based on the call site. Python does <strong>not</strong> support true method overloading in that sense &mdash; there's no way to define two separate methods both named <code>area</code> in the same class, one taking one argument and one taking two, and have Python automatically pick the right one; the second definition simply replaces the first, since a class body is just executed top to bottom and a later <code>def</code> with the same name overwrites the earlier one. Python programs approximate what other languages use overloading for with default arguments, <code>*args</code>/<code>**kwargs</code>, or checking argument types manually inside a single method &mdash; but that's a workaround pattern, not language-level overloading.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing overriding with overloading (a very common mix-up), or claiming Python supports true method overloading the way Java does.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a class body defines <code>def greet(self): ...</code> and then, further down in the same class body, another <code>def greet(self, name): ...</code>, what happens when <code>instance.greet()</code> is called with no arguments?" (It raises a <code>TypeError</code> for a missing required argument &mdash; only the second <code>greet</code> definition exists at all, since it silently replaced the first one; Python never keeps both versions around to choose between.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> When a subclass overrides a method, how does it still reuse the parent's original version instead of throwing it away entirely?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>By calling <code>super().method_name(...)</code> from inside the override, which invokes the parent class's original version of that method directly, and then the subclass's override can add its own behavior before or after that call. This is the same <code>super()</code> mechanism used for <code>__init__</code>, just applied to any other method &mdash; for example, <code>Car.describe(self)</code> could call <code>base = super().describe()</code> to get the parent's plain <code>"Toyota Camry"</code> string, then return <code>f"{base} (Car, {self.num_doors} doors)"</code>, extending rather than fully replacing the parent's behavior. This is a genuinely common and useful pattern: it avoids duplicating whatever logic the parent's version already has correct, while still letting the subclass add exactly the extra detail it needs on top.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking overriding a method means the parent's version is permanently inaccessible from the subclass, or not knowing <code>super().method_name()</code> is how to reach it deliberately.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Inside <code>Motorcycle.calculate_rental_cost(self, days)</code>, what's a natural way to reuse <code>Vehicle</code>'s plain <code>daily_rate * days</code> calculation before applying an extra discount?" (Start with <code>cost = super().calculate_rental_cost(days)</code> to get the parent's base calculation, then apply the discount to that result, e.g. <code>cost *= 0.9</code> if <code>days &gt;= 7</code>, rather than re-writing <code>self.daily_rate * days</code> from scratch.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What does "polymorphism" actually mean in practice? Give a concrete example.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Polymorphism means calling the <em>exact same method name</em> on different objects and getting behavior appropriate to each object's actual type, without the calling code needing to know or check which specific type it's dealing with. Concretely: given a list mixing <code>Car</code> and <code>Motorcycle</code> objects (both subclasses of <code>Vehicle</code>), a loop like <code>for v in fleet: print(v.describe())</code> calls <code>describe()</code> the same way on every single object, but each one runs its <em>own</em> overridden version &mdash; a <code>Car</code> prints something mentioning doors, a <code>Motorcycle</code> prints something mentioning a sidecar &mdash; and the loop itself never has to ask "is this a Car or a Motorcycle?" to decide what to do. The calling code is written once, against the shared <code>Vehicle</code> interface (every subclass has a <code>describe()</code> method), and stays correct automatically even if a brand-new subclass like <code>Truck</code> gets added later with its own <code>describe()</code> override &mdash; nothing about the loop needs to change to support it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Defining polymorphism only abstractly ("many forms") without a concrete example of the same call producing genuinely different behavior per object, or confusing it with plain method overriding on its own without the "same call site, different objects" angle.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a new <code>Truck(Vehicle)</code> subclass is added later with its own <code>describe()</code> override, does the existing <code>for v in fleet: print(v.describe())</code> loop need to change to handle it?" (No &mdash; that's the entire benefit; the loop calls <code>describe()</code> polymorphically on whatever object it gets, so a new subclass with its own override slots in automatically with zero changes to the calling code.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the difference between <code>isinstance(obj, SomeClass)</code> and <code>type(obj) == SomeClass</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>type(obj) == SomeClass</code> checks for an <strong>exact</strong> type match only &mdash; it's <code>True</code> only if <code>obj</code>'s type is literally <code>SomeClass</code>, and <code>False</code> for any subclass instance, even though a subclass instance genuinely "is a" <code>SomeClass</code> in every meaningful sense. <code>isinstance(obj, SomeClass)</code> checks the whole inheritance chain &mdash; it returns <code>True</code> if <code>obj</code>'s type is <code>SomeClass</code> <em>or any subclass of it</em>. Concretely, given <code>class Car(Vehicle): pass</code> and <code>my_car = Car(...)</code>: <code>isinstance(my_car, Vehicle)</code> is <code>True</code> (a <code>Car</code> is-a <code>Vehicle</code>), but <code>type(my_car) == Vehicle</code> is <code>False</code> (its exact type is <code>Car</code>, not <code>Vehicle</code>). This is why <code>isinstance()</code> is almost always the right choice in real code &mdash; it respects the whole point of inheritance (a subclass instance should be usable anywhere the parent type is expected), while <code>type() ==</code> checking silently breaks the moment a new subclass is introduced.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>isinstance()</code> and <code>type() ==</code> as interchangeable, or not knowing which one respects subclassing.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>class Cat(Animal): pass</code> and <code>c = Cat('Tom')</code>, what does <code>isinstance(c, Animal)</code> return, and what does <code>type(c) == Animal</code> return?" (<code>isinstance(c, Animal)</code> is <code>True</code> &mdash; <code>Cat</code> is a subclass of <code>Animal</code>, so a <code>Cat</code> instance genuinely is an <code>Animal</code> too; <code>type(c) == Animal</code> is <code>False</code> &mdash; <code>c</code>'s exact type is <code>Cat</code>, not <code>Animal</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> Why does most real-world Python code prefer <code>isinstance()</code> checks over <code>type() ==</code> checks, when either is technically possible?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because <code>type() ==</code> silently stops working correctly the instant a new subclass is introduced, while <code>isinstance()</code> keeps working correctly automatically. Imagine code that does something like <code>if type(v) == Vehicle: apply_standard_fee(v)</code> &mdash; that check would be <code>False</code> for every <code>Car</code> and <code>Motorcycle</code> instance, even though they're conceptually vehicles too, purely because their exact type isn't literally <code>Vehicle</code>. Using <code>isinstance(v, Vehicle)</code> instead correctly includes every subclass, present and future, without the check needing to be updated every time a new subclass is added to the codebase. This matters a great deal in growing real systems: a codebase that relies on <code>type() ==</code> checks tends to accumulate subtle bugs exactly at the moments new subclasses get introduced, since nothing forces anyone to go find and update every scattered exact-type check.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not being able to articulate a concrete failure scenario for <code>type() ==</code> checks, or claiming there's no real practical difference between the two in typical code.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is there ever a legitimate reason to want the stricter, exact-type-only behavior of <code>type() ==</code> instead of <code>isinstance()</code>?" (Rarely, but yes &mdash; if code genuinely needs to distinguish the exact class from any of its subclasses, e.g. some serialization logic that must behave differently for the base class specifically; it's uncommon enough that <code>isinstance()</code> should be the default choice unless there's a specific, deliberate reason to want the stricter check.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What is "duck typing," and how is it related to, but different from, polymorphism through inheritance?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Duck typing is the idea, named after "if it walks like a duck and quacks like a duck, it's a duck," that Python code often doesn't check an object's actual type or inheritance at all before using it &mdash; it just tries calling the method or attribute it needs, and if the object happens to have that method (whatever its actual class is), the code works, no shared parent class required. This is related to inheritance-based polymorphism &mdash; both let the same code work correctly across different types of objects &mdash; but the mechanism is different: inheritance-based polymorphism relies on a shared parent class defining a common method that every subclass overrides, while duck typing relies on nothing more than "this object happens to have a method with this name," with no formal relationship between the classes involved at all. A concrete example: a function <code>def print_all(items): [print(i.describe()) for i in items]</code> works fine on a list of unrelated classes that each just happen to define their own <code>describe()</code> method, even if none of them inherit from a common parent &mdash; that's duck typing; the <code>Vehicle</code>/<code>Car</code>/<code>Motorcycle</code> hierarchy in this chapter, where <code>describe()</code> is guaranteed by a shared parent class, is polymorphism through inheritance instead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating duck typing and inheritance-based polymorphism as identical with no distinction, or being unable to give an example of duck typing that doesn't involve any shared parent class at all.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does duck typing require any two classes involved to share a common parent class?" (No &mdash; that's precisely the distinction; duck typing only cares that an object has the method being called, regardless of its class hierarchy, while inheritance-based polymorphism specifically relies on a shared parent guaranteeing that method exists across all its subclasses.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> When is composition a better design choice than inheritance? Why is this a genuinely common real interview question?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Inheritance models an <strong>"is-a"</strong> relationship (a <code>Car</code> <em>is a</em> <code>Vehicle</code>), while <strong>composition</strong> &mdash; giving a class an attribute that's an instance of another class, rather than inheriting from it &mdash; models a <strong>"has-a"</strong> relationship (a <code>Car</code> <em>has an</em> <code>Engine</code>, rather than being one). Composition tends to be the better choice when the relationship genuinely isn't "is-a": it would be a design mistake to make <code>Engine</code> a parent class of <code>Car</code> just to reuse its methods, since a car conceptually contains an engine rather than being a specialized kind of engine. Composition is also generally more flexible than inheritance for changes that come up over time &mdash; swapping out one <code>Engine</code> instance for a different one on an existing <code>Car</code> object is straightforward, whereas deep, multi-level inheritance hierarchies tend to get rigid and fragile as requirements evolve (a change to a base class ripples through every subclass beneath it, sometimes in surprising ways). This is a genuinely common real interview question because a huge amount of practical, maintainable software design comes down to correctly recognizing "is-a" versus "has-a" relationships, and overusing inheritance where composition would fit better is one of the most common design mistakes newer developers make.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for inheritance by default for every relationship without considering whether it's genuinely "is-a," or being unable to give a concrete example where composition is clearly the better fit.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would it make sense for a <code>RentalAgreement</code> class to inherit from <code>Vehicle</code>, or should it hold a <code>Vehicle</code> as an attribute instead?" (It should hold a <code>Vehicle</code> as an attribute &mdash; a rental agreement <em>has a</em> vehicle it refers to, it isn't itself a specialized kind of vehicle, so composition is the correct relationship here, not inheritance.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> A method loops over a list of objects and uses <code>if type(v) == Car: ... elif type(v) == Motorcycle: ...</code> to decide what to print for each one. What's wrong with this, and how should it be rewritten?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>This pattern &mdash; sometimes called a "type-check chain" &mdash; defeats the entire purpose of having a shared parent class and overridden methods in the first place. Every time a new subclass (say, <code>Truck</code>) gets added, this <code>if/elif</code> chain has to be found and manually updated with a new branch, or the new subclass's objects silently fall through with no matching case at all &mdash; the exact opposite of polymorphism's promise that new subclasses slot in automatically. The fix is to give every subclass its own overridden version of the same method (e.g. <code>describe()</code>) and simply call it polymorphically: <code>for v in fleet: print(v.describe())</code>, with no type-checking at all. Each object already knows how to describe itself correctly because of its own class's override &mdash; the calling code doesn't need to, and shouldn't need to, ask what type it's looking at.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing a type-check chain as an anti-pattern, or "fixing" it by just adding another <code>elif</code> branch instead of pushing the type-specific logic into an overridden method on each subclass.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a new <code>Truck(Vehicle)</code> subclass is added, what has to change about a polymorphic <code>for v in fleet: print(v.describe())</code> loop versus a <code>type(v) == ...</code> chain?" (The polymorphic loop needs zero changes at all &mdash; it works automatically as long as <code>Truck</code> defines its own <code>describe()</code>; the type-check chain needs a brand-new <code>elif type(v) == Truck:</code> branch added by hand, or <code>Truck</code> objects get silently skipped.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Does a subclass have to override every method its parent defines?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>No &mdash; a subclass overrides only the methods where it genuinely needs different behavior, and simply inherits every other method from the parent completely unchanged. In the <code>Vehicle</code>/<code>Car</code>/<code>Motorcycle</code> example, both subclasses might override <code>describe()</code> to mention their own specific details, but if the base <code>Vehicle</code> also defined something like <code>is_available(self)</code> that works identically for every vehicle type regardless of subclass, neither <code>Car</code> nor <code>Motorcycle</code> would need to touch it at all &mdash; calling <code>my_car.is_available()</code> would just run <code>Vehicle</code>'s original version directly, with no override in the way. This is exactly the point of inheritance: write shared behavior once on the parent, and only override the specific pieces that genuinely need to differ per subclass.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming every subclass must redefine every single parent method to "be complete," which misunderstands what inheritance is for in the first place.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>Vehicle</code> defines <code>is_available()</code> and neither <code>Car</code> nor <code>Motorcycle</code> overrides it, whose version runs when <code>my_motorcycle.is_available()</code> is called?" (<code>Vehicle.is_available()</code> &mdash; Python looks for the method on <code>Motorcycle</code> first, doesn't find an override there, and walks up to the parent class where it does find one, exactly like ordinary attribute/method inheritance.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Can <code>isinstance()</code> check against more than one class at once? What's that useful for?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Yes &mdash; <code>isinstance()</code> accepts a tuple of classes as its second argument and returns <code>True</code> if the object is an instance of <em>any</em> of them, e.g. <code>isinstance(value, (int, float))</code> is <code>True</code> for either an <code>int</code> or a <code>float</code>. This is useful any time code needs to accept more than one acceptable type without writing out multiple separate <code>isinstance()</code> checks joined by <code>or</code>. Applied to a class hierarchy, this could look like <code>isinstance(v, (Car, Motorcycle))</code> to check "is this either of these two specific vehicle subclasses" without matching every possible <code>Vehicle</code> subclass in general &mdash; useful when logic genuinely needs to branch on a specific subset of subclasses rather than the whole family.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing <code>isinstance()</code> accepts a tuple at all, or writing out a long chain of <code>isinstance(v, Car) or isinstance(v, Motorcycle)</code> when a single tuple call does the same thing more cleanly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does <code>isinstance(5, (int, float))</code> return?" (<code>True</code> &mdash; <code>5</code> is an instance of <code>int</code>, which is one of the two types in the tuple, so the check succeeds without needing <code>5</code> to also be a <code>float</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> Every Python class, even one with no explicit parent written, still inherits from something. What is it, and why does that matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Every class in Python implicitly inherits from <code>object</code>, the root of Python's entire class hierarchy, even when nothing is written after the class name like <code>class Vehicle:</code> with no parentheses at all &mdash; that's shorthand for <code>class Vehicle(object):</code>. This is why every ordinary object already has certain baseline behavior available before a single custom method is written &mdash; things like a default <code>__repr__</code>, a default <code>__eq__</code> that compares by identity, and the ability to check <code>isinstance(v, object)</code>, which is always <code>True</code> for literally any object, since <code>object</code> sits at the top of every class's inheritance chain. It matters practically because it explains why dunder methods like <code>__str__</code> or <code>__eq__</code> (covered in earlier chapters) "already exist" in some default form even on a brand-new class that never explicitly defined them &mdash; they're inherited from <code>object</code>, and overriding them is exactly the same override mechanism this chapter covers for any other method.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing a class with no explicit parent listed has no parent at all, or not connecting this to why default dunder method behavior already exists before a class defines its own.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is <code>issubclass(Vehicle, object)</code> True or False, given <code>class Vehicle:</code> with no explicit parent written?" (<code>True</code> &mdash; every class, whether or not it lists an explicit parent, is automatically a subclass of <code>object</code>.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> To make <code>Car</code> inherit from <code>Vehicle</code>, you write <code>class Car(____):</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="Vehicle" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Inside a subclass's <code>__init__</code>, calling the parent class's <code>__init__</code> is written <code>____().__init__(...)</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="super" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> If a subclass defines its own <code>__init__</code> and never calls <code>super().__init__()</code>, attributes the parent's <code>__init__</code> would have set are <code>____</code> defined at all on that instance.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="not,never" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> Redefining a parent's method with different behavior in a subclass is called method <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="overriding" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> Python does <code>____</code> support true method overloading based on argument count/type (yes/no).</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="not,no" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Inside an overridden method, calling the parent's original version of that same method is <code>____().method_name(...)</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="super" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> Calling the same method name on different subclass objects and getting behavior specific to each one's actual type is called <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="polymorphism" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Given <code>class Cat(Animal): pass</code> and <code>c = Cat("Tom")</code>, <code>isinstance(c, Animal)</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="True,true" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Given the same <code>c = Cat("Tom")</code>, <code>type(c) == Animal</code> evaluates to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="False,false" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Unlike <code>type() ==</code>, <code>isinstance()</code> respects <code>____</code> &mdash; it returns True for subclass instances too.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="subclassing,inheritance" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> Calling a method on an object just because it happens to have that method, with no shared parent class required, is called duck <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="typing" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Inheritance models an "is-a" relationship; giving a class an attribute that's an instance of another class instead models a "____-a" relationship.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="has" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A loop like <code>if type(v) == Car: ... elif type(v) == Motorcycle: ...</code> instead of calling an overridden method polymorphically is an anti-pattern called a type-check <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="chain" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> Every Python class, even one with no explicit parent written, implicitly inherits from <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="object" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

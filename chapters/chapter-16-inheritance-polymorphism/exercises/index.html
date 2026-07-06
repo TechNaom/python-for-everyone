@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 16 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 16: Inheritance & Polymorphism, including two Debug the Code tasks — a child class forgetting to call super().__init__(), and a loop that breaks polymorphism by checking type() instead of relying on an override.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-16">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 16 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Inheritance &amp; Polymorphism</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. None of these exercises need any sample data files.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Basic inheritance</h3>
+    <p>Write a class <code>Animal</code> whose <code>__init__</code> takes <code>name</code> and stores it as <code>self.name</code>. Give it a method <code>speak(self)</code> that returns <code>f"{self.name} makes a sound."</code>. Write a subclass <code>Dog(Animal)</code> with an empty body (just <code>pass</code>). Create a <code>Dog</code> named <code>"Rex"</code> and print the result of calling <code>speak()</code> on it, then print <code>rex.name</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>super().__init__()</code></h3>
+    <p>Write a class <code>Employee</code> whose <code>__init__</code> takes <code>name</code> and <code>salary</code>, storing both as instance attributes. Write a subclass <code>Manager(Employee)</code> whose <code>__init__</code> takes <code>name</code>, <code>salary</code>, and <code>team_size</code>, calls <code>super().__init__(name, salary)</code> to reuse the parent's setup, then stores <code>team_size</code> as its own attribute. Create a <code>Manager</code> named <code>"Priya"</code> with salary <code>90000</code> and <code>team_size</code> <code>5</code>, then print her <code>name</code>, <code>salary</code>, and <code>team_size</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Method overriding</h3>
+    <p>Write a class <code>Shape</code> with a method <code>area(self)</code> that returns <code>0</code>. Write a subclass <code>Square(Shape)</code> whose <code>__init__</code> takes <code>side</code> and stores it as <code>self.side</code>, and that overrides <code>area(self)</code> to return <code>self.side ** 2</code>. Create a <code>Square</code> with side <code>4</code> and print the result of calling <code>area()</code> on it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> <code>super().method()</code> inside an override</h3>
+    <p>Write a class <code>Employee</code> with <code>__init__</code> taking <code>name</code> and <code>salary</code>, and a method <code>pay_summary(self)</code> that returns <code>f"{self.name} earns {self.salary}"</code>. Write a subclass <code>Manager(Employee)</code> whose <code>__init__</code> takes <code>name</code>, <code>salary</code>, and <code>bonus</code>, calls <code>super().__init__(name, salary)</code>, and stores <code>bonus</code>. Override <code>pay_summary(self)</code> to call <code>super().pay_summary()</code> and append <code>f" plus a bonus of {self.bonus}"</code> to the result. Create a <code>Manager</code> named <code>"Sam"</code> with salary <code>70000</code> and bonus <code>5000</code>, then print the result of calling <code>pay_summary()</code> on it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Polymorphism</h3>
+    <p>Write a class <code>Shape</code> with a method <code>area(self)</code> that returns <code>0</code>. Write two subclasses: <code>Square(Shape)</code>, whose <code>__init__</code> takes <code>side</code> and overrides <code>area(self)</code> to return <code>side ** 2</code>, and <code>Circle(Shape)</code>, whose <code>__init__</code> takes <code>radius</code> and overrides <code>area(self)</code> to return <code>round(3.14159 * radius ** 2, 2)</code>. Put one <code>Square(side=3)</code> and one <code>Circle(radius=2)</code> into a list, loop over the list, and print the result of calling <code>area()</code> on each one — no <code>if/elif</code> type-checking.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> <code>isinstance()</code> vs <code>type()</code></h3>
+    <p>Write a class <code>Employee</code> with <code>__init__</code> taking <code>name</code> and <code>salary</code>. Write a subclass <code>Manager(Employee)</code> with no extra <code>__init__</code> (just inherits <code>Employee</code>'s). Create one <code>Employee</code> named <code>"Alex"</code> with salary <code>55000</code> and one <code>Manager</code> named <code>"Jordan"</code> with salary <code>85000</code>. Print, for each of the two objects: whether <code>isinstance(obj, Employee)</code> is <code>True</code>, and whether <code>type(obj) == Employee</code> is <code>True</code>. (Print four lines total, two per object.)</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This <code>Car</code> class forgets to call <code>super().__init__()</code> in its own <code>__init__</code>, so the parent <code>Vehicle</code>'s setup never runs and <code>car.make</code>/<code>car.model</code> are never actually set — accessing them raises an <code>AttributeError</code>. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_missing_super_init.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+class Car(Vehicle):
+    def __init__(self, make, model, num_doors):
+        self.num_doors = num_doors
+
+car = Car("Honda", "Civic", 4)
+print(car.make, car.model, car.num_doors)</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This code loops over a mixed list of <code>Car</code> and <code>Motorcycle</code> objects and tries to print a description for each, but instead of relying on each subclass's own overridden <code>describe()</code>, it checks <code>type(vehicle) == Car</code> and hardcodes the <code>Car</code>-only message for every object — so the <code>Motorcycle</code> object gets the wrong description printed, and <code>describe()</code> is never even called. Find and fix it so the loop calls <code>vehicle.describe()</code> on every object and lets polymorphism pick the right version automatically.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_breaks_polymorphism.py</span>
+      </div>
+      <pre><code>class Vehicle:
+    def __init__(self, make, model):
+        self.make = make
+        self.model = model
+
+    def describe(self):
+        return f"{self.make} {self.model} is a generic vehicle."
+
+class Car(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a car."
+
+class Motorcycle(Vehicle):
+    def describe(self):
+        return f"{self.make} {self.model} is a motorcycle."
+
+vehicles = [Car("Toyota", "Corolla"), Motorcycle("Harley-Davidson", "Iron 883")]
+for vehicle in vehicles:
+    if type(vehicle) == Car:
+        print(f"{vehicle.make} {vehicle.model} is a car.")</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
