@@ -1002,6 +1002,20 @@ footer.site-footer a {
   color: #E4E9F5;
 }
 
+.footer-brand-credit {
+  font-size: 13.5px;
+  color: #8A93A8;
+}
+
+.footer-brand-credit a {
+  color: #A9B4CC;
+  font-weight: 600;
+}
+
+.footer-brand-credit a:hover {
+  color: var(--color-yellow);
+}
+
 /* ---------- Page meta row (badges, reading time) ---------- */
 .page-meta {
   display: flex;
