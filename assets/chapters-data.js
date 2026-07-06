@@ -129,7 +129,14 @@ window.PFE_MODULES = [
         { id: "file-exceptions", title: "Handling file exceptions" },
         { id: "bringing-together", title: "Real-world file & CSV processing" }
       ] },
-      { id: "chapter-14", num: 14, title: "OOP Basics", path: null },
+      { id: "chapter-14", num: 14, title: "OOP Basics", path: "chapters/chapter-14-oop-basics/lesson.html", subtopics: [
+        { id: "classes-objects", title: "Classes & objects" },
+        { id: "init-attributes", title: "__init__ & instance attributes" },
+        { id: "instance-methods", title: "Instance methods" },
+        { id: "class-attributes", title: "Class vs. instance attributes" },
+        { id: "dunder-methods", title: "Dunder methods (__str__, __repr__)" },
+        { id: "bringing-together", title: "Real-world OOP basics" }
+      ] },
       { id: "chapter-15", num: 15, title: "OOP Deeper", path: null },
       { id: "chapter-16", num: 16, title: "Inheritance & Polymorphism", path: null }
     ]
