@@ -113,7 +113,14 @@ window.PFE_MODULES = [
         { id: "random-module", title: "The random module" },
         { id: "bringing-together", title: "Real-world module use" }
       ] },
-      { id: "chapter-12", num: 12, title: "Exception Handling", path: null },
+      { id: "chapter-12", num: 12, title: "Exception Handling", path: "chapters/chapter-12-exception-handling/lesson.html", subtopics: [
+        { id: "try-except-basics", title: "try/except basics" },
+        { id: "multiple-except-else-finally", title: "Multiple except, else, finally" },
+        { id: "exception-object", title: "The exception object" },
+        { id: "raise", title: "Raising exceptions" },
+        { id: "custom-exceptions", title: "Custom exception classes" },
+        { id: "bringing-together", title: "Real-world exception handling" }
+      ] },
       { id: "chapter-13", num: 13, title: "File Handling & CSV", path: null },
       { id: "chapter-14", num: 14, title: "OOP Basics", path: null },
       { id: "chapter-15", num: 15, title: "OOP Deeper", path: null },
