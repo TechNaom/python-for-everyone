@@ -24,12 +24,12 @@ moving to the next. The rendered, always-current version lives at
 | — | Module 2 Written Exam | covers Chapters 6-10 |
 | 11 | Modules & Packages | what a module is, `import` variations, the `math`/`datetime`/`random` modules, real-world module use — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. First chapter where `import` is allowed |
 | 12 | Exception Handling | try/except basics, multiple except/else/finally, the exception object, raising exceptions, custom exception classes, real-world error handling — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Custom exception classes are a narrow exception to the "no classes until Chapter 14" rule |
+| 13 | File Handling & CSV | opening/reading/writing files, `with`, file modes & paths, the `csv` module (reader/writer/DictReader/DictWriter), file-related exceptions, real-world file/CSV processing — plus a Challenges page (8 auto-graded coding problems, using string-content inputs since the browser sandbox has no real filesystem) and 4 extra real-world project ideas |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 13 | File Handling & CSV | Log-file analyzer |
 | 14 | OOP Basics | Library management system |
 | 15 | OOP Deeper (static/class methods, encapsulation, properties) | Bank account system |
 | 16 | Inheritance & Polymorphism | Vehicle rental system |

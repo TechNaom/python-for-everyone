@@ -121,7 +121,14 @@ window.PFE_MODULES = [
         { id: "custom-exceptions", title: "Custom exception classes" },
         { id: "bringing-together", title: "Real-world exception handling" }
       ] },
-      { id: "chapter-13", num: 13, title: "File Handling & CSV", path: null },
+      { id: "chapter-13", num: 13, title: "File Handling & CSV", path: "chapters/chapter-13-file-handling-csv/lesson.html", subtopics: [
+        { id: "opening-files", title: "Opening & reading files" },
+        { id: "writing-files", title: "Writing to files" },
+        { id: "file-modes-paths", title: "File modes & paths" },
+        { id: "csv-module", title: "The csv module" },
+        { id: "file-exceptions", title: "Handling file exceptions" },
+        { id: "bringing-together", title: "Real-world file & CSV processing" }
+      ] },
       { id: "chapter-14", num: 14, title: "OOP Basics", path: null },
       { id: "chapter-15", num: 15, title: "OOP Deeper", path: null },
       { id: "chapter-16", num: 16, title: "Inheritance & Polymorphism", path: null }
