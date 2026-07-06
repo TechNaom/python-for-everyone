@@ -159,7 +159,14 @@ window.PFE_MODULES = [
     title: "Module 4 — Real-World Python",
     examPath: null,
     chapters: [
-      { id: "chapter-17", num: 17, title: "Generators, Iterators & Context Managers", path: null },
+      { id: "chapter-17", num: 17, title: "Generators, Iterators & Context Managers", path: "chapters/chapter-17-generators-iterators-context-managers/lesson.html", subtopics: [
+        { id: "iterables-vs-iterators", title: "Iterables vs. iterators" },
+        { id: "generator-functions", title: "Generator functions (yield)" },
+        { id: "generator-expressions", title: "Generator expressions" },
+        { id: "context-managers-with", title: "The with protocol" },
+        { id: "custom-context-managers", title: "Custom context managers" },
+        { id: "bringing-together", title: "Real-world generators & context managers" }
+      ] },
       { id: "chapter-18", num: 18, title: "Regular Expressions", path: null },
       { id: "chapter-19", num: 19, title: "Working with APIs & JSON", path: null },
       { id: "chapter-20", num: 20, title: "Multithreading", path: null },

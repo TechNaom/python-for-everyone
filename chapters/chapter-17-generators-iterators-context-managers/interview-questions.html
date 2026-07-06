@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 17: Generators, Iterators & Context Managers — the iterable/iterator protocol, yield vs. return, generator expressions, why with guarantees cleanup, custom __enter__/__exit__, and what __exit__ returning True actually does.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-17-interview" data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 17 Interview Prep</span>
+    <span class="reading-time">30 min read</span>
+  </div>
+  <h1>Interview Questions: Generators, Iterators &amp; Context Managers</h1>
+  <p>Generators, iterators, and context managers are where interviews test whether you actually understand what's happening under the hood, not just whether you can write a <code>for</code> loop. This set covers the real difference between an iterable and an iterator, what happens internally when <code>next()</code> hits an exhausted iterator, why a generator beats building a full list in memory, the concrete "10GB log file" scenario interviewers love to ask, generator functions vs. generator expressions, what <code>with</code> actually guarantees and why that matters even when exceptions happen, how to write a custom context manager class, and one of the most genuinely common gotchas: what <code>__exit__</code> returning <code>True</code> does differently from returning <code>None</code> or <code>False</code>.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the actual difference between an "iterable" and an "iterator"? Aren't they the same thing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>They're related but distinct, and the distinction is one of the most commonly tested points on this topic. An <strong>iterable</strong> is anything you can call <code>iter()</code> on to get an iterator back &mdash; it defines <code>__iter__</code>. A list, a string, a dict, a set: all iterables. An <strong>iterator</strong> is the object that actually does the stepping &mdash; it defines <code>__next__</code> (and typically also its own <code>__iter__</code> that returns itself), and it remembers exactly where it is between calls. A list is iterable, but a list itself is <em>not</em> an iterator: it has no <code>__next__</code> method, and calling <code>next([1, 2, 3])</code> raises a <code>TypeError</code>. What a <code>for</code> loop actually does under the hood is call <code>iter()</code> on the iterable to get a fresh iterator, then repeatedly call <code>next()</code> on <em>that</em> iterator until it raises <code>StopIteration</code>. So every iterator is iterable (it can be passed to <code>iter()</code>, which just returns itself), but not every iterable is an iterator &mdash; the iterable is the "container" that knows how to produce an iterator, and the iterator is the thing that actually tracks position and produces values one at a time.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "iterable" and "iterator" as interchangeable words for the same thing, or not being able to say which one defines <code>__next__</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>numbers = [1, 2, 3]; next(numbers)</code> work?" (No &mdash; it raises <code>TypeError: 'list' object is not an iterator</code>, because a list is iterable but isn't itself an iterator; you'd need <code>it = iter(numbers)</code> first, and then <code>next(it)</code> works.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What actually happens internally when a <code>for</code> loop runs over a list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <code>for</code> loop is syntactic sugar over the iterator protocol, not some special magic separate from it. Concretely, <code>for x in some_list:</code> is roughly equivalent to: call <code>it = iter(some_list)</code> once to get an iterator, then repeatedly call <code>next(it)</code>, assigning each returned value to <code>x</code> and running the loop body, until <code>next(it)</code> raises <code>StopIteration</code> &mdash; at which point the loop catches that exception internally and simply ends, with no error visible to the code that wrote the <code>for</code> loop. This is exactly why custom classes that define both <code>__iter__</code> and <code>__next__</code> can be looped over with a plain <code>for</code> loop with zero special-casing: Python doesn't know or care that the object is a custom class, it just follows the same protocol it would follow for a list or a string.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing <code>for</code> loops as fundamentally different from the iterator protocol, or not knowing that <code>StopIteration</code> is what silently ends the loop rather than something the loop body ever sees.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a custom class defines <code>__iter__</code> and <code>__next__</code> correctly, does <code>for item in my_object:</code> need any special support from Python beyond that?" (No &mdash; that's the entire point of the protocol; any object implementing it correctly works with a plain <code>for</code> loop, <code>list(...)</code>, tuple unpacking, and anything else that iterates, with no extra code needed anywhere.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What actually happens when you call <code>next()</code> on an iterator that's already exhausted?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It raises <code>StopIteration</code> &mdash; every single time, not just once. Once an iterator has produced its last value and been asked for one more, it stays permanently exhausted: calling <code>next()</code> on it again doesn't restart it or wrap around, it just raises <code>StopIteration</code> again and again forever. This is a genuinely common point of confusion, especially for anyone assuming an iterator is like a list that can be "re-looped." If you need to iterate the same sequence of values again, you need a brand-new iterator &mdash; for a list, that means calling <code>iter()</code> on it again (a fresh iterator starts at the beginning); for a generator, the exhausted generator object itself cannot be reset at all, and the generator function has to be called again to produce a new generator object from scratch.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming an exhausted iterator "resets" or wraps around, or not knowing that a generator specifically can never be un-exhausted &mdash; a new call to the generator function is required.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>g = my_generator_function()</code> gets fully exhausted, can calling <code>next(g)</code> again ever produce a value?" (No &mdash; once exhausted, a generator object is done permanently; every further <code>next(g)</code> call raises <code>StopIteration</code>, and getting new values requires calling <code>my_generator_function()</code> again to get a fresh generator object.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the actual difference between <code>yield</code> and <code>return</code> inside a function?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>return</code> exits a function immediately and permanently, handing back one final value (or none) &mdash; once a function returns, its local state is gone. <code>yield</code> instead <em>pauses</em> the function, hands back one value to whoever called <code>next()</code>, and &mdash; crucially &mdash; remembers exactly where it left off, including every local variable's value, so the next call to <code>next()</code> resumes execution right after that <code>yield</code> line rather than starting the function over. A function containing even one <code>yield</code> anywhere in its body automatically becomes a <strong>generator function</strong>: calling it doesn't run any of its code immediately at all, it just returns a generator object, and the function's actual code only starts running the first time <code>next()</code> is called on that generator. This is fundamentally different from a normal function, where calling it runs the whole body (until a <code>return</code> or the end) immediately and gives back one final value.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking calling a generator function runs its code immediately, or believing <code>yield</code> exits the function permanently the same way <code>return</code> does.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>def f(): yield 1; yield 2</code>, does calling <code>f()</code> print anything or run any code by itself?" (No &mdash; calling <code>f()</code> just creates and returns a generator object; none of the function's code runs until <code>next()</code> is called on it for the first time.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Why use a generator instead of just building and returning a full list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Memory and laziness. A function that builds a full list has to hold <em>every single value</em> in memory at once before it can return anything &mdash; for a million items, that's a million items sitting in RAM simultaneously, whether or not the caller ever actually needs all of them. A generator instead produces values <strong>lazily</strong>, one at a time, only computing the next value the moment something actually asks for it via <code>next()</code> &mdash; at any given point, a generator only needs to remember its current position and local state, not every value it has produced or will ever produce. This matters enormously for large or even infinite sequences: a generator can represent "all the natural numbers" or "every line of a 10GB file" without ever trying to hold the whole thing in memory, because it never builds "the whole thing" as a data structure at all &mdash; it just knows how to produce the next value when asked.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying generators are "just faster" without mentioning memory, or not being able to explain what "lazy" actually means in terms of when computation happens.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could a function using <code>return [x for x in range(10_000_000_000)]</code> ever actually finish running?" (No, realistically &mdash; it would try to build and hold ten billion integers in memory at once, exhausting available RAM long before it finished; a generator that <code>yield</code>s each value one at a time, or a generator expression doing the same, never needs to hold more than the current value in memory.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> You need to process a 10GB log file, line by line, counting how many lines mention "ERROR." What's wrong with reading the whole file into a list first?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Something like <code>lines = file.readlines()</code> loads the entire 10GB file into memory as a list of strings before a single line gets processed &mdash; on most machines, that alone is enough to exhaust available RAM and crash the program, or at minimum slow the whole machine to a crawl through swapping, long before the actual counting logic even starts. The fix is to never materialize the whole file as a data structure at all: iterate the file object directly, since an open file object is itself an iterator that yields one line at a time &mdash; <code>for line in file: ...</code> &mdash; or wrap that in a generator function that <code>yield</code>s only the lines matching "ERROR," so at any given moment the program only holds the current line in memory, not all ten million lines of the file. The total memory footprint stays roughly constant (one line's worth) regardless of whether the file is 10 megabytes or 10 gigabytes, because nothing ever needs to hold "the whole file" as one object.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting <code>file.read()</code> or <code>file.readlines()</code> as the starting point without flagging the memory problem, or not knowing that an open file object can be iterated directly line-by-line without any manual line-splitting.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>for line in open('huge_file.txt'):</code> ever hold the whole file in memory at once?" (No &mdash; a file object is its own iterator; each iteration reads and yields just the next line from disk, so memory use stays roughly constant no matter how large the file is.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the difference between a generator function and a generator expression? When would you reach for one over the other?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both produce a generator object with the same laziness benefits, but they look and are written completely differently. A <strong>generator function</strong> is a regular <code>def</code> whose body contains one or more <code>yield</code> statements &mdash; it's the right tool when the logic producing each value needs multiple lines, branching, loops, or state beyond a single expression (e.g. reading a file and applying several conditions per line). A <strong>generator expression</strong> is a single-expression, parenthesized shorthand that looks almost identical to a list comprehension but with <code>()</code> instead of <code>[]</code> &mdash; <code>(x * x for x in range(10))</code> instead of <code>[x * x for x in range(10)]</code> &mdash; and is the right tool when the whole transformation fits naturally as one expression over one iterable, exactly the situations where a list comprehension would otherwise be reached for. The key shared benefit over a list comprehension: <code>[x * x for x in range(10_000_000)]</code> builds the entire list in memory immediately, while <code>(x * x for x in range(10_000_000))</code> builds nothing yet at all &mdash; it just creates a generator object that computes each squared value lazily as something iterates over it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing a generator expression's parentheses with a tuple (a common trap &mdash; <code>(x for x in range(5))</code> is a generator, not a "tuple comprehension," because Python has no such thing), or not knowing when the extra structure of a full generator function is actually needed.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is <code>(x for x in range(5))</code> a tuple?" (No &mdash; parentheses around a comprehension-like expression make a generator expression, not a tuple; Python has no "tuple comprehension" syntax at all, which is exactly why this particular parenthesized form means something different from what it might look like at first glance.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What does the <code>with</code> statement actually guarantee, and why does that matter even when an exception happens inside it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>with</code> guarantees that a resource's cleanup code runs no matter how the block exits &mdash; whether it finishes normally, returns early, or raises an exception partway through. Concretely, <code>with open("file.txt") as f: ...</code> guarantees <code>f.close()</code> runs even if the code inside the block raises an exception on line one of the block, which a plain <code>f = open(...); ... ; f.close()</code> sequence does <em>not</em> guarantee &mdash; if an exception is raised between the <code>open()</code> and the manual <code>close()</code> call, that <code>close()</code> line simply never executes, and the file handle leaks. This matters a great deal for real resource management: file handles, network connections, and database connections are all limited system resources, and a program that leaks them on every exception path will eventually run out, often in production under exactly the error conditions that were hardest to test for. <code>with</code> moves cleanup out of "hope the code path reaches it" territory and makes it unconditional.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing manual <code>close()</code> calls are just as safe as <code>with</code> as long as they're written at the end of the code, without accounting for exceptions raised before that line is reached.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If code inside <code>with open('data.txt') as f:</code> raises a <code>ValueError</code> on its very first line, does <code>f</code> still get closed?" (Yes &mdash; that's precisely the guarantee <code>with</code> provides; the file's cleanup runs as the exception propagates out of the block, before the exception continues upward, regardless of where inside the block it was raised.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What are <code>__enter__</code> and <code>__exit__</code>, and how do they connect to the <code>with</code> statement?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>They're the two dunder methods that make an object usable with <code>with</code> &mdash; together they're called the "context manager protocol." When Python evaluates <code>with some_object as x:</code>, it calls <code>some_object.__enter__()</code> first, and whatever that method returns gets assigned to <code>x</code> (often <code>self</code>, but not required to be). Then the block's code runs. When the block finishes &mdash; normally or via an exception &mdash; Python calls <code>some_object.__exit__(exc_type, exc_value, traceback)</code>, passing information about any exception that occurred (all three arguments are <code>None</code> if the block finished normally with no exception). <code>__exit__</code> is where cleanup logic belongs: closing a file, releasing a lock, closing a connection &mdash; it runs unconditionally once the block is done, which is exactly what gives <code>with</code> its cleanup guarantee.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing <code>__exit__</code> receives exception information as arguments, or thinking <code>__enter__</code>'s return value is always just <code>self</code> with no other option.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If the code inside a <code>with</code> block raises no exception at all, what values does <code>__exit__</code> receive for <code>exc_type</code>, <code>exc_value</code>, and <code>traceback</code>?" (All three are <code>None</code> &mdash; <code>__exit__</code> is still called every time the block ends, but when there was no exception, Python simply has nothing to report and passes <code>None</code> for all three.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> How would you write your own custom context manager as a class? Walk through a concrete example.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Define a class with both <code>__enter__(self)</code> and <code>__exit__(self, exc_type, exc_value, traceback)</code>. For example, a simple timer context manager: <code>__enter__</code> records the current time (e.g. via <code>time.perf_counter()</code>) onto <code>self</code> and returns <code>self</code>, so <code>with Timer() as t:</code> gives access to the timer object inside the block; <code>__exit__</code> records the end time, computes the elapsed duration, and prints or stores it &mdash; and since <code>__exit__</code> always runs regardless of how the block ended, the elapsed time gets reported even if the code inside the block raised an exception partway through. The class doesn't need to inherit from anything special or import anything beyond what the cleanup logic itself needs (like the <code>time</code> module for a timer) &mdash; defining those two specific methods is the entire contract that makes an object work with <code>with</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Forgetting that <code>__exit__</code> needs to accept the three exception-info parameters even if it doesn't use them, or thinking a context manager class needs some special base class or decorator to work with <code>with</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a custom context manager's <code>__exit__</code> is defined as <code>def __exit__(self, exc_type, exc_value, traceback):</code> but the body only ever prints a completion message and never touches those three parameters, is that valid?" (Yes &mdash; the parameters have to be accepted since Python always passes them, but a context manager is free to ignore them entirely if it has no exception-specific behavior to run; simply not reading them doesn't affect the protocol at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> This is a genuinely common one: what does <code>__exit__</code> returning <code>True</code> do differently from returning <code>None</code> or <code>False</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It controls whether an exception raised inside the <code>with</code> block gets <strong>suppressed</strong> or allowed to continue propagating. If <code>__exit__</code> returns a truthy value (most explicitly <code>True</code>), Python treats the exception as handled and swallows it &mdash; code after the <code>with</code> block continues running normally, as if nothing went wrong, even though something inside the block genuinely raised an exception. If <code>__exit__</code> returns <code>None</code> or any falsy value (which is what happens by default if <code>__exit__</code> doesn't explicitly <code>return</code> anything at all, since a function with no explicit return returns <code>None</code>), the exception continues propagating normally after <code>__exit__</code> finishes running, exactly as if the <code>with</code> block weren't there. This is genuinely dangerous to get wrong: a context manager that returns <code>True</code> from <code>__exit__</code> without a very deliberate reason silently hides real bugs and errors from the rest of the program, since the exception simply vanishes instead of surfacing anywhere.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that returning <code>True</code> suppresses the exception entirely, or treating exception suppression as a default/harmless behavior rather than something that should be deliberate and rare.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>__exit__</code> returns <code>True</code> after a <code>ValueError</code> was raised inside the <code>with</code> block, does code immediately after the <code>with</code> block still run?" (Yes &mdash; returning <code>True</code> tells Python the exception was handled, so it's suppressed entirely and execution continues normally right after the block, with no exception visible to anything outside it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Can a generator function be used as a context manager, or do those require entirely separate approaches?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>They're built on genuinely separate protocols &mdash; a generator function on its own is not automatically usable with <code>with</code>. A generator function defines <code>__next__</code>-driven lazy iteration (built around <code>yield</code>); a context manager needs <code>__enter__</code>/<code>__exit__</code> instead, which is an entirely different pair of dunder methods with a different calling contract. Python's standard library does offer a bridge (<code>contextlib.contextmanager</code>, using a single <code>yield</code> to separate setup code from teardown code) that lets a generator-shaped function be turned into a context manager &mdash; but that's a decorator doing real translation work between the two protocols, not the two protocols being secretly the same thing. Writing a context manager directly as a class with explicit <code>__enter__</code>/<code>__exit__</code> methods (as this chapter does) is the more fundamental approach and doesn't rely on any additional standard-library helper at all.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming any function containing <code>yield</code> automatically works with <code>with</code>, or being unable to name what's actually different between the iterator protocol and the context manager protocol.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does a plain generator function like <code>def gen(): yield 1</code> work directly in <code>with gen() as g:</code>?" (No &mdash; a generator object has <code>__iter__</code>/<code>__next__</code>, not <code>__enter__</code>/<code>__exit__</code>, so using it directly in a <code>with</code> statement raises an <code>AttributeError</code>; it would need to be wrapped by something like <code>contextlib.contextmanager</code> to work with <code>with</code> at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Why does an open file object work directly in a <code>for</code> loop without calling any special method to "get its lines" first?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because a file object, once opened, already <em>is</em> an iterator over its own lines &mdash; it implements <code>__iter__</code> (returning itself) and <code>__next__</code> (returning the next line each time it's called, raising <code>StopIteration</code> once the file is exhausted). This is exactly why <code>for line in file_object:</code> works with no extra method call needed: the <code>for</code> loop just follows the ordinary iterator protocol, and the file object already satisfies it. This is also precisely why file iteration is memory-efficient by default &mdash; each call to <code>__next__</code> reads and returns just the next line from disk, rather than the file object having pre-loaded every line into memory the moment it was opened.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a file object needs <code>.readlines()</code> called first before it can be looped over, or not connecting file iteration back to the same iterator protocol used everywhere else.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>for line in open('data.txt'):</code> load the whole file into memory before the loop starts?" (No &mdash; the file object is its own iterator and reads one line at a time as <code>__next__</code> gets called, so it never holds more than the current line's worth of data in memory regardless of the file's total size.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> A custom context manager's <code>__enter__</code> raises an exception before it finishes. Does <code>__exit__</code> still get called?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>No &mdash; and this is a genuinely important edge case. Python only calls <code>__exit__</code> if <code>__enter__</code> completed successfully and the <code>with</code> block was actually entered. If <code>__enter__</code> itself raises an exception, the <code>with</code> statement never considers the block "opened" in the first place, so there's no corresponding <code>__exit__</code> call to balance it &mdash; the exception from <code>__enter__</code> just propagates upward as if the whole <code>with</code> statement had failed on its very first line. This means any resource acquisition that could partially succeed before failing needs to be handled carefully inside <code>__enter__</code> itself (e.g. cleaning up any partial state before re-raising), since <code>__exit__</code> won't automatically be given a chance to help.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>__exit__</code> always runs no matter what, including when <code>__enter__</code> itself is the thing that failed.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a context manager's <code>__enter__</code> opens a file successfully but then raises an exception on its next line before returning, is that file handle guaranteed to be closed by <code>__exit__</code>?" (No &mdash; since <code>__exit__</code> is never called in this case, whoever writes <code>__enter__</code> needs to close that file handle manually inside <code>__enter__</code>'s own error handling before re-raising, or the handle leaks.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> An iterable defines <code>__iter__</code>; an iterator additionally defines <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="__next__,next" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Calling <code>next()</code> on an exhausted iterator raises <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="StopIteration" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> A function containing at least one <code>____</code> statement automatically becomes a generator function.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="yield" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> Unlike <code>return</code>, <code>yield</code> pauses a function and <code>____</code> its local state until the next call to <code>next()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="remembers,preserves,keeps" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> Calling a generator function does <code>____</code> run its code immediately (yes/no).</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="not,no" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A generator produces values <code>____</code> &mdash; only computing the next one when it's actually asked for.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="lazily,lazy" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>(x for x in range(5))</code> uses <code>____</code> instead of square brackets, making it a generator expression instead of a list comprehension.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="parentheses,()" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> The <code>with</code> statement guarantees cleanup code runs even if an <code>____</code> occurs inside the block.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="exception,error" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> When Python evaluates <code>with obj as x:</code>, it calls <code>obj.____()</code> first, and its return value becomes <code>x</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="__enter__,enter" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Once a <code>with</code> block finishes (normally or via exception), Python calls <code>obj.____()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="__exit__,exit" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> If no exception occurred inside a <code>with</code> block, <code>__exit__</code> receives <code>____</code> for all three of its exception-info parameters.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="None,none" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> If <code>__exit__</code> returns <code>True</code>, an exception raised inside the <code>with</code> block is <code>____</code> rather than propagating further.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="suppressed,swallowed,handled" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> An open file object works directly in a <code>for</code> loop because it already implements <code>__iter__</code> and <code>____</code> itself.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="__next__,next" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> If <code>__enter__</code> itself raises an exception, <code>____</code> is never called for that <code>with</code> statement.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="__exit__,exit" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 17: Generators, Iterators & Context Managers, including interview-style scenario problems on yield, generator expressions, and the with protocol.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 17 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Generators, Iterators &amp; Context Managers</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This is the
+    chapter where <code>yield</code>/generator functions, generator
+    expressions, and the context-manager protocol
+    (<code>__enter__</code>/<code>__exit__</code>) become allowed, on top
+    of everything from Chapters 1-16 (including general classes,
+    <code>__init__</code>, dunder methods,
+    <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code>,
+    inheritance, <code>super()</code>, method overriding, polymorphism, and
+    <code>isinstance()</code>). No import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#iterables-vs-iterators">1. Iterables vs. Iterators</a>
+    <a href="#generator-functions">2. Generator Functions</a>
+    <a href="#generator-expressions">3. Generator Expressions</a>
+    <a href="#context-managers-with">4. The <code>with</code> Protocol</a>
+    <a href="#custom-context-managers">5. Custom Context Managers</a>
+    <a href="#bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="iterables-vs-iterators">Topic 1: Iterables vs. Iterators</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A manual countdown iterator</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write a <code>Countdown</code> class with <code>__iter__</code>/<code>__next__</code> that counts down from a starting value to 0, raising <code>StopIteration</code> after.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A separate iterable and iterator</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write a <code>RepeatTwice</code> iterable and a matching iterator class that yields each item in a list twice in a row.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Driving <code>iter()</code>/<code>next()</code> by hand</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Manually drive <code>iter()</code>/<code>next()</code> on a list without a <code>for</code> loop, catching <code>StopIteration</code> yourself.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A custom even-numbers iterator</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write an <code>EvenNumbers</code> class with <code>__iter__</code>/<code>__next__</code> that produces every even number up to a limit.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This <code>__next__</code> method never raises <code>StopIteration</code>, which would loop forever. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A paginated API client walking pages by hand</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write a <code>PageWalker</code> iterator that walks through a list of pages one at a time via the iterator protocol.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Iterable vs. iterator</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_iterable_vs_iterator()</code>, explaining what makes an object "iterable" versus an "iterator," and how a <code>for</code> loop uses that distinction.</p>
+  </div>
+
+  <h2 id="generator-functions">Topic 2: Generator Functions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Counting up with <code>yield</code></h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write a generator function <code>count_up_to(limit)</code> using <code>yield</code> to produce integers one at a time.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Squares, produced lazily</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write a generator function <code>squares_up_to(limit)</code> using <code>yield</code> to produce squares.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Branching logic inside a generator</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write a generator function <code>alternating_signs(limit)</code> mixing <code>if</code>/<code>else</code> logic with <code>yield</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Multiple yields of different values</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Write a generator function <code>countdown_then_liftoff(start)</code> that yields numbers, then a final string.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This function was meant to be a generator but used <code>return</code> instead of <code>yield</code> inside its loop. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Streaming sensor readings one at a time</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write a generator function that lazily filters sensor readings above a threshold.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>yield</code> vs. <code>return</code></h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_yield_vs_return()</code>, explaining the difference between a function using <code>return</code> and a generator function using <code>yield</code>.</p>
+  </div>
+
+  <h2 id="generator-expressions">Topic 3: Generator Expressions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> List comprehension vs. generator expression</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Compare a list comprehension and a generator expression built from the same source, checking their types.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Summing directly over a generator expression</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Sum values directly over a generator expression with <code>sum()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Finding a max lazily</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Find the max of a generator expression with <code>max()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Short-circuiting with <code>any()</code></h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Use <code>any()</code> over a generator expression to short-circuit on the first match.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Square brackets were used where parentheses were meant, turning a lazy generator expression into an eager list comprehension. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Checking a huge log file for one matching line without loading it all</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Use <code>any()</code> with a generator expression to check for a matching line.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why choose a generator expression?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_genexpr_memory_benefit()</code>, explaining why you'd choose a generator expression over a list comprehension.</p>
+  </div>
+
+  <h2 id="context-managers-with">Topic 4: The <code>with</code> Protocol Generalized</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A general-purpose managed resource</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write a <code>ManagedResource</code> class with <code>__enter__</code>/<code>__exit__</code> and use it in a <code>with</code> block, showing state before/after.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Guaranteed cleanup on block exit</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write a <code>Timer</code> class showing <code>__exit__</code> runs automatically when the block ends.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> The exact order of execution</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write a <code>NoisyBlock</code> class showing the exact order <code>__enter__</code>/block-body/<code>__exit__</code> run.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Suppressing an exception</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write a <code>SuppressValueError</code> class whose <code>__exit__</code> suppresses a <code>ValueError</code> by returning <code>True</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This class is missing <code>__exit__</code> entirely, so <code>with</code> raises <code>TypeError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Guaranteeing a lock is always released</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write a <code>SimpleLock</code> context manager guaranteeing release, even if the code inside raises.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What problem does <code>with</code> solve?</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_with_protocol_purpose()</code>, explaining what problem the <code>with</code> statement and context-manager protocol solve.</p>
+  </div>
+
+  <h2 id="custom-context-managers">Topic 5: Writing a Custom Context Manager Class</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Your first custom context manager</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write your first fully custom context manager, <code>LoggingContext</code>, from scratch.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Tracking entries across reuse</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write a <code>CallCounter</code> context manager tracking how many times it's been entered.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Collecting errors instead of crashing</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write an <code>ExceptionLogger</code> context manager that collects errors instead of crashing.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Modeling commit-on-success</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Write a <code>Transaction</code> context manager that tracks whether it committed successfully.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This <code>__exit__</code> accidentally returns <code>True</code>, silently swallowing exceptions it shouldn't. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A reusable timing context manager for performance checks</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write a <code>StepTracker</code> context manager counting completed steps.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The context-manager lifecycle, step by step</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_context_manager_lifecycle()</code>, explaining exactly what Python does when it executes a <code>with SomeClass() as x:</code> block.</p>
+  </div>
+
+  <h2 id="bringing-together">Topic 6: Bringing It Together &mdash; Real-World Use</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Streaming lines lazily</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write a generator function <code>stream_lines(text)</code> that lazily yields lines from text, one at a time.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A generator and a context manager together</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Combine a generator function with a custom context manager to count long lines as they're filtered.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Lazily stopping after N matches</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write <code>first_n_matching(items, predicate_threshold, limit)</code>, a generator that lazily stops after N matches.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A simulated file combining both protocols</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write a <code>FileSimulator</code> context manager with a <code>lines()</code> generator method, standing in for a real file.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This generator function used <code>return</code> with a list comprehension instead of <code>yield</code>, defeating laziness. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A log-processing pipeline combining everything</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Combine a context manager and a generator function to filter error lines from a simulated log.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Where these three tools show up together</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_bringing_together()</code>, describing a real production system where generators, iterators, and context managers all show up together.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

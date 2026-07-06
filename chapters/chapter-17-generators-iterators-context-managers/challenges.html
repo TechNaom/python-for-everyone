@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on iterators, generator functions, generator expressions, and custom context managers, for Chapter 17: Generators, Iterators & Context Managers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 17 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Generators, Iterators &amp; Context Managers</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-17 have covered so far &mdash; including <code>yield</code>,
+    generator functions, generator expressions, and the context-manager
+    protocol (<code>__enter__</code>/<code>__exit__</code>). No import
+    beyond <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why every challenge returns a plain value, not an object</span>
+    The auto-grader compares your function's return value to a JSON-safe
+    expected value (a number, string, boolean, list, or dict) &mdash; it
+    can't compare a generator or a custom context-manager instance
+    directly. So every challenge here asks you to <strong>build a
+    generator function, a custom iterator class, or a custom context
+    manager class inside your function</strong> to actually solve the
+    problem lazily or with guaranteed cleanup, but the function itself
+    always returns a plain number, string, boolean, list, or dict once
+    it has fully driven that generator/iterator/context manager to
+    completion &mdash; exactly what a real caller elsewhere in a program
+    would want back, without needing to know anything about the
+    machinery you used internally to compute it. There's no real
+    filesystem in this browser sandbox either, so any "file-like"
+    challenge takes the file's content as a plain string argument
+    instead of touching an actual file.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Manual Iterator Walk <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>walk_countdown(start)</code> that builds a <code>Countdown</code> class internally with <code>__init__(self, start)</code> storing <code>self.current = start</code>, an <code>__iter__(self)</code> returning <code>self</code>, and a <code>__next__(self)</code> that raises <code>StopIteration</code> once <code>self.current &lt; 0</code>, otherwise returns the current value and decrements it by 1. Get an iterator with <code>it = iter(Countdown(start))</code>, then manually call <code>next(it)</code> in a loop (no <code>for</code> loop), catching <code>StopIteration</code> yourself to know when to stop, collecting every value into a list in order. Return that list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>start</code> is always a non-negative integer, including <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>walk_countdown(3)</code> &rarr; <code>[3, 2, 1, 0]</code><br>
+        <code>walk_countdown(0)</code> &rarr; <code>[0]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="28">
+def walk_countdown(start):
+    # TODO: define a class Countdown with __init__(self, start) storing
+    # self.current, an __iter__(self) returning self, and a
+    # __next__(self) that raises StopIteration once self.current < 0,
+    # otherwise returns the current value and decrements it by 1.
+    # Get it = iter(Countdown(start)), then manually call next(it) in a
+    # loop (no for loop), catching StopIteration yourself, collecting
+    # every value into a list. Return that list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "walk_countdown",
+  "cases": [
+    { "args": [3], "expected": [3, 2, 1, 0] },
+    { "args": [0], "expected": [0] },
+    { "args": [1], "expected": [1, 0] },
+    { "args": [5], "expected": [5, 4, 3, 2, 1, 0] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def walk_countdown(start):
+    class Countdown:
+        def __init__(self, start):
+            self.current = start
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self.current < 0:
+                raise StopIteration
+            value = self.current
+            self.current -= 1
+            return value
+
+    it = iter(Countdown(start))
+    values = []
+    while True:
+        try:
+            values.append(next(it))
+        except StopIteration:
+            break
+    return values</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> First N Multiples <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>first_n_multiples(n, count)</code> that defines a generator function <code>multiples_of(n)</code> using <code>yield</code> to lazily produce <code>n</code>, <code>2 * n</code>, <code>3 * n</code>, and so on forever (an infinite generator, since it never has a natural stopping point). Create <code>gen = multiples_of(n)</code>, then call <code>next(gen)</code> exactly <code>count</code> times, collecting each result into a list, and return that list &mdash; showing that a generator can represent an infinite sequence safely, since the caller (not the generator) decides how many values to actually pull.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is always a positive integer; <code>count</code> may be <code>0</code>, in which case return an empty list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>first_n_multiples(3, 4)</code> &rarr; <code>[3, 6, 9, 12]</code><br>
+        <code>first_n_multiples(7, 0)</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="22">
+def first_n_multiples(n, count):
+    # TODO: define a generator function multiples_of(n) that uses
+    # yield to lazily produce n, 2*n, 3*n, ... forever (an infinite
+    # generator). Create gen = multiples_of(n), call next(gen) exactly
+    # count times, collecting each result into a list, and return that
+    # list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "first_n_multiples",
+  "cases": [
+    { "args": [3, 4], "expected": [3, 6, 9, 12] },
+    { "args": [5, 1], "expected": [5] },
+    { "args": [1, 5], "expected": [1, 2, 3, 4, 5] },
+    { "args": [7, 0], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def first_n_multiples(n, count):
+    def multiples_of(n):
+        current = n
+        while True:
+            yield current
+            current += n
+
+    gen = multiples_of(n)
+    result = []
+    for _ in range(count):
+        result.append(next(gen))
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> First N Values Above a Threshold <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>first_n_above(values, threshold, count)</code> that defines a generator function <code>above_threshold(values, threshold)</code> using <code>yield</code> to lazily produce only the entries in <code>values</code> that are greater than <code>threshold</code>, in order. Create <code>gen = above_threshold(values, threshold)</code>, then call <code>next(gen)</code> up to <code>count</code> times inside a <code>try</code>/<code>except StopIteration</code> block (stopping early and returning whatever was collected so far if the generator runs out before reaching <code>count</code> values), collecting each result into a list, and return that list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> may be empty; there may be fewer than <code>count</code> matching values, in which case return only however many were actually found.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>first_n_above([5, 12, 3, 18, 25, 7, 30], 10, 3)</code> &rarr; <code>[12, 18, 25]</code><br>
+        <code>first_n_above([1, 2, 3], 10, 5)</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def first_n_above(values, threshold, count):
+    # TODO: define a generator function above_threshold(values,
+    # threshold) that uses yield to lazily produce only the entries in
+    # values greater than threshold, in order. Create
+    # gen = above_threshold(values, threshold), then call next(gen) up
+    # to count times inside a try/except StopIteration block (stopping
+    # early if the generator runs out first), collecting each result
+    # into a list. Return that list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "first_n_above",
+  "cases": [
+    { "args": [[5, 12, 3, 18, 25, 7, 30], 10, 3], "expected": [12, 18, 25] },
+    { "args": [[1, 2, 3], 10, 5], "expected": [] },
+    { "args": [[], 0, 3], "expected": [] },
+    { "args": [[1, 2, 3, 4, 5], 0, 100], "expected": [1, 2, 3, 4, 5] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def first_n_above(values, threshold, count):
+    def above_threshold(values, threshold):
+        for v in values:
+            if v > threshold:
+                yield v
+
+    gen = above_threshold(values, threshold)
+    result = []
+    try:
+        for _ in range(count):
+            result.append(next(gen))
+    except StopIteration:
+        pass
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Sum of Squares via Generator Expression <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>sum_of_squares_over(n)</code> that returns <code>sum(i * i for i in range(1, n + 1))</code> &mdash; using a generator expression directly inside <code>sum()</code> rather than building a list first, so no intermediate list of squares is ever created in memory.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is always a non-negative integer; <code>n = 0</code> means the range is empty, so the sum is <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>sum_of_squares_over(3)</code> &rarr; <code>14</code> (1 + 4 + 9)<br>
+        <code>sum_of_squares_over(0)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def sum_of_squares_over(n):
+    # TODO: return sum(i * i for i in range(1, n + 1)) using a
+    # generator expression directly inside sum() -- no list built
+    # first.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "sum_of_squares_over",
+  "cases": [
+    { "args": [3], "expected": 14 },
+    { "args": [0], "expected": 0 },
+    { "args": [1], "expected": 1 },
+    { "args": [5], "expected": 55 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def sum_of_squares_over(n):
+    return sum(i * i for i in range(1, n + 1))</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">5</span> Any Divisible By, Short-Circuited <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>any_divisible_by(numbers, divisor)</code> that returns <code>False</code> immediately if <code>divisor == 0</code> (avoiding a division-by-zero error), otherwise returns <code>any(n % divisor == 0 for n in numbers)</code> &mdash; using a generator expression so <code>any()</code> can stop checking the instant it finds a match, without ever computing the remainder for every remaining number.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>numbers</code> may be empty, in which case return <code>False</code>; <code>divisor</code> may be <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>any_divisible_by([1, 3, 5, 8], 2)</code> &rarr; <code>true</code><br>
+        <code>any_divisible_by([1, 3, 5, 7], 2)</code> &rarr; <code>false</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def any_divisible_by(numbers, divisor):
+    # TODO: return False immediately if divisor == 0, otherwise return
+    # any(n % divisor == 0 for n in numbers) using a generator
+    # expression so any() short-circuits on the first match.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "any_divisible_by",
+  "cases": [
+    { "args": [[1, 3, 5, 8], 2], "expected": true },
+    { "args": [[1, 3, 5, 7], 2], "expected": false },
+    { "args": [[], 2], "expected": false },
+    { "args": [[10, 20], 5], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def any_divisible_by(numbers, divisor):
+    if divisor == 0:
+        return False
+    return any(n % divisor == 0 for n in numbers)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Context Manager Call Tracker <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>run_with_tracker(times)</code> that builds a <code>CallTracker</code> class internally with <code>__init__(self)</code> storing <code>self.enters = 0</code> and <code>self.exits = 0</code>, an <code>__enter__(self)</code> that increments <code>self.enters</code> and returns <code>self</code>, and an <code>__exit__(self, exc_type, exc_value, traceback)</code> that increments <code>self.exits</code> and returns <code>False</code>. Create <code>tracker = CallTracker()</code>, then use <code>with tracker:</code> (an empty block) exactly <code>times</code> times in a row, reusing the same instance every time. Return <code>{"enters": tracker.enters, "exits": tracker.exits}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>times</code> is always a non-negative integer, including <code>0</code> (meaning the <code>with</code> block never runs at all).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>run_with_tracker(3)</code> &rarr; <code>{"enters": 3, "exits": 3}</code><br>
+        <code>run_with_tracker(0)</code> &rarr; <code>{"enters": 0, "exits": 0}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def run_with_tracker(times):
+    # TODO: define a class CallTracker with __init__(self) storing
+    # self.enters = 0 and self.exits = 0, an __enter__(self) that
+    # increments self.enters and returns self, and an
+    # __exit__(self, exc_type, exc_value, traceback) that increments
+    # self.exits and returns False. Create tracker = CallTracker(),
+    # then use with tracker: (empty block) exactly `times` times in a
+    # row, reusing the same instance. Return
+    # {"enters": tracker.enters, "exits": tracker.exits}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "run_with_tracker",
+  "cases": [
+    { "args": [3], "expected": { "enters": 3, "exits": 3 } },
+    { "args": [0], "expected": { "enters": 0, "exits": 0 } },
+    { "args": [1], "expected": { "enters": 1, "exits": 1 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def run_with_tracker(times):
+    class CallTracker:
+        def __init__(self):
+            self.enters = 0
+            self.exits = 0
+
+        def __enter__(self):
+            self.enters += 1
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.exits += 1
+            return False
+
+    tracker = CallTracker()
+    for _ in range(times):
+        with tracker:
+            pass
+    return {"enters": tracker.enters, "exits": tracker.exits}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Process With an Error-Suppressing Context Manager <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>process_with_error_log(items)</code> that builds an <code>ErrorLogger</code> class internally with <code>__init__(self)</code> storing <code>self.errors = []</code>, an <code>__enter__(self)</code> that returns <code>self</code>, and an <code>__exit__(self, exc_type, exc_value, traceback)</code> that, if <code>exc_type is not None</code>, appends <code>str(exc_value)</code> to <code>self.errors</code> and returns <code>True</code> (suppressing the exception so the loop below keeps going), otherwise returns <code>False</code>. Create <code>logger = ErrorLogger()</code>, then for each <code>item</code> in <code>items</code>, use <code>with logger:</code> around code that raises <code>ValueError("cannot process zero")</code> if <code>item == 0</code>, otherwise appends <code>100 // item</code> to a <code>results</code> list. Return <code>{"results": results, "errors": logger.errors}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> may be empty; every non-zero item is a positive integer that divides evenly into <code>100 // item</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>process_with_error_log([1, 2, 0, 4])</code> &rarr; <code>{"results": [100, 50, 25], "errors": ["cannot process zero"]}</code><br>
+        <code>process_with_error_log([])</code> &rarr; <code>{"results": [], "errors": []}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="30">
+def process_with_error_log(items):
+    # TODO: define a class ErrorLogger with __init__(self) storing
+    # self.errors = [], an __enter__(self) returning self, and an
+    # __exit__(self, exc_type, exc_value, traceback) that appends
+    # str(exc_value) to self.errors and returns True if
+    # exc_type is not None, else returns False. Create
+    # logger = ErrorLogger(). For each item in items, use with logger:
+    # around code that raises ValueError("cannot process zero") if
+    # item == 0, else appends 100 // item to a results list. Return
+    # {"results": results, "errors": logger.errors}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "process_with_error_log",
+  "cases": [
+    { "args": [[1, 2, 0, 4]], "expected": { "results": [100, 50, 25], "errors": ["cannot process zero"] } },
+    { "args": [[1, 1]], "expected": { "results": [100, 100], "errors": [] } },
+    { "args": [[0]], "expected": { "results": [], "errors": ["cannot process zero"] } },
+    { "args": [[]], "expected": { "results": [], "errors": [] } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def process_with_error_log(items):
+    class ErrorLogger:
+        def __init__(self):
+            self.errors = []
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            if exc_type is not None:
+                self.errors.append(str(exc_value))
+                return True
+            return False
+
+    logger = ErrorLogger()
+    results = []
+    for item in items:
+        with logger:
+            if item == 0:
+                raise ValueError("cannot process zero")
+            results.append(100 // item)
+    return {"results": results, "errors": logger.errors}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Streaming Text Search With Guaranteed Cleanup <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_matching_lines(text, keyword)</code> that builds a <code>TextSource</code> class internally with <code>__init__(self, text)</code> storing <code>self.text = text</code> and <code>self.opened = False</code>, an <code>__enter__(self)</code> that sets <code>self.opened = True</code> and returns <code>self</code>, and an <code>__exit__(self, exc_type, exc_value, traceback)</code> that sets <code>self.opened = False</code> and returns <code>False</code> &mdash; standing in for a real file's guaranteed-cleanup behavior, since this browser sandbox has no real filesystem. Also define a generator function <code>matching_lines(text, keyword)</code> that uses <code>yield</code> to lazily produce each stripped line of <code>text</code> (split on <code>"\n"</code>) that contains <code>keyword</code>. Use <code>with TextSource(text) as source:</code> inside the function, and inside that block build <code>matches = list(matching_lines(source.text, keyword))</code>. Return <code>{"matches": matches, "count": len(matches)}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> may be an empty string; <code>keyword</code> may match zero, one, or many lines.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_matching_lines("INFO: ok\nERROR: disk full\nINFO: ready\nERROR: timeout", "ERROR")</code> &rarr; <code>{"matches": ["ERROR: disk full", "ERROR: timeout"], "count": 2}</code><br>
+        <code>count_matching_lines("", "x")</code> &rarr; <code>{"matches": [], "count": 0}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="32">
+def count_matching_lines(text, keyword):
+    # TODO: define a class TextSource with __init__(self, text) storing
+    # self.text and self.opened = False, __enter__(self) setting
+    # self.opened = True and returning self, and
+    # __exit__(self, exc_type, exc_value, traceback) setting
+    # self.opened = False and returning False. Define a generator
+    # function matching_lines(text, keyword) that uses yield to
+    # lazily produce each stripped line of text (split on "\n") that
+    # contains keyword. Use with TextSource(text) as source: and
+    # inside build matches = list(matching_lines(source.text, keyword)).
+    # Return {"matches": matches, "count": len(matches)}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_matching_lines",
+  "cases": [
+    { "args": ["INFO: ok\nERROR: disk full\nINFO: ready\nERROR: timeout", "ERROR"], "expected": { "matches": ["ERROR: disk full", "ERROR: timeout"], "count": 2 } },
+    { "args": ["a\nb\nc", "z"], "expected": { "matches": [], "count": 0 } },
+    { "args": ["", "x"], "expected": { "matches": [], "count": 0 } },
+    { "args": ["hello world", "hello"], "expected": { "matches": ["hello world"], "count": 1 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def count_matching_lines(text, keyword):
+    class TextSource:
+        def __init__(self, text):
+            self.text = text
+            self.opened = False
+
+        def __enter__(self):
+            self.opened = True
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.opened = False
+            return False
+
+    def matching_lines(text, keyword):
+        for line in text.split("\n"):
+            if keyword in line:
+                yield line.strip()
+
+    with TextSource(text) as source:
+        matches = list(matching_lines(source.text, keyword))
+    return {"matches": matches, "count": len(matches)}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

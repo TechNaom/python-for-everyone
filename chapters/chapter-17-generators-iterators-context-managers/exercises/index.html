@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 17: Generators, Iterators & Context Managers, including two Debug the Code tasks — a generator function that accidentally uses return instead of yield, and a custom context manager whose __exit__ silently swallows an exception.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 17 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Generators, Iterators &amp; Context Managers</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. None of these exercises need any sample data files — they
+    create their own.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A custom iterator class</h3>
+    <p>Write a class <code>Countdown</code> whose <code>__init__</code> takes <code>start</code> and stores it as <code>self.current</code>. Give it <code>__iter__(self)</code> that returns <code>self</code>, and <code>__next__(self)</code> that raises <code>StopIteration</code> once <code>self.current</code> is <code>0</code> or less, otherwise returns the current value and decrements it by <code>1</code>. Create a <code>Countdown(4)</code> and loop over it with a <code>for</code> loop, printing each value.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A generator function with <code>yield</code></h3>
+    <p>Write a generator function <code>evens_up_to(n)</code> that starts a counter at <code>0</code> and, while the counter is less than or equal to <code>n</code>, <code>yield</code>s the counter and then increases it by <code>2</code>. Loop over <code>evens_up_to(10)</code> with a <code>for</code> loop and print each value.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A generator expression</h3>
+    <p>Use <code>sum()</code> with a generator expression (not a list comprehension) to add up the cubes (<code>n ** 3</code>) of every number from <code>1</code> to <code>5</code> inclusive. Store the result in <code>total</code> and print it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> The <code>with</code> statement recap</h3>
+    <p>Use <code>with open(...) as f:</code> to write the three lines <code>"1"</code>, <code>"2"</code>, and <code>"3"</code> (each on its own line) to a file named <code>"numbers.txt"</code>. Then use a second <code>with open(...) as f:</code> block to read all the lines back with <code>.readlines()</code> into a variable <code>lines</code>. Print <code>len(lines)</code>, then print <code>f.closed</code> right after the block ends.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> A custom context manager class</h3>
+    <p>Write a class <code>Timer</code> with <code>__enter__(self)</code> that sets <code>self.entered = True</code> and returns <code>self</code>, and <code>__exit__(self, exc_type, exc_value, traceback)</code> that sets <code>self.exited = True</code> and returns <code>False</code>. Use <code>with Timer() as t: pass</code> and then print <code>t.entered</code> and <code>t.exited</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Streaming a file with a generator</h3>
+    <p>Write a generator function <code>read_lines(filename)</code> that opens the file with <code>with</code>, loops over it with <code>for line in f:</code>, and <code>yield</code>s each line with <code>.strip()</code> applied. First, write the three lines <code>"alpha"</code>, <code>"beta"</code>, and <code>"gamma"</code> to a file named <code>"stream.txt"</code> using <code>with open(...) as f:</code>. Then loop over <code>read_lines("stream.txt")</code> with a <code>for</code> loop and print each line.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This generator function accidentally uses <code>return count</code> instead of <code>yield count</code> inside its loop, so calling it and looping over it only ever produces the very first value before the generator ends — the caller never sees the rest of the count. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_return_instead_of_yield.py</span>
+      </div>
+      <pre><code>def broken_counter(n):
+    count = 0
+    while count &lt; n:
+        return count
+        count += 1
+
+for value in broken_counter(3):
+    print(value)</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This custom context manager's <code>__exit__</code> method handles a <code>ZeroDivisionError</code> by printing a message, but it mistakenly <code>return</code>s <code>True</code> at the end no matter what — silently swallowing the exception so the code that called it never finds out anything went wrong. Find and fix it so the exception still propagates after being logged.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_swallows_exception.py</span>
+      </div>
+      <pre><code>class SafeDivider:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is not None:
+            print(f"Handled: {exc_value}")
+        return True
+
+with SafeDivider():
+    result = 10 / 0
+print("This should never print, since the exception should propagate.")</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

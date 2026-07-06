@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 17: Generators, Iterators & Context Managers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-17" data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 17 Quiz</span>
+  <h1>Generators, Iterators &amp; Context Managers</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What method must an object define to be an <strong>iterable</strong> — usable in a <code>for</code> loop?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>__next__</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>__iter__</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>__loop__</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> What method must an <strong>iterator</strong> define, which returns the next value and raises <code>StopIteration</code> once exhausted?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>__iter__</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>__next__</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>__advance__</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does a <code>for</code> loop actually do under the hood to a list?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">It copies the entire list into a new variable first</button>
+        <button type="button" class="mcq-option" data-correct="true">It calls <code>iter()</code> once, then <code>next()</code> repeatedly, stopping on <code>StopIteration</code></button>
+        <button type="button" class="mcq-option" data-correct="false">It reads the list's memory address directly, with no method calls at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> A class defines both <code>__iter__</code> (returning <code>self</code>) and <code>__next__</code>. What does this make it?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">Neither an iterable nor an iterator</button>
+        <button type="button" class="mcq-option" data-correct="true">Both an iterable and its own iterator</button>
+        <button type="button" class="mcq-option" data-correct="false">An iterable only, never an iterator</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What makes a function a <strong>generator function</strong>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Its name starts with <code>gen_</code></button>
+        <button type="button" class="mcq-option" data-correct="true">Its body contains <code>yield</code> at least once</button>
+        <button type="button" class="mcq-option" data-correct="false">It has no parameters</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> Given <code>def countdown(n): while n &gt; 0: yield n; n -= 1</code>, what does calling <code>countdown(3)</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">Immediately runs the whole function and returns <code>[3, 2, 1]</code></button>
+        <button type="button" class="mcq-option" data-correct="true">Returns a generator object immediately, without running the body yet</button>
+        <button type="button" class="mcq-option" data-correct="false">Raises a <code>SyntaxError</code>, since <code>yield</code> needs a <code>return</code> too</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What happens to a generator function's local variables between one <code>yield</code> and the next call to <code>next()</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">They are reset to their initial values</button>
+        <button type="button" class="mcq-option" data-correct="true">They stay exactly as they were, since the function is only paused, not restarted</button>
+        <button type="button" class="mcq-option" data-correct="false">They are deleted, since the function has already ended</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What is the key difference between <code>yield</code> and <code>return</code> inside a function?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">They are exactly the same; <code>yield</code> is just older syntax</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>return</code> ends the function permanently; <code>yield</code> pauses it, ready to resume later</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>yield</code> can only be used with numbers, never strings</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> How is a generator expression written, compared to a list comprehension?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">Identically, with square brackets in both cases</button>
+        <button type="button" class="mcq-option" data-correct="true">The same shape, but with parentheses instead of square brackets: <code>(x for x in ...)</code></button>
+        <button type="button" class="mcq-option" data-correct="false">With curly braces, like a dictionary comprehension</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What is the real reason to prefer a generator expression over a list comprehension for a very large sequence?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">Generator expressions always run faster per item</button>
+        <button type="button" class="mcq-option" data-correct="true">Memory efficiency — values are produced lazily one at a time instead of building the whole list in memory upfront</button>
+        <button type="button" class="mcq-option" data-correct="false">List comprehensions are deprecated in modern Python</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What does the context manager protocol require a class to define so it can be used after <code>with</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>__open__</code> and <code>__close__</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>__enter__</code> and <code>__exit__</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>__start__</code> and <code>__stop__</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> If code inside a <code>with</code> block raises an exception partway through, what happens to <code>__exit__</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">It is skipped entirely, since the block crashed</button>
+        <button type="button" class="mcq-option" data-correct="true">It still runs, guaranteeing cleanup, before the exception continues propagating</button>
+        <button type="button" class="mcq-option" data-correct="false">It runs twice, once for the crash and once normally</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> In a custom context manager, what becomes the variable bound by <code>with SomeClass() as x:</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Always the class itself, never something returned by a method</button>
+        <button type="button" class="mcq-option" data-correct="true">Whatever <code>__enter__</code> returns</button>
+        <button type="button" class="mcq-option" data-correct="false">Whatever <code>__exit__</code> returns</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What does it mean if a custom <code>__exit__</code> returns <code>True</code> after an exception occurred inside the block?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing different happens — <code>True</code> and <code>False</code> behave identically here</button>
+        <button type="button" class="mcq-option" data-correct="true">The exception is suppressed and does not propagate any further</button>
+        <button type="button" class="mcq-option" data-correct="false">Python raises a second, unrelated exception</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> Why does a generator function combined with <code>with open(filename) as f:</code> stay memory-efficient even on a multi-gigabyte file?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">Because <code>open()</code> automatically compresses the file in memory</button>
+        <button type="button" class="mcq-option" data-correct="true">Because it yields one line at a time instead of loading the whole file into a list first</button>
+        <button type="button" class="mcq-option" data-correct="false">Because Python automatically deletes the file after the first line is read</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> An object with an <code>__iter__</code> method is called an ____ — anything usable in a <code>for</code> loop.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="iterable" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> Once an iterator has no values left to give, calling <code>next()</code> on it raises ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="StopIteration" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> Calling a generator function doesn't run its body immediately — it returns a ____ object, which runs the body lazily as <code>next()</code> is called.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="generator" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> A generator expression evaluates its values one at a time, only as they're requested — this behavior is called ____ evaluation.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="lazy" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> In a context manager class, the method that runs when a <code>with</code> block ends — closing files, releasing resources, or logging an exception — is named ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="__exit__,exit" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 17 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

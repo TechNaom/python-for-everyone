@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17: Generators, Iterators &amp; Context Managers — Python for Everyone</title>
+<meta name="description" content="What makes something iterable, how iterators actually work under the hood, yield vs return in generator functions, generator expressions for memory-efficient lazy evaluation, and the with statement's __enter__/__exit__ protocol for writing custom context managers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 17 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">70 min read</span>
+  </div>
+  <h1>Generators, Iterators &amp; Context Managers</h1>
+  <p><em>Every <code>for</code> loop since Chapter 4 has quietly relied on something never fully explained: how does <code>for item in some_list:</code> actually pull one value out at a time? And every <code>with open(...) as f:</code> since Chapter 13 has relied on something else never fully explained: how does Python guarantee the file gets closed, even if the code inside the block crashes? This chapter opens up both black boxes — and along the way introduces <code>yield</code>, a tool for writing functions that hand back one value at a time instead of building a whole result up front, which is exactly how real systems process files and data streams too large to fit in memory at once.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>The first three sub-topics are one throughline:</strong> what an iterator actually is, how <code>yield</code> lets a function build one lazily, and why a generator <em>expression</em> is the same idea in one line.</li>
+      <li><strong>The last three sub-topics are a second throughline:</strong> the <code>with</code> statement's real protocol, writing a custom class that plugs into it, and why both throughlines converge on the same production use case — streaming data too big to hold in memory all at once.</li>
+      <li><strong>Everything from Chapters 1-16 still applies</strong> — classes, dunder methods, <code>@property</code>, inheritance, all of it. <code>yield</code>, generator expressions, and the <code>__enter__</code>/<code>__exit__</code> protocol are the new ingredients.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#iterables-vs-iterators">1. Iterables vs. iterators</a>
+    <a href="#generator-functions">2. Generator functions and <code>yield</code></a>
+    <a href="#generator-expressions">3. Generator expressions</a>
+    <a href="#context-managers-with">4. The <code>with</code> statement, generalized</a>
+    <a href="#custom-context-managers">5. Writing a custom context manager</a>
+    <a href="#bringing-together">6. Real-world streaming with generators &amp; context managers</a>
+  </nav>
+
+  <div class="hook">
+    Picture a log-processing service that needs to scan a 40 GB server log file for error lines. Loading the whole file into a list with <code>.readlines()</code> would try to hold 40 GB in memory at once — on most machines, that crashes before a single line gets processed. Yet <code>for line in file:</code> has worked fine on tiny files since Chapter 13, without ever explaining how. This chapter's answer is the same idea in both cases: process one line at a time, and never hold more than one line in memory at once. That idea has a name — <strong>lazy evaluation</strong> — and generators are how Python code writes it directly.
+  </div>
+
+  <div class="subtopic" id="iterables-vs-iterators">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Iterables vs. iterators</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>An <strong>iterable</strong> is anything that can be looped over — it has an <code>__iter__</code> method.</li>
+        <li>An <strong>iterator</strong> is the object that actually does the looping — it has a <code>__next__</code> method, and raises <code>StopIteration</code> once exhausted.</li>
+        <li>A <code>for</code> loop is just syntax sugar: it calls <code>__iter__</code> once, then <code>__next__</code> repeatedly, until <code>StopIteration</code> stops it.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> lists, strings, dicts, and files have all been "loopable" since early chapters. This sub-topic finally explains the mechanism underneath every one of those <code>for</code> loops — the same mechanism this whole chapter builds on.
+    </div>
+
+    <p>
+      A list is iterable, but the object that does the actual counting
+      is something different, produced by calling <code>iter()</code>
+      on it:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... an iterable?</span>
+      An <strong>iterable</strong> is any object that can produce an
+      iterator — anything usable in a <code>for</code> loop. Lists,
+      tuples, strings, dicts, and open files are all iterables. Under
+      the hood, an iterable defines an <code>__iter__</code> method.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">iter_and_next_demo.py</span>
+      </div>
+      <pre><code>numbers = [10, 20, 30]
+iterator = iter(numbers)
+print(iterator)
+print(next(iterator))
+print(next(iterator))
+print(next(iterator))
+print(next(iterator))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of iter_and_next_demo.py</span>
+      <pre><code>&lt;list_iterator object at 0x74f5a81e0640&gt;
+10
+20
+30
+Traceback (most recent call last):
+  File "iter_and_next_demo.py", line 7, in &lt;module&gt;
+    print(next(iterator))
+StopIteration</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an iterator?</span>
+      An <strong>iterator</strong> is the object that actually tracks
+      position while looping — it defines <code>__next__</code>, which
+      returns the next value each time it's called, and raises
+      <code>StopIteration</code> once there's nothing left. Calling
+      <code>iter()</code> on an iterable produces one.
+    </div>
+
+    <p>
+      <code>iter(numbers)</code> hands back a <code>list_iterator</code>
+      object, completely separate from the list itself. Each call to
+      <code>next(iterator)</code> moves it forward by one value. The
+      fourth call has nothing left to return, so it raises
+      <code>StopIteration</code> — that error is deliberate output
+      above, not a bug, since a real <code>for</code> loop is written to
+      catch it automatically and stop cleanly instead of crashing.
+    </p>
+
+    <p>
+      A <code>for</code> loop never calls <code>next()</code> by
+      hand — it does exactly that work behind the scenes:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">for_loop_under_the_hood.py</span>
+      </div>
+      <pre><code>numbers = [10, 20, 30]
+
+iterator = iter(numbers)
+while True:
+    try:
+        value = next(iterator)
+    except StopIteration:
+        break
+    print(value)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of for_loop_under_the_hood.py</span>
+      <pre><code>10
+20
+30</code></pre>
+    </div>
+
+    <p>
+      This <code>while True</code> loop is exactly what
+      <code>for value in numbers: print(value)</code> already does
+      automatically — call <code>iter()</code> once to get an
+      iterator, then call <code>next()</code> in a loop, catching
+      <code>StopIteration</code> to know when to stop. Every
+      <code>for</code> loop written since Chapter 4 has been this
+      pattern, hidden behind convenient syntax.
+    </p>
+
+    <p>
+      A class can become its own iterator by defining both
+      <code>__iter__</code> (returning <code>self</code>) and
+      <code>__next__</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">custom_iterator_demo.py</span>
+      </div>
+      <pre><code>class Countdown:
+    def __init__(self, start):
+        self.current = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current &lt;= 0:
+            raise StopIteration
+        value = self.current
+        self.current -= 1
+        return value
+
+for number in Countdown(3):
+    print(number)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of custom_iterator_demo.py</span>
+      <pre><code>3
+2
+1</code></pre>
+    </div>
+
+    <p>
+      <code>Countdown(3)</code> is both the iterable (it has
+      <code>__iter__</code>) and its own iterator (it has
+      <code>__next__</code>). Each call to <code>__next__</code>
+      returns <code>self.current</code>, then decrements it; once
+      <code>self.current</code> reaches <code>0</code>, it raises
+      <code>StopIteration</code>, and the <code>for</code> loop stops
+      cleanly, exactly like it does for a list.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">class Countdown:
+    def __init__(self, start):
+        self.current = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current <= 0:
+            raise StopIteration
+        value = self.current
+        self.current -= 1
+        return value
+
+for number in Countdown(5):
+    print(number)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing Countdown(5) to a different starting number.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: writing a working iterator class by hand is rare</summary>
+      <p>
+        <code>Countdown</code> above is deliberately the "long way" to
+        show the mechanism. Sub-topic 2 introduces <code>yield</code>,
+        which lets Python build an equivalent iterator automatically
+        from a much shorter function — almost no real code writes
+        <code>__iter__</code>/<code>__next__</code> by hand once
+        generator functions are available.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>An iterable has <code>__iter__</code>; an iterator has <code>__next__</code> and raises <code>StopIteration</code> when exhausted.</li>
+        <li>A <code>for</code> loop calls <code>iter()</code> once, then <code>next()</code> repeatedly, stopping on <code>StopIteration</code>.</li>
+        <li>A class can be its own iterator by defining both <code>__iter__</code> (returning <code>self</code>) and <code>__next__</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="generator-functions">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Generator functions and <code>yield</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A function containing <code>yield</code> anywhere in its body becomes a <strong>generator function</strong> — calling it returns a generator object instead of running the body immediately.</li>
+        <li><code>yield</code> pauses the function and hands back one value; the next call to <code>next()</code> resumes right where it left off, with all local variables intact.</li>
+        <li><code>return</code> (with no value) inside a generator function simply ends it early, raising <code>StopIteration</code>, the same as running off the end of the body.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 1's <code>Countdown</code> class needed a whole class with two dunder methods just to be an iterator. A generator function gets the exact same behavior from a few lines using <code>yield</code>.
+    </div>
+
+    <p>
+      The same countdown behavior, written as a generator function
+      instead of a class:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a generator function?</span>
+      A <strong>generator function</strong> is any function whose body
+      contains <code>yield</code> at least once. Calling it doesn't run
+      the body — it immediately returns a <strong>generator object</strong>,
+      an iterator that runs the body only as <code>next()</code> is
+      called on it, one <code>yield</code> at a time.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">countdown_generator_demo.py</span>
+      </div>
+      <pre><code>def countdown(n):
+    while n &gt; 0:
+        yield n
+        n -= 1
+
+gen = countdown(3)
+print(gen)
+print(next(gen))
+print(next(gen))
+print(next(gen))
+print(next(gen))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of countdown_generator_demo.py</span>
+      <pre><code>&lt;generator object countdown at 0x7cff9b346140&gt;
+3
+2
+1
+Traceback (most recent call last):
+  File "countdown_generator_demo.py", line 11, in &lt;module&gt;
+    print(next(gen))
+StopIteration</code></pre>
+    </div>
+
+    <p>
+      <code>countdown(3)</code> doesn't print anything or run the
+      <code>while</code> loop yet — it returns a generator object.
+      Each <code>next(gen)</code> call runs the body only until the
+      next <code>yield n</code>, hands back that value, and then
+      <strong>pauses</strong> — <code>n</code>, and every other local
+      variable, stay exactly as they were, ready to pick back up on the
+      following <code>next()</code> call. When <code>n</code> finally
+      reaches <code>0</code>, the <code>while</code> condition fails,
+      the function body ends, and <code>StopIteration</code> is raised
+      automatically — no <code>raise StopIteration</code> ever needed
+      by hand, unlike Sub-topic 1's class version.
+    </p>
+
+    <p>
+      A normal <code>for</code> loop drives a generator exactly like
+      any other iterator, calling <code>next()</code> until it's
+      exhausted:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">countdown_for_loop_demo.py</span>
+      </div>
+      <pre><code>def countdown(n):
+    print("Starting countdown")
+    while n &gt; 0:
+        yield n
+        n -= 1
+    print("Liftoff!")
+
+for number in countdown(3):
+    print(number)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of countdown_for_loop_demo.py</span>
+      <pre><code>Starting countdown
+3
+2
+1
+Liftoff!</code></pre>
+    </div>
+
+    <p>
+      Notice <code>"Starting countdown"</code> only prints once the
+      <code>for</code> loop actually starts pulling values, not when
+      <code>countdown(3)</code> is first called — proof the function
+      body genuinely hasn't run yet at that point. <code>"Liftoff!"</code>
+      prints only after the last <code>yield</code>, right before the
+      generator raises <code>StopIteration</code> and the loop ends.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>yield</code> vs. <code>return</code>?</span>
+      <code>return</code> ends a function permanently and hands back
+      one final value. <code>yield</code> hands back one value but
+      <strong>pauses</strong> the function instead of ending it — the
+      next call to <code>next()</code> resumes right after that
+      <code>yield</code>, with every local variable exactly as it was.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">def countdown(n):
+    while n > 0:
+        yield n
+        n -= 1
+
+for number in countdown(5):
+    print(number)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a print("done!") line after the while loop.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: a generator can only be looped over once</summary>
+      <p>
+        Once a generator object is fully exhausted (or even partially
+        consumed), there's no way to "rewind" it — calling
+        <code>countdown(3)</code> again creates a brand-new generator
+        instead. This is different from a list, which can be looped
+        over as many times as needed. It's a direct consequence of a
+        generator not storing its values anywhere — each one is
+        produced once, on demand, and then gone.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A function with <code>yield</code> anywhere in it is a generator function — calling it returns a generator object without running the body.</li>
+        <li><code>yield</code> pauses the function and hands back a value; the next <code>next()</code> call resumes right after it, state intact.</li>
+        <li>Running off the end of the body (or an explicit bare <code>return</code>) ends the generator, raising <code>StopIteration</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="generator-expressions">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Generator expressions</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>generator expression</strong> looks like a list comprehension but with parentheses instead of square brackets: <code>(x for x in ...)</code>.</li>
+        <li>A list comprehension builds the entire list in memory immediately; a generator expression produces values lazily, one at a time, only as they're requested.</li>
+        <li>For large or unbounded sequences, a generator expression can use a tiny, constant amount of memory where a list comprehension would need memory proportional to the whole sequence.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 2 wrote a whole <code>def</code> with <code>yield</code> to get lazy, one-at-a-time values. A generator expression gets the same laziness in a single line, for the common case of transforming or filtering an existing sequence.
+    </div>
+
+    <p>
+      The syntax difference between a list comprehension and a
+      generator expression is exactly one pair of brackets:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a generator expression?</span>
+      A <strong>generator expression</strong> is written like a list
+      comprehension — <code>(expression for item in iterable)</code> —
+      but with parentheses instead of square brackets. It produces a
+      generator object, evaluating one item at a time only as
+      requested, instead of building a full list immediately.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">genexpr_vs_list_demo.py</span>
+      </div>
+      <pre><code>numbers = [1, 2, 3, 4, 5]
+squares_list = [n ** 2 for n in numbers]
+squares_gen = (n ** 2 for n in numbers)
+
+print(squares_list)
+print(squares_gen)
+print(list(squares_gen))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of genexpr_vs_list_demo.py</span>
+      <pre><code>[1, 4, 9, 16, 25]
+&lt;generator object &lt;genexpr&gt; at 0x786fd5ece810&gt;
+[1, 4, 9, 16, 25]</code></pre>
+    </div>
+
+    <p>
+      <code>squares_list</code> already contains all five squared
+      values the moment it's created. <code>squares_gen</code> instead
+      prints as a generator object — none of the squaring has actually
+      happened yet — until something consumes it, like wrapping it in
+      <code>list(...)</code>, which pulls every value out one at a
+      time and confirms they match.
+    </p>
+
+    <p>
+      The real reason to reach for a generator expression is memory,
+      not syntax. Comparing the two side by side on a million-item
+      range makes the difference concrete:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">genexpr_memory_demo.py</span>
+      </div>
+      <pre><code>import sys
+
+squares_list = [x ** 2 for x in range(1_000_000)]
+squares_gen = (x ** 2 for x in range(1_000_000))
+
+print(sys.getsizeof(squares_list))
+print(sys.getsizeof(squares_gen))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of genexpr_memory_demo.py</span>
+      <pre><code>8448728
+208</code></pre>
+    </div>
+
+    <p>
+      <code>squares_list</code> takes roughly 8.4 million bytes,
+      because Python already computed and stored all one million
+      squared values. <code>squares_gen</code> takes 208 bytes —
+      barely more than an empty generator — because it hasn't
+      computed a single value yet; it only knows <em>how</em> to
+      produce the next one when asked. That gap only grows as the
+      sequence grows, which is exactly why a generator expression can
+      handle a sequence too large to fit in memory as a list at all.
+    </p>
+
+    <p>
+      A generator expression can also be passed directly into a
+      function like <code>sum()</code> without the outer parentheses
+      needing to be doubled up:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">genexpr_sum_demo.py</span>
+      </div>
+      <pre><code>total = sum(n ** 2 for n in range(1, 6))
+print(total)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of genexpr_sum_demo.py</span>
+      <pre><code>55</code></pre>
+    </div>
+
+    <p>
+      <code>sum()</code> never needs the full list of squares sitting
+      in memory at once — it just keeps asking the generator
+      expression for one more value and adding it to a running total,
+      which is the whole point: the values are consumed and discarded
+      one at a time, never all held at once.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">numbers = [1, 2, 3, 4, 5, 6]
+evens_gen = (n for n in numbers if n % 2 == 0)
+print(list(evens_gen))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the condition to n % 2 != 0 for odd numbers instead.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: a generator expression is a one-time-use view</summary>
+      <p>
+        Just like a generator function's result (Sub-topic 2), a
+        generator expression can only be consumed once — after
+        <code>list(squares_gen)</code> runs, calling
+        <code>list(squares_gen)</code> a second time returns an empty
+        list, since every value has already been produced and there's
+        nothing left to give. A fresh generator expression has to be
+        created again for a second pass.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>(x for x in ...)</code> is a generator expression — same shape as a list comprehension, parentheses instead of brackets.</li>
+        <li>A list comprehension builds the whole list in memory immediately; a generator expression produces one value at a time, lazily.</li>
+        <li>For large or unbounded sequences, that laziness keeps memory use small and roughly constant, instead of growing with the sequence.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="context-managers-with">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. The <code>with</code> statement, generalized</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>with open(...) as f:</code>, used since Chapter 13, is one example of a much more general pattern called the <strong>context manager protocol</strong>.</li>
+        <li>Any object with <code>__enter__</code> and <code>__exit__</code> methods can be used after <code>with</code> — not just files.</li>
+        <li><code>__exit__</code> is guaranteed to run when the block ends, <strong>even if an exception was raised inside it</strong> — that guarantee is the entire reason <code>with</code> exists.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> <code>with open(...) as f:</code> has looked like special file syntax since Chapter 13. It's actually just the most common use of a general protocol any class can plug into — Sub-topic 5 writes one from scratch.
+    </div>
+
+    <p>
+      A file opened with <code>with</code> is confirmed closed the
+      moment the block ends, without ever calling
+      <code>f.close()</code> directly:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the context manager protocol?</span>
+      The <strong>context manager protocol</strong> is a pair of
+      methods, <code>__enter__</code> and <code>__exit__</code>, that a
+      class defines so its objects can be used after <code>with</code>.
+      <code>__enter__</code> runs at the start of the block;
+      <code>__exit__</code> runs at the end — always, even if the block
+      raised an exception.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">with_recap_demo.py</span>
+      </div>
+      <pre><code>with open("sample.txt", "w") as f:
+    f.write("hello\nworld\n")
+
+with open("sample.txt", "r") as f:
+    contents = f.read()
+
+print(contents)
+print(f.closed)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of with_recap_demo.py</span>
+      <pre><code>hello
+world
+
+True</code></pre>
+    </div>
+
+    <p>
+      <code>f.closed</code> is <code>True</code> right after the
+      <code>with</code> block ends, even though nothing called
+      <code>f.close()</code> anywhere in the code. Behind the scenes,
+      <code>open(...)</code> returns a file object with its own
+      <code>__enter__</code> (which just returns the file itself,
+      bound to <code>f</code>) and <code>__exit__</code> (which calls
+      <code>close()</code>) — <code>with</code> is what calls both of
+      those automatically.
+    </p>
+
+    <p>
+      The guarantee that matters most is what happens when the code
+      inside the block raises an exception partway through:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">with_exception_safety_demo.py</span>
+      </div>
+      <pre><code>try:
+    with open("sample.txt", "r") as f:
+        print(f.closed)
+        raise ValueError("something went wrong inside the block")
+except ValueError as e:
+    print(f"Caught: {e}")
+
+print(f.closed)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of with_exception_safety_demo.py</span>
+      <pre><code>False
+Caught: something went wrong inside the block
+True</code></pre>
+    </div>
+
+    <p>
+      <code>f.closed</code> is <code>True</code> at the very end, even
+      though a <code>ValueError</code> was raised in the middle of the
+      block, before reaching any explicit close. <code>__exit__</code>
+      still ran and closed the file first, and only then did the
+      exception continue propagating outward to the <code>except</code>
+      clause. Without <code>with</code>, a crash between
+      <code>open()</code> and a manual <code>f.close()</code> call
+      would leave the file handle open indefinitely — exactly the bug
+      <code>with</code> exists to make impossible.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">with open("demo.txt", "w") as f:
+    f.write("first line\nsecond line\n")
+
+with open("demo.txt", "r") as f:
+    for line in f:
+        print(line.strip())
+
+print(f.closed)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a third f.write() line before the with block ends.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what __exit__'s three parameters are for</summary>
+      <p>
+        <code>__exit__(self, exc_type, exc_value, traceback)</code>
+        receives details about any exception that happened inside the
+        block — all three are <code>None</code> if nothing went wrong.
+        Sub-topic 5 uses this to detect whether an exception occurred
+        and decide what to do about it.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>with obj as name:</code> works for any object defining <code>__enter__</code> and <code>__exit__</code>, not just files.</li>
+        <li><code>__enter__</code> runs at the start of the block; <code>__exit__</code> runs at the end, unconditionally.</li>
+        <li><code>__exit__</code> still runs even if the block raises an exception — that guaranteed cleanup is the entire reason <code>with</code> exists.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="custom-context-managers">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Writing a custom context manager</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Any class can become a context manager by defining <code>__enter__(self)</code> and <code>__exit__(self, exc_type, exc_value, traceback)</code>.</li>
+        <li><code>__enter__</code>'s return value is what gets bound to the <code>as</code> variable in the <code>with</code> statement.</li>
+        <li><code>__exit__</code> returning <code>False</code> (or nothing) lets any exception continue propagating; returning <code>True</code> would silently swallow it — almost always the wrong choice.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the guaranteed-cleanup pattern Sub-topic 4 described isn't limited to files — a database connection, a network socket, or a simple timer all benefit from the exact same guarantee, and any class can opt in.
+    </div>
+
+    <p>
+      A <code>Timer</code> context manager records how long the code
+      inside its block took to run, with no risk of forgetting to
+      stop the clock:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>__enter__</code> / <code>__exit__</code>?</span>
+      <code>__enter__(self)</code> runs when a <code>with</code> block
+      starts, and its return value becomes the <code>as</code>
+      variable. <code>__exit__(self, exc_type, exc_value, traceback)</code>
+      runs when the block ends, whether it finished normally or an
+      exception interrupted it.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">timer_context_manager_demo.py</span>
+      </div>
+      <pre><code>import time
+
+class Timer:
+    def __enter__(self):
+        self.start = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.end = time.perf_counter()
+        self.elapsed = self.end - self.start
+        return False
+
+with Timer() as t:
+    total = sum(range(1_000_000))
+
+print(f"Sum: {total}")
+print(f"Took under a second: {t.elapsed &lt; 1}")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of timer_context_manager_demo.py</span>
+      <pre><code>Sum: 499999500000
+Took under a second: True</code></pre>
+    </div>
+
+    <p>
+      <code>with Timer() as t:</code> calls <code>__enter__</code>,
+      which records the start time and returns <code>self</code> —
+      that's why <code>t</code> ends up bound to the whole
+      <code>Timer</code> object, giving access to <code>t.elapsed</code>
+      afterward. The instant the block ends, <code>__exit__</code>
+      runs automatically, recording the end time and computing
+      <code>self.elapsed</code> — there's no way to forget to stop the
+      clock, because that responsibility isn't left to whoever writes
+      the <code>with</code> block.
+    </p>
+
+    <p>
+      A context manager can also wrap a resource that genuinely needs
+      cleanup, like a file, and react to whether an exception happened:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">managed_file_demo.py</span>
+      </div>
+      <pre><code>class ManagedFile:
+    def __init__(self, filename, mode):
+        self.filename = filename
+        self.mode = mode
+
+    def __enter__(self):
+        self.file = open(self.filename, self.mode)
+        return self.file
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.file.close()
+        if exc_type is not None:
+            print(f"An exception occurred: {exc_value}")
+        return False
+
+with ManagedFile("sample.txt", "r") as f:
+    print(f.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of managed_file_demo.py</span>
+      <pre><code>hello
+world</code></pre>
+    </div>
+
+    <p>
+      <code>ManagedFile</code>'s <code>__enter__</code> opens the file
+      and returns it — so <code>f</code> is the actual file object,
+      not the <code>ManagedFile</code> instance. Its
+      <code>__exit__</code> always closes the file first, then checks
+      <code>exc_type</code>: if it's <code>None</code>, nothing went
+      wrong; if it isn't, something raised inside the block, and this
+      version logs it before returning <code>False</code>, which lets
+      that exception keep propagating instead of hiding it.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">import time
+
+class Timer:
+    def __enter__(self):
+        self.start = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.elapsed = time.perf_counter() - self.start
+        return False
+
+with Timer() as t:
+    total = sum(n * n for n in range(100000))
+
+print(total)
+print(t.elapsed < 1)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing range(100000) to a bigger or smaller number.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: returning True from __exit__ swallows the exception</summary>
+      <p>
+        If <code>__exit__</code> returns <code>True</code>, Python
+        treats the exception as handled and stops it from propagating
+        any further — the code after the <code>with</code> block just
+        continues as if nothing happened. That's occasionally useful
+        for a context manager designed specifically to suppress one
+        known error type, but doing it by accident hides real bugs.
+        Returning <code>False</code> (or nothing, which Python treats
+        as <code>False</code>) is the safe default.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Any class becomes a context manager by defining <code>__enter__</code> and <code>__exit__</code>.</li>
+        <li><code>__enter__</code>'s return value becomes the <code>with ... as name:</code> variable.</li>
+        <li><code>__exit__</code> should return <code>False</code> (or nothing) so exceptions keep propagating instead of being silently swallowed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world streaming with generators &amp; context managers</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A generator function combined with <code>with open(...) as f:</code> can stream a huge file line-by-line, never holding more than one line in memory.</li>
+        <li>This exact pattern — generator plus context manager — is how many real data pipelines read logs, CSVs, and datasets far larger than available RAM.</li>
+        <li>The caller of a streaming generator writes an ordinary <code>for</code> loop, with no idea (or need to know) that lazy evaluation is happening underneath.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> whenever a real pipeline needs to process "more data than fits in memory," the answer is almost always a generator — read one unit, process it, discard it, move to the next.
+    </div>
+
+    <p>
+      This chapter's opening hook described a 40 GB log file that
+      can't be loaded all at once. Here's the actual pattern that
+      solves it, combining Sub-topic 2's <code>yield</code> with
+      Sub-topic 4's <code>with</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">streaming_reader_demo.py</span>
+      </div>
+      <pre><code>def read_large_file(filename):
+    with open(filename, "r") as f:
+        for line in f:
+            yield line.strip()
+
+with open("big.txt", "w") as f:
+    for i in range(5):
+        f.write(f"log line {i}\n")
+
+for line in read_large_file("big.txt"):
+    print(line)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of streaming_reader_demo.py</span>
+      <pre><code>log line 0
+log line 1
+log line 2
+log line 3
+log line 4</code></pre>
+    </div>
+
+    <p>
+      <code>read_large_file</code> is a generator function that opens
+      the file with <code>with</code> (so it's always closed, even if
+      something downstream raises an exception) and <code>yield</code>s
+      one stripped line at a time. Whether the file has 5 lines or 5
+      billion lines, this function never holds more than one line in
+      memory — the <code>for line in f:</code> loop itself is already
+      lazy, since a file object is an iterator too, exactly like Sub-topic
+      1 described.
+    </p>
+
+    <p>
+      The calling code — <code>for line in read_large_file("big.txt"): print(line)</code>
+      — looks identical whether it's reading 5 lines or streaming
+      gigabytes; nothing about the calling loop changes based on file
+      size. That's the real payoff: the caller writes ordinary,
+      simple code, and the generator function is entirely responsible
+      for staying memory-efficient underneath it.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Log-processing pipelines read multi-gigabyte server logs one line at a time with a generator, filtering for errors without ever loading the full file into memory.</li>
+      <li>Data engineering tools (like pandas' chunked readers) use the exact same generator pattern to process CSV files far larger than available RAM, one chunk at a time.</li>
+      <li>Database libraries wrap connections and transactions in context managers so a crash mid-query still guarantees the connection is closed or the transaction is rolled back.</li>
+    </ul>
+
+    <div class="lesson-note">
+      <strong>Honest caution:</strong> a generator's laziness is also a limitation — its values can only be consumed once, and if random access (jumping to item #500 without reading the first 499) is genuinely needed, a generator is the wrong tool and a list is a better fit. Reach for generators specifically when data is processed once, in order, and might be too large to hold in memory all at once.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's still missing after this chapter?</summary>
+      <p>
+        The standard library's <code>contextlib</code> module offers a
+        shortcut for turning an ordinary generator function into a
+        context manager, and Python's <code>itertools</code> module
+        adds many more lazy building blocks on top of what's covered
+        here. Both build directly on the ideas in this chapter and are
+        worth exploring once these fundamentals feel solid.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A generator function opening a file with <code>with</code> can stream it line-by-line, using memory proportional to one line, not the whole file.</li>
+        <li>This generator-plus-context-manager pattern is exactly how real log, CSV, and data pipelines handle files larger than RAM.</li>
+        <li>The calling code stays a plain <code>for</code> loop, unaware of and unaffected by the laziness happening underneath.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Data pipelines and ETL tools lean on generators constantly to process files, database result sets, and API responses too large to fit entirely in memory.</li>
+      <li>Context managers show up anywhere a resource needs guaranteed cleanup — files, database connections, network sockets, locks — not just the file-handling introduced back in Chapter 13.</li>
+      <li>Interviewers frequently ask "how would you process a file too big to fit in memory?" specifically to check for this chapter's generator-based streaming pattern.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>An iterable has <code>__iter__</code>; an iterator has <code>__next__</code> and raises <code>StopIteration</code> when exhausted — a <code>for</code> loop is just this mechanism wrapped in convenient syntax.</li>
+      <li>A function containing <code>yield</code> becomes a generator function: calling it returns a generator object, and each <code>yield</code> pauses execution, preserving local state until the next <code>next()</code> call.</li>
+      <li>A generator expression, <code>(x for x in ...)</code>, produces values lazily one at a time, unlike a list comprehension, which builds the entire list in memory immediately — the difference matters most on large or unbounded sequences.</li>
+      <li><code>with</code> works with any object defining <code>__enter__</code>/<code>__exit__</code>, and guarantees <code>__exit__</code> runs even if the block raises an exception.</li>
+      <li>Any class can become a custom context manager by implementing <code>__enter__</code> and <code>__exit__</code> — useful for far more than files, like timing code or managing any resource that needs guaranteed cleanup.</li>
+      <li>Combining a generator function with <code>with open(...) as f:</code> is the standard real-world pattern for streaming huge files line-by-line without ever loading the whole thing into memory.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 17 Project: Large-File Streaming Log Analyzer — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven log analyzer that streams a log file line-by-line with a generator function, plus a custom SessionTimer context manager built from __enter__/__exit__ — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-17">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 17 Project</span>
+    <span class="reading-time">60 min build</span>
+  </div>
+  <h1>Large-File Streaming Log Analyzer</h1>
+  <p>A menu-driven log analyzer built <strong>around this chapter's core tools</strong> as its organizing principle &mdash; a generator function, <code>stream_lines()</code>, reads a log file one line at a time using <code>yield</code>, instead of ever calling <code>file.readlines()</code> or otherwise loading the whole file into a list. Two more generators build on top of it: <code>stream_matching()</code> yields only the lines containing a search keyword, and <code>summarize()</code> streams the whole file once to build line/level counts &mdash; both still process the file lazily, one line at a time, never holding more than the current line in memory. A custom context manager class, <code>SessionTimer</code>, built from <code>__enter__</code>/<code>__exit__</code>, wraps every streaming operation to time how long it took and report that timing even if something goes wrong mid-read &mdash; its <code>__exit__</code> checks whether an exception occurred and reports accordingly, but always returns <code>False</code> so it never silently swallows a real error.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Large-File Streaming Log Analyzer ===
+
+1. Generate sample log file
+2. Stream &amp; search for a keyword
+3. Stream &amp; summarize (line/level counts)
+4. Show last operation's timing info
+5. Quit
+Choose an option (1-5): 1
+
+[timer] starting: generating sample log file
+[timer] finished: generating sample log file (0.0317s)
+Wrote 400 lines to sample_log.txt.
+
+1. Generate sample log file
+2. Stream &amp; search for a keyword
+3. Stream &amp; summarize (line/level counts)
+4. Show last operation's timing info
+5. Quit
+Choose an option (1-5): 2
+
+Search for keyword (e.g. ERROR, billing): ERROR
+[timer] starting: streaming search for 'ERROR'
+  2026-07-06 05:35:05 [ERROR] checkout: unhandled exception in handler
+  2026-07-08 07:49:31 [ERROR] billing: unhandled exception in handler
+  ...
+[timer] finished: streaming search for 'ERROR' (0.0002s)
+  ... and 33 more match(es)
+Found 43 matching line(s) for 'ERROR'.
+
+1. Generate sample log file
+2. Stream &amp; search for a keyword
+3. Stream &amp; summarize (line/level counts)
+4. Show last operation's timing info
+5. Quit
+Choose an option (1-5): 3
+
+[timer] starting: streaming summary
+[timer] finished: streaming summary (0.0004s)
+Summary of sample_log.txt:
+  Total lines: 400
+  INFO: 232
+  WARNING: 67
+  ERROR: 43
+  DEBUG: 58
+
+1. Generate sample log file
+2. Stream &amp; search for a keyword
+3. Stream &amp; summarize (line/level counts)
+4. Show last operation's timing info
+5. Quit
+Choose an option (1-5): 4
+
+Last timed operation: 'streaming summary' took 0.0004s
+
+1. Generate sample log file
+2. Stream &amp; search for a keyword
+3. Stream &amp; summarize (line/level counts)
+4. Show last operation's timing info
+5. Quit
+Choose an option (1-5): 5
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice that the search and summary options both go through <code>stream_lines()</code> one line at a time &mdash; neither one ever builds a Python list containing every line of the file. The sample file here is only 400 lines so the example runs fast enough to read on a course page, but the exact same generator function would stream a 10GB log file identically: at any given moment, it only ever holds the current line in memory, whether the file is a few hundred lines or a few hundred million.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A generator pipeline &mdash; <code>stream_lines()</code>,
+    <code>stream_matching()</code>, <code>summarize()</code> &mdash; that
+    reads a log file one line at a time via <code>yield</code>, never
+    loading the whole file into memory, plus a custom
+    <code>SessionTimer</code> context manager class
+    (<code>__enter__</code>/<code>__exit__</code>) that times each
+    streaming operation and reports even if something fails mid-read
+    &mdash; wired to a <code>while True</code> menu loop with five options:
+    generate the sample log file, stream &amp; search for a keyword, stream
+    &amp; summarize by log level, show the last operation's timing info, or
+    quit.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into the same folder as
+    <code>sample_log.txt</code> (or just run option 1 first to generate it),
+    then run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+    <a href="sample_log.txt">sample_log.txt (sample data)</a>
+  </div>
+
+  <h2>The pipeline</h2>
+  <ul>
+    <li><code>SessionTimer</code> &mdash; a context manager class. <code>__enter__</code> records the start time and returns <code>self</code>. <code>__exit__</code> computes elapsed time and prints a report &mdash; a different message depending on whether an exception occurred (<code>exc_type is None</code> or not) &mdash; then returns <code>False</code> so any real exception still propagates normally after being reported.</li>
+    <li><code>generate_sample_log(path, num_lines, seed)</code> &mdash; writes a few hundred realistic-looking log lines (<code>[INFO]</code>, <code>[WARNING]</code>, <code>[ERROR]</code>, <code>[DEBUG]</code> entries with a service name and message) to <code>sample_log.txt</code>, so the rest of the menu has something real to stream through. A seeded <code>random.Random</code> keeps the output reproducible.</li>
+    <li><code>stream_lines(path)</code> &mdash; the core generator. Opens the file with <code>with</code>, loops <code>for raw_line in f:</code> (a file object is itself an iterator over its own lines), and <code>yield</code>s each line stripped of its newline. Because this is a generator function, calling it doesn't read anything yet &mdash; reading only happens as something actually iterates over the returned generator.</li>
+    <li><code>stream_matching(path, keyword)</code> &mdash; a generator that loops over <code>stream_lines(path)</code> and yields only the lines containing <code>keyword</code> (case-insensitive). Filtering happens lazily, line by line, as the file streams through &mdash; never on a pre-built list of every line.</li>
+    <li><code>summarize(path)</code> &mdash; streams the whole file once via <code>stream_lines()</code>, accumulating a total line count and a per-level count dictionary. The only thing that grows here is the small summary dictionary &mdash; the file content itself is never held in memory beyond the current line.</li>
+  </ul>
+  <p>Every option that touches the log file is wrapped in a <code>with SessionTimer(...) as timer:</code> block, so timing information is always available afterward via option 4, and the <code>SessionTimer</code>'s <code>__exit__</code> still runs (and still reports) even on an operation that somehow fails partway through.</p>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "streaming word count" menu option that counts, across the whole file, how many lines mention each service name in <code>SERVICES</code> &mdash; still via one pass of <code>stream_lines()</code>, no <code>readlines()</code>.</li>
+    <li>Add a second custom context manager, <code>SafeFileReport</code>, whose <code>__exit__</code> catches a <code>FileNotFoundError</code> specifically (returning <code>True</code> only for that one exception type) and prints a friendly "no log file yet" message, demonstrating that a context manager's <code>__exit__</code> can choose to suppress one specific kind of exception while still letting others propagate.</li>
+    <li>Change <code>stream_matching()</code> to accept multiple keywords and yield a line if it contains <em>any</em> of them, still processing the file lazily one line at a time.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Real production systems &mdash; web servers, payment processors, data pipelines &mdash; generate log files that can reach many gigabytes per day, and analyzing them by loading the whole thing into memory first (<code>readlines()</code>, <code>pandas</code> with no chunking, etc.) is one of the most common ways a data-processing script crashes a production machine or a CI job runs out of memory. The pattern this project builds &mdash; a generator that reads and processes one line (or one record) at a time, wrapped in <code>with</code> so file handles are always released correctly even if something goes wrong mid-read &mdash; is exactly the technique real log analyzers, ETL pipelines, and streaming data tools use to process files far larger than available RAM. The custom <code>SessionTimer</code> context manager mirrors a genuinely common production pattern too: wrapping a long-running operation to measure and report its duration for monitoring and performance debugging, regardless of whether it succeeds or fails.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Large-File Streaming Log Analyzer above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 17 (everything through Chapter 16's inheritance/polymorphism/<code>isinstance()</code>, plus this chapter's generator functions, generator expressions, and the <code>__enter__</code>/<code>__exit__</code> context-manager protocol). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Custom <code>PrimeNumbers</code> Iterator/Generator</h3>
+    <p><strong>Problem:</strong> A math teaching tool, a cryptography demo, or a number-theory exercise needs a source of prime numbers that can be pulled from one at a time, without ever knowing in advance how many will actually be needed &mdash; computing "the first million primes" up front just to maybe use the first five would be wasteful.</p>
+    <p><strong>What it should do:</strong> Build a generator function <code>primes()</code> that <code>yield</code>s prime numbers one at a time, forever (an infinite generator &mdash; it never runs out on its own, since there's no largest prime), using a simple primality check (trial division up to the square root of the candidate number, using <code>math.sqrt</code> from earlier chapters). Menu options: show the first N primes (prompt for N, then pull exactly N values from a fresh call to <code>primes()</code> using <code>next()</code> in a loop, or manual iteration), check whether a specific number is prime, show the sum of the first N primes, and quit.</p>
+    <p><strong>Suggested approach:</strong> Because <code>primes()</code> is infinite, never do <code>list(primes())</code> &mdash; always pull a bounded number of values by calling <code>next()</code> in a loop a fixed number of times, or by breaking out of a <code>for</code> loop once a counter reaches the requested N.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> CSV Streaming Summarizer</h3>
+    <p><strong>Problem:</strong> A data analyst needs to summarize a large CSV file (e.g. sales transactions, sensor readings) &mdash; computing totals, averages, or counts per category &mdash; without loading the entire file into memory as a list of rows first, exactly the same memory concern as the streaming log file in this chapter's main project, just applied to structured CSV data instead of plain text lines.</p>
+    <p><strong>What it should do:</strong> Build a generator function that opens a CSV file with <code>csv.DictReader</code> (from Chapter 12's <code>csv</code> module) and <code>yield</code>s one row (a dict) at a time &mdash; <code>DictReader</code> is itself already an iterator, so the generator can simply loop <code>for row in reader: yield row</code>. Menu options: generate a sample CSV file of transactions (category, amount columns), stream &amp; compute the total amount per category, stream &amp; find the single largest transaction, and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep a running dictionary of category totals (or a single "largest so far" variable) that updates as each row streams through, the same accumulation pattern as this chapter's <code>summarize()</code> function, just reading dict rows instead of plain text lines.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Reusable <code>Stopwatch</code> Context Manager Library</h3>
+    <p><strong>Problem:</strong> Almost any program benefits from being able to time specific sections of its own code during development or in production monitoring &mdash; but writing <code>start = time.perf_counter()</code> / <code>elapsed = time.perf_counter() - start</code> by hand around every section that needs timing is repetitive and easy to forget the cleanup half of.</p>
+    <p><strong>What it should do:</strong> Build a <code>Stopwatch</code> context manager class (similar to this chapter's <code>SessionTimer</code>, but designed to be genuinely reusable across different projects) that supports being used multiple times in the same program, keeps a running list of every timed lap's label and duration on the instance, and has a <code>report()</code> method that prints every lap recorded so far. Menu options: run a "fake slow operation" (e.g. a loop that does busywork or calls <code>time.sleep()</code> for a random short duration) wrapped in the stopwatch under a label the user provides, show the full lap report so far, show which labeled lap took the longest, and quit.</p>
+    <p><strong>Suggested approach:</strong> Store laps as a list of <code>(label, elapsed)</code> tuples on <code>self</code> inside <code>__init__</code>, append to that list from <code>__exit__</code> every time the context manager is used, and have <code>report()</code> and the "longest lap" menu option simply loop over that list &mdash; no need to reach for anything beyond what earlier chapters already taught for storing and scanning a list of tuples.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Batch Processor (Fixed-Size Chunk Generator)</h3>
+    <p><strong>Problem:</strong> Some operations &mdash; sending records to an API with a per-request limit, writing rows to a database in transactions, processing images in memory-bounded groups &mdash; need to process a large collection in fixed-size batches (e.g. 50 items at a time) rather than either one item at a time or the whole collection at once.</p>
+    <p><strong>What it should do:</strong> Build a generator function <code>batched(items, size)</code> that <code>yield</code>s successive fixed-size chunks (as lists) from an iterable <code>items</code>, with the final chunk being shorter if the total count doesn't divide evenly by <code>size</code>. Menu options: generate a sample list of N fake "records" (plain strings or numbers), process them in batches of a user-chosen size (printing each batch as it's produced, with a fake "sending batch to API" message per batch), show how many total batches a given N and size would produce without actually processing them, and quit.</p>
+    <p><strong>Suggested approach:</strong> Inside <code>batched()</code>, build each chunk with a plain list and a counter, <code>yield</code>ing the chunk and resetting it once it reaches <code>size</code> items, then <code>yield</code>ing whatever's left over (if anything) once the input is exhausted &mdash; the same kind of accumulate-then-emit pattern as <code>summarize()</code> in this chapter's main project, but emitting a list at a time instead of an integer count.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
