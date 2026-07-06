@@ -26,12 +26,12 @@ moving to the next. The rendered, always-current version lives at
 | 12 | Exception Handling | try/except basics, multiple except/else/finally, the exception object, raising exceptions, custom exception classes, real-world error handling — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Custom exception classes are a narrow exception to the "no classes until Chapter 14" rule |
 | 13 | File Handling & CSV | opening/reading/writing files, `with`, file modes & paths, the `csv` module (reader/writer/DictReader/DictWriter), file-related exceptions, real-world file/CSV processing — plus a Challenges page (8 auto-graded coding problems, using string-content inputs since the browser sandbox has no real filesystem) and 4 extra real-world project ideas |
 | 14 | OOP Basics | classes & objects, `__init__` & instance attributes, instance methods, class vs. instance attributes (incl. the mutable-class-attribute gotcha), dunder methods (`__str__`/`__repr__`), real-world OOP basics — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. This is the chapter where general classes (not just custom exceptions) finally become allowed |
+| 15 | OOP Deeper | `@staticmethod`, `@classmethod` & alternative constructors, encapsulation/privacy conventions (`_x`/`__x`, name mangling), `@property` getters, property setters with validation, real-world deeper OOP — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Quiz introduces the new multiple-choice question type (16 MCQ + 5 fill-in-the-blank) alongside fill-in-the-blank. Project: Bank Account System |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 15 | OOP Deeper (static/class methods, encapsulation, properties) | Bank account system |
 | 16 | Inheritance & Polymorphism | Vehicle rental system |
 | 17 | Generators, Iterators & Context Managers | Large-file streaming reader |
 | 18 | Regular Expressions | Resume keyword scanner |

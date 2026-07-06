@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 15 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 15: OOP Deeper, including interview-style scenario problems on @staticmethod, @classmethod, encapsulation, and @property getters/setters.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-15">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 15 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: OOP Deeper</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This is the
+    chapter where <code>@staticmethod</code>, <code>@classmethod</code>
+    (alternative constructors), and <code>@property</code> (getters and
+    setters) become allowed, on top of everything from Chapters 1-14
+    (including general classes, <code>__init__</code>, instance
+    attributes, instance methods, and <code>__str__</code>/<code>__repr__</code>).
+    No inheritance (Chapter 16), or any import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#static-methods">1. @staticmethod</a>
+    <a href="#class-methods">2. @classmethod</a>
+    <a href="#encapsulation-privacy">3. Encapsulation &amp; Privacy</a>
+    <a href="#properties-getters">4. @property Getters</a>
+    <a href="#property-setters">5. @x.setter</a>
+    <a href="#bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="static-methods">Topic 1: <code>@staticmethod</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A utility calculation on the class</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write a <code>TemperatureConverter</code> class with a <code>@staticmethod</code> <code>celsius_to_fahrenheit(celsius)</code> callable directly on the class.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A pure text check</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write a <code>StringHelper</code> class with a <code>@staticmethod</code> <code>is_palindrome(text)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A number check</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Write a <code>MathHelper</code> class with a <code>@staticmethod</code> <code>is_prime(number)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A format check</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write a <code>Validator</code> class with a <code>@staticmethod</code> <code>is_valid_email(email)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This <code>@staticmethod</code> mistakenly includes <code>self</code> as a parameter. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A shared tax calculator utility</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>TaxCalculator</code> with a <code>@staticmethod</code> <code>calculate_tax(subtotal, tax_rate)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why @staticmethod instead of a plain function?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_staticmethod_purpose()</code>, explaining why you'd use <code>@staticmethod</code> instead of a standalone function.</p>
+  </div>
+
+  <h2 id="class-methods">Topic 2: <code>@classmethod</code> and Alternative Constructors</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A named alternative constructor</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write a <code>Pizza</code> class with a <code>@classmethod</code> <code>margherita(cls)</code> alternative constructor.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Parsing a string into an instance</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write a <code>Date</code> class with a <code>@classmethod</code> <code>from_string(cls, date_string)</code> that parses <code>"YYYY-MM-DD"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A convenience constructor</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write an <code>Employee</code> class with a <code>@classmethod</code> <code>entry_level(cls, name)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A special-case constructor</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Write a <code>Rectangle</code> class with a <code>@classmethod</code> <code>square(cls, side_length)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This <code>@classmethod</code> hardcodes the class name instead of using <code>cls(...)</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Building a user from an API response</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>UserProfile</code> with a <code>@classmethod</code> <code>from_api_response(cls, data)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why more than one way to construct an instance?</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_classmethod_alternative_constructors()</code>, explaining why a class needs more than one way to build an instance.</p>
+  </div>
+
+  <h2 id="encapsulation-privacy">Topic 3: Encapsulation &amp; Privacy Conventions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A single-underscore convention</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write a <code>BankAccount</code> class using a single-underscore <code>_balance</code> convention with a <code>get_balance(self)</code> method.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Name-mangling in action</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write a <code>Config</code> class demonstrating double-underscore name-mangling with <code>__secret_key</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Consenting adults</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Write a <code>Person</code> class showing that a single-underscore attribute is still reachable from outside.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Using a mangled attribute internally</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write a <code>Wallet</code> class using <code>__balance</code>, fully usable from inside the class's own methods.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This code tries to read a mangled double-underscore attribute with the wrong name. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Protecting an internal cache</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>ReportCache</code>, hiding a <code>__cache</code> dict behind <code>store</code>/<code>get</code> methods.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The "consenting adults" philosophy</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_consenting_adults_philosophy()</code>, explaining Python's approach to private attributes.</p>
+  </div>
+
+  <h2 id="properties-getters">Topic 4: <code>@property</code> Getters</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reading a method like an attribute</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write a <code>Circle</code> class with a <code>@property</code> <code>radius</code> read like a plain attribute.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A computed property</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write a <code>Rectangle</code> class with a computed <code>@property</code> <code>area</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Combining two attributes</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write a <code>Person</code> class with a <code>@property</code> <code>full_name</code> combining two stored attributes.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A unit-converted property</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write a <code>Temperature</code> class with a computed <code>@property</code> <code>fahrenheit</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This code wrongly calls a <code>@property</code> with parentheses. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A read-only derived field on a user profile</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>UserProfile</code> with a computed <code>@property</code> <code>age</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why @property instead of get_area()?</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_property_getters()</code>, explaining why you'd use <code>@property</code> instead of a regular getter method.</p>
+  </div>
+
+  <h2 id="property-setters">Topic 5: <code>@x.setter</code> and Validation on Assignment</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Rejecting a negative radius</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write a <code>Circle</code> class with a <code>radius</code> setter that rejects negative values.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Rejecting a negative age</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write a <code>Person</code> class with an <code>age</code> setter that rejects negative values.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Rejecting a negative price</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write a <code>Product</code> class with a <code>price</code> setter that rejects negative values.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Validating a format</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Write an <code>Email</code> class with an <code>address</code> setter that validates the presence of <code>"@"</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This <code>Thermostat</code> setter's absolute-zero validation condition is backwards. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Validating signup form data</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>UserAccount</code> with a <code>username</code> setter that rejects blank input.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why validate in a setter, not just __init__?</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_property_setters()</code>, explaining why validation belongs in a <code>@property</code> setter.</p>
+  </div>
+
+  <h2 id="bringing-together">Topic 6: Bringing It Together &mdash; Deeper OOP in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Property, static, and classmethod together</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write a <code>Product</code> class combining a validated <code>price</code> property, a <code>@staticmethod</code> <code>apply_tax</code>, and a <code>@classmethod</code> <code>on_sale</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A private auto-incrementing id</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write an <code>Employee</code> class combining a private auto-incrementing <code>id</code>, a validated <code>salary</code> property, and a <code>@classmethod</code> <code>hire_intern</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Restocking through the setter</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write an <code>InventoryItem</code> class combining a validated <code>quantity</code> property, a <code>restock</code> method routed back through the setter, and a <code>@staticmethod</code> <code>reorder_threshold</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Withdrawing through the setter</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write a <code>BankAccount</code> class combining a validated <code>balance</code> property, a <code>withdraw</code> method routed through the setter, and a <code>@classmethod</code> <code>open_with_bonus</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This <code>Subscription</code> class's <code>__init__</code> bypasses its own setter's validation. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A small payroll system</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>Employee</code> combining a <code>@staticmethod</code> monthly-to-annual conversion with a <code>@classmethod</code> alternative constructor.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>How the three tools work together</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_deeper_oop_production_value()</code>, describing how <code>@staticmethod</code>, <code>@classmethod</code>, and <code>@property</code> work together in a well-designed class.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

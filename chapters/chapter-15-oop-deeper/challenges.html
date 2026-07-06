@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 15 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on @staticmethod, @classmethod alternative constructors, and @property getters/setters with validation, for Chapter 15: OOP Deeper.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-15">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 15 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: OOP Deeper</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-15 have covered so far &mdash; including
+    <code>@staticmethod</code>, <code>@classmethod</code> alternative
+    constructors, and <code>@property</code> getters/setters with
+    validation. No inheritance, or any import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why every challenge returns a plain value, not an object</span>
+    The auto-grader compares your function's return value to a JSON-safe
+    expected value (a number, string, boolean, list, or dict) &mdash; it
+    can't compare custom class instances directly. So every challenge here
+    asks you to <strong>build and use a class inside your function</strong>
+    to model the problem (a <code>Circle</code> with a <code>@property</code>
+    <code>area</code>, a <code>BankAccount</code> with a validated
+    <code>balance</code> setter, and so on), but the function itself always
+    returns a plain number, string, boolean, list, or dict &mdash; exactly
+    what a real caller elsewhere in a program would want back, without
+    needing to know anything about the class you used internally to
+    compute it.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Circle Measurements <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>circle_measurements(radius)</code> that builds a <code>Circle</code> class internally with <code>__init__(self, radius)</code> storing <code>self.radius = radius</code>, a <code>@property</code> <code>area(self)</code> returning <code>round(3.14159 * self.radius ** 2, 2)</code>, and a <code>@staticmethod</code> <code>unit_circle_area()</code> returning <code>round(3.14159, 2)</code> (the area of a circle with radius 1, a fixed fact that doesn't depend on any instance). Create one instance and return <code>{"area": circle.area, "unit_area": Circle.unit_circle_area()}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>radius</code> is a non-negative number, including <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>circle_measurements(4)</code> &rarr; <code>{"area": 50.27, "unit_area": 3.14}</code><br>
+        <code>circle_measurements(0)</code> &rarr; <code>{"area": 0.0, "unit_area": 3.14}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def circle_measurements(radius):
+    # TODO: define a class Circle with __init__(self, radius) storing
+    # self.radius, a @property area(self) returning
+    # round(3.14159 * self.radius ** 2, 2), and a @staticmethod
+    # unit_circle_area() returning round(3.14159, 2). Create
+    # circle = Circle(radius) and return
+    # {"area": circle.area, "unit_area": Circle.unit_circle_area()}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "circle_measurements",
+  "cases": [
+    { "args": [4], "expected": { "area": 50.27, "unit_area": 3.14 } },
+    { "args": [1], "expected": { "area": 3.14, "unit_area": 3.14 } },
+    { "args": [0], "expected": { "area": 0.0, "unit_area": 3.14 } },
+    { "args": [10], "expected": { "area": 314.16, "unit_area": 3.14 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def circle_measurements(radius):
+    class Circle:
+        def __init__(self, radius):
+            self.radius = radius
+
+        @property
+        def area(self):
+            return round(3.14159 * self.radius ** 2, 2)
+
+        @staticmethod
+        def unit_circle_area():
+            return round(3.14159, 2)
+
+    circle = Circle(radius)
+    return {"area": circle.area, "unit_area": Circle.unit_circle_area()}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Build a Square <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>square_from_side(side_length)</code> that builds a <code>Rectangle</code> class internally with <code>__init__(self, width, height)</code>, a <code>@classmethod</code> <code>square(cls, side_length)</code> returning <code>cls(side_length, side_length)</code>, and an <code>area(self)</code> method returning <code>self.width * self.height</code>. Create <code>square = Rectangle.square(side_length)</code> and return <code>square.area()</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>side_length</code> is a non-negative integer, including <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>square_from_side(5)</code> &rarr; <code>25</code><br>
+        <code>square_from_side(0)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def square_from_side(side_length):
+    # TODO: define a class Rectangle with __init__(self, width, height),
+    # a @classmethod square(cls, side_length) returning
+    # cls(side_length, side_length), and an area(self) method returning
+    # self.width * self.height. Create
+    # square = Rectangle.square(side_length) and return square.area().
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "square_from_side",
+  "cases": [
+    { "args": [5], "expected": 25 },
+    { "args": [0], "expected": 0 },
+    { "args": [3], "expected": 9 },
+    { "args": [10], "expected": 100 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def square_from_side(side_length):
+    class Rectangle:
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+
+        @classmethod
+        def square(cls, side_length):
+            return cls(side_length, side_length)
+
+        def area(self):
+            return self.width * self.height
+
+    square = Rectangle.square(side_length)
+    return square.area()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Parse a Date String <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>parse_date_parts(date_string)</code> that builds a <code>Date</code> class internally with <code>__init__(self, year, month, day)</code> storing all three, and a <code>@classmethod</code> <code>from_string(cls, date_string)</code> that splits <code>date_string</code> on <code>"-"</code> (format <code>"YYYY-MM-DD"</code>), converts each piece to <code>int</code>, and returns <code>cls(year, month, day)</code>. Create <code>date = Date.from_string(date_string)</code> and return <code>[date.year, date.month, date.day]</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>date_string</code> is always a valid <code>"YYYY-MM-DD"</code> string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>parse_date_parts("2026-07-04")</code> &rarr; <code>[2026, 7, 4]</code><br>
+        <code>parse_date_parts("2000-01-01")</code> &rarr; <code>[2000, 1, 1]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def parse_date_parts(date_string):
+    # TODO: define a class Date with __init__(self, year, month, day)
+    # storing all three, and a @classmethod from_string(cls, date_string)
+    # that splits date_string on "-", converts each piece to int, and
+    # returns cls(year, month, day). Create
+    # date = Date.from_string(date_string) and return
+    # [date.year, date.month, date.day].
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "parse_date_parts",
+  "cases": [
+    { "args": ["2026-07-04"], "expected": [2026, 7, 4] },
+    { "args": ["2000-01-01"], "expected": [2000, 1, 1] },
+    { "args": ["1999-12-31"], "expected": [1999, 12, 31] },
+    { "args": ["2024-02-29"], "expected": [2024, 2, 29] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def parse_date_parts(date_string):
+    class Date:
+        def __init__(self, year, month, day):
+            self.year = year
+            self.month = month
+            self.day = day
+
+        @classmethod
+        def from_string(cls, date_string):
+            year, month, day = date_string.split("-")
+            return cls(int(year), int(month), int(day))
+
+    date = Date.from_string(date_string)
+    return [date.year, date.month, date.day]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Validated Price Assignment <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>try_set_price(price)</code> that builds a <code>Product</code> class internally with <code>__init__(self, name, price)</code> that calls <code>self.price = price</code> (through the setter), a <code>@property</code> getter <code>price(self)</code> returning <code>self._price</code>, and a <code>@price.setter</code> <code>price(self, value)</code> that raises <code>ValueError("price cannot be negative")</code> if <code>value &lt; 0</code>, otherwise sets <code>self._price = value</code>. Try creating <code>Product("Widget", price)</code> inside a <code>try/except ValueError</code> block: if it succeeds, return <code>{"ok": True, "price": product.price}</code>; if it raises, return <code>{"ok": False, "error": str(error)}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>price</code> may be positive, negative, or zero.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>try_set_price(9.99)</code> &rarr; <code>{"ok": true, "price": 9.99}</code><br>
+        <code>try_set_price(-5)</code> &rarr; <code>{"ok": false, "error": "price cannot be negative"}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="24">
+def try_set_price(price):
+    # TODO: define a class Product with __init__(self, name, price)
+    # that calls self.price = price (through the setter), a @property
+    # getter price(self) returning self._price, and a @price.setter
+    # price(self, value) that raises ValueError("price cannot be
+    # negative") if value < 0, otherwise sets self._price = value.
+    # Inside a try/except ValueError block, create
+    # product = Product("Widget", price). If it succeeds, return
+    # {"ok": True, "price": product.price}. If it raises, return
+    # {"ok": False, "error": str(error)}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "try_set_price",
+  "cases": [
+    { "args": [9.99], "expected": { "ok": true, "price": 9.99 } },
+    { "args": [-5], "expected": { "ok": false, "error": "price cannot be negative" } },
+    { "args": [0], "expected": { "ok": true, "price": 0 } },
+    { "args": [100], "expected": { "ok": true, "price": 100 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def try_set_price(price):
+    class Product:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        @property
+        def price(self):
+            return self._price
+
+        @price.setter
+        def price(self, value):
+            if value < 0:
+                raise ValueError("price cannot be negative")
+            self._price = value
+
+    try:
+        product = Product("Widget", price)
+        return {"ok": True, "price": product.price}
+    except ValueError as error:
+        return {"ok": False, "error": str(error)}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Bank Account With Guarded Withdrawals <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>run_account_operations(starting_balance, operations)</code> that builds a <code>BankAccount</code> class internally with a validated <code>balance</code> <code>@property</code> (getter returns <code>self._balance</code>; setter raises <code>ValueError("balance cannot be negative")</code> if <code>value &lt; 0</code>, otherwise sets it), plus <code>deposit(self, amount)</code> and <code>withdraw(self, amount)</code> methods that both assign back through <code>self.balance = ...</code> so the setter's validation applies to every operation. Create one instance with <code>starting_balance</code>, then apply every <code>[op, amount]</code> pair in <code>operations</code> in order inside a <code>try/except ValueError</code> that skips (does not apply) any operation that would make the balance negative, counting how many were skipped. Return <code>{"balance": account.balance, "rejected": &lt;count skipped&gt;}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>operations</code> may be empty; a rejected withdrawal leaves the balance unchanged and does not stop later operations from being tried.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>run_account_operations(100, [["deposit", 50], ["withdraw", 30]])</code> &rarr; <code>{"balance": 120, "rejected": 0}</code><br>
+        <code>run_account_operations(100, [["withdraw", 500]])</code> &rarr; <code>{"balance": 100, "rejected": 1}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="28">
+def run_account_operations(starting_balance, operations):
+    # TODO: define a class BankAccount with a validated balance
+    # @property (getter returns self._balance; setter raises
+    # ValueError("balance cannot be negative") if value < 0, otherwise
+    # sets self._balance = value), plus deposit(self, amount) and
+    # withdraw(self, amount) methods that assign back through
+    # self.balance = ... so the setter's validation runs on every
+    # call. Create account = BankAccount(starting_balance). For each
+    # [op, amount] in operations, try applying it inside a
+    # try/except ValueError -- if it raises, count it as rejected and
+    # move on without changing the balance. Return
+    # {"balance": account.balance, "rejected": <count>}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "run_account_operations",
+  "cases": [
+    { "args": [100, [["deposit", 50], ["withdraw", 30]]], "expected": { "balance": 120, "rejected": 0 } },
+    { "args": [100, [["withdraw", 500]]], "expected": { "balance": 100, "rejected": 1 } },
+    { "args": [0, []], "expected": { "balance": 0, "rejected": 0 } },
+    { "args": [50, [["withdraw", 20], ["withdraw", 100], ["deposit", 10]]], "expected": { "balance": 40, "rejected": 1 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def run_account_operations(starting_balance, operations):
+    class BankAccount:
+        def __init__(self, balance):
+            self.balance = balance
+
+        @property
+        def balance(self):
+            return self._balance
+
+        @balance.setter
+        def balance(self, value):
+            if value < 0:
+                raise ValueError("balance cannot be negative")
+            self._balance = value
+
+        def deposit(self, amount):
+            self.balance = self.balance + amount
+
+        def withdraw(self, amount):
+            self.balance = self.balance - amount
+
+    account = BankAccount(starting_balance)
+    rejected = 0
+    for op, amount in operations:
+        try:
+            if op == "deposit":
+                account.deposit(amount)
+            elif op == "withdraw":
+                account.withdraw(amount)
+        except ValueError:
+            rejected += 1
+    return {"balance": account.balance, "rejected": rejected}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Auto-Incrementing Employee Ids <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>hire_employees(names)</code> that builds an <code>Employee</code> class internally with a private class attribute <code>__next_id = 1</code>, <code>__init__(self, name, salary)</code> that stores <code>self.name</code>, calls <code>self.salary = salary</code> (through the setter), sets <code>self.id = Employee.__next_id</code>, then increments <code>Employee.__next_id</code> by 1, plus a validated <code>salary</code> <code>@property</code> (setter raises <code>ValueError("salary cannot be negative")</code> if <code>value &lt; 0</code>) and a <code>@classmethod</code> <code>entry_level(cls, name)</code> returning <code>cls(name, 45000)</code>. Create one employee per name in <code>names</code> using <code>Employee.entry_level(name)</code>, in order, and return a list of <code>[employee.id, employee.salary]</code> pairs.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>names</code> may be empty, in which case return an empty list; ids always start at 1 for each call.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>hire_employees(["Priya", "Sam"])</code> &rarr; <code>[[1, 45000], [2, 45000]]</code><br>
+        <code>hire_employees([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def hire_employees(names):
+    # TODO: define a class Employee with a private class attribute
+    # __next_id = 1, __init__(self, name, salary) that stores
+    # self.name, calls self.salary = salary (through the setter),
+    # sets self.id = Employee.__next_id, then increments
+    # Employee.__next_id by 1. Add a validated salary @property
+    # (setter raises ValueError("salary cannot be negative") if
+    # value < 0) and a @classmethod entry_level(cls, name) returning
+    # cls(name, 45000). Create one Employee per name in names using
+    # Employee.entry_level(name), in order, and return a list of
+    # [employee.id, employee.salary] pairs.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "hire_employees",
+  "cases": [
+    { "args": [["Priya", "Sam"]], "expected": [[1, 45000], [2, 45000]] },
+    { "args": [[]], "expected": [] },
+    { "args": [["A", "B", "C"]], "expected": [[1, 45000], [2, 45000], [3, 45000]] },
+    { "args": [["Only"]], "expected": [[1, 45000]] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def hire_employees(names):
+    class Employee:
+        __next_id = 1
+
+        def __init__(self, name, salary):
+            self.name = name
+            self.salary = salary
+            self.id = Employee.__next_id
+            Employee.__next_id += 1
+
+        @property
+        def salary(self):
+            return self._salary
+
+        @salary.setter
+        def salary(self, value):
+            if value < 0:
+                raise ValueError("salary cannot be negative")
+            self._salary = value
+
+        @classmethod
+        def entry_level(cls, name):
+            return cls(name, 45000)
+
+    employees = [Employee.entry_level(name) for name in names]
+    return [[employee.id, employee.salary] for employee in employees]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> With vs. Without Validation <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>compare_validation(value)</code> that defines two classes internally: an <code>UnsafeAccount</code> with a plain <code>__init__(self, balance)</code> storing <code>self.balance = balance</code> with no checks at all, and a <code>SafeAccount</code> with <code>__init__(self, balance)</code> that calls <code>self.balance = balance</code> through a validated <code>@property</code> setter raising <code>ValueError("balance cannot be negative")</code> if <code>value &lt; 0</code>. Create an <code>UnsafeAccount(value)</code> and read its <code>.balance</code> directly. Then, inside a <code>try/except ValueError</code>, create a <code>SafeAccount(value)</code> and read its <code>.balance</code> if it succeeds, or capture <code>str(error)</code> if it raises. Return <code>{"unsafe": &lt;unsafe balance&gt;, "safe": &lt;safe balance or error message&gt;}</code> &mdash; demonstrating exactly what a missing validation layer lets slip through.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>value</code> may be positive, negative, or zero.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>compare_validation(100)</code> &rarr; <code>{"unsafe": 100, "safe": 100}</code><br>
+        <code>compare_validation(-50)</code> &rarr; <code>{"unsafe": -50, "safe": "balance cannot be negative"}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="30">
+def compare_validation(value):
+    # TODO: define an UnsafeAccount class with __init__(self, balance)
+    # storing self.balance = balance directly, no checks. Define a
+    # SafeAccount class with __init__(self, balance) that calls
+    # self.balance = balance through a validated @property setter
+    # raising ValueError("balance cannot be negative") if value < 0.
+    # Create unsafe = UnsafeAccount(value) and read unsafe.balance.
+    # Inside a try/except ValueError, create safe = SafeAccount(value)
+    # and read safe.balance if it succeeds, or capture str(error) if
+    # it raises. Return
+    # {"unsafe": unsafe.balance, "safe": <safe balance or error message>}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "compare_validation",
+  "cases": [
+    { "args": [100], "expected": { "unsafe": 100, "safe": 100 } },
+    { "args": [-50], "expected": { "unsafe": -50, "safe": "balance cannot be negative" } },
+    { "args": [0], "expected": { "unsafe": 0, "safe": 0 } },
+    { "args": [-1], "expected": { "unsafe": -1, "safe": "balance cannot be negative" } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def compare_validation(value):
+    class UnsafeAccount:
+        def __init__(self, balance):
+            self.balance = balance  # no validation at all
+
+    class SafeAccount:
+        def __init__(self, balance):
+            self.balance = balance  # routed through setter
+
+        @property
+        def balance(self):
+            return self._balance
+
+        @balance.setter
+        def balance(self, value):
+            if value < 0:
+                raise ValueError("balance cannot be negative")
+            self._balance = value
+
+    unsafe = UnsafeAccount(value)
+    unsafe_result = unsafe.balance
+
+    try:
+        safe = SafeAccount(value)
+        safe_result = safe.balance
+    except ValueError as error:
+        safe_result = str(error)
+
+    return {"unsafe": unsafe_result, "safe": safe_result}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Inventory Restock Report <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>restock_report(starting_quantities, restock_amounts)</code> that builds an <code>InventoryItem</code> class internally with a validated <code>quantity</code> <code>@property</code> (setter raises <code>ValueError("quantity cannot be negative")</code> if <code>value &lt; 0</code>), a <code>restock(self, amount)</code> method that assigns <code>self.quantity = self.quantity + amount</code> (through the setter), and a <code>@staticmethod</code> <code>reorder_threshold()</code> returning <code>10</code>. For each paired <code>(start, amount)</code> from <code>zip(starting_quantities, restock_amounts)</code>, create an item with the starting quantity, call <code>restock(amount)</code>, and record <code>{"quantity": item.quantity, "needs_reorder": item.quantity &lt; InventoryItem.reorder_threshold()}</code>. Return the list of these records, in order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both lists are always the same length and may both be empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>restock_report([5], [20])</code> &rarr; <code>[{"quantity": 25, "needs_reorder": false}]</code><br>
+        <code>restock_report([], [])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="26">
+def restock_report(starting_quantities, restock_amounts):
+    # TODO: define a class InventoryItem with a validated quantity
+    # @property (setter raises ValueError("quantity cannot be
+    # negative") if value < 0), a restock(self, amount) method that
+    # assigns self.quantity = self.quantity + amount (through the
+    # setter), and a @staticmethod reorder_threshold() returning 10.
+    # For each paired (start, amount) from
+    # zip(starting_quantities, restock_amounts), create an item with
+    # the starting quantity, call restock(amount), and append
+    # {"quantity": item.quantity,
+    #  "needs_reorder": item.quantity < InventoryItem.reorder_threshold()}
+    # to a report list. Return the report list, in order.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "restock_report",
+  "cases": [
+    { "args": [[5], [20]], "expected": [{ "quantity": 25, "needs_reorder": false }] },
+    { "args": [[5, 0], [2, 1]], "expected": [{ "quantity": 7, "needs_reorder": true }, { "quantity": 1, "needs_reorder": true }] },
+    { "args": [[], []], "expected": [] },
+    { "args": [[0], [10]], "expected": [{ "quantity": 10, "needs_reorder": false }] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def restock_report(starting_quantities, restock_amounts):
+    class InventoryItem:
+        def __init__(self, quantity):
+            self.quantity = quantity
+
+        @property
+        def quantity(self):
+            return self._quantity
+
+        @quantity.setter
+        def quantity(self, value):
+            if value < 0:
+                raise ValueError("quantity cannot be negative")
+            self._quantity = value
+
+        def restock(self, amount):
+            self.quantity = self.quantity + amount
+
+        @staticmethod
+        def reorder_threshold():
+            return 10
+
+    report = []
+    for start, amount in zip(starting_quantities, restock_amounts):
+        item = InventoryItem(start)
+        item.restock(amount)
+        report.append(
+            {
+                "quantity": item.quantity,
+                "needs_reorder": item.quantity < InventoryItem.reorder_threshold(),
+            }
+        )
+    return report</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

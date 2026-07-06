@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 15 Project: Bank Account System — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven bank account system built around a BankAccount class with @property, @classmethod, and @staticmethod — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-15">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 15 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Bank Account System</h1>
+  <p>A menu-driven bank account system built <strong>around this chapter's deeper OOP tools</strong> as its core organizing principle &mdash; a <code>BankAccount</code> class exposes <code>balance</code> as a <code>@property</code> with a validating <code>@balance.setter</code> (rejects setting it directly to a negative value), a <code>@classmethod</code> alternative constructor (<code>open_new_account</code>, which builds an account a different way than a plain <code>__init__</code> call by generating its own account number), and a <code>@staticmethod</code> utility (<code>is_valid_account_number</code>) that validates an account-number format with no need for any particular instance's data. Encapsulation is practiced with a single leading underscore (<code>_balance</code>, <code>_owner</code>, <code>_account_number</code>) &mdash; an internal-use naming convention, not enforced privacy, matching this chapter's "consenting adults" philosophy covered in the interview questions.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Bank Account System ===
+Loaded 2 account(s).
+
+1. Open a new account
+2. Deposit
+3. Withdraw
+4. Check balance
+5. View account details
+6. List all accounts
+7. Quit
+Choose an option (1-7): 4
+
+Account number: ACC-1000
+Balance for ACC-1000: $500.00
+
+1. Open a new account
+2. Deposit
+3. Withdraw
+4. Check balance
+5. View account details
+6. List all accounts
+7. Quit
+Choose an option (1-7): 6
+
+All accounts (2):
+  Account ACC-1000 (Aria Chen) -- balance: $500.00
+  Account ACC-1001 (Devon Brooks) -- balance: $150.00
+
+1. Open a new account
+2. Deposit
+3. Withdraw
+4. Check balance
+5. View account details
+6. List all accounts
+7. Quit
+Choose an option (1-7): 7
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice how much of this chapter shows up in one small program: a <code>@staticmethod</code> validating raw input with no instance in sight, a <code>@classmethod</code> building a new object a different way than the ordinary constructor, and a <code>@property</code>/<code>@x.setter</code> pair that lets <code>account.balance</code> still read like plain attribute access everywhere in the menu code while actually enforcing "never negative" behind the scenes. If a much stricter rule showed up later &mdash; say, a minimum balance, or a daily withdrawal cap &mdash; it could be added entirely inside <code>balance</code>'s setter, with zero changes needed anywhere else that already reads or writes <code>account.balance</code>. That's the real point of a property: the public interface never has to change even as the validation behind it gets richer.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    An object model built around a <code>BankAccount</code> class
+    (<code>@staticmethod is_valid_account_number</code>,
+    <code>@classmethod open_new_account</code>, a validated
+    <code>balance</code> <code>@property</code>, <code>deposit()</code>,
+    <code>withdraw()</code>, <code>__str__</code>) &mdash; wired to a
+    <code>while True</code> menu loop with seven options: open a new
+    account, deposit, withdraw, check balance, view account details, list
+    all accounts, or quit. Two accounts are seeded into the session at
+    startup so the menu has something to work with right away.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    This project doesn't read any external file, so it can be run from
+    anywhere. Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The object model</h2>
+  <ul>
+    <li><code>BankAccount.__init__(self, owner, account_number, balance=0)</code> &mdash; sets <code>self._owner</code>, validates <code>account_number</code> via the staticmethod (raising <code>ValueError</code> if it's badly formatted), sets <code>self._account_number</code>, then routes <code>balance</code> through the <code>@balance.setter</code> so the same validation rule applies to a starting balance too.</li>
+    <li><code>BankAccount.open_new_account(cls, owner, opening_deposit=0)</code> &mdash; a <code>@classmethod</code> alternative constructor. It generates its own account number (<code>f"ACC-{cls._next_suffix}"</code>, incrementing a shared class attribute counter) instead of requiring the caller to supply one, then returns <code>cls(owner, account_number, opening_deposit)</code> &mdash; using <code>cls</code> instead of hard-coding <code>BankAccount(...)</code> is what makes this a proper classmethod pattern.</li>
+    <li><code>BankAccount.is_valid_account_number(account_number)</code> &mdash; a <code>@staticmethod</code> that checks the format is <code>"ACC-"</code> followed by one or more digits. It needs no instance or class data at all, just the string passed in &mdash; the textbook use case for a staticmethod.</li>
+    <li><code>BankAccount.balance</code> &mdash; a <code>@property</code> getter that returns <code>self._balance</code>, paired with a <code>@balance.setter</code> that raises <code>ValueError</code> if the incoming value is negative, otherwise stores it. Every deposit, withdrawal, and the initial balance in <code>__init__</code> all funnel through this one setter, so the "never negative" rule only has to be written once.</li>
+    <li><code>BankAccount.owner</code> / <code>BankAccount.account_number</code> &mdash; read-only properties (getter only, no setter) exposing the underlying <code>_owner</code>/<code>_account_number</code> without allowing them to be reassigned through the public interface.</li>
+    <li><code>BankAccount.deposit(amount)</code> / <code>BankAccount.withdraw(amount)</code> &mdash; instance methods that adjust <code>self.balance</code> through the property (not <code>self._balance</code> directly), returning <code>True</code>/<code>False</code> depending on whether the operation was valid.</li>
+    <li><code>BankAccount.__str__(self)</code> &mdash; returns a readable one-line string like <code>Account ACC-1000 (Aria Chen) -- balance: $500.00</code>.</li>
+    <li><code>find_account(accounts, account_number)</code> &mdash; loops over a list of <code>BankAccount</code> objects and returns the first match, or <code>None</code>.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "close account" option that only allows closing an account if its balance is exactly 0, reusing <code>find_account</code>.</li>
+    <li>Add a <code>BankAccount.interest_rate</code> class attribute and an <code>apply_interest()</code> instance method that increases <code>self.balance</code> by that rate, then a matching menu option to apply interest to every account at once.</li>
+    <li>Add a <code>minimum_balance</code> check inside the <code>@balance.setter</code> (e.g. no account may ever drop below a shared class-level minimum) &mdash; notice how this can be added in exactly one place without touching <code>deposit</code>, <code>withdraw</code>, or any menu code at all.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Every real banking app, payment platform, or point-of-sale system relies on exactly this pattern: money-related fields that absolutely cannot be set to an invalid value by accident, and constructors that need to build the same kind of object from more than one shape of starting data (a brand-new account opened in a branch versus one restored from a backup file, for example). A <code>@property</code> setter is precisely how real production code guarantees "this value is always validated, no matter which code path touches it" without forcing every single caller to remember to call some <code>validate_and_set_balance()</code> function by hand &mdash; and a <code>@classmethod</code> alternative constructor is precisely how real classes offer more than one sane way to build an object without duplicating <code>__init__</code>'s logic.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Bank Account System above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 15 (everything through Chapter 14's general classes and dunder methods, plus <code>@staticmethod</code>, <code>@classmethod</code>, and <code>@property</code> getters/setters &mdash; no inheritance, since that's Chapter 16). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Temperature Converter Class</h3>
+    <p><strong>Problem:</strong> A weather app or science tool needs to represent a temperature that's always physically valid (never below absolute zero) and needs to be constructed from more than one real-world unit &mdash; most data comes in as Celsius, but plenty of sources (older US weather data, some APIs) give Fahrenheit instead.</p>
+    <p><strong>What it should do:</strong> Build a <code>Temperature</code> class storing the value internally in Celsius, with a <code>celsius</code> <code>@property</code> and <code>@celsius.setter</code> that raises <code>ValueError</code> if the value is below -273.15 (absolute zero), a read-only <code>fahrenheit</code> <code>@property</code> that computes <code>celsius * 9/5 + 32</code> on the fly, and a <code>@classmethod</code> alternative constructor <code>from_fahrenheit(cls, f)</code> that converts an incoming Fahrenheit value to Celsius before constructing the instance. Menu options: create a temperature from Celsius, create one from Fahrenheit, view both units for a stored temperature, attempt to set an invalid (impossibly low) value to see the validation reject it, and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep a running list of <code>Temperature</code> objects (or just one "current" temperature if you want to keep it simpler), and derive <code>fahrenheit</code> purely from the stored <code>celsius</code> value inside its getter &mdash; never store both independently, or they could drift out of sync with each other.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Product Catalog with Price Validation</h3>
+    <p><strong>Problem:</strong> An online store's product catalog needs every listed price to always be a sane, non-negative number &mdash; a bug or bad data import that sets a price to a negative value would let an order actually charge a customer negative money, or crash a checkout calculation downstream.</p>
+    <p><strong>What it should do:</strong> Build a <code>Product</code> class with a <code>name</code> attribute, a <code>price</code> <code>@property</code> with a <code>@price.setter</code> that rejects negative values (<code>raise ValueError</code>), a <code>@staticmethod</code> <code>is_valid_sku(sku)</code> that checks a product SKU code matches a fixed format (e.g. three uppercase letters followed by four digits), and a <code>@classmethod</code> <code>from_discount(cls, name, sku, original_price, discount_percent)</code> alternative constructor that computes a discounted price before constructing the instance. Menu options: add a product at full price, add a discounted product, update a product's price, list all products, and quit.</p>
+    <p><strong>Suggested approach:</strong> Validate the SKU inside <code>__init__</code> using the staticmethod (the same pattern this chapter's <code>BankAccount.__init__</code> uses for <code>is_valid_account_number</code>), and have <code>from_discount</code> compute <code>original_price * (1 - discount_percent / 100)</code> before calling <code>cls(...)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Employee Record System with CSV Import</h3>
+    <p><strong>Problem:</strong> An HR or payroll system needs a consistent <code>Employee</code> object for every staff member, but employee data often arrives as a row from a CSV export (from a different system, or a spreadsheet HR maintains) rather than as neatly separated function arguments.</p>
+    <p><strong>What it should do:</strong> Build an <code>Employee</code> class with <code>name</code>, <code>role</code>, and <code>salary</code> instance attributes, a <code>salary</code> <code>@property</code> with a <code>@salary.setter</code> that rejects a negative salary, and a <code>@classmethod</code> <code>from_csv_row(cls, row)</code> alternative constructor that takes a single comma-separated string like <code>"Sam Rivera,Engineer,95000"</code>, splits it, and builds an <code>Employee</code> from the pieces. Menu options: add an employee manually (prompting for each field), add an employee by pasting a CSV row, give an employee a raise (validated through the property), list all employees, and quit.</p>
+    <p><strong>Suggested approach:</strong> Reuse Chapter 13's <code>csv</code> module ideas conceptually even without reading an actual file &mdash; <code>row.split(",")</code> on a single pasted line is enough to build the three pieces <code>from_csv_row</code> needs, then <code>cls(name, role, float(salary_str))</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Rectangle/Circle Shape Validator</h3>
+    <p><strong>Problem:</strong> A drawing or CAD-style tool needs shape objects whose dimensions are always physically valid (no shape can have a negative width, height, or radius), and needs a shared way to validate raw numeric input before it's ever used to build a shape.</p>
+    <p><strong>What it should do:</strong> Build a <code>Rectangle</code> class with <code>width</code> and <code>height</code> <code>@property</code>/<code>@x.setter</code> pairs that each reject non-positive values, an <code>area()</code> instance method, and a <code>@staticmethod</code> <code>is_positive_number(value)</code> that both setters call internally to check a value before accepting it. Do the same for a separate <code>Circle</code> class with a <code>radius</code> property and an <code>area()</code> method. Menu options: create a rectangle, create a circle, view a shape's area, attempt to set an invalid (zero or negative) dimension to see the validation reject it, and quit.</p>
+    <p><strong>Suggested approach:</strong> Since <code>Rectangle</code> and <code>Circle</code> are two separate, unrelated classes at this stage (no inheritance until Chapter 16), define <code>is_positive_number</code> as a <code>@staticmethod</code> on each class separately, or as a plain standalone function shared by both if you want to avoid repeating it &mdash; both are reasonable until Chapter 16 introduces a shared parent class as the cleaner fix.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -137,7 +137,14 @@ window.PFE_MODULES = [
         { id: "dunder-methods", title: "Dunder methods (__str__, __repr__)" },
         { id: "bringing-together", title: "Real-world OOP basics" }
       ] },
-      { id: "chapter-15", num: 15, title: "OOP Deeper", path: null },
+      { id: "chapter-15", num: 15, title: "OOP Deeper", path: "chapters/chapter-15-oop-deeper/lesson.html", subtopics: [
+        { id: "static-methods", title: "@staticmethod" },
+        { id: "class-methods", title: "@classmethod & alternative constructors" },
+        { id: "encapsulation-privacy", title: "Encapsulation & privacy" },
+        { id: "properties-getters", title: "@property getters" },
+        { id: "property-setters", title: "Property setters" },
+        { id: "bringing-together", title: "Real-world deeper OOP" }
+      ] },
       { id: "chapter-16", num: 16, title: "Inheritance & Polymorphism", path: null }
     ]
   },

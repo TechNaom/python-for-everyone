@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 15 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 15: OOP Deeper, including two Debug the Code tasks — a property getter missing its @property decorator, and a property setter that accepts any value without validating it.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-15">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 15 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: OOP Deeper</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. None of these exercises need any sample data files.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> <code>@staticmethod</code></h3>
+    <p>Write a class <code>TemperatureTools</code> with a static method <code>is_valid_celsius(value)</code> that returns <code>True</code> if <code>value</code> is an <code>int</code> or <code>float</code> and is greater than or equal to <code>-273.15</code> (absolute zero), and <code>False</code> otherwise. Call it with <code>25</code> and with <code>-500</code> and print both results.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>@classmethod</code> &amp; an alternative constructor</h3>
+    <p>Write a class <code>Employee</code> whose <code>__init__</code> takes <code>name</code> and <code>salary</code>, storing both as instance attributes. Add a class method <code>from_string(cls, employee_data)</code> that takes one comma-separated string like <code>"Alice,60000"</code>, splits it, and returns a new <code>Employee</code> built with <code>cls(...)</code>. Create one <code>Employee</code> with <code>Employee("Priya", 72000)</code> and one with <code>Employee.from_string("Sam,58000")</code>, then print each one's <code>name</code> and <code>salary</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Encapsulation with a single underscore</h3>
+    <p>Write a class <code>Vault</code> whose <code>__init__</code> takes <code>contents</code> and stores it as <code>self._contents</code> (single underscore, by convention). Give it an instance method <code>peek(self)</code> that returns <code>self._contents</code>. Create a <code>Vault</code> with <code>"gold bars"</code> and print the result of calling <code>peek()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> <code>@property</code> getter</h3>
+    <p>Write a class <code>Circle</code> whose <code>__init__</code> takes <code>radius</code> and stores it as <code>self._radius</code>. Add a read-only property <code>radius</code> that returns <code>self._radius</code>. Create a <code>Circle</code> with radius <code>4</code> and print <code>circle.radius</code> (no parentheses).</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Property setter with validation</h3>
+    <p>Write a class <code>Thermostat</code> whose <code>__init__</code> takes <code>temperature</code> and stores it as <code>self._temperature</code>. Add a <code>temperature</code> property with a getter that returns <code>self._temperature</code>, and a setter that raises <code>ValueError</code> if the new value is below <code>-50</code> or above <code>150</code>, otherwise stores it. Create a <code>Thermostat</code> at <code>70</code>, set its <code>temperature</code> to <code>72</code> and print it, then try setting it to <code>200</code> inside a <code>try</code>/<code>except ValueError</code> block and print the caught error message.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Bringing it together</h3>
+    <p>Write a class <code>Product</code> that combines this chapter's tools: a class attribute <code>store_name = "Downtown Market"</code>; <code>__init__</code> taking <code>name</code> and <code>price</code>, storing <code>price</code> through the property (not directly as <code>self._price</code>) so validation runs immediately; a static method <code>is_valid_price(value)</code> returning <code>True</code> only for a positive <code>int</code>/<code>float</code>; a <code>price</code> property with a getter and a setter that raises <code>ValueError</code> for any non-positive value using <code>is_valid_price</code>; and a <code>__str__</code> returning <code>f"{self.name}: ${self.price:.2f}"</code>. Create a <code>Product</code> named <code>"Notebook"</code> priced at <code>2.5</code>, print it, then try setting its <code>price</code> to <code>-1</code> inside a <code>try</code>/<code>except ValueError</code> block and print the caught error message.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This <code>Circle</code> class's <code>area</code> is meant to be a property, but it's missing the <code>@property</code> decorator — so <code>circle.area</code>, accessed like an attribute, raises a <code>TypeError</code> instead of returning the computed area. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_missing_property.py</span>
+      </div>
+      <pre><code>class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    def area(self):
+        return 3.14159 * self.radius ** 2
+
+circle = Circle(3)
+print(round(circle.area, 2))</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This <code>Account</code> class has a <code>balance</code> property and a matching <code>@balance.setter</code>, but the setter accepts any value at all — including negative numbers — defeating the entire point of wrapping <code>_balance</code> in a property. Find and fix the setter so it raises <code>ValueError</code> for any negative value instead of silently accepting it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_setter_no_validation.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value):
+        self._balance = value
+
+acct = Account("Alice", 100)
+acct.balance = 250
+print(acct.balance)
+acct.balance = -30
+print(acct.balance)</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

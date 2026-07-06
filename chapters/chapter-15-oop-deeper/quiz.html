@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 15 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 15: OOP Deeper.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-15" data-active-chapter="chapter-15">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 15 Quiz</span>
+  <h1>OOP Deeper</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> Which decorator marks a method that needs neither <code>self</code> nor the class itself?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">@classmethod</button>
+        <button type="button" class="mcq-option" data-correct="true">@staticmethod</button>
+        <button type="button" class="mcq-option" data-correct="false">@property</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> A ____ method is marked with <code>@staticmethod</code> and behaves like a regular function that just happens to live inside the class's namespace.</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="static" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> Given <code>Account.is_valid_amount(-10)</code> defined as <code>isinstance(amount, (int, float)) and amount &gt; 0</code>, what does it return?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="true">False</button>
+        <button type="button" class="mcq-option" data-correct="false">True</button>
+        <button type="button" class="mcq-option" data-correct="false">-10</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> Which decorator marks a method whose first parameter is <code>cls</code>, the class itself?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">@staticmethod</button>
+        <button type="button" class="mcq-option" data-correct="false">@property</button>
+        <button type="button" class="mcq-option" data-correct="true">@classmethod</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What is the single most common real-world use case for <code>@classmethod</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Validating a number before use</button>
+        <button type="button" class="mcq-option" data-correct="true">An alternative constructor, like <code>Account.from_string(...)</code></button>
+        <button type="button" class="mcq-option" data-correct="false">Printing an object nicely</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> Inside a <code>@classmethod</code>, calling <code>____(owner, balance)</code> instead of hardcoding the class name keeps the method correct even if the class is later renamed.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="cls" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What does <code>Account.from_string("Bob,250.0")</code> most likely return, given <code>from_string</code> splits on the comma and calls <code>cls(owner, float(balance))</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">The string <code>"Bob,250.0"</code> unchanged</button>
+        <button type="button" class="mcq-option" data-correct="true">A new <code>Account</code> object with owner <code>"Bob"</code> and balance <code>250.0</code></button>
+        <button type="button" class="mcq-option" data-correct="false">A <code>TypeError</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> In Python, what does a single leading underscore, like <code>_balance</code>, actually do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">It makes the attribute impossible to access from outside the class</button>
+        <button type="button" class="mcq-option" data-correct="true">Nothing enforced — it's only a convention signaling "internal, don't touch"</button>
+        <button type="button" class="mcq-option" data-correct="false">It makes the attribute read-only</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> Inside a class named <code>Account</code>, what does Python internally rename <code>self.__balance</code> to?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>self.balance</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>self.__private_balance</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>self._Account__balance</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> A double leading underscore, like <code>__balance</code>, triggers name ____, a stronger (but still not unbreakable) hint that an attribute is internal.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="mangling" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> Python's privacy philosophy is often summarized as which phrase?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">"Private by default"</button>
+        <button type="button" class="mcq-option" data-correct="true">"We're all consenting adults"</button>
+        <button type="button" class="mcq-option" data-correct="false">"Locked unless declared open"</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> Which decorator turns a getter method into something accessed like a plain attribute, without parentheses?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">@classmethod</button>
+        <button type="button" class="mcq-option" data-correct="true">@property</button>
+        <button type="button" class="mcq-option" data-correct="false">@staticmethod</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> Given a <code>balance</code> property with only a getter defined, what happens when you write <code>acct.balance()</code> with parentheses?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">It returns the balance, same as <code>acct.balance</code></button>
+        <button type="button" class="mcq-option" data-correct="true">It raises a <code>TypeError</code>, since the property isn't callable</button>
+        <button type="button" class="mcq-option" data-correct="false">It resets the balance to zero</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> <code>acct.balance</code> reads more naturally than <code>acct.get_balance()</code> because a property is accessed like a plain ____, not called like a method.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="attribute" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> What happens if a property has a getter defined but no setter, and code tries <code>acct.balance = 300</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">It silently succeeds</button>
+        <button type="button" class="mcq-option" data-correct="true">It raises an <code>AttributeError</code></button>
+        <button type="button" class="mcq-option" data-correct="false">It overwrites the getter method itself</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq16-label"><span class="q-num">16</span> Which decorator, written just below a <code>@property</code> getter, marks the method that runs on <code>obj.name = value</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq16-label">
+        <button type="button" class="mcq-option" data-correct="false">@name.getter</button>
+        <button type="button" class="mcq-option" data-correct="true">@name.setter</button>
+        <button type="button" class="mcq-option" data-correct="false">@setproperty</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq17-label"><span class="q-num">17</span> Given a <code>balance.setter</code> that raises <code>ValueError</code> when <code>value &lt; 0</code>, what happens after <code>acct.balance = -50</code> fails?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq17-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>acct._balance</code> becomes <code>-50</code> anyway</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>acct._balance</code> keeps its previous value, unchanged</button>
+        <button type="button" class="mcq-option" data-correct="false">The <code>Account</code> object is deleted</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A property setter is the natural place to ____ data right at the point of assignment, instead of trusting every caller to remember a separate check.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="validate" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq19-label"><span class="q-num">19</span> Why can a class safely upgrade a plain attribute to a validated property later on?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq19-label">
+        <button type="button" class="mcq-option" data-correct="false">Because Python automatically rewrites every other file that used the old attribute</button>
+        <button type="button" class="mcq-option" data-correct="true">Because the property is still accessed with the exact same attribute syntax, so existing callers don't need to change</button>
+        <button type="button" class="mcq-option" data-correct="false">Because properties are only visible to new code written after the upgrade</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq20-label"><span class="q-num">20</span> Which of these is still off-limits in Chapter 15, saved for Chapter 16?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq20-label">
+        <button type="button" class="mcq-option" data-correct="false">@staticmethod</button>
+        <button type="button" class="mcq-option" data-correct="false">@property setters</button>
+        <button type="button" class="mcq-option" data-correct="true">Inheritance (<code>class Child(Parent):</code>)</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq21-label"><span class="q-num">21</span> A validation helper like <code>is_valid_amount</code> is a good candidate for <code>@staticmethod</code> mainly because:</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq21-label">
+        <button type="button" class="mcq-option" data-correct="false">It needs to build new <code>Account</code> objects</button>
+        <button type="button" class="mcq-option" data-correct="true">Its logic doesn't depend on any specific object's data, only the input given to it</button>
+        <button type="button" class="mcq-option" data-correct="false">It must run before <code>__init__</code> every time</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 15 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

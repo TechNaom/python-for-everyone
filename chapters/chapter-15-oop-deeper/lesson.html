@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 15: OOP Deeper — Python for Everyone</title>
+<meta name="description" content="Static methods, class methods and alternative constructors, encapsulation and 'private' attribute conventions, and turning a plain attribute into a validated property with a getter and setter — the deeper OOP tools that make classes safe to evolve without breaking existing code.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-15">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 15 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">60 min read</span>
+  </div>
+  <h1>OOP Deeper</h1>
+  <p><em>Chapter 14 built classes that store data and act on it through <code>self</code>. Real classes need more than that: a helper that belongs to the class but doesn't touch any one object's data, a second way to build an object besides <code>__init__</code>, a convention for signaling "don't touch this from outside," and a way to validate data the instant it's assigned instead of hoping every caller remembers to call a setter method. This chapter covers all four, still without touching inheritance.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>These are all still just tools inside one class</strong> — nothing here involves one class extending another. Inheritance is Chapter 16.</li>
+      <li><strong>Sub-topics build toward one idea:</strong> a class can start simple and grow safely. A plain attribute today can become a validated property tomorrow without breaking any code that already uses the class.</li>
+      <li><strong>Python has no true "private" keyword.</strong> Sub-topic 3 covers the honest reality of Python's privacy conventions before Sub-topics 4 and 5 show why that matters for properties.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#static-methods">1. <code>@staticmethod</code></a>
+    <a href="#class-methods">2. <code>@classmethod</code> &amp; alternative constructors</a>
+    <a href="#encapsulation-privacy">3. Encapsulation &amp; "private" attributes</a>
+    <a href="#properties-getters">4. <code>@property</code></a>
+    <a href="#property-setters">5. Property setters</a>
+    <a href="#bringing-together">6. Real-world deeper OOP in production</a>
+  </nav>
+
+  <div class="hook">
+    Picture a banking app's <code>Account</code> class six months after launch. It shipped with a plain <code>balance</code> attribute, and by now dozens of other files read and write <code>acct.balance</code> directly. Then a bug report comes in: nothing stops <code>acct.balance = -500</code> from silently creating an account in the red. Rewriting every one of those dozens of call sites to use a new <code>set_balance()</code> method would take days and risk missing one. This chapter's tools — <code>@property</code> especially — are exactly how experienced Python developers solve this without breaking anything already using the class.
+  </div>
+
+  <div class="subtopic" id="static-methods">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. <code>@staticmethod</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>static method</strong> lives inside a class for logical organization, but doesn't need <code>self</code> or the class itself to do its job.</li>
+        <li>It's marked with the <code>@staticmethod</code> decorator directly above the method definition.</li>
+        <li>Use it for a helper that's clearly <em>related</em> to the class, even though it doesn't read or change any specific object's data.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every method in Chapter 14 took <code>self</code> as its first parameter, because every one of them touched some object's own data. Not every useful method actually needs that.
+    </div>
+
+    <p>
+      Take a validation check like "is this a usable deposit amount?" It doesn't need to know which account is depositing — it only needs the amount itself:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a static method?</span>
+      A static method is a method that belongs to a class for
+      organizational purposes, but takes neither <code>self</code> nor
+      the class itself as a parameter. It behaves like a regular
+      function that just happens to live inside the class's namespace.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">static_method_demo.py</span>
+      </div>
+      <pre><code>class Account:
+    @staticmethod
+    def is_valid_amount(amount):
+        return isinstance(amount, (int, float)) and amount > 0
+
+print(Account.is_valid_amount(50))
+print(Account.is_valid_amount(-10))
+print(Account.is_valid_amount("fifty"))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of static_method_demo.py</span>
+      <pre><code>True
+False
+False</code></pre>
+    </div>
+
+    <p>
+      Notice <code>Account.is_valid_amount(50)</code> is called directly
+      on the class, not on an object — there's no account involved yet,
+      because none is needed. This is the tell that a method should be
+      static: if the body never touches <code>self.anything</code>, it
+      doesn't need <code>self</code> at all.
+    </p>
+
+    <p>
+      A static method still gets used from inside instance methods,
+      keeping the validation logic in exactly one place instead of
+      copy-pasted everywhere a deposit might happen:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">static_method_used_internally.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    @staticmethod
+    def is_valid_amount(amount):
+        return isinstance(amount, (int, float)) and amount > 0
+
+    def deposit(self, amount):
+        if not Account.is_valid_amount(amount):
+            print("Invalid deposit amount.")
+            return
+        self.balance += amount
+
+acct = Account("Alice", 100)
+acct.deposit(50)
+print(acct.balance)
+acct.deposit(-20)
+print(acct.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of static_method_used_internally.py</span>
+      <pre><code>150
+Invalid deposit amount.
+150</code></pre>
+    </div>
+
+    <p>
+      <code>deposit</code> still uses <code>self</code>, because it
+      changes <code>self.balance</code>. <code>is_valid_amount</code>
+      never needs <code>self</code>, because checking whether a number
+      is valid has nothing to do with any specific account.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">class Account:
+    @staticmethod
+    def is_valid_amount(amount):
+        return isinstance(amount, (int, float)) and amount > 0
+
+print(Account.is_valid_amount(100))
+print(Account.is_valid_amount(0))
+print(Account.is_valid_amount(-5))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a check for amount == 0, since 0 isn't > 0 already.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: static methods also run fine on an instance</summary>
+      <p>
+        <code>acct.is_valid_amount(50)</code> works exactly the same as
+        <code>Account.is_valid_amount(50)</code> — Python doesn't pass
+        <code>acct</code> in as an extra argument, since the method was
+        never defined to accept it. Most codebases still prefer calling
+        static methods on the class directly, since that reads as "this
+        doesn't depend on any specific object."
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A static method, marked with <code>@staticmethod</code>, takes no <code>self</code> and no class parameter.</li>
+        <li>Use it for a helper that's logically related to the class but doesn't need any specific object's data.</li>
+        <li>It's called on the class directly, like <code>Account.is_valid_amount(50)</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="class-methods">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. <code>@classmethod</code> &amp; alternative constructors</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>class method</strong> takes <code>cls</code> (the class itself) as its first parameter instead of <code>self</code>.</li>
+        <li>It's marked with <code>@classmethod</code>, and can read class attributes or even build new instances via <code>cls(...)</code>.</li>
+        <li>The single most common real use is an <strong>alternative constructor</strong> — a second way to build an object besides <code>__init__</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> <code>__init__</code> only supports one calling pattern. Real data doesn't always arrive in that exact shape — sometimes it arrives as one comma-separated string from a file, and reshaping it shouldn't be the caller's problem.
+    </div>
+
+    <p>
+      A class method looks almost identical to a static method, except
+      for that first parameter:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>cls</code>?</span>
+      <code>cls</code> refers to the class itself, the same way
+      <code>self</code> refers to one specific object. Python fills it
+      in automatically for any method marked <code>@classmethod</code>,
+      the same automatic-first-argument rule <code>self</code> already
+      follows.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">classmethod_basic.py</span>
+      </div>
+      <pre><code>class Account:
+    bank_name = "Acme Bank"
+
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    @classmethod
+    def bank_info(cls):
+        return f"{cls.bank_name} (accounts built from {cls.__name__})"
+
+print(Account.bank_info())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of classmethod_basic.py</span>
+      <pre><code>Acme Bank (accounts built from Account)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a class method?</span>
+      A class method, marked with <code>@classmethod</code>, takes
+      <code>cls</code> as its first parameter instead of <code>self</code>.
+      It operates on the class itself — its class attributes, or building
+      new instances of it — rather than any one object's data.
+    </div>
+
+    <p>
+      The genuinely useful pattern shows up when a class needs a second
+      way to build an object. Picture account data arriving from a file
+      as one string, <code>"Bob,250.0"</code>, instead of two separate
+      arguments — an <strong>alternative constructor</strong> reshapes it
+      before handing off to <code>__init__</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">alternative_constructor.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    @classmethod
+    def from_string(cls, account_data):
+        owner, balance = account_data.split(",")
+        return cls(owner, float(balance))
+
+    def __str__(self):
+        return f"Account(owner={self.owner!r}, balance={self.balance})"
+
+acct1 = Account("Alice", 100)
+acct2 = Account.from_string("Bob,250.0")
+print(acct1)
+print(acct2)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of alternative_constructor.py</span>
+      <pre><code>Account(owner='Alice', balance=100)
+Account(owner='Bob', balance=250.0)</code></pre>
+    </div>
+
+    <p>
+      <code>cls(owner, float(balance))</code> is doing exactly what
+      <code>Account(owner, float(balance))</code> would do — calling
+      <code>cls</code> instead of hardcoding <code>Account</code> means
+      this same method would still work correctly even if this class
+      were renamed later. <code>from_string</code> reads as "build an
+      <code>Account</code> a different way," while <code>__init__</code>
+      stays the one place that actually sets up the object's attributes.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="12">class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    @classmethod
+    def from_string(cls, account_data):
+        owner, balance = account_data.split(",")
+        return cls(owner, float(balance))
+
+acct = Account.from_string("Priya,500")
+print(acct.owner, acct.balance)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try building a second account from a different string.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just use @staticmethod here instead?</summary>
+      <p>
+        <code>from_string</code> could technically be written as a
+        static method that calls <code>Account(...)</code> directly by
+        name — but then renaming the class would silently break every
+        alternative constructor still hardcoding the old name. Using
+        <code>cls(...)</code> is the one real reason to reach for
+        <code>@classmethod</code> instead of <code>@staticmethod</code>
+        when building new instances.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A class method, marked <code>@classmethod</code>, takes <code>cls</code> (the class) as its first parameter.</li>
+        <li>Its most common real use is an alternative constructor — a second way to build an object, reshaping different input before calling <code>cls(...)</code>.</li>
+        <li>Using <code>cls(...)</code> instead of the hardcoded class name keeps the method correct even if the class is later renamed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="encapsulation-privacy">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Encapsulation &amp; "private" attributes</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A single leading underscore, like <code>_balance</code>, is a <strong>convention</strong> signaling "treat this as internal" — Python does not actually enforce it.</li>
+        <li>A double leading underscore, like <code>__balance</code>, triggers <strong>name mangling</strong>, a much stronger (but still not truly unbreakable) hint.</li>
+        <li>Python's philosophy here is often summarized as "we're all consenting adults" — there's no true enforced privacy like some other languages have.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the next two sub-topics wrap a "private" attribute in a property — this sub-topic explains what "private" honestly means in Python first, so that doesn't read as a contradiction.
+    </div>
+
+    <p>
+      Some languages have a <code>private</code> keyword that the
+      compiler genuinely enforces — code outside the class simply
+      cannot access that attribute at all. Python has no such keyword.
+      Instead, a single underscore prefix is a naming convention every
+      Python developer recognizes:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the single-underscore convention?</span>
+      A name like <code>_balance</code> signals "this is an internal
+      implementation detail — don't touch it directly from outside the
+      class," but Python enforces absolutely nothing. The underscore is
+      purely a communication tool between developers.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">single_underscore_demo.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    def deposit(self, amount):
+        self._balance += amount
+
+acct = Account("Alice", 100)
+acct.deposit(50)
+print(acct._balance)
+acct._balance = -999
+print(acct._balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of single_underscore_demo.py — nothing stopped the direct assignment</span>
+      <pre><code>150
+-999</code></pre>
+    </div>
+
+    <p>
+      <code>acct._balance = -999</code> ran without any error at all —
+      the underscore is a signal to a human reading the code, not a lock
+      Python checks. This is exactly the gap Sub-topic 5's property
+      setter closes.
+    </p>
+
+    <p>
+      A double underscore prefix, like <code>__balance</code>, goes one
+      step further with a real (if narrow) mechanism called
+      <strong>name mangling</strong>:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... name mangling?</span>
+      Python internally rewrites <code>__balance</code> (inside a class
+      named <code>Account</code>) to <code>_Account__balance</code>. This
+      makes accidental access or accidental overriding by unrelated code
+      much less likely, but it's still not a true lock — the mangled
+      name is discoverable and still directly accessible.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">double_underscore_demo.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.__balance = balance
+
+    def get_balance(self):
+        return self.__balance
+
+acct = Account("Alice", 100)
+print(acct.get_balance())
+print(acct._Account__balance)
+try:
+    print(acct.__balance)
+except AttributeError as e:
+    print("AttributeError:", e)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of double_underscore_demo.py</span>
+      <pre><code>100
+100
+AttributeError: 'Account' object has no attribute '__balance'</code></pre>
+    </div>
+
+    <p>
+      <code>acct.__balance</code> fails, since that exact name was never
+      actually created — Python quietly renamed it to
+      <code>_Account__balance</code> during class creation. But
+      <code>acct._Account__balance</code> still works, proving this is
+      an obstacle, not a wall.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... "we're all consenting adults"?</span>
+      A well-known summary of Python's design philosophy on privacy:
+      the language trusts developers not to reach into another class's
+      internals just because a language feature happens to make it
+      technically possible, rather than trying to physically prevent it.
+    </div>
+
+    <p>
+      The practical takeaway most Python codebases actually follow: use
+      a single underscore, like <code>_balance</code>, to mark
+      "internal, please don't touch directly" — and reach for
+      <code>@property</code> (Sub-topics 4 and 5) when there's a real
+      need to actually control access, rather than relying on naming
+      alone.
+    </p>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: double underscore is usually overkill</summary>
+      <p>
+        Name mangling exists mainly to prevent accidental name clashes
+        in larger class hierarchies (relevant once inheritance enters
+        the picture in Chapter 16), not as a privacy tool for everyday
+        classes. Most real Python code reaches for a single underscore,
+        not two, for routine "internal" attributes.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A single underscore, like <code>_balance</code>, is an unenforced convention meaning "internal, don't touch directly."</li>
+        <li>A double underscore, like <code>__balance</code>, triggers name mangling to <code>_ClassName__name</code> — a stronger hint, still not a true lock.</li>
+        <li>Python's "we're all consenting adults" philosophy means there's no truly enforced private access, unlike some other languages.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="properties-getters">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. <code>@property</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>property</strong> is a getter method that's <em>accessed</em> like a plain attribute, not called like a method.</li>
+        <li>It's created by putting <code>@property</code> directly above a method that returns a value.</li>
+        <li><code>acct.balance</code> reads more naturally than <code>acct.get_balance()</code>, while still running real code behind the scenes.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 3 stored the real value in <code>_balance</code> precisely so a property could control access to it — this is where that setup pays off.
+    </div>
+
+    <p>
+      A method decorated with <code>@property</code> is called without
+      parentheses at all, exactly like reading a regular attribute:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a property?</span>
+      A property is a method marked with <code>@property</code> that
+      gets accessed using plain attribute syntax, like
+      <code>acct.balance</code>, instead of method-call syntax like
+      <code>acct.balance()</code>. It behaves like an attribute from the
+      outside, while still running actual code every time it's read.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">property_demo.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+acct = Account("Alice", 100)
+print(acct.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of property_demo.py</span>
+      <pre><code>100</code></pre>
+    </div>
+
+    <p>
+      <code>acct.balance</code> — no parentheses — runs the
+      <code>balance</code> method and returns its result. Writing
+      <code>acct.balance()</code> instead would actually raise a
+      <code>TypeError</code>, since the property is no longer callable
+      once it's wrapped this way; it behaves as an attribute now, fully.
+    </p>
+
+    <p>
+      The real reason this beats a plain <code>get_balance()</code>
+      method is readability at the call site — compare them side by
+      side:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">getter_vs_property.py</span>
+      </div>
+      <pre><code>class AccountOld:
+    def __init__(self, balance):
+        self._balance = balance
+
+    def get_balance(self):
+        return self._balance
+
+class AccountNew:
+    def __init__(self, balance):
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+old = AccountOld(100)
+new = AccountNew(100)
+print(old.get_balance())
+print(new.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of getter_vs_property.py — same value, more natural read on the second line</span>
+      <pre><code>100
+100</code></pre>
+    </div>
+
+    <p>
+      <code>new.balance</code> reads like "this account's balance,"
+      matching how <code>acct.owner</code> already reads for a plain
+      attribute — a caller shouldn't need to remember which attributes
+      are "real" and which ones require an extra <code>()</code> just to
+      read.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+acct = Account("Priya", 500)
+print(acct.balance)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try acct.balance() with parentheses to see the TypeError.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: a property with no setter is read-only</summary>
+      <p>
+        <code>Account</code> above has no way to write
+        <code>acct.balance = 300</code> yet — attempting it raises an
+        <code>AttributeError</code>, since only a getter was defined.
+        Sub-topic 5 adds the matching setter to allow controlled
+        assignment.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A property, marked <code>@property</code>, is a getter method accessed like a plain attribute — no parentheses.</li>
+        <li><code>acct.balance</code> reads more naturally than <code>acct.get_balance()</code>, while still running real code.</li>
+        <li>A property with only a getter is read-only — assigning to it raises an error until a setter is added.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="property-setters">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Property setters</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>setter</strong>, marked <code>@balance.setter</code>, runs automatically whenever code writes <code>acct.balance = value</code>.</li>
+        <li>It's the natural place to validate data <em>at the point of assignment</em>, instead of trusting every caller to remember a separate check.</li>
+        <li>The setter method must share the exact same name as the property it's attached to.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 3 showed <code>acct._balance = -999</code> succeeding silently. A setter is how a class actually stops that, without callers needing to remember to call a separate validation method themselves.
+    </div>
+
+    <p>
+      A setter is written just below the matching <code>@property</code>
+      getter, decorated with <code>@name.setter</code> using that same
+      property's name:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a property setter?</span>
+      A setter is a method decorated with <code>@propertyname.setter</code>
+      that Python calls automatically whenever
+      <code>obj.propertyname = value</code> is written. It receives
+      <code>value</code> as a parameter and decides what happens next —
+      including rejecting the assignment entirely.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">property_setter_demo.py</span>
+      </div>
+      <pre><code>class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value):
+        if value < 0:
+            raise ValueError("Balance cannot be negative.")
+        self._balance = value
+
+acct = Account("Alice", 100)
+print(acct.balance)
+acct.balance = 250
+print(acct.balance)
+try:
+    acct.balance = -50
+except ValueError as e:
+    print("ValueError:", e)
+print(acct.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of property_setter_demo.py</span>
+      <pre><code>100
+250
+ValueError: Balance cannot be negative.
+250</code></pre>
+    </div>
+
+    <p>
+      <code>acct.balance = 250</code> looks exactly like assigning to a
+      plain attribute, but it's really calling the setter method with
+      <code>value = 250</code>. <code>acct.balance = -50</code> triggers
+      the exact same setter, and this time the validation check inside
+      it raises <code>ValueError</code> before <code>self._balance</code>
+      is ever touched — the balance stays at <code>250</code>, not
+      <code>-50</code>.
+    </p>
+
+    <p>
+      This is the direct fix for Sub-topic 3's gap: as long as every
+      part of the class reads and writes <code>self.balance</code> (the
+      property) instead of <code>self._balance</code> (the raw
+      attribute) directly, there is now exactly one gatekeeper for every
+      assignment, no matter how many places in a program try to change
+      it.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value):
+        if value < 0:
+            raise ValueError("Balance cannot be negative.")
+        self._balance = value
+
+acct = Account("Bob", 200)
+acct.balance = 500
+print(acct.balance)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try acct.balance = -100 to see the ValueError.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: __init__ can go through the setter too</summary>
+      <p>
+        Writing <code>self.balance = balance</code> inside
+        <code>__init__</code> (instead of <code>self._balance =
+        balance</code>) routes even the very first assignment through
+        the same validation — so <code>Account("Alice", -50)</code>
+        would raise the same <code>ValueError</code> immediately, rather
+        than only catching bad values assigned later.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A setter, marked <code>@name.setter</code>, runs automatically on <code>obj.name = value</code> assignment.</li>
+        <li>It's the natural place to validate data right at the point of assignment, instead of trusting a separate method to be called correctly.</li>
+        <li>Raising an error inside the setter blocks the bad assignment entirely — the underlying attribute is never updated.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world deeper OOP in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Upgrading a plain attribute to a validated property never breaks code that already reads or writes it with plain attribute syntax.</li>
+        <li>Static methods keep related helper logic organized inside the class it serves; class methods provide alternative constructors for real-world data shapes.</li>
+        <li>All four tools from this chapter combine naturally in one realistic class, without needing inheritance.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> it's completely normal — and considered good practice — to start a class with a plain attribute and upgrade to a property only once real validation is actually needed. Nothing about that upgrade requires touching any other file.
+    </div>
+
+    <p>
+      This chapter's opening hook described a real bug: a banking app
+      shipped with a plain <code>balance</code> attribute, and nothing
+      stopped it from going negative. Here's the fix, combining every
+      sub-topic from this chapter into one class:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">account_full.py</span>
+      </div>
+      <pre><code>class Account:
+    bank_name = "Acme Bank"
+
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self._balance = balance
+
+    @staticmethod
+    def is_valid_amount(amount):
+        return isinstance(amount, (int, float)) and amount > 0
+
+    @classmethod
+    def from_string(cls, account_data):
+        owner, balance = account_data.split(",")
+        return cls(owner, float(balance))
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value):
+        if value < 0:
+            raise ValueError("Balance cannot be negative.")
+        self._balance = value
+
+    def deposit(self, amount):
+        if not Account.is_valid_amount(amount):
+            print("Invalid deposit amount.")
+            return
+        self.balance += amount
+
+    def __str__(self):
+        return f"Account(owner={self.owner!r}, balance={self.balance})"
+
+acct1 = Account("Alice", 100)
+acct2 = Account.from_string("Bob,300")
+
+acct1.deposit(50)
+print(acct1)
+print(acct2)
+
+try:
+    acct1.balance = -10
+except ValueError as e:
+    print("ValueError:", e)
+
+print(acct1.balance)
+print(Account.bank_name)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of account_full.py</span>
+      <pre><code>Account(owner='Alice', balance=150)
+Account(owner='Bob', balance=300.0)
+ValueError: Balance cannot be negative.
+150
+Acme Bank</code></pre>
+    </div>
+
+    <p>
+      Every sub-topic is doing real work here: <code>is_valid_amount</code>
+      is a static method, since checking a number needs no specific
+      account; <code>from_string</code> is a class method serving as an
+      alternative constructor for data arriving as one string;
+      <code>_balance</code> follows the single-underscore convention;
+      and the <code>balance</code> property's getter and setter together
+      make sure <code>self.balance += amount</code> inside
+      <code>deposit</code> still passes through the same validation as
+      any other assignment.
+    </p>
+
+    <p>
+      The detail worth sitting with: <code>acct1.deposit(50)</code> and
+      <code>print(acct1.balance)</code> are written exactly the way they
+      would have been written in Chapter 14, before any property
+      existed. A class can start with a plain <code>self.balance</code>
+      attribute and upgrade to this validated property later — every
+      line of code anywhere else that reads or writes
+      <code>acct.balance</code> keeps working completely unchanged,
+      because the syntax on the outside never had to change at all.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Real ORMs and data-validation libraries (the kind that sit behind web forms and databases) lean heavily on properties to validate a field the instant it's assigned, exactly like this chapter's <code>balance</code> setter.</li>
+      <li>Alternative constructors are everywhere in real libraries — building an object <code>from_string</code>, <code>from_dict</code>, or <code>from_json</code> alongside a normal <code>__init__</code> is one of the most common class-method patterns in production Python.</li>
+      <li>Static methods keep a class's file from becoming a dumping ground for unrelated helper functions elsewhere in a codebase — a validation helper tied to one class's data belongs inside that class, not floating in some unrelated utilities file.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's still missing without inheritance?</summary>
+      <p>
+        <code>Account</code> above is still one single, self-contained
+        class — there's no way yet to say "a
+        <code>SavingsAccount</code> is an <code>Account</code>, plus
+        interest," the same gap Chapter 14 left open. That relationship
+        is exactly what Chapter 16 builds directly on top of everything
+        in this chapter.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Static methods, class methods, and properties all combine naturally inside one class, with no inheritance required.</li>
+        <li>Upgrading a plain attribute to a validated property never breaks existing code that reads or writes it using ordinary attribute syntax.</li>
+        <li>Alternative constructors, validation helpers, and validated assignment are genuine, common patterns in real production Python.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Web frameworks and ORMs (the tools behind real websites and databases) validate incoming data through properties exactly like this chapter's <code>balance</code> setter, catching bad values the instant they're assigned rather than downstream.</li>
+      <li>Alternative constructors like <code>from_string</code>, <code>from_dict</code>, and <code>from_json</code> are a standard pattern across real Python libraries for accepting data in whatever shape it actually arrives in.</li>
+      <li>Upgrading a plain attribute to a property without breaking any existing caller is a genuinely common refactor in real, mature codebases — it's a big part of why Python developers default to plain attributes early and add properties only once real validation is actually needed.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A static method (<code>@staticmethod</code>) takes neither <code>self</code> nor <code>cls</code> — use it for a helper that's related to the class but doesn't need any specific object's data.</li>
+      <li>A class method (<code>@classmethod</code>) takes <code>cls</code> as its first parameter; its most common real use is an alternative constructor that reshapes different input before calling <code>cls(...)</code>.</li>
+      <li>A single underscore (<code>_balance</code>) is an unenforced convention for "internal, don't touch"; a double underscore (<code>__balance</code>) triggers name mangling to <code>_ClassName__name</code> — Python has no truly enforced privacy either way.</li>
+      <li>A property (<code>@property</code>) is a getter method accessed like a plain attribute, with no parentheses — it reads more naturally than a separate <code>get_x()</code> method.</li>
+      <li>A property setter (<code>@name.setter</code>) runs automatically on assignment, making it the natural place to validate data right when it's set, instead of trusting every caller to remember a separate check.</li>
+      <li>Upgrading a plain attribute into a validated property never breaks existing code that already reads or writes it with ordinary attribute syntax — this is why starting simple and upgrading later is standard practice, not a shortcut.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
