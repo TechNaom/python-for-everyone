@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 14: OOP Basics, including two Debug the Code tasks — a method missing self causing a TypeError, and a mutable class-attribute list unexpectedly shared across instances.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-14">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 14 Exercises</span>
+    <span class="reading-time">30 min, hands-on</span>
+  </div>
+  <h1>Exercises: OOP Basics</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. None of these exercises need any sample data files.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Classes &amp; objects</h3>
+    <p>Write a class <code>Book</code> with an <code>__init__</code> that takes <code>title</code> and <code>author</code> and stores them as instance attributes. Create two <code>Book</code> objects with different titles/authors and print each one's <code>title</code> and <code>author</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> The <code>__init__</code> method &amp; instance attributes</h3>
+    <p>Write a class <code>Movie</code> whose <code>__init__</code> takes <code>title</code>, <code>year</code>, and <code>rating</code>, storing all three as instance attributes. Create a <code>Movie</code> object for <code>"Arrival"</code>, <code>2016</code>, <code>8.0</code> and print its three attributes.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Instance methods</h3>
+    <p>Write a class <code>Counter</code> whose <code>__init__</code> takes no arguments (besides <code>self</code>) and sets an instance attribute <code>count</code> to <code>0</code>. Give it an instance method <code>increment(self, amount=1)</code> that adds <code>amount</code> to <code>self.count</code>. Create a <code>Counter</code>, call <code>increment()</code> once with no argument and once with <code>5</code>, then print <code>count</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Class attributes vs. instance attributes</h3>
+    <p>Write a class <code>Employee</code> with a class attribute <code>company_name = "Acme Corp"</code>, and an <code>__init__</code> that takes <code>name</code> and <code>salary</code> and stores them as instance attributes. Create two <code>Employee</code> objects and print each one's <code>company_name</code>, <code>name</code>, and <code>salary</code> to show <code>company_name</code> is shared while <code>name</code>/<code>salary</code> are not.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> The mutable class-attribute gotcha</h3>
+    <p>Write a class <code>Playlist</code> whose <code>__init__</code> takes <code>owner</code> and sets <code>self.owner</code>, and sets <code>self.songs</code> to a <strong>new empty list created inside <code>__init__</code></strong> (not a class attribute). Give it an instance method <code>add_song(self, song)</code> that appends to <code>self.songs</code>. Create two <code>Playlist</code> objects, add a different song to each, then print both owners and their song lists to show they stay independent.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Common dunder methods</h3>
+    <p>Write a class <code>Product</code> with an <code>__init__</code> that takes <code>name</code> and <code>price</code>, and a <code>__str__</code> that returns <code>f"{self.name}: ${self.price:.2f}"</code>. Create a <code>Product</code> for <code>"Notebook"</code>, <code>2.5</code> and <code>print()</code> it directly to show <code>__str__</code> is used automatically.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This <code>Timer</code> class's <code>tick</code> method is missing <code>self</code> as its first parameter, so calling <code>timer.tick()</code> raises a <code>TypeError</code>. Find and fix the method definition.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_missing_self.py</span>
+      </div>
+      <pre><code>class Timer:
+    def __init__(self):
+        self.seconds = 0
+
+    def tick():
+        self.seconds += 1
+
+timer = Timer()
+timer.tick()
+timer.tick()
+print(timer.seconds)</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This <code>Team</code> class declares <code>members = []</code> as a <strong>class attribute</strong>, so every <code>Team</code> object ends up sharing and mutating the exact same list. Find and fix it so each <code>Team</code> gets its own independent <code>members</code> list, set up inside <code>__init__</code>.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_shared_list.py</span>
+      </div>
+      <pre><code>class Team:
+    members = []
+
+    def __init__(self, name):
+        self.name = name
+
+    def add_member(self, member):
+        self.members.append(member)
+
+team1 = Team("Falcons")
+team2 = Team("Hawks")
+team1.add_member("Alice")
+team2.add_member("Bob")
+print(team1.name, "->", team1.members)
+print(team2.name, "->", team2.members)</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

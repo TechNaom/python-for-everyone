@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14: OOP Basics — Python for Everyone</title>
+<meta name="description" content="Classes and objects, the __init__ constructor and instance attributes, instance methods and self, class attributes vs. instance attributes (and the mutable-default gotcha), common dunder methods like __str__, and why bundling data and behavior into a class beats a pile of loose dicts and functions.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-14">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 14 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>OOP Basics</h1>
+  <p><em>Every program so far has kept related data in separate variables, or loose dictionaries, and passed them around to separate functions that operate on them. That works, but it gets fragile fast — nothing stops a function meant for one dictionary shape from being called on a completely different one. A <strong>class</strong> is Python's way of bundling data and the behavior that belongs with it into a single, reusable blueprint. This chapter is about building your first classes from scratch.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>A class is a blueprint; an object is a real thing built from it</strong> — the same distinction as a cookie cutter and an actual cookie.</li>
+      <li><strong>Sub-topics build on each other</strong> — what a class even is, then how <code>__init__</code> sets up each object's own data, then methods that act on that data, then the difference between data shared by every object and data unique to one, then making objects print nicely, then tying it all together.</li>
+      <li><strong>This chapter allows general class definitions for the first time.</strong> Chapter 12 only allowed defining custom exception classes; from here on, any class is fair game — but <code>@staticmethod</code>, <code>@classmethod</code>, <code>@property</code>, and inheritance (<code>class Child(Parent):</code>) are still off-limits until Chapters 15 and 16.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#classes-objects">1. Classes &amp; objects</a>
+    <a href="#init-attributes">2. The <code>__init__</code> method &amp; instance attributes</a>
+    <a href="#instance-methods">3. Instance methods</a>
+    <a href="#class-attributes">4. Class attributes vs. instance attributes</a>
+    <a href="#dunder-methods">5. Common dunder methods</a>
+    <a href="#bringing-together">6. Real-world OOP basics in production</a>
+  </nav>
+
+  <div class="hook">
+    Picture a program tracking bank accounts using nothing but variables: <code>alice_balance</code>, <code>alice_owner</code>, <code>bob_balance</code>, <code>bob_owner</code> — and a separate <code>withdraw(balance, amount)</code> function that has no idea whose balance it's even touching. Now picture ten thousand customers. That's the exact problem classes exist to solve — one blueprint, <code>BankAccount</code>, that keeps an account's data and the actions it supports bundled together as one thing.
+  </div>
+
+  <div class="subtopic" id="classes-objects">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Classes &amp; objects</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>class</strong> is a blueprint that describes what data and behavior something should have.</li>
+        <li>An <strong>object</strong> (also called an <strong>instance</strong>) is one actual thing built from that blueprint.</li>
+        <li>Every value used so far — strings, lists, dictionaries — is already an object built from a class Python provides; this chapter is about writing your own.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a dictionary like <code>{"owner": "Alice", "balance": 100}</code> stores data, but nothing stops a typo like <code>row["blance"]</code> from silently creating a new key instead of raising an error, and there's no way to attach a <code>withdraw()</code> action directly to it. A class fixes both problems at once.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a class?</span>
+      A class is a blueprint — a definition of what data a thing has and
+      what it can do — but it isn't a thing by itself, the same way a
+      cookie cutter isn't a cookie. Nothing exists yet just because a
+      class is defined.
+    </div>
+
+    <p>
+      A minimal class needs only the <code>class</code> keyword and a name,
+      written in <code>CapitalizedWords</code> by convention:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">minimal_class.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    pass
+
+print(BankAccount)
+print(type(BankAccount))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of minimal_class.py</span>
+      <pre><code>&lt;class '__main__.BankAccount'&gt;
+&lt;class 'type'&gt;</code></pre>
+    </div>
+
+    <p>
+      <code>BankAccount</code> by itself is just the blueprint — no
+      account exists yet. Calling the class like a function creates an
+      <strong>object</strong>, a real instance built from that blueprint:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... an object (or instance)?</span>
+      An object is one actual thing created from a class — the cookie,
+      not the cutter. A program can create many separate objects from the
+      same class, each one independent of the others.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">first_object.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    pass
+
+acct = BankAccount()
+print(acct)
+print(type(acct))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of first_object.py — a real BankAccount object now exists in memory</span>
+      <pre><code>&lt;__main__.BankAccount object at 0x7f2a1c0d4d90&gt;
+&lt;class '__main__.BankAccount'&gt;</code></pre>
+    </div>
+
+    <p>
+      That <code>0x7f2a...</code> is just a memory address — proof this
+      really is one specific object, distinct from any other
+      <code>BankAccount</code> that gets created later. It looks messy
+      because this class hasn't told Python how to describe itself yet;
+      Sub-topic 5 fixes that.
+    </p>
+
+    <p>
+      This isn't a brand-new idea, either — every value used since
+      Chapter 1 has secretly been an object of some built-in class:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">everything_is_an_object.py</span>
+      </div>
+      <pre><code>print(type("hello"))
+print(type(42))
+print(type([1, 2, 3]))
+print(type({"a": 1}))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of everything_is_an_object.py</span>
+      <pre><code>&lt;class 'str'&gt;
+&lt;class 'int'&gt;
+&lt;class 'list'&gt;
+&lt;class 'dict'&gt;</code></pre>
+    </div>
+
+    <p>
+      <code>str</code>, <code>int</code>, <code>list</code>, and
+      <code>dict</code> are all classes Python already provides — a
+      string is an object built from the <code>str</code> blueprint, the
+      same relationship <code>acct</code> has with <code>BankAccount</code>
+      above. Writing a custom class just means designing a new blueprint
+      for a shape of data Python doesn't already provide out of the box.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">class BankAccount:
+    pass
+
+acct1 = BankAccount()
+acct2 = BankAccount()
+print(acct1 is acct2)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try creating a third object and comparing it too.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why loose dicts and functions eventually break down</summary>
+      <p>
+        A dictionary shape like <code>{"owner": ..., "balance": ...}</code>
+        only exists by convention — nothing enforces that every account
+        dictionary in a program actually has both keys spelled
+        correctly, and nothing ties a <code>withdraw()</code> function to
+        that shape specifically. A class makes the shape and its
+        behavior part of one definition, so every object built from it
+        is guaranteed to have the same structure.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A class is a blueprint; it doesn't exist as a "thing" by itself.</li>
+        <li>An object (instance) is one real thing created from a class, using <code>ClassName()</code>.</li>
+        <li>Every value in Python — strings, lists, dicts, and now custom classes — is an object of some class.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="init-attributes">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. The <code>__init__</code> method &amp; instance attributes</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>__init__</code> is a special method that runs automatically every time a new object is created.</li>
+        <li><code>self</code> refers to the specific object being created or acted on — it's always the first parameter.</li>
+        <li><code>self.name = value</code> creates an <strong>instance attribute</strong> — data that belongs to that one object only.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> an empty <code>BankAccount()</code> from Sub-topic 1 has no owner and no balance — <code>__init__</code> is how a class fills in an object's starting data the moment it's created.
+    </div>
+
+    <p>
+      <code>__init__</code> ("dunder init," short for the double
+      underscores on each side) is defined like any other function, but
+      Python calls it automatically whenever <code>ClassName(...)</code>
+      runs:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">init_demo.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+acct1 = BankAccount("Alice", 100)
+acct2 = BankAccount("Bob", 250)
+
+print(acct1.owner, acct1.balance)
+print(acct2.owner, acct2.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of init_demo.py</span>
+      <pre><code>Alice 100
+Bob 250</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>__init__</code>?</span>
+      <code>__init__</code> is the <strong>constructor</strong> — a
+      method Python runs automatically right after a new object is
+      created, used to set up that object's starting data.
+      <code>BankAccount("Alice", 100)</code> creates the object and
+      immediately calls <code>__init__(self, "Alice", 100)</code> on it.
+    </div>
+
+    <p>
+      Notice <code>self</code> is never actually passed in when calling
+      <code>BankAccount("Alice", 100)</code> — only two arguments are
+      given, yet <code>__init__</code> lists three parameters.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>self</code>?</span>
+      <code>self</code> is how a method refers to the specific object
+      it's working on. Python fills it in automatically — it's the
+      object itself, supplied behind the scenes, so a call site never
+      writes it explicitly. Every method defined inside a class lists
+      <code>self</code> as its first parameter for this reason.
+    </div>
+
+    <p>
+      <code>self.owner = owner</code> is where the real work happens —
+      it creates an <strong>instance attribute</strong> called
+      <code>owner</code>, attached to that one specific object:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... an instance attribute?</span>
+      An instance attribute is a piece of data that belongs to one
+      specific object, set with <code>self.name = value</code> inside a
+      method (almost always <code>__init__</code>). Two objects from the
+      same class each get their own independent copy.
+    </div>
+
+    <p>
+      Tracing <code>acct1</code> and <code>acct2</code> side by side
+      shows exactly how independent they are — changing one never
+      touches the other:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">acct1 and acct2 — two separate objects, two separate sets of attributes</span>
+      <pre><code>acct1  ->  owner = "Alice"   balance = 100
+acct2  ->  owner = "Bob"     balance = 250</code></pre>
+    </div>
+
+    <p>
+      This is the core benefit over a loose dictionary: <code>acct1</code>
+      and <code>acct2</code> are guaranteed to have the exact same
+      attributes (<code>owner</code> and <code>balance</code>), because
+      both were built from the same <code>__init__</code> — there's no
+      way to accidentally create one with a typo'd attribute name that
+      the rest of the program doesn't expect.
+    </p>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: __init__ can take default values too</summary>
+      <p>
+        <code>__init__</code> is an ordinary function underneath, so
+        Chapter 3's default-argument syntax still works:
+        <code>def __init__(self, owner, balance=0):</code> lets
+        <code>BankAccount("Alice")</code> create an account that starts
+        at a balance of <code>0</code> without requiring a second
+        argument every time.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>__init__</code> runs automatically when <code>ClassName(...)</code> creates a new object.</li>
+        <li><code>self</code> is the object itself, filled in automatically as the first parameter of every method.</li>
+        <li><code>self.name = value</code> creates an instance attribute — data unique to that one object.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="instance-methods">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Instance methods</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>An <strong>instance method</strong> is a function defined inside a class that operates on one object's own data via <code>self</code>.</li>
+        <li><code>self</code> is always the first parameter, exactly like in <code>__init__</code> — it's how the method knows which object's data to use.</li>
+        <li>Calling <code>acct.deposit(50)</code> automatically passes <code>acct</code> in as <code>self</code>; nothing extra is written at the call site.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> an action naturally belongs to one specific object's data — depositing into one account, not "deposit in general."
+    </div>
+
+    <p>
+      <code>BankAccount</code> can only store data so far. An instance
+      method adds behavior that reads and changes an object's own
+      attributes:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">instance_method_demo.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print("Insufficient funds.")
+            return
+        self.balance -= amount
+
+acct = BankAccount("Alice", 100)
+acct.deposit(50)
+print(acct.balance)
+acct.withdraw(30)
+print(acct.balance)
+acct.withdraw(1000)
+print(acct.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of instance_method_demo.py</span>
+      <pre><code>150
+120
+Insufficient funds.
+120</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an instance method?</span>
+      An instance method is a function defined inside a class that takes
+      <code>self</code> as its first parameter, letting it read and
+      modify that specific object's attributes. <code>deposit</code> and
+      <code>withdraw</code> above are both instance methods of
+      <code>BankAccount</code>.
+    </div>
+
+    <p>
+      <code>acct.deposit(50)</code> only supplies one argument,
+      <code>50</code>, at the call site — yet <code>deposit</code> is
+      defined with two parameters, <code>self</code> and
+      <code>amount</code>. Python fills <code>self</code> in as
+      <code>acct</code> automatically, the same rule <code>__init__</code>
+      already followed in Sub-topic 2. This is exactly why <code>self</code>
+      is always written first: it's a fixed convention every method
+      follows, not something decided case by case.
+    </p>
+
+    <p>
+      Every reference to <code>self.balance</code> inside
+      <code>deposit</code> and <code>withdraw</code> means "this
+      particular account's balance" — never any other account's. Two
+      separate <code>BankAccount</code> objects calling
+      <code>.deposit()</code> never interfere with each other:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">independent_methods_demo.py</span>
+      </div>
+      <pre><code>acct1 = BankAccount("Alice", 100)
+acct2 = BankAccount("Bob", 250)
+
+acct1.deposit(20)
+acct2.withdraw(50)
+
+print(acct1.owner, acct1.balance)
+print(acct2.owner, acct2.balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of independent_methods_demo.py</span>
+      <pre><code>Alice 120
+Bob 200</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+acct = BankAccount("Alice", 100)
+acct.deposit(75)
+print(acct.owner, acct.balance)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try calling acct.deposit() a second time.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: forgetting self is a common, very real mistake</summary>
+      <p>
+        Leaving <code>self</code> off a method definition — writing
+        <code>def deposit(amount):</code> instead of
+        <code>def deposit(self, amount):</code> — causes a confusing
+        <code>TypeError</code> the moment the method is called, because
+        Python still tries to pass the object in as the first argument
+        automatically. This is one of the single most common beginner
+        mistakes with classes; Task 7 in this chapter's exercises works
+        through exactly this bug.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>An instance method is a function inside a class that takes <code>self</code> as its first parameter.</li>
+        <li><code>self</code> refers to whichever object the method was called on — filled in automatically, never written at the call site.</li>
+        <li>Each object's instance methods only ever touch that object's own attributes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="class-attributes">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Class attributes vs. instance attributes</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>class attribute</strong> is defined directly inside the class body (not inside <code>__init__</code>) and is shared by every instance.</li>
+        <li>An <strong>instance attribute</strong> (from Sub-topic 2) belongs to one object only.</li>
+        <li>A <em>mutable</em> class attribute, like a list, is especially dangerous — every instance shares the exact same list object.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the same trap as Chapter 10's mutable default argument, wearing a different disguise — shared mutable state causing changes to leak between places that should be independent.
+    </div>
+
+    <p>
+      A class attribute is written once, inside the class body, outside
+      any method — every object built from the class sees the same
+      value unless something overrides it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">class_attribute_demo.py</span>
+      </div>
+      <pre><code>class Employee:
+    company_name = "Acme Corp"
+
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+
+emp1 = Employee("Alice", 60000)
+emp2 = Employee("Bob", 55000)
+
+print(emp1.company_name, emp1.name, emp1.salary)
+print(emp2.company_name, emp2.name, emp2.salary)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of class_attribute_demo.py</span>
+      <pre><code>Acme Corp Alice 60000
+Acme Corp Bob 55000</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a class attribute?</span>
+      A class attribute is a value defined directly in the class body,
+      not inside <code>__init__</code>, shared by every instance of that
+      class instead of being copied per object. <code>company_name</code>
+      above belongs to the <code>Employee</code> class itself.
+    </div>
+
+    <p>
+      Changing it on the class updates it everywhere at once — every
+      existing object immediately sees the new value, since they were
+      never given their own separate copy:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">class_attribute_shared_change.py</span>
+      </div>
+      <pre><code>Employee.company_name = "Acme Corporation"
+print(emp1.company_name)
+print(emp2.company_name)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of class_attribute_shared_change.py</span>
+      <pre><code>Acme Corporation
+Acme Corporation</code></pre>
+    </div>
+
+    <p>
+      That sharing is exactly the point for something genuinely common
+      to every instance, like a company name. It becomes a serious bug,
+      though, the moment the shared value is <strong>mutable</strong> —
+      something that can be changed in place, like a list.
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">ShoppingCart with items as a class attribute — the bug, traced instance by instance</span>
+      <pre><code>class ShoppingCart:
+    items = []   # <- BUG: one list, shared by every instance
+
+    def __init__(self, owner):
+        self.owner = owner
+
+    def add_item(self, item):
+        self.items.append(item)
+
+cart1 = ShoppingCart("Alice")
+cart2 = ShoppingCart("Bob")
+
+cart1.add_item("Book")
+cart2.add_item("Headphones")
+
+cart1.owner -> "Alice"   cart1.items -> ['Book', 'Headphones']
+cart2.owner -> "Bob"     cart2.items -> ['Book', 'Headphones']
+                                         ^^^^^^^^^^^^^^^^^^^^^
+                                         both carts see BOTH items</code></pre>
+    </div>
+
+    <p>
+      <code>cart2</code> never called <code>add_item("Book")</code>, yet
+      <code>"Book"</code> shows up in its cart too — because
+      <code>cart1.items</code> and <code>cart2.items</code> are, secretly,
+      the exact same list object in memory. <code>.append()</code>
+      mutates that one shared list, and every instance looks at it and
+      sees the change.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the mutable class attribute trap?</span>
+      Defining a mutable value like <code>items = []</code> directly in
+      the class body makes every instance share that one object — a
+      change made through any single instance is visible through all of
+      them. This is the exact same failure mode as Chapter 10's mutable
+      default argument, just triggered by a class body instead of a
+      function signature.
+    </div>
+
+    <p>
+      The fix is the same instinct Chapter 10 already taught: give each
+      object its own fresh list inside <code>__init__</code>, as an
+      instance attribute, instead of sharing one at the class level:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">shopping_cart_fixed.py</span>
+      </div>
+      <pre><code>class ShoppingCart:
+    def __init__(self, owner):
+        self.owner = owner
+        self.items = []  # FIX: each instance gets its own empty list
+
+    def add_item(self, item):
+        self.items.append(item)
+
+cart1 = ShoppingCart("Alice")
+cart2 = ShoppingCart("Bob")
+
+cart1.add_item("Book")
+cart2.add_item("Headphones")
+
+print(cart1.owner, "->", cart1.items)
+print(cart2.owner, "->", cart2.items)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of shopping_cart_fixed.py — now genuinely independent</span>
+      <pre><code>Alice -> ['Book']
+Bob -> ['Headphones']</code></pre>
+    </div>
+
+    <p>
+      The rule to carry forward: class attributes are for values that
+      are genuinely meant to be identical across every instance and
+      never mutated in place (a company name, a fixed tax rate). Any
+      per-object collection — a list, a dictionary — belongs in
+      <code>__init__</code> as an instance attribute instead.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="11">class ShoppingCart:
+    def __init__(self, owner):
+        self.owner = owner
+        self.items = []
+
+    def add_item(self, item):
+        self.items.append(item)
+
+cart1 = ShoppingCart("Alice")
+cart2 = ShoppingCart("Bob")
+cart1.add_item("Book")
+print(cart1.items, cart2.items)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try removing self.items = [] from __init__ to see the bug come back.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: checking with is to confirm it's really the same object</summary>
+      <p>
+        <code>cart1.items is cart2.items</code> returns <code>True</code>
+        in the buggy version above and <code>False</code> in the fixed
+        one — <code>is</code> (from Chapter 8) checks whether two names
+        point at the literal same object in memory, which is the most
+        direct way to confirm this bug's actual cause.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A class attribute is defined in the class body and shared by every instance.</li>
+        <li>An instance attribute, set in <code>__init__</code> with <code>self.name = value</code>, belongs to one object only.</li>
+        <li>A mutable class attribute (like a list) is silently shared and mutated across every instance — give each object its own copy in <code>__init__</code> instead.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="dunder-methods">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Common dunder ("magic") methods</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>dunder method</strong> is a method with double underscores on both sides, like <code>__init__</code>, that Python calls automatically in specific situations.</li>
+        <li><code>__str__</code> controls what <code>print(obj)</code> and <code>str(obj)</code> show.</li>
+        <li><code>__repr__</code> is a closely related dunder meant for an unambiguous, developer-facing description.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 1's default printout, <code>&lt;__main__.BankAccount object at 0x7f2a...&gt;</code>, tells a user precisely nothing useful — a memory address is meaningless to anyone reading program output.
+    </div>
+
+    <p>
+      <code>__init__</code> was this chapter's first dunder method —
+      "dunder" is short for <strong>d</strong>ouble
+      <strong>under</strong>score, referring to the
+      <code>__</code> on each side of the name. Python defines several
+      dunders that get called automatically in specific situations,
+      rather than being called directly by name.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a dunder method?</span>
+      A dunder ("magic") method is a method named with double
+      underscores before and after, like <code>__init__</code> or
+      <code>__str__</code>, that Python calls automatically for a
+      specific built-in operation — object creation, printing,
+      comparisons, and more — instead of being called directly.
+    </div>
+
+    <p>
+      Without a <code>__str__</code>, printing an object falls back to
+      that unhelpful default:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">no_str_demo.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+acct = BankAccount("Alice", 100)
+print(acct)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of no_str_demo.py — a memory address, meaningless to any reader</span>
+      <pre><code>&lt;__main__.BankAccount object at 0x7c347b890d70&gt;</code></pre>
+    </div>
+
+    <p>
+      Defining <code>__str__</code> tells Python exactly what
+      <code>print(acct)</code> should show instead:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">str_demo.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def __str__(self):
+        return f"BankAccount(owner={self.owner!r}, balance={self.balance})"
+
+acct = BankAccount("Alice", 100)
+print(acct)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of str_demo.py</span>
+      <pre><code>BankAccount(owner='Alice', balance=100)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>__str__</code>?</span>
+      <code>__str__</code> is a method that must return a string, called
+      automatically whenever an object is passed to <code>print()</code>
+      or <code>str()</code>. It's how a class controls its own
+      readable, human-facing description.
+    </div>
+
+    <p>
+      <code>__repr__</code> is a close sibling, meant for an unambiguous
+      description aimed at a developer inspecting a value (in a
+      debugger, or typed directly at an interactive prompt), rather than
+      end-user-facing output. If <code>__str__</code> is missing,
+      <code>print()</code> falls back to <code>__repr__</code> instead
+      of the raw memory address:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">repr_demo.py</span>
+      </div>
+      <pre><code>class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def __str__(self):
+        return f"BankAccount(owner={self.owner!r}, balance={self.balance})"
+
+    def __repr__(self):
+        return f"BankAccount({self.owner!r}, {self.balance})"
+
+acct = BankAccount("Alice", 100)
+print(acct)
+print(str(acct))
+print(repr(acct))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of repr_demo.py</span>
+      <pre><code>BankAccount(owner='Alice', balance=100)
+BankAccount(owner='Alice', balance=100)
+BankAccount('Alice', 100)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>__repr__</code>?</span>
+      <code>__repr__</code> returns a developer-facing description of an
+      object, used by <code>repr()</code> and shown automatically when an
+      object is typed directly at an interactive prompt. A common
+      convention is writing it to look like the exact code that would
+      recreate the object, as <code>BankAccount('Alice', 100)</code> does
+      above.
+    </div>
+
+    <p>
+      A class only strictly needs <code>__str__</code> for this
+      chapter's purposes — <code>__repr__</code> is worth recognizing by
+      name, but not something every class here is required to define.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="9">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def __str__(self):
+        return f"BankAccount(owner={self.owner!r}, balance={self.balance})"
+
+acct = BankAccount("Bob", 250)
+print(acct)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try removing __str__ to see the default printout return.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: there are many more dunders than __str__ and __repr__</summary>
+      <p>
+        <code>__eq__</code> (controls <code>==</code>), <code>__len__</code>
+        (controls <code>len(obj)</code>), and <code>__add__</code>
+        (controls <code>+</code>) are a few of many others — each one
+        hooks a class into a built-in Python operation. <code>__str__</code>
+        is simply the one nearly every custom class ends up needing.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A dunder method has double underscores on both sides and is called automatically by Python, not by name directly.</li>
+        <li><code>__str__</code> controls what <code>print(obj)</code> and <code>str(obj)</code> display.</li>
+        <li><code>__repr__</code> is the developer-facing counterpart, used as a fallback by <code>print()</code> and shown at an interactive prompt.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world OOP basics in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A realistic inventory system bundles data and behavior for each product into one class, instead of parallel lists or a pile of loose dictionaries.</li>
+        <li>Every sub-topic in this chapter shows up together: <code>__init__</code> for setup, instance methods for behavior, a class attribute for shared configuration, and <code>__str__</code> for readable output.</li>
+        <li>Inheritance, polymorphism, and <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code> are real, useful tools — and exactly what Chapters 15 and 16 build on top of this foundation.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> reach for a class the moment several pieces of data always travel together <em>and</em> have behavior specific to them — that combination is the actual signal, not "everything should be a class."
+    </div>
+
+    <p>
+      Picture a small store's inventory tracked the way earlier chapters
+      would have handled it — a list of dictionaries, plus separate
+      functions that each have to know the dictionary's exact shape:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">before_classes.py</span>
+      </div>
+      <pre><code>def restock(product, amount):
+    product["quantity"] += amount
+
+def sell(product, amount):
+    if amount > product["quantity"]:
+        print("Not enough stock.")
+        return
+    product["quantity"] -= amount
+
+widget = {"name": "Widget", "quantity": 10, "price": 4.99}
+restock(widget, 5)
+sell(widget, 3)
+print(widget)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of before_classes.py</span>
+      <pre><code>{'name': 'Widget', 'quantity': 12, 'price': 4.99}</code></pre>
+    </div>
+
+    <p>
+      This works for one small script, but nothing connects
+      <code>restock</code> and <code>sell</code> to the dictionary shape
+      they depend on — a typo like <code>product["qty"]</code> would fail
+      silently in a different part of a larger program. A
+      <code>Product</code> class bundles the data and its behavior into
+      one guaranteed shape instead:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">product_class.py</span>
+      </div>
+      <pre><code>class Product:
+    store_name = "Downtown Hardware"  # shared by every Product
+
+    def __init__(self, name, quantity, price):
+        self.name = name
+        self.quantity = quantity
+        self.price = price
+
+    def restock(self, amount):
+        self.quantity += amount
+
+    def sell(self, amount):
+        if amount > self.quantity:
+            print("Not enough stock.")
+            return
+        self.quantity -= amount
+
+    def __str__(self):
+        return f"{self.name}: {self.quantity} units @ ${self.price:.2f}"
+
+widget = Product("Widget", 10, 4.99)
+widget.restock(5)
+widget.sell(3)
+print(widget.store_name, "-", widget)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of product_class.py</span>
+      <pre><code>Downtown Hardware - Widget: 12 units @ $4.99</code></pre>
+    </div>
+
+    <p>
+      Every sub-topic from this chapter is doing real work in that one
+      class: <code>__init__</code> guarantees every <code>Product</code>
+      has the same three attributes, <code>restock</code> and
+      <code>sell</code> are instance methods that only ever touch their
+      own object's data, <code>store_name</code> is a class attribute
+      because it's genuinely the same for every product in this one
+      store, and <code>__str__</code> makes <code>print(widget)</code>
+      actually useful instead of a memory address.
+    </p>
+
+    <p>
+      This is also exactly where a program built entirely from loose
+      dicts and functions starts to strain: adding a tenth kind of
+      product-related function means checking every one of them still
+      assumes the same dictionary shape everywhere it's called. A class
+      keeps that shape and its behavior defined in exactly one place.
+    </p>
+
+    <p>
+      What this chapter deliberately leaves out is just as important as
+      what it covers. Every <code>Product</code> above is a completely
+      separate, unrelated class — there's no way yet to say "a
+      <code>PerishableProduct</code> is a <code>Product</code>, plus an
+      expiration date." That relationship, called
+      <strong>inheritance</strong>, along with
+      <strong>polymorphism</strong> and the
+      <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code>
+      decorators, is exactly what Chapters 15 and 16 build directly on
+      top of everything learned here.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Real inventory, user-account, and order-tracking systems all bundle related data and behavior into classes exactly like <code>Product</code> above, rather than passing loose dictionaries between unrelated functions.</li>
+      <li>Class attributes model genuinely shared configuration (a store name, a tax rate) while instance attributes model what's unique to each object — mixing the two up is a real, common source of bugs in production code.</li>
+      <li><code>__str__</code> is why printing a real-world object in a Python program (a database row, an API response) usually shows something readable instead of a raw memory address.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: how do you know when something deserves to be a class?</summary>
+      <p>
+        A good signal: does this data always travel together, and does
+        it have behavior that only makes sense applied to that specific
+        data? A <code>Product</code>'s name, quantity, and price always
+        travel together, and <code>restock</code>/<code>sell</code> only
+        make sense applied to one specific product — that combination is
+        the actual signal, not simply "this program has gotten big."
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A class bundles data and behavior together, replacing parallel dictionaries and loose functions that all have to agree on a shape by convention alone.</li>
+        <li>This chapter's <code>Product</code> example uses every sub-topic together: <code>__init__</code>, instance methods, a class attribute, and <code>__str__</code>.</li>
+        <li>Inheritance, polymorphism, and <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code> build directly on this foundation in Chapters 15 and 16.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Nearly every real Python codebase — web frameworks, data pipelines, game engines — is organized around classes bundling related data and behavior, exactly like this chapter's <code>BankAccount</code> and <code>Product</code>.</li>
+      <li>The mutable class-attribute bug from Sub-topic 4 is a genuinely common real-world mistake, not a toy example — it shows up whenever a class accidentally defines a list or dictionary at the class level instead of inside <code>__init__</code>.</li>
+      <li>A missing <code>__str__</code> is why debugging real production code sometimes shows a wall of <code>&lt;object at 0x...&gt;</code> noise in logs — defining it is a small habit that pays off constantly when reading real output.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A class is a blueprint; an object (instance) is one real thing built from it with <code>ClassName()</code> — every value in Python, including strings and lists, is already an object of some class.</li>
+      <li><code>__init__</code> runs automatically when an object is created, and <code>self.name = value</code> inside it sets up that object's own instance attributes; <code>self</code> is always the first parameter of every method, filled in automatically.</li>
+      <li>An instance method takes <code>self</code> and operates on one object's own attributes; calling <code>obj.method(args)</code> passes <code>obj</code> in as <code>self</code> automatically.</li>
+      <li>A class attribute, defined in the class body, is shared by every instance; a mutable class attribute like a list is a real bug risk, since every instance secretly shares and mutates the same object — give each instance its own copy in <code>__init__</code> instead.</li>
+      <li><code>__str__</code> controls what <code>print(obj)</code> shows; <code>__repr__</code> is the developer-facing counterpart, used as a fallback and at an interactive prompt.</li>
+      <li>General class definitions are allowed from this chapter forward — but inheritance and <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code> wait until Chapters 15 and 16.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

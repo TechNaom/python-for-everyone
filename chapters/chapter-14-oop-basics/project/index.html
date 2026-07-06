@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 Project: Library Management System — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven library management system built around a Book class and a Library class — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-14">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 14 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Library Management System</h1>
+  <p>A menu-driven library management system built <strong>around general classes</strong> as its core organizing principle &mdash; a <code>Book</code> class (with <code>__init__</code>, instance attributes like <code>title</code>/<code>author</code>/<code>isbn</code>/<code>is_checked_out</code>, <code>check_out()</code>/<code>return_book()</code> instance methods, and a <code>__str__</code> for readable printing) is the real centerpiece, and every menu operation works with real <code>Book</code> objects instead of a pile of separate dicts and functions. A <code>Library</code> class holds the running list of <code>Book</code> objects for the session and the operations that act on that collection, matching Chapter 10's function-library pattern &mdash; just now organized around a class instead of loose functions.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Library Management System ===
+Loaded 3 book(s) into the library.
+
+1. Add a book
+2. Check out a book
+3. Return a book
+4. Search by title
+5. Search by author
+6. List all books
+7. Quit
+Choose an option (1-7): 2
+
+ISBN of the book to check out: 0001
+Checked out: "Dune" by Frank Herbert (ISBN 0001) -- checked out
+
+1. Add a book
+2. Check out a book
+3. Return a book
+4. Search by title
+5. Search by author
+6. List all books
+7. Quit
+Choose an option (1-7): 6
+
+All books (3):
+  "Dune" by Frank Herbert (ISBN 0001) -- checked out
+  "The Hobbit" by J.R.R. Tolkien (ISBN 0002) -- available
+  "Foundation" by Isaac Asimov (ISBN 0003) -- available
+
+1. Add a book
+2. Check out a book
+3. Return a book
+4. Search by title
+5. Search by author
+6. List all books
+7. Quit
+Choose an option (1-7): 7
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice how much of this chapter shows up in one small program: a <code>Book</code> class bundling data (title, author, ISBN, checked-out status) with the behavior that makes sense on it (<code>check_out</code>, <code>return_book</code>), a <code>Library</code> class managing a running collection of those objects with its list correctly created inside <code>__init__</code> (not as a shared class attribute), and a <code>__str__</code> method turning every book into a clean, readable line instead of Python's default <code>&lt;__main__.Book object at 0x...&gt;</code> output. That's the entire point of this project &mdash; once related data and behavior are bundled into a class, the rest of the program barely needs to know how a <code>Book</code> works internally at all; it just calls <code>book.check_out()</code> or prints <code>book</code> and trusts the class to handle the rest.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    An object model built around a <code>Book</code> class (<code>__init__</code>,
+    <code>check_out()</code>, <code>return_book()</code>, <code>__str__</code>)
+    and a <code>Library</code> class (<code>add_book</code>,
+    <code>find_by_isbn</code>, <code>search_by_title</code>,
+    <code>search_by_author</code>, <code>all_books</code>) &mdash; wired to a
+    <code>while True</code> menu loop with seven options: add a book, check
+    out a book, return a book, search by title, search by author, list all
+    books, or quit. Three books are seeded into the library at startup so
+    the menu has something to work with right away.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    This project doesn't read any external file, so it can be run from
+    anywhere. Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The object model</h2>
+  <ul>
+    <li><code>Book.__init__(self, title, author, isbn, is_checked_out=False)</code> &mdash; sets every book's instance attributes. <code>is_checked_out</code> defaults to <code>False</code> since a newly added book is available in essentially every real case.</li>
+    <li><code>Book.check_out(self)</code> &mdash; marks the book checked out and returns <code>True</code>, or returns <code>False</code> if it was already checked out (no double checkout).</li>
+    <li><code>Book.return_book(self)</code> &mdash; marks the book returned and returns <code>True</code>, or returns <code>False</code> if it wasn't checked out in the first place.</li>
+    <li><code>Book.__str__(self)</code> &mdash; returns a readable one-line string like <code>"Dune" by Frank Herbert (ISBN 0001) -- available</code>, so listing books reads naturally instead of showing raw memory addresses.</li>
+    <li><code>Library.__init__(self)</code> &mdash; sets <code>self.books = []</code> <strong>inside <code>__init__</code></strong>, not as a class attribute, so every <code>Library</code> instance gets its own independent list instead of accidentally sharing one (the classic mutable-class-attribute bug this chapter's interview questions cover).</li>
+    <li><code>Library.add_book</code>, <code>find_by_isbn</code>, <code>search_by_title</code>, <code>search_by_author</code>, <code>all_books</code> &mdash; the operations that act on the running collection of <code>Book</code> objects.</li>
+    <li><code>print_books(books)</code> &mdash; prints a list of <code>Book</code> objects, one per line, relying on each book's own <code>__str__</code> for readable output.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "remove a book" option that only allows removing a book if it isn't currently checked out, reusing <code>Library.find_by_isbn</code>.</li>
+    <li>Add a <code>Library.checked_out_books()</code> method (a list comprehension filtering on <code>.is_checked_out</code>) and a matching menu option to show only what's currently out.</li>
+    <li>Give <code>Book</code> a <code>due_date</code> instance attribute (using the <code>datetime</code> module from Chapter 8) that gets set when a book is checked out, and print it as part of <code>__str__</code> whenever a book is checked out.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>A public library's catalog system, a small bookstore's inventory tracker, a company's internal equipment checkout log &mdash; all of these are, underneath, the exact same shape as this project: real-world "things" (books, laptops, tools) that have a consistent shape (a title, an owner, a status) and clear behavior attached to them (checking something out, returning it, searching for it). That's the real skill this project practices &mdash; once a program has more than a handful of related pieces of data with recurring behavior attached, bundling them into a class keeps the code self-documenting and organized in a way a pile of separate dicts and functions never quite manages once a program grows past a few screens of code.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Library Management System above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 14 (everything through Chapter 13's file-handling material, plus general class definitions, <code>__init__</code>, instance/class attributes, instance methods, and <code>__str__</code>/<code>__repr__</code> &mdash; no <code>@staticmethod</code>/<code>@classmethod</code>/<code>@property</code> and no inheritance, since those are Chapters 15 and 16). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Student Grade Tracker</h3>
+    <p><strong>Problem:</strong> A teacher or tutor needs a simple way to track several students' scores across assignments and quickly see who's doing well and who needs help, without re-deriving each student's average by hand every time a new score comes in.</p>
+    <p><strong>What it should do:</strong> Build a <code>Student</code> class with instance attributes for name and a list of scores, an <code>add_score(score)</code> instance method, an <code>average()</code> instance method, and a <code>__str__</code> that shows the student's name and current average. Menu options: add a student, record a score for a student, show one student's average, list all students sorted by average (highest first), and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep a plain list of <code>Student</code> objects as the running session state, and use <code>sorted(students, key=lambda s: s.average(), reverse=True)</code> for the sorted listing &mdash; <code>lambda</code> and <code>sorted</code> with a <code>key</code> were both covered in earlier chapters.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Inventory Management System</h3>
+    <p><strong>Problem:</strong> A small shop or warehouse needs to track how many units of each product it has on hand, flag items running low, and update quantities as stock comes in or gets sold &mdash; doing this with loose variables gets unmanageable past a handful of products.</p>
+    <p><strong>What it should do:</strong> Build a <code>Product</code> class with instance attributes for name, price, and quantity-on-hand, a <code>restock(amount)</code> instance method, a <code>sell(amount)</code> instance method that refuses to sell more than what's in stock, and a <code>__str__</code> showing name, price, and current quantity. Menu options: add a product, restock a product, record a sale, list all products, list products below a low-stock threshold, and quit.</p>
+    <p><strong>Suggested approach:</strong> Store products in a plain list (or a dict keyed by product name), and have <code>sell(amount)</code> return <code>True</code>/<code>False</code> the same way this chapter's <code>Book.check_out()</code> does, so the menu code can react to a failed sale without needing to know the class's internals.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> To-Do List with Priority Levels</h3>
+    <p><strong>Problem:</strong> A plain flat to-do list treats every task as equally urgent, which doesn't match how real work actually gets prioritized &mdash; some tasks are genuinely more time-sensitive than others.</p>
+    <p><strong>What it should do:</strong> Build a <code>Task</code> class with instance attributes for description, priority (e.g. <code>"High"</code>/<code>"Medium"</code>/<code>"Low"</code>), and a done/pending status, a <code>mark_done()</code> instance method, and a <code>__str__</code> that shows the description, priority, and status together. Menu options: add a task with a priority, list all tasks grouped or sorted by priority, mark a task done by number, remove a task by number, and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep tasks in a list of <code>Task</code> objects, and for the priority-sorted listing, map each priority string to a number (e.g. <code>{"High": 0, "Medium": 1, "Low": 2}</code>) and pass that mapping into <code>sorted(..., key=...)</code> &mdash; the same dict-based lookup pattern from Chapter 11.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Music Playlist Manager</h3>
+    <p><strong>Problem:</strong> A music app needs to represent individual songs and the playlists that group them, and let a user build, browse, and reorder those playlists &mdash; a plain list of song-title strings loses useful details like artist and duration.</p>
+    <p><strong>What it should do:</strong> Build a <code>Song</code> class with instance attributes for title, artist, and duration (in seconds), plus a <code>__str__</code> that formats duration as <code>mm:ss</code>. Build a <code>Playlist</code> class holding a list of <code>Song</code> objects with an <code>add_song(song)</code> instance method and a <code>total_duration()</code> instance method that sums every song's duration. Menu options: add a song to the playlist, list all songs with their formatted duration, show the playlist's total duration, remove a song by title, and quit.</p>
+    <p><strong>Suggested approach:</strong> Formatting <code>mm:ss</code> inside <code>Song.__str__</code> just needs integer division and modulo on the stored seconds (<code>f"{duration // 60}:{duration % 60:02d}"</code>) &mdash; no new math tools needed, just applying them inside a dunder method instead of a loose function.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

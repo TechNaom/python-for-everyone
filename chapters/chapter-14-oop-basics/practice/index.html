@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 14: OOP Basics, including interview-style scenario problems on classes and objects, __init__, instance methods, class attributes, and __str__/__repr__.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-14">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 14 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: OOP Basics</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This is the
+    chapter where general classes become allowed: everything from
+    Chapters 1-13 (including custom exception classes) plus class
+    definitions, <code>__init__</code>, instance attributes, class
+    attributes, instance methods, and <code>__str__</code>/<code>__repr__</code>.
+    No <code>@staticmethod</code>, <code>@classmethod</code>,
+    <code>@property</code> (Chapter 15), inheritance (Chapter 16), or any
+    import beyond <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#classes-objects">1. Classes &amp; Objects</a>
+    <a href="#init-attributes">2. __init__ and Instance Attributes</a>
+    <a href="#instance-methods">3. Instance Methods &amp; self</a>
+    <a href="#class-attributes">4. Class Attributes vs. Instance Attributes</a>
+    <a href="#dunder-methods">5. __str__ and __repr__</a>
+    <a href="#bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="classes-objects">Topic 1: Classes &amp; Objects</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A blueprint, two objects</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write a <code>Book</code> class with just <code>pass</code>, create two separate instances, and confirm they're independent objects with <code>is</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Setting attributes from outside</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write a <code>Dog</code> class with just <code>pass</code>, then set <code>.name</code>/<code>.breed</code> directly on an instance from outside the class.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Describing an instance</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Write <code>describe_instance(obj)</code>, showing an object's default string form alongside <code>type(obj).__name__</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Independent instance data</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write a <code>Wallet</code> class, set <code>.balance</code> on only one of two instances, and catch the <code>AttributeError</code> on the other.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This code assigns the same <code>Ticket</code> object to two names instead of creating two separate instances. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Modeling real-world "things" as objects</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Create two independent <code>SupportTicket</code> instances with their own <code>.subject</code> values.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Class vs. object</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_class_vs_object()</code>, explaining the difference between a class and an object.</p>
+  </div>
+
+  <h2 id="init-attributes">Topic 2: <code>__init__</code> and Instance Attributes</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Storing constructor arguments</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write a <code>Book</code> class with <code>__init__(self, title, author)</code> storing both as instance attributes.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A simple coordinate class</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write a <code>Point</code> class with <code>__init__(self, x, y)</code> storing both.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A default constructor argument</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write an <code>Employee</code> class with <code>__init__(self, name, salary=50000)</code>, using a default argument.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Two stored dimensions</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Write a <code>Rectangle</code> class with <code>__init__(self, width, height)</code> storing both.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This <code>__init__</code> assigns to a local variable <code>name</code> instead of <code>self.name</code>, losing the value. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Building a user record at signup</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>UserAccount</code> with <code>__init__(self, username, email)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What is <code>__init__</code>, really?</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_init()</code>, explaining what <code>__init__</code> actually is and when Python calls it.</p>
+  </div>
+
+  <h2 id="instance-methods">Topic 3: Instance Methods &amp; <code>self</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A method that changes state</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write a <code>Counter</code> class with <code>increment(self)</code> that adds 1 to <code>self.value</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Deposit and withdraw</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write a <code>BankAccount</code> class with <code>deposit(self, amount)</code> and <code>withdraw(self, amount)</code> methods.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A computed method</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Write a <code>Rectangle</code> class with an <code>area(self)</code> method returning <code>self.width * self.height</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A method returning a string</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write a <code>Greeter</code> class with a <code>greet(self)</code> method returning a personalized string.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This method is missing <code>self</code> as its first parameter. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A shopping cart's running total</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>ShoppingCart</code> with <code>add_item(self, name, price)</code> updating a running list and total.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What does <code>self</code> actually mean?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_self()</code>, explaining what <code>self</code> refers to and why every instance method needs it.</p>
+  </div>
+
+  <h2 id="class-attributes">Topic 4: Class Attributes vs. Instance Attributes</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A shared constant</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write a <code>Circle</code> class with a shared class attribute <code>pi</code> and an <code>area(self)</code> method that uses it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Shared across every instance</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write an <code>Employee</code> class with a shared class attribute <code>company_name</code>, confirmed identical across instances.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A class-level counter</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write a <code>Product</code> class with a class attribute <code>total_products_created</code> incremented in <code>__init__</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Overriding on one instance</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write a <code>Vehicle</code> class with a class attribute <code>wheels</code>, then override it on one instance and show the class attribute is untouched.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code (the mutable class attribute gotcha)</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This <code>Cart</code> class defines <code>items = []</code> at the class level instead of inside <code>__init__</code>, so every instance shares one list. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A shared interest rate across all accounts</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>SavingsAccount</code> with a class-level <code>interest_rate</code> applied in <code>apply_interest(self)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The mutable class attribute bug</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_mutable_class_attribute_bug()</code>, explaining the bug and why it happens.</p>
+  </div>
+
+  <h2 id="dunder-methods">Topic 5: <code>__str__</code> and <code>__repr__</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A friendly print</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write a <code>Book</code> class with a <code>__str__(self)</code> method used automatically by <code>print()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> An unambiguous developer view</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write a <code>Point</code> class with a <code>__repr__(self)</code> method used automatically by <code>repr()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Both at once</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write a <code>Temperature</code> class with both <code>__str__</code> and <code>__repr__</code>, showing they can differ.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Formatting in <code>__str__</code></h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Write a <code>Money</code> class with a <code>__str__(self)</code> method formatting an amount to 2 decimal places.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This class's display method is misspelled <code>__string__</code> instead of <code>__str__</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Friendly logging output</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>OrderEvent</code> with a <code>__str__(self)</code> producing a clean log line.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>__str__</code> vs. <code>__repr__</code></h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_str_vs_repr()</code>, explaining the difference between the two and when each is used.</p>
+  </div>
+
+  <h2 id="bringing-together">Topic 6: Bringing It Together &mdash; OOP Basics in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Combining a method and <code>__str__</code></h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write an <code>InventoryItem</code> class combining an instance method, <code>__str__</code>, and a computed value.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Auto-incrementing ids</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write a <code>Task</code> class using a class-attribute counter (<code>next_id</code>) to auto-assign unique ids.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A per-instance collection</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write a <code>Playlist</code> class with its own fresh instance list of songs and a method-based song count.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Safely handling an empty case</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write a <code>TemperatureLog</code> class with an <code>average(self)</code> method that safely handles an empty list.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This <code>Team</code> class's <code>members = []</code> was a shared class attribute instead of a per-instance list. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A small order-processing system</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>Order</code> combining line items, a running total, and a status change into one object.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why classes, not just dicts and functions?</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_oop_basics_production_value()</code>, describing why real production codebases organize data and behavior into classes.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

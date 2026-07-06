@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 14: OOP Basics — classes vs. objects, __init__, self, instance vs. class attributes and the mutable-default gotcha, __str__ vs. __repr__, encapsulation, and why bundling data with behavior beats a pile of dicts and functions.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-14-interview" data-active-chapter="chapter-14">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 14 Interview Prep</span>
+    <span class="reading-time">25 min read</span>
+  </div>
+  <h1>Interview Questions: OOP Basics</h1>
+  <p>Object-oriented programming is where interviewers start separating "can write a script" from "can design software that grows." This set covers what a class actually is versus an object/instance, why <code>self</code> has to be the first parameter of every instance method, how <code>__init__</code> compares to other languages' "constructor," class attributes vs. instance attributes and the classic mutable-class-attribute bug, <code>__str__</code> vs. <code>__repr__</code>, why bundling data and behavior into a class beats a pile of separate dicts and functions, and encapsulation as a concept even before Chapter 15's deeper access-control tools.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the actual difference between a class and an object?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>class</strong> is a blueprint &mdash; it defines what attributes and methods every object built from it will have, but it isn't itself a usable "thing" holding real data. An <strong>object</strong> (also called an <strong>instance</strong>) is one concrete thing actually built from that blueprint, with its own real values stored in its own attributes. <code>class Dog:</code> describes that every dog has a name and can bark; <code>rex = Dog("Rex")</code> is one specific dog that actually exists in memory, with <code>rex.name</code> holding the real string <code>"Rex"</code>. The same class can produce many different objects &mdash; <code>rex</code> and <code>fido = Dog("Fido")</code> both come from the exact same <code>Dog</code> blueprint, but they're two separate objects with independent data, exactly like a cookie cutter (the class) versus the actual cookies it stamps out (the objects), where each cookie can still get its own individual decoration.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using "class" and "object" interchangeably, or saying a class "stores" a program's actual data &mdash; the class only defines the shape; each object holds its own independent values.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>class Dog:</code> is defined once, and a program creates <code>rex = Dog("Rex")</code> and <code>fido = Dog("Fido")</code>, how many <code>Dog</code> classes exist, and how many <code>Dog</code> objects exist?" (One class &mdash; the blueprint is defined a single time &mdash; and two objects, <code>rex</code> and <code>fido</code>, each an independent instance built from that one blueprint with its own separate data.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why does every instance method need <code>self</code> as its first parameter, and what happens if you forget it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>self</code> is how an instance method knows <em>which specific object</em> it's currently operating on &mdash; without it, a method would have no way to tell whether it was called on <code>rex</code> or <code>fido</code>, since the method's code is shared by every instance of the class. When Python evaluates <code>rex.bark()</code>, it automatically rewrites that call behind the scenes into <code>Dog.bark(rex)</code> &mdash; the object the method was called on gets passed in as the first argument, and by convention that first parameter is named <code>self</code> so the method body can read <code>self.name</code> and get <em>this specific dog's</em> name rather than some other dog's. Leaving <code>self</code> off a method definition doesn't make the method "not need an object" &mdash; Python still passes the calling object in automatically, so the method ends up receiving one more positional argument than its parameter list accounts for, and calling it raises a <code>TypeError</code> about a mismatched argument count.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>self</code> is just boilerplate Python requires for no real reason, or not knowing that <code>obj.method(args)</code> is automatically translated into <code>Class.method(obj, args)</code> under the hood.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A method is defined as <code>def bark(): return "Woof"</code> (no <code>self</code> parameter at all) inside <code>class Dog:</code>, and code calls <code>rex.bark()</code>. What happens?" (A <code>TypeError</code> is raised &mdash; Python still automatically passes <code>rex</code> in as an argument to <code>bark</code>, but the method was defined to take zero parameters, so it receives one argument it has no parameter to catch, e.g. <code>bark() takes 0 positional arguments but 1 was given</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Is <code>__init__</code> the same thing as a "constructor" in languages like Java or C++?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Close, but not identical &mdash; and the distinction is worth knowing precisely. In Python, the object itself is actually created by a separate, rarely-touched method called <code>__new__</code>; by the time <code>__init__</code> runs, the object already exists in memory as a blank instance, and <code>__init__</code>'s real job is <strong>initializing</strong> that already-created object's attributes with starting values &mdash; hence the name. In languages like Java or C++, "the constructor" typically both allocates the object's memory and sets its initial state in one combined step. In everyday Python usage the difference rarely matters in practice &mdash; <code>__init__</code> is where you set up an object's starting attributes, full stop &mdash; but a careful answer distinguishes "the method that creates the object" (<code>__new__</code>, almost never overridden in ordinary code) from "the method that initializes its attributes" (<code>__init__</code>, used in essentially every class).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Insisting <code>__init__</code> "creates the object" with no awareness that object creation and attribute initialization are technically two separate steps in Python (even though only the second one is something you'll typically write).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a class defines <code>__init__</code> but never touches <code>__new__</code> at all, does the object still get created successfully?" (Yes &mdash; <code>__new__</code> has a default implementation inherited automatically that handles actually creating the blank object, so a class only needs to define <code>__init__</code> to set up that object's attributes; overriding <code>__new__</code> itself is rare and outside what this course covers.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between an instance attribute and a class attribute?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>An <strong>instance attribute</strong> is set inside <code>__init__</code> (or another instance method) as <code>self.something = value</code>, and every object gets its own separate copy &mdash; changing <code>rex.name</code> has zero effect on <code>fido.name</code>. A <strong>class attribute</strong> is defined directly inside the class body, outside any method, and is <strong>shared by every instance of that class</strong> &mdash; there's only one copy of it in memory, and every object looks up the same shared value unless that specific instance later gets its own instance attribute of the same name. Class attributes are the right tool for data that's genuinely the same across every instance (a species name shared by every <code>Dog</code>, a fixed interest rate shared by every <code>Account</code>), while instance attributes are for data that's meant to differ from object to object (each dog's own name, each account's own balance).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that a class attribute is shared across every instance rather than copied per-instance, or defining data that should clearly vary per-object (like a name or balance) as a class attribute instead of an instance attribute.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>Dog</code> has a class attribute <code>species = "Canis familiaris"</code>, and no instance ever sets its own <code>species</code>, how many copies of that string exist in memory across 100 <code>Dog</code> objects?" (One &mdash; every one of the 100 objects looks up the same single shared class attribute; no per-instance copy is made unless an instance is individually given its own <code>species</code> attribute that would then shadow the class-level one for that object only.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> A class defines a mutable class attribute like <code>items = []</code> instead of setting it in <code>__init__</code>. What goes wrong, and why is this such a common real interview question?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because a class attribute is <strong>shared by every instance</strong>, a mutable one like a list or dict becomes one single shared object that every instance secretly points to &mdash; there aren't separate lists per object, just one list every object can see and mutate. So <code>cart_a.items.append("apple")</code> doesn't just affect <code>cart_a</code>; it mutates the one shared list, which means <code>cart_b.items</code> (a completely different, supposedly-empty cart) suddenly shows <code>["apple"]</code> too, even though nothing was ever explicitly added to <code>cart_b</code>. This is a genuinely common real-world bug, not just a trivia question, because the code <em>looks</em> completely reasonable at a glance &mdash; it only breaks once a program actually creates more than one instance and starts mutating that attribute, which can slip through code review and testing if only one instance was ever exercised. The fix is to initialize mutable data inside <code>__init__</code> as an instance attribute instead &mdash; <code>self.items = []</code> &mdash; so every object gets its own separate, freshly created list rather than sharing one.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not immediately recognizing <code>items = []</code> written directly in a class body (rather than in <code>__init__</code> as <code>self.items = []</code>) as a bug waiting to happen, or being unable to explain <em>why</em> it happens (shared mutable state) rather than just knowing "it's wrong."</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>class Cart:</code> with <code>items = []</code> as a class attribute (not in <code>__init__</code>), if code creates <code>cart_a = Cart()</code> and <code>cart_b = Cart()</code>, then calls <code>cart_a.items.append("apple")</code>, what does <code>cart_b.items</code> show?" (<code>["apple"]</code> &mdash; both instances share the exact same list object in memory, so appending through <code>cart_a</code> is visible through <code>cart_b</code> too, even though <code>cart_b</code> never had anything explicitly added to it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the fix for the mutable-class-attribute bug, and why does it work?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Move the mutable value's creation into <code>__init__</code> as an instance attribute: <code>self.items = []</code> instead of <code>items = []</code> directly in the class body. Because <code>__init__</code> runs separately every single time a new object is created, <code>self.items = []</code> builds a <strong>brand-new, independent empty list</strong> for each object &mdash; there's no longer one shared list that every instance points to, just one distinct list per instance. The general rule this generalizes to: any default value that's mutable (a list, dict, or set) should be created fresh inside <code>__init__</code>, never written directly as a class-level attribute, specifically because a class-level mutable value is created exactly once, at class-definition time, and shared forever after by every instance that doesn't override it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting the fix is to just "reset the list at the start of each method" rather than understanding the actual root cause (one shared list object) that <code>self.items = []</code> in <code>__init__</code> permanently eliminates.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After changing <code>items = []</code> (class attribute) to <code>self.items = []</code> inside <code>__init__</code>, does <code>cart_a.items.append("apple")</code> still affect <code>cart_b.items</code>?" (No &mdash; each call to <code>Cart()</code> now runs <code>__init__</code> separately and creates its own new empty list, so <code>cart_a</code> and <code>cart_b</code> hold two completely independent lists and mutating one has no effect on the other.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the difference between <code>__str__</code> and <code>__repr__</code>, and when does Python use each one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>__str__</code> defines an object's <strong>readable, human-facing</strong> string form &mdash; it's what runs when code calls <code>print(obj)</code> or <code>str(obj)</code>, and it should read naturally, like <code>"Point(1, 2)"</code> or <code>"Rex, a 3-year-old dog"</code>. <code>__repr__</code> defines an object's <strong>unambiguous, developer-facing</strong> string form, meant for debugging, logging, and interactive-shell output &mdash; the convention is that it should ideally look like valid Python code that could recreate the object (e.g. <code>"Point(x=1, y=2)"</code>). Python falls back to <code>__repr__</code> in a few specific situations where <code>__str__</code> isn't defined or isn't the one being asked for: printing an object inside a list or dict always uses each element's <code>__repr__</code> (never <code>__str__</code>), and typing a bare object's name in an interactive session displays its <code>__repr__</code>. If a class defines <code>__repr__</code> but not <code>__str__</code>, <code>print()</code> falls back to using <code>__repr__</code> too, since Python needs some readable string when neither is explicitly the perfect fit and <code>__repr__</code> is the safer universal fallback.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>__str__</code> and <code>__repr__</code> as interchangeable with no distinction, or not knowing that printing objects inside a list/dict uses <code>__repr__</code> for each element rather than <code>__str__</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A class defines both <code>__str__</code> (returning <code>"Point(1, 2)"</code>) and <code>__repr__</code> (returning <code>"Point(x=1, y=2)"</code>). What does <code>print([Point(1, 2)])</code> actually output?" (<code>[Point(x=1, y=2)]</code> &mdash; printing a list calls <code>repr()</code> on each of its elements individually, not <code>str()</code>, so the <code>__repr__</code> form is what shows up even though this is technically a <code>print()</code> call.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What happens if a class defines neither <code>__str__</code> nor <code>__repr__</code>, and why is that a problem worth fixing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Every class automatically inherits a default <code>__repr__</code> (used as a fallback by <code>print()</code> too, when <code>__str__</code> is also missing) that produces something like <code>&lt;__main__.Dog object at 0x7f2b3c1a4d90&gt;</code> &mdash; the class name and the object's raw memory address, which tells a developer essentially nothing useful about that specific object's actual data. That's a real, common beginner trap: printing a list of custom objects to "check the data looks right" instead shows a wall of meaningless memory-address strings, making debugging much harder than it needs to be. Defining <code>__str__</code> (and ideally <code>__repr__</code> too) is a small amount of code that turns every <code>print(obj)</code>, every debug log, and every element shown inside a list or dict into something a human can actually read and reason about, instead of an opaque object reference.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing the default <code>&lt;__main__.ClassName object at 0x...&gt;</code> output as exactly what happens when neither dunder method is defined, or treating that default output as somehow acceptable for anything beyond the very earliest throwaway debugging.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A class defines no <code>__str__</code> and no <code>__repr__</code> at all. What does <code>print(some_instance)</code> show?" (Something like <code>&lt;__main__.ClassName object at 0x7f...&gt;</code> &mdash; the default representation showing the class name and the object's memory address, with none of that specific object's actual attribute values visible.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why is bundling related data and behavior into a class better than a pile of separate dicts and standalone functions, once a program grows?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A dict-and-functions approach requires every function to take the dict as a parameter and trust that the caller passes one shaped correctly &mdash; nothing actually enforces that a "book" dict has a <code>"title"</code> key, or that <code>checkout_book(book_dict)</code> is only ever called with something that's genuinely meant to represent a book; a typo'd key or a dict from the wrong part of the program fails at runtime, often far from where the mistake actually happened. A class fixes this by <strong>bundling the data's shape and the operations that make sense on it in one place</strong>: <code>__init__</code> guarantees every <code>Book</code> object actually has a <code>title</code>, <code>author</code>, and <code>is_checked_out</code> the moment it's created, and a method like <code>book.check_out()</code> reads far more clearly at the call site than a free-floating <code>check_out_book(some_dict)</code> that gives no hint what kind of dict is expected. As a program grows to have many related pieces of data and behavior, this bundling keeps related code physically together and self-documenting instead of scattered across separate functions that all silently assume a specific dict shape.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "use a class" as a stylistic preference with no concrete justification, rather than being able to name the specific risk (no guaranteed shape, behavior scattered away from its data) that dicts-and-functions carries as a program grows.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A dict-based version has a function <code>checkout_book(book)</code> that assumes every dict passed in has an <code>"is_checked_out"</code> key. What happens if it's called with a dict that's missing that key?" (A <code>KeyError</code> at runtime, from wherever inside <code>checkout_book</code> first tries to read <code>book["is_checked_out"]</code> &mdash; nothing earlier in the program stopped a malformed dict from being created or passed in, whereas a <code>Book</code> class's <code>__init__</code> would have guaranteed that attribute existed on every single object from the moment it was constructed.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What does "encapsulation" mean, even before Chapter 15's deeper access-control tools?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>At its core, <strong>encapsulation</strong> means keeping an object's data and the logic that operates on that data bundled together inside one class, rather than scattering related pieces of logic across a program with no clear owner. Even without Chapter 15's later tools for actually restricting attribute access, a class already achieves a meaningful first layer of this just by design: instead of a loose <code>balance</code> variable that any part of a program could accidentally set to a nonsensical value, an <code>Account</code> class can expose a <code>deposit(amount)</code> method that's the one sanctioned way to change <code>self.balance</code>, making it far more obvious where balance changes are supposed to happen and easier to add a rule (like rejecting a negative deposit) in exactly one place. It's a conceptual habit at this stage &mdash; "let the class own its data and provide clear methods for interacting with it" &mdash; well before Chapter 15 introduces properties and naming conventions that actually enforce restricted access.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing encapsulation with strict access control that Python doesn't fully enforce yet at this stage, or failing to identify the simpler, real benefit already available now: grouping data with the specific methods meant to change it, instead of leaving that data changeable from anywhere with no clear, obvious entry point.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Without any of Chapter 15's tools yet, what's one concrete way a <code>BankAccount</code> class already practices encapsulation just by having a <code>deposit(amount)</code> method instead of code setting <code>account.balance += amount</code> directly from anywhere in a program?" (Every deposit funnels through one method, so a rule like "reject negative or zero deposit amounts" can be enforced in exactly one place inside <code>deposit()</code>, instead of needing to be repeated &mdash; or accidentally forgotten &mdash; everywhere in the program that happens to touch <code>balance</code> directly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Can two different instances of the same class have completely different sets of instance attributes?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>In ordinary, correctly written Python, no &mdash; if every instance is created through the same <code>__init__</code>, every instance ends up with the same set of instance attributes, since <code>__init__</code>'s body runs identically for each one, just with different argument values. But Python doesn't technically forbid it: nothing stops code outside <code>__init__</code> from later doing <code>rex.favorite_toy = "ball"</code> on just one specific <code>Dog</code> object, which gives <em>that one instance</em> an attribute no other <code>Dog</code> has. This is legal but generally a code smell in real programs &mdash; if every instance of a class is supposed to have some particular piece of data, it belongs in <code>__init__</code> so every object gets it consistently and predictably, rather than relying on attributes being bolted onto specific instances ad hoc after the fact.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming Python enforces that every instance must have identical attributes (it doesn't &mdash; attributes can technically be added to one specific instance after creation), or, in the other direction, treating that flexibility as a good general practice rather than recognizing it as something to generally avoid in favor of setting all expected attributes in <code>__init__</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>rex = Dog("Rex")</code> and code later runs <code>rex.favorite_toy = "ball"</code>, does <code>fido = Dog("Fido")</code> (created from the same class) also get a <code>favorite_toy</code> attribute?" (No &mdash; that assignment only touches <code>rex</code>, the one specific object it was run on; <code>fido</code> has no <code>favorite_toy</code> attribute at all unless the exact same assignment is separately made on <code>fido</code> too.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Why can a class attribute be read through an instance (<code>rex.species</code>) even though it's never set inside <code>__init__</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>When Python looks up <code>rex.species</code>, it first checks whether <code>rex</code> itself (the specific instance) has an attribute named <code>species</code> set directly on it. If it doesn't &mdash; which is the case whenever <code>species</code> was only ever defined at the class level and never assigned as <code>self.species = ...</code> inside <code>__init__</code> &mdash; Python's attribute lookup then falls back to checking the <em>class</em> the instance belongs to, finds it defined there, and returns that shared value instead. This fallback is exactly why a class attribute appears accessible "through" any instance without each instance needing its own copy: instance lookup checks the instance first, then falls back to the class, and a class attribute only lives at that second, shared level unless some later code deliberately gives one specific instance its own copy of the same name.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing class attributes are somehow automatically copied onto every instance at creation time (they aren't &mdash; there's exactly one shared copy, and instance lookup falls back to find it only when the instance itself has no attribute of that name).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If code runs <code>rex.species = "Wolf"</code> (assigning directly on the instance, not changing the class), does <code>fido.species</code> (a different <code>Dog</code> instance) change too?" (No &mdash; that assignment creates a brand-new instance attribute on <code>rex</code> specifically, which now shadows the class attribute for <code>rex</code> only; <code>fido</code> has no instance-level <code>species</code> of its own, so its lookup still falls back to the original shared class attribute, unchanged.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> In a real-world program, how would you decide whether something should be its own class versus just a dict or a handful of loose variables?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The signal to reach for a class is when a piece of data has both a <strong>consistent shape</strong> (the same set of related fields, every time) and <strong>behavior that naturally belongs with it</strong> (operations that only make sense in the context of that specific data). A single one-off piece of data used in exactly one place, with no real operations attached to it, is often fine as a plain variable or a small dict &mdash; introducing a class for it would be unnecessary ceremony. But something like a book in a library system, a student in a grade tracker, or a task in a to-do app has a genuinely fixed shape (a book always has a title, author, and checked-out status) and clear associated behavior (checking a book out, marking a task done) that keeps showing up together across a growing program &mdash; that combination of "recurring shape" plus "recurring behavior" is exactly the signal that a class will keep the code more organized than a dict passed between a dozen separate functions.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a class for absolutely everything regardless of whether the data has any real associated behavior (over-engineering), or, in the other direction, insisting dicts and loose functions are "simpler" even once a program clearly has recurring, structured data with behavior that keeps needing to operate on it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A program tracks a single one-off configuration value used in exactly one place with no associated behavior. Does that need its own class?" (Not really &mdash; a single plain variable or a small dict is perfectly reasonable there; a class earns its keep once there's a recurring, consistently shaped piece of data with real behavior attached to it, not for a single isolated value used nowhere else.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> If a class's <code>__init__</code> takes parameters with default values, like <code>def __init__(self, title, is_checked_out=False):</code>, what's the actual reason for giving <code>is_checked_out</code> a default instead of always requiring it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A default value lets the vast majority of realistic calls stay simple &mdash; a newly added book is checked-out status <code>False</code> in essentially every real case, so requiring every single caller to explicitly type <code>Book("Title", "Author", "1234", False)</code> just to state the overwhelmingly common case adds noise with no real benefit. Giving <code>is_checked_out=False</code> a default means the ordinary call, <code>Book("Title", "Author", "1234")</code>, already does the right thing, while a caller with a genuinely unusual need (constructing a <code>Book</code> object that represents one already checked out, say when loading saved data) can still override it explicitly with <code>Book("Title", "Author", "1234", is_checked_out=True)</code>. This is the exact same "give the common case a sensible default, let the uncommon case override it" logic Chapter 7 introduced for ordinary function parameters &mdash; it applies identically inside <code>__init__</code>, since <code>__init__</code> is just a regular method with regular parameters.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not connecting default parameter values inside <code>__init__</code> back to the same default-argument rules already taught for ordinary functions, or making every single <code>__init__</code> parameter mandatory even when one has an obvious, overwhelmingly common default value.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"With <code>def __init__(self, title, is_checked_out=False):</code>, does calling <code>Book("Dune")</code> raise an error, and what does <code>is_checked_out</code> end up being for that object?" (No error &mdash; <code>is_checked_out</code> simply takes on its default value of <code>False</code> since the caller didn't supply one, exactly like any other Python function with a default parameter value.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> A class is a <code>____</code> for creating objects; the objects themselves are also called instances.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="blueprint" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> The special method that runs automatically to set up a new object's starting attributes is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="__init__,init" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> The parameter every instance method must list first, referring to the specific object the method was called on, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="self" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> An attribute set as <code>self.name = value</code> inside <code>__init__</code> is called an <code>____</code> attribute.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="instance" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> An attribute defined directly in the class body and shared by every instance is called a <code>____</code> attribute.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="class" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> If <code>Cart</code> has a class attribute <code>items = []</code> instead of setting it in <code>__init__</code>, every instance ends up <code>____</code> (one word: sharing/isolated) the same list.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="sharing" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> The fix for the mutable-class-attribute bug is to create the list inside <code>____</code> as <code>self.items = []</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="__init__,init" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> The dunder method that defines an object's readable, human-facing string form, used by <code>print()</code>, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="__str__,str" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> The dunder method meant for an unambiguous, developer-facing form, used when printing objects inside a list, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="__repr__,repr" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> If a class defines neither <code>__str__</code> nor <code>__repr__</code>, <code>print(obj)</code> shows the class name and the object's <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="memory address,address,id" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> Calling <code>rex.bark()</code> is automatically translated by Python into <code>Dog.bark(____)</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="rex" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Defining a method with no <code>self</code> parameter at all and then calling it on an instance raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="TypeError" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Bundling related data and the behavior that operates on it into one class, rather than scattering it across dicts and functions, is a form of <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="encapsulation" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> When Python looks up <code>rex.species</code> and finds no instance attribute of that name, it falls back to checking the <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="class" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

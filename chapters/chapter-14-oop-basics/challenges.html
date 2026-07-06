@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on classes, objects, instance attributes, class attributes, and __str__ — building small classes internally to model a rectangle, a bank account, a task list, and an inventory, for Chapter 14: OOP Basics.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-14">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 14 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: OOP Basics</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-14 have covered so far &mdash; including class definitions,
+    <code>__init__</code>, instance attributes, class attributes, instance
+    methods, and <code>__str__</code>/<code>__repr__</code>. No
+    <code>@staticmethod</code>, <code>@classmethod</code>,
+    <code>@property</code>, inheritance, or any import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why every challenge returns a plain value, not an object</span>
+    The auto-grader compares your function's return value to a JSON-safe
+    expected value (a number, string, boolean, list, or dict) &mdash; it
+    can't compare custom class instances directly. So every challenge here
+    asks you to <strong>build and use a class inside your function</strong>
+    to model the problem (a <code>Rectangle</code> with <code>area()</code>
+    and <code>perimeter()</code>, a <code>BankAccount</code> with
+    <code>deposit()</code>/<code>withdraw()</code>, and so on), but the
+    function itself always returns a plain number, string, list, or dict
+    &mdash; exactly what a real caller elsewhere in a program would want
+    back, without needing to know anything about the class you used
+    internally to compute it.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Rectangle Dimensions <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>rectangle_dimensions(width, height)</code> that builds a <code>Rectangle</code> class internally with <code>__init__(self, width, height)</code>, an <code>area(self)</code> method returning <code>self.width * self.height</code>, and a <code>perimeter(self)</code> method returning <code>2 * (self.width + self.height)</code>. Create one instance and return <code>{"area": rect.area(), "perimeter": rect.perimeter()}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>width</code> and <code>height</code> are non-negative numbers; either may be <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>rectangle_dimensions(4, 5)</code> &rarr; <code>{"area": 20, "perimeter": 18}</code><br>
+        <code>rectangle_dimensions(0, 5)</code> &rarr; <code>{"area": 0, "perimeter": 10}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def rectangle_dimensions(width, height):
+    # TODO: define a class Rectangle inside this function with
+    # __init__(self, width, height), an area(self) method, and a
+    # perimeter(self) method. Create rect = Rectangle(width, height)
+    # and return {"area": rect.area(), "perimeter": rect.perimeter()}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "rectangle_dimensions",
+  "cases": [
+    { "args": [4, 5], "expected": { "area": 20, "perimeter": 18 } },
+    { "args": [1, 1], "expected": { "area": 1, "perimeter": 4 } },
+    { "args": [10, 2], "expected": { "area": 20, "perimeter": 24 } },
+    { "args": [0, 5], "expected": { "area": 0, "perimeter": 10 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def rectangle_dimensions(width, height):
+    class Rectangle:
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+
+        def area(self):
+            return self.width * self.height
+
+        def perimeter(self):
+            return 2 * (self.width + self.height)
+
+    rect = Rectangle(width, height)
+    return {"area": rect.area(), "perimeter": rect.perimeter()}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> The Shared List Gotcha <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>demonstrate_shared_class_list(item_to_add)</code> that defines a class <code>Cart</code> with a <strong>class attribute</strong> <code>items = []</code> (not an instance attribute) and a method <code>add_item(self, item)</code> that appends to <code>self.items</code>. Create <code>cart_one = Cart()</code> and <code>cart_two = Cart()</code>, call <code>cart_one.add_item(item_to_add)</code>, and return <code>cart_two.items</code> &mdash; showing what actually happens to the second cart's items because of the shared class-level list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>item_to_add</code> is always a non-empty string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>demonstrate_shared_class_list("Book")</code> &rarr; <code>["Book"]</code><br>
+        <code>demonstrate_shared_class_list("Pen")</code> &rarr; <code>["Pen"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def demonstrate_shared_class_list(item_to_add):
+    # TODO: define a class Cart with a CLASS attribute items = [] (not
+    # set inside __init__) and a method add_item(self, item) that
+    # appends to self.items. Create cart_one = Cart() and
+    # cart_two = Cart(), call cart_one.add_item(item_to_add), and
+    # return cart_two.items to show what the shared list gotcha does.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "demonstrate_shared_class_list",
+  "cases": [
+    { "args": ["Book"], "expected": ["Book"] },
+    { "args": ["Pen"], "expected": ["Pen"] },
+    { "args": ["Laptop"], "expected": ["Laptop"] },
+    { "args": ["Notebook"], "expected": ["Notebook"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def demonstrate_shared_class_list(item_to_add):
+    class Cart:
+        items = []  # class attribute -- shared by every instance (the gotcha)
+
+        def add_item(self, item):
+            self.items.append(item)
+
+    cart_one = Cart()
+    cart_two = Cart()
+    cart_one.add_item(item_to_add)
+    return cart_two.items</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Formatted Money String <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>format_money(amount, currency)</code> that builds a <code>Money</code> class internally with <code>__init__(self, amount, currency)</code> and a <code>__str__(self)</code> method returning <code>f"{self.amount:.2f} {self.currency}"</code>. Create one instance and return <code>str(money)</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>amount</code> may be an <code>int</code> or a <code>float</code>, including <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>format_money(19.9, "USD")</code> &rarr; <code>"19.90 USD"</code><br>
+        <code>format_money(0, "EUR")</code> &rarr; <code>"0.00 EUR"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def format_money(amount, currency):
+    # TODO: define a class Money with __init__(self, amount, currency)
+    # and a __str__(self) returning f"{self.amount:.2f} {self.currency}".
+    # Create money = Money(amount, currency) and return str(money).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "format_money",
+  "cases": [
+    { "args": [19.9, "USD"], "expected": "19.90 USD" },
+    { "args": [0, "EUR"], "expected": "0.00 EUR" },
+    { "args": [100.5, "GBP"], "expected": "100.50 GBP" },
+    { "args": [3.14159, "USD"], "expected": "3.14 USD" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def format_money(amount, currency):
+    class Money:
+        def __init__(self, amount, currency):
+            self.amount = amount
+            self.currency = currency
+
+        def __str__(self):
+            return f"{self.amount:.2f} {self.currency}"
+
+    return str(Money(amount, currency))</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Same Coordinates? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>same_point(x1, y1, x2, y2)</code> that builds a <code>Point</code> class internally with <code>__init__(self, x, y)</code>, creates <code>point_a = Point(x1, y1)</code> and <code>point_b = Point(x2, y2)</code>, and returns <code>True</code> if both instances' <code>.x</code> and <code>.y</code> attributes match, <code>False</code> otherwise.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> coordinates may be negative, zero, or positive integers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>same_point(1, 2, 1, 2)</code> &rarr; <code>True</code><br>
+        <code>same_point(1, 2, 2, 1)</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def same_point(x1, y1, x2, y2):
+    # TODO: define a class Point with __init__(self, x, y). Create
+    # point_a = Point(x1, y1) and point_b = Point(x2, y2). Return
+    # point_a.x == point_b.x and point_a.y == point_b.y.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "same_point",
+  "cases": [
+    { "args": [1, 2, 1, 2], "expected": true },
+    { "args": [1, 2, 2, 1], "expected": false },
+    { "args": [0, 0, 0, 0], "expected": true },
+    { "args": [-3, 5, -3, 4], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def same_point(x1, y1, x2, y2):
+    class Point:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    point_a = Point(x1, y1)
+    point_b = Point(x2, y2)
+    return point_a.x == point_b.x and point_a.y == point_b.y</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Bank Account Simulation <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>simulate_account(starting_balance, operations)</code> that builds a <code>BankAccount</code> class internally with <code>__init__(self, balance)</code>, a <code>deposit(self, amount)</code> method, and a <code>withdraw(self, amount)</code> method. Create one instance with <code>starting_balance</code>, then apply every <code>[op, amount]</code> pair in <code>operations</code> in order (<code>op</code> is either <code>"deposit"</code> or <code>"withdraw"</code>), and return the account's final <code>balance</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>operations</code> may be empty, in which case the starting balance is returned unchanged; a withdrawal may bring the balance below zero (no overdraft check needed).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>simulate_account(100, [["deposit", 50], ["withdraw", 30]])</code> &rarr; <code>120</code><br>
+        <code>simulate_account(0, [])</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def simulate_account(starting_balance, operations):
+    # TODO: define a class BankAccount with __init__(self, balance),
+    # deposit(self, amount), and withdraw(self, amount). Create
+    # account = BankAccount(starting_balance). For each [op, amount]
+    # in operations, call account.deposit(amount) if op == "deposit"
+    # or account.withdraw(amount) if op == "withdraw". Return
+    # account.balance.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "simulate_account",
+  "cases": [
+    { "args": [100, [["deposit", 50], ["withdraw", 30]]], "expected": 120 },
+    { "args": [0, []], "expected": 0 },
+    { "args": [500, [["withdraw", 100], ["withdraw", 50], ["deposit", 25]]], "expected": 375 },
+    { "args": [10, [["deposit", 0]]], "expected": 10 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def simulate_account(starting_balance, operations):
+    class BankAccount:
+        def __init__(self, balance):
+            self.balance = balance
+
+        def deposit(self, amount):
+            self.balance += amount
+
+        def withdraw(self, amount):
+            self.balance -= amount
+
+    account = BankAccount(starting_balance)
+    for op, amount in operations:
+        if op == "deposit":
+            account.deposit(amount)
+        elif op == "withdraw":
+            account.withdraw(amount)
+    return account.balance</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Auto-Incrementing Task Ids <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>assign_task_ids(descriptions)</code> that builds a <code>Task</code> class internally with a <strong>class attribute</strong> <code>next_id = 1</code> and <code>__init__(self, description)</code> that sets <code>self.id = Task.next_id</code>, stores <code>self.description = description</code>, and then increments <code>Task.next_id</code> by 1. Create one <code>Task</code> per string in <code>descriptions</code>, in order, and return a list of each task's <code>.id</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>descriptions</code> may be an empty list, in which case return an empty list; ids always start at 1 for each call.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>assign_task_ids(["Write report", "Review PR"])</code> &rarr; <code>[1, 2]</code><br>
+        <code>assign_task_ids([])</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def assign_task_ids(descriptions):
+    # TODO: define a class Task with a CLASS attribute next_id = 1 and
+    # __init__(self, description) that sets self.id = Task.next_id,
+    # self.description = description, then increments Task.next_id by
+    # 1. Create one Task per description in order, and return a list
+    # of each created task's .id.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "assign_task_ids",
+  "cases": [
+    { "args": [["Write report", "Review PR"]], "expected": [1, 2] },
+    { "args": [[]], "expected": [] },
+    { "args": [["A", "B", "C", "D"]], "expected": [1, 2, 3, 4] },
+    { "args": [["Only one"]], "expected": [1] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def assign_task_ids(descriptions):
+    class Task:
+        next_id = 1
+
+        def __init__(self, description):
+            self.id = Task.next_id
+            self.description = description
+            Task.next_id += 1
+
+    tasks = [Task(description) for description in descriptions]
+    return [task.id for task in tasks]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Total Inventory Value <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>total_inventory_value(items)</code> that builds an <code>InventoryItem</code> class internally with <code>__init__(self, name, quantity, unit_price)</code> and a <code>total_value(self)</code> method returning <code>self.quantity * self.unit_price</code>. <code>items</code> is a list of <code>[name, quantity, unit_price]</code> lists; create one <code>InventoryItem</code> per entry and return the sum of every item's <code>total_value()</code>, rounded to 2 decimal places.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> may be empty, in which case return <code>0.0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>total_inventory_value([["Widget", 10, 2.5], ["Gadget", 4, 9.99]])</code> &rarr; <code>64.96</code><br>
+        <code>total_inventory_value([])</code> &rarr; <code>0.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def total_inventory_value(items):
+    # TODO: define a class InventoryItem with __init__(self, name,
+    # quantity, unit_price) and a total_value(self) method returning
+    # self.quantity * self.unit_price. Create one InventoryItem per
+    # [name, quantity, unit_price] in items, and return
+    # round(sum of every item's total_value(), 2).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "total_inventory_value",
+  "cases": [
+    { "args": [[["Widget", 10, 2.5], ["Gadget", 4, 9.99]]], "expected": 64.96 },
+    { "args": [[]], "expected": 0.0 },
+    { "args": [[["Bolt", 100, 0.05]]], "expected": 5.0 },
+    { "args": [[["A", 1, 1.111], ["B", 1, 1.111]]], "expected": 2.22 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def total_inventory_value(items):
+    class InventoryItem:
+        def __init__(self, name, quantity, unit_price):
+            self.name = name
+            self.quantity = quantity
+            self.unit_price = unit_price
+
+        def total_value(self):
+            return self.quantity * self.unit_price
+
+    inventory = [
+        InventoryItem(name, quantity, unit_price)
+        for name, quantity, unit_price in items
+    ]
+    return round(sum(item.total_value() for item in inventory), 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Task Manager Status Counts <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_task_statuses(descriptions, done_indexes)</code> that builds a <code>Task</code> class internally with <code>__init__(self, description)</code> storing <code>self.description</code> and <code>self.done = False</code>, plus a <code>mark_done(self)</code> method setting <code>self.done = True</code>. Create one <code>Task</code> per string in <code>descriptions</code> (in order), call <code>mark_done()</code> on every task whose position appears in <code>done_indexes</code>, and return <code>{"done": &lt;count&gt;, "pending": &lt;count&gt;}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>done_indexes</code> may be empty; <code>descriptions</code> may be empty, in which case return <code>{"done": 0, "pending": 0}</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_task_statuses(["A", "B", "C"], [0, 2])</code> &rarr; <code>{"done": 2, "pending": 1}</code><br>
+        <code>count_task_statuses(["A", "B"], [])</code> &rarr; <code>{"done": 0, "pending": 2}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def count_task_statuses(descriptions, done_indexes):
+    # TODO: define a class Task with __init__(self, description)
+    # storing self.description and self.done = False, plus
+    # mark_done(self) setting self.done = True. Create one Task per
+    # description in order, call mark_done() on every task whose
+    # index appears in done_indexes, then return
+    # {"done": <count of tasks where task.done>,
+    #  "pending": <count of tasks where not task.done>}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_task_statuses",
+  "cases": [
+    { "args": [["A", "B", "C"], [0, 2]], "expected": { "done": 2, "pending": 1 } },
+    { "args": [["A", "B"], []], "expected": { "done": 0, "pending": 2 } },
+    { "args": [["A"], [0]], "expected": { "done": 1, "pending": 0 } },
+    { "args": [[], []], "expected": { "done": 0, "pending": 0 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def count_task_statuses(descriptions, done_indexes):
+    class Task:
+        def __init__(self, description):
+            self.description = description
+            self.done = False
+
+        def mark_done(self):
+            self.done = True
+
+    tasks = [Task(description) for description in descriptions]
+    for index in done_indexes:
+        tasks[index].mark_done()
+
+    done_count = sum(1 for task in tasks if task.done)
+    pending_count = sum(1 for task in tasks if not task.done)
+    return {"done": done_count, "pending": pending_count}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>
