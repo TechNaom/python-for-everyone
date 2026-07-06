@@ -2,7 +2,6 @@
 
 # Python for Everyone
 
-![Python for Everyone](assets/banner.svg)
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-1E8E3E)](LICENSE)
 [![Chapters built](https://img.shields.io/badge/chapters%20built-7%20%2F%2027-2E6BB8)](docs/curriculum/CURRICULUM_MAP.md)
