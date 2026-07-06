@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 13: File Handling &amp; CSV, including two Debug the Code tasks — a 'w' mode wiping out logged data, and a missing with statement leaking a file handle.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-13">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 13 Exercises</span>
+    <span class="reading-time">30 min, hands-on</span>
+  </div>
+  <h1>Exercises: File Handling &amp; CSV</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download all the files below into the same folder (<code>starter.py</code>,
+    <code>tasks.txt</code>, and <code>inventory.csv</code>), then run
+    <code>python3 starter.py</code> from inside that folder — the sample
+    data files use plain relative filenames, so the script must be run
+    from the same folder they're in.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+    <a href="tasks.txt">tasks.txt (sample data)</a>
+    <a href="inventory.csv">inventory.csv (sample data)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Opening &amp; reading files</h3>
+    <p>Write a function <code>count_lines(filename)</code> that opens the file with <code>with</code>, reads all its lines with <code>.readlines()</code>, and returns how many there are. Call it with <code>"tasks.txt"</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Writing to files</h3>
+    <p>Write a function <code>save_tasks(filename, tasks)</code> that opens <code>filename</code> in write mode (<code>"w"</code>) and writes each string in the <code>tasks</code> list on its own line. Call it with <code>"new_tasks.txt"</code> and <code>["Buy stamps", "Renew license"]</code>, then open the file again and print its contents.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Appending to files</h3>
+    <p>Write a function <code>add_task(filename, task)</code> that opens <code>filename</code> in append mode (<code>"a"</code>) and writes <code>task</code> on a new line. Call it on <code>"new_tasks.txt"</code> with <code>"Schedule dentist"</code>, then open the file again and print its contents — the two tasks from Task 2 should still be there.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Reading CSV with csv.DictReader</h3>
+    <p>Write a function <code>total_inventory_value(filename)</code> that opens <code>filename</code> with <code>csv.DictReader</code> and returns the sum of <code>quantity * price</code> across every row (convert <code>row["quantity"]</code> to <code>int</code> and <code>row["price"]</code> to <code>float</code>). Call it with <code>"inventory.csv"</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Writing CSV with csv.DictWriter</h3>
+    <p>Write a function <code>export_low_stock(input_filename, output_filename, threshold)</code> that reads <code>input_filename</code> with <code>csv.DictReader</code>, collects every row where <code>int(row["quantity"]) &lt; threshold</code>, and writes those rows to <code>output_filename</code> using <code>csv.DictWriter</code> with <code>fieldnames=["item", "quantity", "price"]</code> (remember <code>newline=""</code> and <code>.writeheader()</code>). Call it with <code>"inventory.csv"</code>, <code>"low_stock.csv"</code>, and <code>20</code>, then open <code>"low_stock.csv"</code> and print its contents.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Handling FileNotFoundError</h3>
+    <p>Write a function <code>read_safely(filename)</code> that tries to open and read <code>filename</code>, returning its contents. If a <code>FileNotFoundError</code> happens, print <code>f"'{filename}' was not found."</code> and return <code>None</code>. Call it with <code>"does_not_exist.txt"</code> and print the result.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This code logs each visit to a file, but it opens the file in <code>"w"</code> mode instead of <code>"a"</code> mode — every call wipes out every visit logged before it, so only the most recent visit ever survives. Find and fix the mode so every visit is kept.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_wrong_mode.py</span>
+      </div>
+      <pre><code>def log_visit(filename, username):
+    with open(filename, "w") as file:
+        file.write(username + " visited\n")
+
+log_visit("visits.txt", "alice")
+log_visit("visits.txt", "bob")
+
+with open("visits.txt") as file:
+    print(file.read())</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This code opens a file the manual way, with no <code>with</code> statement and no <code>.close()</code> call at all — a file handle leak waiting to happen. Find and fix it so the file is opened with <code>with</code> instead, guaranteeing it gets closed automatically.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_no_with.py</span>
+      </div>
+      <pre><code>def read_report(filename):
+    file = open(filename)
+    contents = file.read()
+    return contents
+
+print(read_report("inventory.csv"))</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

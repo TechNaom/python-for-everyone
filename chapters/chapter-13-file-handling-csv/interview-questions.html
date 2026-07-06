@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 13: File Handling & CSV — with vs. manual open()/close(), read/write/append modes and data-loss risk, FileNotFoundError, csv.reader vs. naive splitting, DictReader vs. reader, text vs. binary mode, relative vs. absolute paths, and real-world log analysis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-13-interview" data-active-chapter="chapter-13">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 13 Interview Prep</span>
+    <span class="reading-time">24 min read</span>
+  </div>
+  <h1>Interview Questions: File Handling &amp; CSV</h1>
+  <p>File handling is one of the fastest ways an interviewer can tell if someone has written real, production-facing code or only ever worked with in-memory data. This set covers why <code>with</code> is the standard way to open a file and what happens without it, the data-loss risk of confusing <code>"r"</code>/<code>"w"</code>/<code>"a"</code> modes, why <code>FileNotFoundError</code> should be caught specifically rather than with a bare <code>except</code>, why hand-splitting a CSV line on commas breaks on quoted fields, when <code>csv.DictReader</code>'s extra readability is worth it over <code>csv.reader</code>, text mode vs. binary mode, why relative paths can silently point to the wrong file depending on where a script runs from, and how these pieces combine in real-world log analysis.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why is the <code>with</code> statement preferred over manually calling <code>open()</code> and <code>close()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>with open("file.txt") as f:</code> guarantees the file gets closed the instant its indented block ends &mdash; <strong>even if an exception is raised partway through that block</strong>. Manually writing <code>f = open(...)</code> followed later by <code>f.close()</code> only closes the file if execution actually reaches that <code>close()</code> line; if anything between the two raises an exception, the <code>close()</code> call is skipped entirely and the file is left open. That's called a <strong>file handle leak</strong> &mdash; operating systems only allow a process to hold a limited number of files open at once, so a program that leaks handles repeatedly (a long-running server, a batch job that processes many files) can eventually hit that limit and start failing to open anything at all. <code>with</code> is built on Python's context manager protocol specifically to make this class of bug impossible: cleanup runs on every exit path, normal or exceptional, with no extra code required.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>with</code> as just "shorter syntax" without knowing the actual failure mode (a leaked handle from a skipped <code>close()</code>) it exists to prevent, or believing manually calling <code>close()</code> right after the risky code is just as safe.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If an exception is raised inside a <code>with</code> block, does the file still get closed before the exception propagates up?" (Yes &mdash; the file's <code>__exit__</code> method runs as the block is exited for any reason, including an uncaught exception, before that exception continues propagating to whatever called this code.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What's the difference between <code>"r"</code>, <code>"w"</code>, and <code>"a"</code> mode, and what's the real risk of mixing them up?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>"r"</code> (the default) opens a file for reading only and fails if the file doesn't exist. <code>"w"</code> opens a file for writing and <strong>erases its entire existing content the instant the file is opened</strong> &mdash; before a single new line is even written. <code>"a"</code> opens a file for appending, adding new content after whatever's already there, without touching the existing data. The genuinely dangerous mistake is opening a file in <code>"w"</code> mode when the actual intent was to add one more entry: that single line silently destroys everything that file held before, with <strong>no undo</strong> &mdash; there's no recycle bin, no confirmation prompt, nothing. This is a real production incident category: a script meant to append a log entry or a saved record that instead opens with <code>"w"</code> by a typo or copy-paste mistake, wiping out data that took a long time to accumulate.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that <code>"w"</code> erases content immediately on open (before any <code>.write()</code> call), or treating <code>"a"</code> and <code>"w"</code> as interchangeable "ways to add data to a file."</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A script is supposed to add one line to an existing log file every time it runs, but someone accidentally wrote <code>open("app.log", "w")</code> instead of <code>"a"</code>. What happens to the log file the second time the script runs?" (Everything the log file held after the first run is erased the instant the second run opens it in <code>"w"</code> mode, and only that run's one new line survives &mdash; all prior history is permanently gone.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Why should you catch <code>FileNotFoundError</code> specifically, rather than a bare <code>except:</code>, around an <code>open()</code> call?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A bare <code>except:</code> catches every exception <code>open()</code> could possibly raise for <em>any</em> reason &mdash; a genuinely missing file (<code>FileNotFoundError</code>), a permissions problem (<code>PermissionError</code>), or even an unrelated bug like a <code>TypeError</code> from passing the wrong type as a filename &mdash; and treats all of them identically. That means a real, unexpected programming bug gets silently swallowed by error-handling logic written only for "the file might not exist," and the program limps along with a misleading fallback instead of surfacing the actual mistake with a clear traceback. Naming <code>FileNotFoundError</code> specifically means the program reacts correctly only to the one failure it actually anticipated (a missing file, which is entirely expected and outside the program's control), while a genuinely different problem &mdash; like a permissions issue that needs a different message, or a real bug &mdash; still surfaces normally instead of being mistaken for a missing file.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a bare <code>except:</code> around file operations as a reflex "just in case," rather than naming the specific exception(s) actually expected (<code>FileNotFoundError</code>, and separately <code>PermissionError</code> if that's also anticipated).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a file exists but the operating system won't allow the program to read it, and the code only catches <code>FileNotFoundError</code>, what happens?" (The <code>PermissionError</code> that gets raised instead doesn't match the <code>except FileNotFoundError</code> clause, so it isn't caught there &mdash; it propagates up uncaught unless a separate <code>except PermissionError</code> clause is added to handle that distinct failure.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> Why does hand-splitting a CSV line on commas with <code>.split(",")</code> break, and what does <code>csv.reader</code> do differently?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.split(",")</code> treats every single comma in the line as a field separator, with no concept that a comma can appear <em>inside</em> a field's actual data. A row like <code>Widget,"Acme, Inc.",19.99</code> is meant to have exactly three fields, with the comma inside <code>"Acme, Inc."</code> protected by quotes specifically so it isn't mistaken for a separator &mdash; but <code>.split(",")</code> ignores those quotes entirely and produces four fields instead of three, silently corrupting the row's structure. <code>csv.reader</code> understands the CSV format's actual quoting rules: it tracks whether it's currently inside a quoted field and only treats a comma as a separator when it's genuinely outside any quotes, so <code>"Acme, Inc."</code> correctly comes back as one single field. This is exactly the kind of subtle, hard-to-notice bug that only shows up once real-world data (a company name, an address, a comment field) happens to contain a comma &mdash; which is common enough that hand-splitting CSV data is considered a real anti-pattern in production code.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for <code>.split(",")</code> on anything that might be genuine CSV data "because it's simpler," without recognizing that any field containing a comma will silently produce the wrong number of fields.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given the line <code>Widget,\"Acme, Inc.\",19.99</code>, how many elements does <code>line.split(",")</code> produce, versus how many fields <code>csv.reader</code> correctly produces?" (<code>.split(",")</code> produces 4 elements &mdash; <code>['Widget', '"Acme', ' Inc."', '19.99']</code> &mdash; while <code>csv.reader</code> correctly produces 3 fields: <code>['Widget', 'Acme, Inc.', '19.99']</code>, treating the quoted comma as part of one field.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> When is <code>csv.DictReader</code>'s extra readability actually worth it over plain <code>csv.reader</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>csv.reader</code> gives back a plain list per row, so working with it means remembering that, say, <code>row[0]</code> is the product name and <code>row[2]</code> is the price &mdash; correct today, but silently wrong the moment a column gets added, removed, or reordered in the source file, since nothing about the code visibly documents what each index actually means. <code>csv.DictReader</code> uses the header row to turn every row into a dictionary, so the same access becomes <code>row["product"]</code> and <code>row["price"]</code> &mdash; self-documenting, and immune to column reordering as long as the column names stay the same. That readability and safety is worth the small extra overhead any time a CSV file has more than a couple of columns, or when the code is read/maintained by someone other than whoever wrote it. Plain <code>csv.reader</code> is still perfectly reasonable for a small, stable, well-understood file (or when the whole row just needs to be passed along unchanged) where naming every column by index isn't actually a readability problem in practice.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>DictReader</code> as strictly "better" in every case with no tradeoff at all, or not being able to articulate the concrete risk (silent breakage on column reordering, unclear intent) that plain index-based <code>csv.reader</code> access carries.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A CSV file's columns get reordered from <code>name,price</code> to <code>price,name</code>. Which approach silently breaks: code using <code>row[0]</code>/<code>row[1]</code> from <code>csv.reader</code>, or code using <code>row["name"]</code>/<code>row["price"]</code> from <code>csv.DictReader</code>?" (The <code>csv.reader</code> code silently breaks &mdash; <code>row[0]</code> now holds the price instead of the name, with no error at all, just wrong data. The <code>DictReader</code> code keeps working correctly, since it looks up columns by name rather than position.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the conceptual difference between text mode and binary mode when opening a file?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Text mode (the default, used by every example in this chapter) treats a file's contents as ordinary strings, automatically handling the details of how text is encoded on disk so a program just works with <code>str</code> values. Binary mode (<code>"rb"</code> for reading, <code>"wb"</code> for writing) instead reads and writes raw bytes with no text interpretation at all &mdash; the right choice for files that aren't text in the first place, like images, audio files, or PDFs, where forcing a text interpretation would produce garbage or outright fail. The dividing line is simple: if a human could meaningfully open the file in a plain text editor and read it (<code>.txt</code>, <code>.csv</code>, log files, source code), text mode is correct; if the file is fundamentally a sequence of bytes with its own binary structure that isn't "text" at all, binary mode is required instead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing binary mode is just "text mode but faster" or some kind of performance optimization, rather than understanding it's about what kind of data the file actually contains.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would you open a <code>.jpg</code> image file in text mode or binary mode, and why?" (Binary mode &mdash; a <code>.jpg</code> file is raw image data, not text, so opening it in text mode would try to decode bytes that don't represent valid text at all, which either fails outright or produces meaningless, corrupted results.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the difference between a relative path and an absolute path, and why can a relative path behave differently depending on where a script is run from?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A relative path like <code>"notes.txt"</code> has no folder information in it at all, so Python has to decide where to start looking &mdash; and it starts from the <strong>current working directory</strong>, meaning wherever the <code>python3</code> command was actually launched from, not necessarily the folder the script file itself lives in. That's a common source of "it works on my machine" bugs: a script that opens <code>"notes.txt"</code> works fine when run from inside its own folder, but fails with <code>FileNotFoundError</code> the moment someone runs the exact same script from a different folder, because the relative path now resolves somewhere else entirely. An absolute path like <code>/home/user/project/notes.txt</code> always points to the exact same file no matter where the program was launched from, sidestepping that problem &mdash; but at the cost of hard-coding one specific location on one specific machine, which breaks the moment the project moves anywhere else. The common real-world fix isn't "always use absolute paths" but establishing a consistent, known working directory convention (like this course's practice of <code>cd</code>-ing into a project's own folder before running it) so relative paths behave predictably every time.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a relative path is always resolved relative to the script file's own location (it isn't &mdash; it's resolved relative to the current working directory, which depends on where the command was run from), or assuming absolute paths are simply "the safer default" with no real downside.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A script contains <code>open("data.txt")</code> and lives in <code>/home/user/project/</code>. If it's run as <code>python3 /home/user/project/script.py</code> from inside <code>/home/user/</code>, where does Python look for <code>data.txt</code>?" (In <code>/home/user/</code> &mdash; the current working directory the command was run from &mdash; not in <code>/home/user/project/</code> where the script file itself lives; if <code>data.txt</code> is actually sitting in the <code>project/</code> folder, this call fails with <code>FileNotFoundError</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> Why does <code>csv.writer</code>/<code>csv.DictWriter</code> require opening the output file with <code>newline=""</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The <code>csv</code> module manages its own line-ending logic internally so it can produce correctly formatted CSV output on every platform consistently. If the file is opened in normal text mode without <code>newline=""</code>, Python's own text-mode line-ending translation can interact with the <code>csv</code> module's line endings and produce extra blank lines between rows on some platforms (this shows up most often on Windows, where text mode by default translates <code>\n</code> to <code>\r\n</code>, which then collides with what <code>csv.writer</code> already writes). Passing <code>newline=""</code> tells Python not to do any of its own newline translation, leaving line-ending handling entirely up to the <code>csv</code> module, which is exactly what produces correct, clean output regardless of platform. It's a small, easy-to-forget detail, but it's specific to files opened for <code>csv.writer</code>/<code>csv.DictWriter</code> &mdash; not something needed for ordinary text file writes.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing <code>newline=""</code> exists at all (leading to hard-to-explain extra blank lines in CSV output on some machines but not others), or assuming it's just boilerplate with no real effect.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a teammate reports their exported CSV file has an extra blank line after every row, but only when they run it on Windows, what's the most likely cause?" (The file was opened for <code>csv.writer</code> without <code>newline=""</code>, so Python's own text-mode newline translation on Windows is adding <code>\r\n</code> line endings on top of what the <code>csv</code> module already writes, producing the extra blank lines.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> If a program needs to both read a file's current content and then write new content back into it, why doesn't <code>"r"</code> mode or <code>"w"</code> mode alone work?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>"r"</code> mode only allows reading &mdash; calling <code>.write()</code> on a file opened this way raises an error immediately, since the file was never opened with permission to write at all. <code>"w"</code> mode allows writing, but it erases the file's entire existing content the instant it's opened, which destroys exactly the data a read-modify-write operation needs to read first. <code>"r+"</code> mode is built for exactly this situation: it opens a file for both reading and writing without erasing anything up front, so a program can read the current content, decide what the new content should be, and write it back &mdash; typically after calling <code>file.seek(0)</code> to move back to the start of the file, since the read operation already advanced the file's internal position to the end.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting <code>"w"</code> mode as a way to "read then update" a file (it can't read at all after erasing, and the erasure itself already destroys the original content before any read could happen), or forgetting that <code>seek(0)</code> is needed before writing after a read in <code>"r+"</code> mode.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"In <code>"r+"</code> mode, what happens if a program reads the file's content and then calls <code>.write(...)</code> without first calling <code>file.seek(0)</code>?" (The write happens starting from wherever the file's internal position currently is &mdash; the end of the file, since reading moved it there &mdash; so instead of overwriting the existing content from the start, the new text gets appended after it instead.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> Why is checking "does this file exist?" before opening it (LBYL) considered weaker than just opening it inside a <code>try</code>/<code>except FileNotFoundError</code> (EAFP)?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>An upfront existence check and the actual <code>open()</code> call happen at two separate moments in time, and a file's existence isn't guaranteed to stay the same between them &mdash; another process could delete, move, or rename the file in that small gap, however unlikely that sounds in a given moment. That means an existence check passing doesn't actually guarantee the subsequent <code>open()</code> will succeed, so the check provides a false sense of safety while still requiring the code to handle a possible failure anyway. Just opening the file directly inside <code>try</code>/<code>except FileNotFoundError</code> sidesteps that timing gap entirely &mdash; there's no "check, then act" race condition, because the one operation that actually matters (opening the file) is the one being directly protected. This is the same EAFP philosophy from Chapter 12 (Easier to Ask Forgiveness than Permission), applied specifically to file access.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing an existence check followed immediately by <code>open()</code> is just as safe as wrapping the <code>open()</code> itself in <code>try</code>/<code>except</code>, without recognizing the race-condition gap between the two separate operations.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give a concrete (if unlikely) scenario where an existence check passes but the immediately following <code>open()</code> still fails." (Another process or user deletes the file in the brief moment between the existence check returning <code>True</code> and the <code>open()</code> call actually running &mdash; rare, but exactly the class of bug that wrapping <code>open()</code> itself in <code>try</code>/<code>except FileNotFoundError</code> avoids entirely, since it never depends on that separate, earlier check being accurate.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> In a real-world log-analysis script, why should reading the log file be wrapped in <code>try</code>/<code>except</code>, but the rest of the processing logic usually doesn't need to be?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Whether a log file even exists and is readable is genuinely outside a program's control &mdash; it can be deleted, not yet generated, on a different path than expected, or restricted by permissions, all for reasons that have nothing to do with a bug in the analysis script itself. That's exactly the kind of operation Chapter 12 taught belongs in a <code>try</code>/<code>except</code>: an anticipated failure mode with a real, sensible response (print a helpful message, skip this file, use a default). Once the file is successfully open and its lines are in memory as plain strings, counting log levels, searching for a keyword, or building a dictionary of error frequencies is ordinary, deterministic Python logic with no external failure mode &mdash; wrapping that in <code>try</code>/<code>except</code> too would only risk hiding a genuine bug in the processing logic behind an exception handler that was never meant to catch it. The rule of thumb: wrap the boundary where your program touches the outside world (the file system), not the internal logic that operates on data already safely in memory.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Wrapping the entire script (including pure in-memory processing logic) in one broad <code>try</code>/<code>except</code>, rather than isolating the exception handling specifically around the file-opening boundary where a real, external failure can actually occur.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A log-analysis script wraps its entire body &mdash; file open, counting, searching, exporting &mdash; in one <code>try</code>/<code>except Exception</code>. A typo causes a <code>NameError</code> in the counting logic. What happens?" (The <code>NameError</code> &mdash; a genuine bug, unrelated to the file actually being missing &mdash; gets silently caught by the same broad handler meant for a missing log file, likely printing a misleading "file not found"-style message instead of surfacing the real typo clearly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Why does <code>.write()</code> not add a newline automatically the way <code>print()</code> does, and what's the practical consequence?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>print()</code> is designed for convenient console output, so it adds a trailing newline by default so each call's output naturally lands on its own line. <code>file.write()</code> is a lower-level operation that writes exactly the string it's given &mdash; nothing more, nothing less &mdash; because a file isn't always meant to hold one "line" per logical piece of data the way a terminal display is; sometimes a program genuinely wants to build up a file's content piece by piece without an automatic newline forced in after every call. The practical consequence is that forgetting <code>"\n"</code> in a <code>.write()</code> call causes the next write to land immediately after the previous one on the same line, producing a file where several logically separate entries have run together &mdash; a very common beginner bug when translating <code>print()</code> habits directly into <code>.write()</code> calls.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>file.write("some text")</code> behaves exactly like <code>print("some text")</code> and automatically starts a new line for the next write.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"<code>file.write("Eggs")</code> followed by <code>file.write("Bread")</code>, with no <code>"\n"</code> in either call &mdash; what does the file actually contain?" (One single line: <code>EggsBread</code> &mdash; both writes land back to back with nothing separating them, since neither call included its own newline character.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What does <code>csv.reader</code> return for each row, and how is that different from what <code>csv.DictReader</code> returns?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>csv.reader(file)</code> yields one plain <code>list</code> of strings per row, including the header row itself as just an ordinary first list &mdash; it isn't treated as anything special unless the code explicitly separates it out. Every value comes back as a string, even ones that look numeric (a price column reads back as the string <code>"19.99"</code>, not a <code>float</code>), so converting types is the caller's responsibility. <code>csv.DictReader(file)</code> automatically consumes the first row as column names, then yields every following row as a <code>dict</code> mapping those column names to that row's string values &mdash; so the header row is never yielded as a row of data itself, and each field is accessed by name (<code>row["price"]</code>) instead of by position (<code>row[2]</code>).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>csv.reader</code>/<code>csv.DictReader</code> automatically convert numeric-looking fields to <code>int</code>/<code>float</code> (they don't &mdash; every value comes back as a plain string, and conversion is always explicit), or forgetting that <code>DictReader</code> consumes the header row itself rather than yielding it as ordinary data.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given a CSV column of prices like <code>19.99</code>, what Python type does <code>row["price"]</code> actually hold when read with <code>csv.DictReader</code>?" (<code>str</code> &mdash; the string <code>"19.99"</code>, not a <code>float</code>; converting it with <code>float(row["price"])</code> is a separate, explicit step the calling code has to do itself.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> In a batch job that processes a new log file every night, why does a file-handle leak matter more than it would in a short one-off script?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A one-off script that leaks a single file handle by skipping <code>with</code> is rarely noticeable &mdash; the process ends shortly after, and the operating system reclaims every resource that process was holding the moment it exits, leaked handle included. A long-running batch job that runs repeatedly (say, once every night, for months or years) and leaks a handle on every single run behaves completely differently: each run's leaked handle adds to whatever the process is already holding from every previous run, since the process itself never restarts to clear them out. Given enough nights, that slow accumulation eventually hits the operating system's limit on how many files a single process can have open at once, and the job starts failing to open anything at all &mdash; a failure that can take weeks to surface and is genuinely confusing to diagnose after the fact, since the code "works" for a long time before it doesn't. <code>with</code> makes this entire failure mode impossible by guaranteeing every file is closed at the end of its block, run after run, with nothing to slowly accumulate.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "just use <code>with</code>" as a stylistic nicety rather than being able to explain the concrete, slow-building failure (hitting the OS's open-file limit after enough repeated runs) that skipping it actually risks in a long-running or repeatedly-run program.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A nightly batch job leaks one file handle per run because it never calls <code>.close()</code> and an exception always skips past it. Does this cause an immediate crash, or a problem that appears only after many runs?" (Only after many runs &mdash; each night's leaked handle adds to the ones from previous nights, and the job keeps working fine for a long stretch until the accumulated total finally hits the operating system's per-process limit on open files, at which point it starts failing to open anything.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> The statement that automatically closes a file when its block ends, even if an exception occurs, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="with" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> The file mode that erases a file's existing content the instant it's opened is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="w,&quot;w&quot;" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> The file mode that adds new content after whatever already exists, without erasing it, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="a,&quot;a&quot;" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> The file mode that reads and writes without erasing existing content is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="r+,&quot;r+&quot;" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> Asking <code>open()</code> for a file that doesn't exist raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="FileNotFoundError" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Opening a file that exists but that the operating system won't allow access to raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="PermissionError" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> The module that correctly parses comma-separated data even when a field itself contains a comma is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="csv" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>'Widget,"Acme, Inc.",19.99'.split(",")</code> produces <code>____</code> elements (a number).</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="4,four" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> The <code>csv</code> class that turns each row into a dictionary using the header row as keys is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="csv.DictReader,DictReader" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> The <code>csv</code> class that writes a list of dictionaries to a file, using column names from <code>fieldnames</code>, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="csv.DictWriter,DictWriter" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> The argument that should always be passed when opening a file for <code>csv.writer</code>, to avoid extra blank lines, is <code>____=""</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="newline" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> A path like <code>"notes.txt"</code>, with no folder information, is called a <code>____</code> path.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="relative" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A relative path is resolved starting from the current <code>____</code> directory.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="working" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> Unlike <code>print()</code>, the file method <code>.write()</code> never adds a <code>____</code> character automatically.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="newline,\n" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

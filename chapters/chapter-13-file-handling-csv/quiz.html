@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive fill-in-the-blank quiz for Chapter 13: File Handling &amp; CSV.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-13" data-active-chapter="chapter-13">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 13 Quiz</span>
+  <h1>File Handling &amp; CSV</h1>
+  <p>Fill in each blank, then press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="q1"><span class="q-num">1</span> <code>____("notes.txt")</code> returns a file object connected to a file on disk, so it can be read from or written to.</label>
+      <div class="fib-row">
+        <input type="text" id="q1" class="fib-blank" data-answers="open" aria-label="Answer for question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> The <code>____</code> statement opens a file and automatically closes it when its block ends, even if an error happens inside.</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="with" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q3"><span class="q-num">3</span> <code>file.____()</code> reads a whole file's contents into a single string.</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="read" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q4"><span class="q-num">4</span> <code>file.____()</code> reads a whole file's contents as a list of lines, each still ending in <code>\n</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q4" class="fib-blank" data-answers="readlines" aria-label="Answer for question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q5"><span class="q-num">5</span> Opening a file with mode <code>"____"</code> erases its existing content the instant the file is opened.</label>
+      <div class="fib-row">
+        <input type="text" id="q5" class="fib-blank" data-answers="w" aria-label="Answer for question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> Opening a file with mode <code>"____"</code> adds new content after whatever is already there, instead of erasing it.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="a" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q7"><span class="q-num">7</span> Unlike <code>print()</code>, <code>file.write()</code> never adds a ____ automatically at the end of the text.</label>
+      <div class="fib-row">
+        <input type="text" id="q7" class="fib-blank" data-answers="newline" aria-label="Answer for question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q8"><span class="q-num">8</span> Mode <code>"____"</code> opens a file for both reading and writing, without erasing its existing content first.</label>
+      <div class="fib-row">
+        <input type="text" id="q8" class="fib-blank" data-answers="r+" aria-label="Answer for question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q9"><span class="q-num">9</span> ____ mode (the default) reads and writes ordinary strings; binary mode reads and writes raw bytes instead, for files that aren't plain text.</label>
+      <div class="fib-row">
+        <input type="text" id="q9" class="fib-blank" data-answers="text" aria-label="Answer for question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> A ____ path, like <code>"notes.txt"</code>, is resolved starting from the current working directory, and can point to a different file depending on where a program is run from.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="relative" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q11"><span class="q-num">11</span> <code>import ____</code> brings in the module used for reading and writing comma-separated tabular data correctly.</label>
+      <div class="fib-row">
+        <input type="text" id="q11" class="fib-blank" data-answers="csv" aria-label="Answer for question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q12"><span class="q-num">12</span> Hand-splitting a line with <code>.split(",")</code> breaks when a field itself contains a ____ — quoted fields need real CSV parsing instead.</label>
+      <div class="fib-row">
+        <input type="text" id="q12" class="fib-blank" data-answers="comma" aria-label="Answer for question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> <code>csv.____(file)</code> yields one list of strings per row from an open CSV file, correctly handling quoted fields.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="reader" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> <code>csv.____Reader(file)</code> uses the first row as column names, so each row afterward comes back as a dictionary instead of a plain list.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="Dict" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q15"><span class="q-num">15</span> When opening a file for <code>csv.writer</code> or <code>csv.DictWriter</code>, the file should be opened with <code>____=""</code> so the csv module controls line breaks itself.</label>
+      <div class="fib-row">
+        <input type="text" id="q15" class="fib-blank" data-answers="newline" aria-label="Answer for question 15">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>____Error</code> is raised when <code>open()</code> is given a path to a file that doesn't exist.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="FileNotFound" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> <code>____Error</code> is raised when a file exists but the operating system won't allow the program to access it.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="Permission" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> <code>try: open("data.txt") except FileNotFoundError:</code> follows the exact same pattern first taught in Chapter ____, applied here to file operations instead of parsing numbers.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="12" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> A file that's opened but never properly closed is called a file handle ____ — a real risk in long-running programs that open many files over time.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="leak" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> Real file-processing code should read defensively with <code>try</code>/<code>except</code>, process the data with plain Python, and export results with the ____ module — always inside <code>with</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="csv" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 13 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

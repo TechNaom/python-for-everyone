@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 13: File Handling &amp; CSV, including interview-style scenario problems on opening/reading files, writing files, file modes and paths, the csv module, and file exceptions.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-13">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 13 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: File Handling &amp; CSV</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Uses
+    everything from Chapters 1-12 plus this chapter's own toolkit:
+    <code>open()</code>/file I/O with <code>with</code>,
+    <code>.read()</code>/<code>.readline()</code>/<code>.readlines()</code>,
+    write (<code>"w"</code>) and append (<code>"a"</code>) modes,
+    <code>"r+"</code>, relative vs. absolute paths, the <code>csv</code>
+    module (<code>csv.reader</code>/<code>csv.writer</code>/
+    <code>csv.DictReader</code>/<code>csv.DictWriter</code>), and
+    <code>FileNotFoundError</code>/<code>PermissionError</code> handling.
+    No other class besides a custom exception subclassing
+    <code>Exception</code>, and no import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">A note on the sample files</span>
+    Every sample data file these problems read from
+    (<code>notes.txt</code>, <code>settings.txt</code>,
+    <code>sales.csv</code>, <code>sales_extra.csv</code>,
+    <code>app.log</code>, <code>orders.csv</code>) lives in this same
+    <code>practice/</code> folder. Download them alongside
+    <code>starter.py</code> and run everything from inside this folder
+    &mdash; a plain relative filename like <code>"notes.txt"</code> only
+    resolves correctly when Python is run from the same folder the file
+    lives in.
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#opening-files">1. Opening &amp; Reading Files</a>
+    <a href="#writing-files">2. Writing to Files</a>
+    <a href="#file-modes-paths">3. File Modes &amp; Paths</a>
+    <a href="#csv-module">4. The csv Module</a>
+    <a href="#file-exceptions">5. Handling File-Related Exceptions</a>
+    <a href="#bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> and the sample data files below
+    into one folder, then run <code>python3 starter.py</code> from
+    inside that same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+    <a href="notes.txt">notes.txt</a>
+    <a href="settings.txt">settings.txt</a>
+    <a href="sales.csv">sales.csv</a>
+    <a href="sales_extra.csv">sales_extra.csv</a>
+    <a href="app.log">app.log</a>
+    <a href="orders.csv">orders.csv</a>
+  </div>
+
+  <h2 id="opening-files">Topic 1: Opening &amp; Reading Files</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reading a whole file</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>read_whole_file(filename)</code>, opening with <code>with</code> and returning <code>file.read()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Counting lines</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>count_lines(filename)</code>, returning how many lines <code>.readlines()</code> found.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Reading just the first line</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Write <code>first_line(filename)</code>, returning just <code>file.readline().strip()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Looping over a file's lines</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write <code>lines_as_list(filename)</code>, looping over the file object directly and returning a stripped list.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This function opens a file the manual way with no <code>with</code> statement and no <code>.close()</code> call &mdash; a file handle leak. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Loading a config file at startup</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>load_startup_settings(filename)</code>, modeling how a real program reads its saved settings the moment it starts up.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>.read()</code> vs. <code>.readlines()</code></h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_read_vs_readlines()</code>, explaining the difference between the two.</p>
+  </div>
+
+  <h2 id="writing-files">Topic 2: Writing to Files</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Writing multiple lines</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>save_lines(filename, lines)</code>, opening in <code>"w"</code> mode and writing each line with its own <code>"\n"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Appending without erasing</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>append_line(filename, line)</code>, opening in <code>"a"</code> mode to add one more line without erasing what's there.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Overwriting on purpose</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write <code>overwrite_file(filename, text)</code>, opening in <code>"w"</code> mode to erase existing content and write new text.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Writing numbered lines</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Write <code>write_numbered_lines(filename, items)</code>, writing each item prefixed with its 1-based position.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This function is meant to accumulate a log across multiple calls, but it opens in <code>"w"</code> mode instead of <code>"a"</code> mode each time. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Appending to a shared audit log</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>record_audit_event(filename, username, action)</code> for a security log that must never lose a prior entry.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>"w"</code> vs. <code>"a"</code> in production</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_w_vs_a_risk()</code>, explaining the real-world risk of mixing up the two.</p>
+  </div>
+
+  <h2 id="file-modes-paths">Topic 3: File Modes &amp; Paths</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Summarizing the core modes</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>make_mode_summary()</code>, returning a dict describing all four core modes: <code>"r"</code>, <code>"w"</code>, <code>"a"</code>, <code>"r+"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Read-modify-write with <code>"r+"</code></h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>increment_counter_file(filename)</code>, using <code>"r+"</code> mode and <code>file.seek(0)</code> to read-then-overwrite a stored number.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Relative vs. absolute paths</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Write <code>describe_path_kind(path)</code>, returning <code>"absolute"</code> or <code>"relative"</code> based on the path's shape.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Being explicit about mode</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write <code>read_with_explicit_mode(filename)</code>, opening with the explicit <code>"r"</code> mode instead of relying on the default.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This function opens a file in <code>"w"</code> mode when it needed <code>"r+"</code> to read-then-update without erasing first. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>"It works on my machine"</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>explain_relative_path_bug(cwd, script_folder)</code>, explaining why a relative path can fail depending on where a script is run from.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why not always use absolute paths?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_absolute_path_tradeoff()</code>, explaining why absolute paths aren't just "the safer default".</p>
+  </div>
+
+  <h2 id="csv-module">Topic 4: The <code>csv</code> Module</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reading rows as lists</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>read_csv_rows(filename)</code>, using <code>csv.reader</code> to return a list of row-lists.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reading rows as dictionaries</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>read_csv_as_dicts(filename)</code>, using <code>csv.DictReader</code> to return a list of row-dictionaries.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Summing a numeric column</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write <code>total_sales_value(filename)</code>, summing a numeric column with <code>csv.DictReader</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Writing rows with <code>csv.writer</code></h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write <code>write_products_csv(filename, products)</code>, using <code>csv.writer</code> with <code>newline=""</code> to export rows.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This <code>csv.DictWriter</code> call forgot to pass <code>newline=""</code> when opening the file. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Importing a spreadsheet export</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>find_expensive_products(filename, minimum_price)</code>, filtering an exported CSV by a price threshold.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why not just <code>.split(",")</code>?</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_csv_module_value()</code>, explaining why production code uses the <code>csv</code> module instead of hand-splitting lines.</p>
+  </div>
+
+  <h2 id="file-exceptions">Topic 5: Handling File-Related Exceptions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Catching a missing file</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>read_safely(filename)</code>, catching <code>FileNotFoundError</code> and returning <code>None</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Using the exception's own message</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>read_safely_with_message(filename)</code>, catching <code>FileNotFoundError as e</code> and returning a message built from <code>e</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Falling back to a default</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write <code>load_or_default(filename, default_text)</code>, catching <code>FileNotFoundError</code> and returning a fallback value.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Handling two different file errors</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Write <code>open_for_either_error(filename)</code>, using separate <code>except FileNotFoundError</code> and <code>except PermissionError</code> blocks.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This function's <code>except</code> clause catches the wrong exception type entirely, so a genuinely missing file still crashes the program. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Defensive startup loader</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>load_user_preferences(filename)</code> for an app that must never crash just because a settings file doesn't exist yet.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Check first, or just try it?</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_check_first_vs_try_it()</code>, explaining why Python code usually prefers catching <code>FileNotFoundError</code> over checking existence first.</p>
+  </div>
+
+  <h2 id="bringing-together">Topic 6: Bringing It Together &mdash; File &amp; CSV Processing in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Counting matching lines defensively</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>count_error_lines(log_filename)</code>, defensively counting <code>"ERROR"</code> lines in a log file.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Exporting a summary report</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>export_summary_csv(counts, report_filename)</code>, exporting a dict of counts as a CSV report.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Counting multiple categories</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write <code>count_log_levels(log_filename)</code>, counting how many lines match each of several log levels.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Merging multiple CSV files</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write <code>merge_csv_reports(filenames, output_filename)</code>, defensively merging multiple CSV files that might not all exist into one combined report.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This function never actually catches <code>FileNotFoundError</code>, so a missing input file crashes the whole function instead of returning a safe fallback. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Nightly batch report job</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>run_nightly_report(log_filename, report_filename)</code>, combining defensive reading, log processing, and a CSV export into one real batch-job pattern.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The production file-processing pattern</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_production_file_pattern()</code>, describing the overall pattern real production code uses for file and CSV processing.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. A few TODOs (like
+    Topic 3.2 and 3.5) write to small helper files in this same folder
+    &mdash; that's expected, and running the script again should still
+    produce correct results.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

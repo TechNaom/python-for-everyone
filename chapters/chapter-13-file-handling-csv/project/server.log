@@ -1,0 +1,30 @@
+2026-07-01 09:58:02 INFO Server started
+2026-07-01 09:58:03 INFO Loaded configuration from config.yaml
+2026-07-01 10:02:15 INFO Server started
+2026-07-01 10:03:41 ERROR Database connection timeout
+2026-07-01 10:04:02 INFO User login: alice
+2026-07-01 10:05:10 ERROR Database connection timeout
+2026-07-01 10:06:33 WARNING Disk usage above 80%
+2026-07-01 10:07:45 ERROR Invalid API key
+2026-07-01 10:08:12 INFO User login: bob
+2026-07-01 10:09:20 INFO User login: carol
+2026-07-01 10:11:05 WARNING Disk usage above 80%
+2026-07-01 10:12:47 ERROR Database connection timeout
+2026-07-01 10:14:00 INFO Scheduled backup completed
+2026-07-01 10:16:23 ERROR Invalid API key
+2026-07-01 10:18:09 WARNING Memory usage above 75%
+2026-07-01 10:20:31 INFO User logout: alice
+2026-07-01 10:22:14 ERROR Database connection timeout
+2026-07-01 10:24:56 INFO User login: dave
+2026-07-01 10:26:40 ERROR Invalid API key
+2026-07-01 10:28:18 WARNING Disk usage above 80%
+2026-07-01 10:30:02 INFO User logout: bob
+2026-07-01 10:32:45 ERROR Payment gateway unreachable
+2026-07-01 10:34:11 INFO Scheduled backup completed
+2026-07-01 10:36:29 ERROR Database connection timeout
+2026-07-01 10:38:53 WARNING Memory usage above 75%
+2026-07-01 10:40:17 INFO User login: erin
+2026-07-01 10:42:36 ERROR Invalid API key
+2026-07-01 10:44:59 INFO User logout: carol
+2026-07-01 10:46:22 ERROR Payment gateway unreachable
+2026-07-01 10:48:08 INFO Server shutting down

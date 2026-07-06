@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13: File Handling &amp; CSV — Python for Everyone</title>
+<meta name="description" content="Opening and reading files with open() and with, writing and appending, file modes and paths, the csv module for structured data, handling FileNotFoundError, and real-world log/report processing.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-13">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 13 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">50 min read</span>
+  </div>
+  <h1>File Handling &amp; CSV</h1>
+  <p><em>Every program you've written so far forgets everything the moment it stops running. Variables, lists, results — all of it disappears the instant the script ends. Real programs need to remember things between runs: a saved high score, a list of customers, a log of what happened last night. This chapter is about reading and writing actual files on disk — plain text files and the <code>csv</code> format that spreadsheets and databases use everywhere — so your programs can finally hold onto data.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>A file is just data living outside your program</strong>, on disk, that survives after the program ends — <code>open()</code> is how Python connects to it.</li>
+      <li><strong>Sub-topics build on each other</strong> — reading first, then writing, then the full picture of modes and paths, then the <code>csv</code> module for structured data, then handling the exceptions files can raise, then combining all of it into one real workflow.</li>
+      <li><strong>This is where Chapter 12's <code>try</code>/<code>except</code> becomes essential again</strong> — files fail to open far more often than numbers fail to divide, and production code has to expect that.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#opening-files">1. Opening &amp; reading files</a>
+    <a href="#writing-files">2. Writing to files</a>
+    <a href="#file-modes-paths">3. File modes &amp; paths</a>
+    <a href="#csv-module">4. The csv module</a>
+    <a href="#file-exceptions">5. Handling file-related exceptions</a>
+    <a href="#bringing-together">6. Real-world file &amp; CSV processing in production</a>
+  </nav>
+
+  <div class="hook">
+    A to-do list app that forgets your tasks the moment you close it isn't very useful. Neither is a game that forgets your high score, or a business tool that forgets every customer it's ever seen. The only difference between a program that remembers and one that doesn't is whether it saves its data to a file — and that's exactly what this chapter teaches.
+  </div>
+
+  <div class="subtopic" id="opening-files">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Opening &amp; reading files</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>open("filename")</code> gives your program a connection to a file on disk, called a <strong>file object</strong>.</li>
+        <li><code>.read()</code>, <code>.readline()</code>, and <code>.readlines()</code> pull text out of that file in different shapes.</li>
+        <li>The <code>with</code> statement is the standard way to open a file — it closes the file automatically, even if something goes wrong.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every example before this chapter has lived entirely in memory. The moment a script ends, that data is gone. Files are how a program's data outlives the program itself.
+    </div>
+
+    <p>
+      Picture a plain text file called <code>notes.txt</code>, sitting in
+      the same folder as a script, with three lines in it:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">notes.txt — a plain text file, one task per line</span>
+      <pre><code>Buy milk
+Call the bank
+Finish the report</code></pre>
+    </div>
+
+    <p>
+      <code>open()</code> connects a Python program to that file so its
+      contents can be read into a string:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">read_whole_file.py</span>
+      </div>
+      <pre><code>with open("notes.txt") as file:
+    contents = file.read()
+
+print(contents)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of read_whole_file.py</span>
+      <pre><code>Buy milk
+Call the bank
+Finish the report</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a file object?</span>
+      A file object is what <code>open()</code> returns — a live
+      connection to a file on disk. It's not the file's text itself; it's
+      the thing your program reads from (or writes to) using methods
+      like <code>.read()</code>.
+    </div>
+
+    <p>
+      Notice the <code>with</code> keyword wrapping the whole thing. That
+      part isn't optional style — it's the standard, expected way to open
+      any file in Python, and the next few paragraphs explain exactly why.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>with</code> statement?</span>
+      <code>with open("notes.txt") as file:</code> opens the file, runs
+      the indented block below it, and then automatically closes the
+      file when that block ends — even if an error happens partway
+      through. <code>file</code> is just a variable name holding the
+      file object, same as any other variable.
+    </div>
+
+    <p>
+      "Automatic cleanup" means the file gets closed the instant the
+      <code>with</code> block finishes, with no extra line of code
+      needed. Compare that to opening a file the manual way:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">no_with_demo.py</span>
+      </div>
+      <pre><code>file = open("notes.txt")
+contents = file.read()
+file.close()
+
+print(contents)</code></pre>
+    </div>
+
+    <p>
+      This works, but it has a real risk: if anything raises an
+      exception between <code>open()</code> and <code>file.close()</code>,
+      that <code>close()</code> line never runs, and the file stays open
+      longer than it should. An open file that never gets closed is
+      called a <strong>file handle leak</strong> — a real problem in
+      programs that open many files over a long run, since operating
+      systems only allow so many open files at once. <code>with</code>
+      closes the file no matter what happens inside the block, so this
+      failure mode simply can't occur.
+    </p>
+
+    <p>
+      Reading a whole file into one string works for small files, but a
+      to-do list is really a list of separate lines. Looping over a file
+      object directly gives one line at a time:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">read_lines_loop.py</span>
+      </div>
+      <pre><code>with open("notes.txt") as file:
+    for line in file:
+        print("Task:", line.strip())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of read_lines_loop.py</span>
+      <pre><code>Task: Buy milk
+Task: Call the bank
+Task: Finish the report</code></pre>
+    </div>
+
+    <p>
+      <code>.strip()</code> removes the invisible newline character
+      (<code>\n</code>) that ends every line in the file — without it,
+      each printed task would have a stray blank line after it.
+    </p>
+
+    <p>
+      <code>.readlines()</code> is another option — it reads the whole
+      file at once, but returns a list of lines instead of one big
+      string:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">readlines_demo.py</span>
+      </div>
+      <pre><code>with open("notes.txt") as file:
+    lines = file.readlines()
+
+print(lines)
+print("Number of tasks:", len(lines))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of readlines_demo.py — note the \n still attached to each line</span>
+      <pre><code>['Buy milk\n', 'Call the bank\n', 'Finish the report\n']
+Number of tasks: 3</code></pre>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: .readline() reads just one line at a time</summary>
+      <p>
+        <code>file.readline()</code> (singular) reads only the next
+        single line each time it's called, and returns an empty string
+        once the file runs out of lines. It's rarely needed once you know
+        the for-loop pattern above, but it exists for cases where a
+        program needs to read a file's lines one at a time, on demand,
+        rather than all at once.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>open("filename")</code> returns a file object connected to a file on disk.</li>
+        <li><code>.read()</code> gets everything as one string; looping over the file, or <code>.readlines()</code>, gets it line by line.</li>
+        <li><code>with</code> is the standard way to open a file — it closes automatically, even if an error happens inside the block.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="writing-files">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Writing to files</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>open("filename", "w")</code> opens a file for writing — <strong>and erases whatever was already in it</strong>.</li>
+        <li><code>open("filename", "a")</code> opens a file for appending — new text is added after whatever's already there.</li>
+        <li><code>.write()</code> puts text into the file; it doesn't add a newline automatically.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> a program needs to save data so it's still there the next time the program runs — a saved list, a log entry, a generated report.
+    </div>
+
+    <p>
+      By default, <code>open()</code> only allows reading. Writing needs
+      a second argument telling Python what to do with the file:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">write_mode_demo.py</span>
+      </div>
+      <pre><code>with open("shopping_list.txt", "w") as file:
+    file.write("Eggs\n")
+    file.write("Bread\n")
+    file.write("Coffee\n")
+
+with open("shopping_list.txt") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of write_mode_demo.py</span>
+      <pre><code>Eggs
+Bread
+Coffee
+</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... write mode (<code>"w"</code>)?</span>
+      <code>"w"</code> is the second argument to <code>open()</code> that
+      means "I want to write to this file." If the file already has
+      content, that content is erased the instant the file is opened —
+      before a single new line is even written.
+    </div>
+
+    <p>
+      Notice each <code>.write()</code> call includes its own
+      <code>"\n"</code> at the end. Unlike <code>print()</code>,
+      <code>.write()</code> never adds a newline automatically — leaving
+      it out means the next write lands on the same line.
+    </p>
+
+    <p>
+      Append mode solves a different problem: adding new data without
+      losing what's already saved.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">append_mode_demo.py</span>
+      </div>
+      <pre><code>with open("shopping_list.txt", "a") as file:
+    file.write("Butter\n")
+
+with open("shopping_list.txt") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of append_mode_demo.py — Butter joins the existing list</span>
+      <pre><code>Eggs
+Bread
+Coffee
+Butter
+</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... append mode (<code>"a"</code>)?</span>
+      <code>"a"</code> opens a file so new writes are added after its
+      existing content, instead of erasing it first. If the file doesn't
+      exist yet, <code>"a"</code> creates it — the same as <code>"w"</code>
+      would.
+    </div>
+
+    <p>
+      Mixing the two up is one of the most common real file-handling
+      mistakes: opening a file in <code>"w"</code> mode when the goal was
+      actually to add one more line wipes out everything that came
+      before, permanently:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">overwrite_warning_demo.py</span>
+      </div>
+      <pre><code>with open("shopping_list.txt", "w") as file:
+    file.write("Only this line survives now\n")
+
+with open("shopping_list.txt") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of overwrite_warning_demo.py — Eggs, Bread, Coffee, and Butter are all gone</span>
+      <pre><code>Only this line survives now
+</code></pre>
+    </div>
+
+    <p>
+      There's no undo for this — once <code>"w"</code> mode opens a file,
+      the old content is unrecoverable. The rule to remember:
+      <code>"a"</code> to add, <code>"w"</code> to replace everything.
+    </p>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: writing several lines at once with .writelines()</summary>
+      <p>
+        <code>file.writelines(["Eggs\n", "Bread\n"])</code> writes a list
+        of strings one after another, without adding newlines between
+        them itself — each string still needs its own <code>"\n"</code>
+        if a line break is wanted. It's a small convenience over calling
+        <code>.write()</code> repeatedly, nothing more.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>open("filename", "w")</code> opens for writing and erases any existing content immediately.</li>
+        <li><code>open("filename", "a")</code> opens for appending, adding new content after what's already there.</li>
+        <li><code>.write()</code> never adds a newline on its own — include <code>"\n"</code> explicitly.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="file-modes-paths">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. File modes &amp; paths</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>The main modes are <code>"r"</code> (read, the default), <code>"w"</code> (write/overwrite), <code>"a"</code> (append), and <code>"r+"</code> (read <em>and</em> write, without erasing).</li>
+        <li>Text mode is the default and handles strings; binary mode (<code>"rb"</code>/<code>"wb"</code>) handles raw bytes, for files that aren't plain text.</li>
+        <li>A relative path like <code>"notes.txt"</code> is resolved starting from wherever the script is actually run from — not necessarily the folder the script lives in.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> "it works on my machine but not when someone else runs it" is very often a relative-path problem — understanding where Python looks for a file prevents that entire category of bug.
+    </div>
+
+    <p>
+      Sub-topics 1 and 2 already used three of the four common modes.
+      <code>"r+"</code> is the one left — it opens a file for both
+      reading and writing, without erasing it first, useful for a
+      read-modify-write update to a small file:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">rplus_demo.py</span>
+      </div>
+      <pre><code>with open("counter.txt", "w") as file:
+    file.write("0")
+
+with open("counter.txt", "r+") as file:
+    value = int(file.read())
+    file.seek(0)
+    file.write(str(value + 1))
+
+with open("counter.txt") as file:
+    print("Counter is now:", file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of rplus_demo.py</span>
+      <pre><code>Counter is now: 1</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>"r+"</code> mode?</span>
+      <code>"r+"</code> opens a file for reading and writing at the same
+      time, without erasing its existing content the way <code>"w"</code>
+      does. <code>file.seek(0)</code> moves back to the start of the file
+      before writing, since reading already moved the file's internal
+      position to the end.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>"r"</code> — read only; the default if no mode is given at all.</li>
+      <li><code>"w"</code> — write only; erases existing content immediately.</li>
+      <li><code>"a"</code> — append only; adds after existing content.</li>
+      <li><code>"r+"</code> — read and write, without erasing first.</li>
+    </ul>
+
+    <p>
+      Every example so far has also been in <strong>text mode</strong>,
+      which is the default and treats a file's contents as ordinary
+      strings.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... text mode vs. binary mode?</span>
+      Text mode (the default) reads and writes ordinary strings, and is
+      right for anything meant to be read as text — <code>.txt</code>,
+      <code>.csv</code>, log files, and so on. Binary mode
+      (<code>"rb"</code>, <code>"wb"</code>) reads and writes raw bytes
+      instead, which is what's needed for files that aren't text at all
+      — images, audio, PDFs. This chapter only works with text mode;
+      binary mode is worth knowing exists, but isn't needed for anything
+      here.
+    </div>
+
+    <p>
+      A relative path like <code>"notes.txt"</code>, with no folder
+      information at all, doesn't automatically mean "the same folder as
+      my script." Python looks for it starting from the
+      <strong>current working directory</strong> — wherever the
+      <code>python3</code> command was actually run from.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a relative vs. absolute path?</span>
+      A relative path (<code>"notes.txt"</code>) is resolved starting
+      from the current working directory, and can point to a different
+      file depending on where a program is run from. An absolute path
+      (<code>"/home/user/project/notes.txt"</code>) always points to the
+      exact same file, no matter where the program was launched from.
+    </div>
+
+    <p>
+      This is exactly why this course's convention is to <code>cd</code>
+      into an exercise's own folder before running it — every example
+      and exercise in this chapter opens files using a plain relative
+      filename, so it only finds them correctly when run from inside the
+      same folder they live in.
+    </p>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why absolute paths aren't just "the safer default"</summary>
+      <p>
+        Absolute paths avoid the working-directory problem entirely, but
+        they hard-code one specific location on one specific computer —
+        a path like <code>/home/alice/project/notes.txt</code> breaks the
+        moment the project moves to a different folder or a different
+        machine. Real projects usually solve this with relative paths run
+        from a known, consistent working directory (exactly this
+        chapter's convention), rather than hard-coded absolute ones.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>The core modes: <code>"r"</code> read, <code>"w"</code> write/overwrite, <code>"a"</code> append, <code>"r+"</code> read-and-write.</li>
+        <li>Text mode (the default) handles strings; binary mode handles raw bytes for non-text files.</li>
+        <li>A relative path is resolved from the current working directory, which depends on where the script was run from — not where the script file lives.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="csv-module">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. The <code>csv</code> module</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>CSV</strong> (comma-separated values) is a plain-text format for tabular data — the format spreadsheets export to and databases import from constantly.</li>
+        <li>Hand-splitting a line on commas breaks the moment a field itself contains a comma.</li>
+        <li><code>csv.reader</code>/<code>csv.writer</code> and <code>csv.DictReader</code>/<code>csv.DictWriter</code> handle this correctly, every time.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> CSV is one of the most common data formats in real business software — exported spreadsheets, database dumps, and reports almost always land as a <code>.csv</code> file at some point.
+    </div>
+
+    <p>
+      A tempting shortcut is splitting each line on commas by hand,
+      using <code>.split(",")</code> from earlier chapters. It looks fine
+      until a field contains a comma of its own — like a company name:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">naive_split_problem.py</span>
+      </div>
+      <pre><code>line = 'Widget,"Acme, Inc.",19.99'
+fields = line.split(",")
+
+print(fields)
+print("Number of fields:", len(fields))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of naive_split_problem.py — one row became four fields instead of three</span>
+      <pre><code>['Widget', '"Acme', ' Inc."', '19.99']
+Number of fields: 4</code></pre>
+    </div>
+
+    <p>
+      The comma inside <code>"Acme, Inc."</code> was meant to be part of
+      one field, quoted to protect it — but <code>.split(",")</code> has
+      no idea quotes mean anything special. This is exactly the problem
+      the <code>csv</code> module exists to solve.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... CSV?</span>
+      CSV stands for comma-separated values — a plain-text way to store
+      tabular data, one row per line, fields separated by commas. A field
+      that contains a comma is wrapped in quotes so it isn't mistaken for
+      two separate fields. It's one of the most common formats for
+      moving data between spreadsheets, databases, and programs.
+    </div>
+
+    <p>
+      Given a small CSV file of sales data, <code>csv.reader</code>
+      parses each row correctly, quotes and all:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">sales.csv — a small CSV file with a quoted field containing a comma</span>
+      <pre><code>product,supplier,price
+Widget,"Acme, Inc.",19.99
+Gadget,BetaCorp,34.50
+Gizmo,"Global Parts, Ltd.",12.00</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">csv_reader_demo.py</span>
+      </div>
+      <pre><code>import csv
+
+with open("sales.csv") as file:
+    reader = csv.reader(file)
+    for row in reader:
+        print(row)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of csv_reader_demo.py — "Acme, Inc." stayed one field</span>
+      <pre><code>['product', 'supplier', 'price']
+['Widget', 'Acme, Inc.', '19.99']
+['Gadget', 'BetaCorp', '34.50']
+['Gizmo', 'Global Parts, Ltd.', '12.00']</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>csv.reader</code>?</span>
+      <code>csv.reader(file)</code> wraps an open file and yields one
+      list of strings per row, correctly handling quoted fields — the
+      exact thing <code>.split(",")</code> got wrong above. Each row is a
+      plain list, so the header row (<code>"product"</code>,
+      <code>"supplier"</code>, <code>"price"</code>) is just the first
+      list, not treated specially on its own.
+    </div>
+
+    <p>
+      Working with a list per row means remembering that
+      <code>row[0]</code> is the product and <code>row[2]</code> is the
+      price — easy to get wrong. <code>csv.DictReader</code> uses the
+      header row to turn every row into a dictionary instead:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">csv_dictreader_demo.py</span>
+      </div>
+      <pre><code>import csv
+
+with open("sales.csv") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        print(row["product"], "-", row["price"])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of csv_dictreader_demo.py</span>
+      <pre><code>Widget - 19.99
+Gadget - 34.50
+Gizmo - 12.00</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>csv.DictReader</code>?</span>
+      <code>csv.DictReader(file)</code> reads the first row as column
+      names automatically, then yields each following row as a
+      dictionary — so <code>row["product"]</code> is far clearer than
+      remembering that the product happens to be <code>row[0]</code>.
+    </div>
+
+    <p>
+      Writing works the same way, in reverse. <code>csv.writer</code>
+      takes rows as lists:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">csv_writer_demo.py</span>
+      </div>
+      <pre><code>import csv
+
+rows = [
+    ["product", "quantity"],
+    ["Widget", 4],
+    ["Gadget", 2],
+]
+
+with open("restock.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(rows)
+
+with open("restock.csv") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of csv_writer_demo.py</span>
+      <pre><code>product,quantity
+Widget,4
+Gadget,2
+</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>newline=""</code> argument?</span>
+      <code>newline=""</code> tells Python not to add its own line
+      endings when writing a CSV file, letting the <code>csv</code>
+      module control line breaks itself. It's a small detail specific to
+      writing CSV files — always include it whenever a file is opened
+      for <code>csv.writer</code> or <code>csv.DictWriter</code>.
+    </div>
+
+    <p>
+      <code>csv.DictWriter</code> mirrors <code>DictReader</code>,
+      writing a list of dictionaries instead of a list of lists:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">csv_dictwriter_demo.py</span>
+      </div>
+      <pre><code>import csv
+
+records = [
+    {"product": "Widget", "quantity": 4},
+    {"product": "Gadget", "quantity": 2},
+]
+
+with open("restock_dict.csv", "w", newline="") as file:
+    writer = csv.DictWriter(file, fieldnames=["product", "quantity"])
+    writer.writeheader()
+    writer.writerows(records)
+
+with open("restock_dict.csv") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of csv_dictwriter_demo.py</span>
+      <pre><code>product,quantity
+Widget,4
+Gadget,2
+</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>fieldnames</code>?</span>
+      <code>fieldnames</code> tells <code>csv.DictWriter</code> which
+      dictionary keys to write, and in what column order.
+      <code>.writeheader()</code> writes those names as the first row,
+      matching what <code>DictReader</code> expects to find when reading
+      the file back later.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: csv.reader and csv.writer aren't limited to commas</summary>
+      <p>
+        <code>csv.reader(file, delimiter=";")</code> reads a file that
+        uses semicolons instead of commas to separate fields — some
+        regions and tools export CSV-like files this way. The
+        <code>delimiter</code> argument works for both reading and
+        writing whenever a file doesn't use a plain comma.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Hand-splitting on commas breaks when a field itself contains a comma; the <code>csv</code> module doesn't.</li>
+        <li><code>csv.reader</code>/<code>csv.writer</code> work with lists per row; <code>csv.DictReader</code>/<code>csv.DictWriter</code> work with dictionaries, using the header row as keys.</li>
+        <li>Always pass <code>newline=""</code> when opening a file for <code>csv.writer</code> or <code>csv.DictWriter</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="file-exceptions">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Handling file-related exceptions</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>FileNotFoundError</code> is raised when <code>open()</code> is asked for a file that doesn't exist.</li>
+        <li><code>PermissionError</code> is raised when the program isn't allowed to read or write a file it otherwise found fine.</li>
+        <li>This is Chapter 12's <code>try</code>/<code>except</code> pattern again — <code>open()</code> is simply one more risky operation to wrap.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> unlike a typed-in number, a file's existence is completely outside a program's control — it can be deleted, renamed, or moved by someone else at any moment.
+    </div>
+
+    <p>
+      Every example so far has assumed the file being opened actually
+      exists. Ask Python for a file that isn't there, and <code>open()</code>
+      fails immediately:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">filenotfound_crash.py</span>
+      </div>
+      <pre><code>with open("missing_file.txt") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of filenotfound_crash.py — the program stops here</span>
+      <pre><code>Traceback (most recent call last):
+  File "filenotfound_crash.py", line 1, in &#60;module&#62;
+    with open("missing_file.txt") as file:
+FileNotFoundError: [Errno 2] No such file or directory: 'missing_file.txt'</code></pre>
+    </div>
+
+    <p>
+      This is exactly Chapter 12's territory: an operation that can fail
+      for reasons outside a program's control, wrapped in
+      <code>try</code>/<code>except</code> so one missing file doesn't
+      crash everything:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">file_exception_demo.py</span>
+      </div>
+      <pre><code>try:
+    with open("missing_file.txt") as file:
+        print(file.read())
+except FileNotFoundError:
+    print("That file doesn't exist yet.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of file_exception_demo.py — the program keeps running</span>
+      <pre><code>That file doesn't exist yet.</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>FileNotFoundError</code>?</span>
+      <code>FileNotFoundError</code> is the exception Python raises when
+      <code>open()</code> is asked for a file at a path that doesn't
+      exist. It's caught exactly like <code>ValueError</code> was in
+      Chapter 12 — <code>try: open(...) except FileNotFoundError:</code>.
+    </div>
+
+    <p>
+      Just like Chapter 12's <code>as e</code>, the exception object
+      itself carries a useful message about exactly what went wrong:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">file_exception_object_demo.py</span>
+      </div>
+      <pre><code>try:
+    with open("missing_file.txt") as file:
+        print(file.read())
+except FileNotFoundError as e:
+    print("Could not open file:", e)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of file_exception_object_demo.py</span>
+      <pre><code>Could not open file: [Errno 2] No such file or directory: 'missing_file.txt'</code></pre>
+    </div>
+
+    <p>
+      A related exception, <code>PermissionError</code>, happens for a
+      different reason — the file exists, but the operating system won't
+      let the program open it. This shows up in real life more than it
+      might seem: a file open in another program that's locked it, a
+      folder a user account isn't allowed to write to, a system file
+      that's read-only.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>PermissionError</code>?</span>
+      <code>PermissionError</code> is raised when a file exists but the
+      operating system denies the program access to it — for example,
+      trying to write to a read-only file, or a folder the current user
+      account doesn't have permission to modify.
+    </div>
+
+    <p>
+      Both exceptions can be caught together when a program's response
+      to either one is the same:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">multiple_file_exceptions.py</span>
+      </div>
+      <pre><code>def load_config(filename):
+    try:
+        with open(filename) as file:
+            return file.read()
+    except FileNotFoundError:
+        print(f"'{filename}' doesn't exist — using defaults.")
+        return ""
+    except PermissionError:
+        print(f"Not allowed to read '{filename}' — using defaults.")
+        return ""
+
+print(load_config("missing_file.txt"))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of multiple_file_exceptions.py</span>
+      <pre><code>'missing_file.txt' doesn't exist — using defaults.
+</code></pre>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just check if a file exists first?</summary>
+      <p>
+        It's tempting to check "does this file exist?" before opening
+        it, but that check and the actual <code>open()</code> call
+        happen at two different moments — the file could be deleted in
+        between, however unlikely that sounds. Catching
+        <code>FileNotFoundError</code> directly is both simpler and
+        immune to that timing gap, which is why Python code almost
+        always prefers "try it and catch the failure" over "check first."
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>FileNotFoundError</code> fires when <code>open()</code> is given a path that doesn't exist.</li>
+        <li><code>PermissionError</code> fires when the file exists but access is denied.</li>
+        <li>Both follow Chapter 12's exact <code>try</code>/<code>except</code> pattern — <code>open()</code> is just one more operation that can fail.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world file &amp; CSV processing in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A realistic workflow reads a raw log file, counts what matters, and exports the result as a CSV report — combining every sub-topic in this chapter.</li>
+        <li>Context managers (<code>with</code>) matter even more in long-running programs, where a leaked file handle can pile up over hours or days.</li>
+        <li>File operations should always be wrapped defensively — a missing or unreadable file shouldn't be able to crash a whole batch job.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> read defensively with <code>try</code>/<code>except</code>, process with plain Python, export with the <code>csv</code> module — always inside <code>with</code>.
+    </div>
+
+    <p>
+      Server logs are one of the most common real files a program
+      processes — line after line of timestamped events, most routine,
+      some worth flagging. A small slice of one might look like this:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">app.log — a small slice of a server's log file</span>
+      <pre><code>2026-07-01 10:02:15 INFO Server started
+2026-07-01 10:03:41 ERROR Database connection timeout
+2026-07-01 10:04:02 INFO User login: alice
+2026-07-01 10:05:10 ERROR Database connection timeout
+2026-07-01 10:06:33 WARNING Disk usage above 80%
+2026-07-01 10:07:45 ERROR Invalid API key
+2026-07-01 10:08:12 INFO User login: bob</code></pre>
+    </div>
+
+    <p>
+      A useful report counts how often each distinct error occurred, and
+      saves that count as a CSV file another tool (or a spreadsheet) can
+      open directly:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">log_report.py</span>
+      </div>
+      <pre><code>import csv
+
+def count_error_types(log_filename):
+    counts = {}
+    try:
+        with open(log_filename) as file:
+            for line in file:
+                if "ERROR" in line:
+                    message = line.strip().split("ERROR", 1)[1].strip()
+                    counts[message] = counts.get(message, 0) + 1
+    except FileNotFoundError:
+        print(f"Log file '{log_filename}' not found.")
+        return {}
+    return counts
+
+def export_report(counts, report_filename):
+    with open(report_filename, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["error_message", "occurrences"])
+        for message, occurrences in counts.items():
+            writer.writerow([message, occurrences])
+
+error_counts = count_error_types("app.log")
+export_report(error_counts, "error_report.csv")
+
+with open("error_report.csv") as file:
+    print(file.read())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of log_report.py</span>
+      <pre><code>error_message,occurrences
+Database connection timeout,2
+Invalid API key,1
+</code></pre>
+    </div>
+
+    <p>
+      Notice how much of this chapter shows up in one small program: a
+      <code>with</code> block reading the log line by line, a
+      <code>try</code>/<code>except</code> guarding against a missing log
+      file, plain-Python counting logic from earlier chapters, and
+      <code>csv.writer</code> producing a clean report at the end.
+    </p>
+
+    <p>
+      The reason <code>with</code> matters even more here than in a
+      short script: a batch job like this might run every night, for
+      years, processing a new log file each time. If file handles ever
+      leaked — left open because an exception skipped past a manual
+      <code>.close()</code> — that leak would slowly accumulate every
+      single run, eventually hitting the operating system's limit on
+      open files and crashing the whole job. <code>with</code> makes that
+      entire failure mode impossible, run after run, without anyone
+      having to think about it again.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A missing or unreadable log file is caught and reported, instead of crashing the entire report job.</li>
+      <li><code>with</code> guarantees every file — the log being read and the report being written — gets closed properly, even if something above it fails.</li>
+      <li>The output is a real CSV file, ready to open in a spreadsheet or feed into another program — the same shape data takes throughout real software systems.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: this same pattern scales to much bigger jobs</summary>
+      <p>
+        Real production log processing works at a much larger scale —
+        gigabytes of logs, dedicated logging services, databases instead
+        of CSV files — but the core shape stays identical: read
+        defensively, process the data, write the result somewhere durable.
+        Everything in this chapter is the same pattern at a beginner's
+        scale, using only files and the <code>csv</code> module.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Real file processing combines defensive <code>try</code>/<code>except</code>, plain Python logic, and the <code>csv</code> module for output.</li>
+        <li><code>with</code> prevents file-handle leaks, which matter most in programs that run repeatedly over a long time.</li>
+        <li>A missing input file should be caught and reported, never allowed to crash an entire batch job.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Nearly every business tool exports and imports CSV at some point — sales reports, customer lists, financial data — because it's a plain-text format every spreadsheet and database already understands.</li>
+      <li>Server and application logs, exactly like Sub-topic 6's <code>app.log</code>, are how real engineering teams diagnose problems after the fact — turning raw log lines into a summarized report is one of the most common real scripting tasks there is.</li>
+      <li>Long-running production programs — web servers, scheduled batch jobs, data pipelines — depend on <code>with</code>'s automatic cleanup specifically because they can't afford a slow file-handle leak building up over days or weeks of continuous operation.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>open("filename")</code> returns a file object; <code>.read()</code>, looping over the file, and <code>.readlines()</code> all read its contents, and <code>with</code> is the standard way to open any file — it closes automatically, even on error.</li>
+      <li><code>"w"</code> mode erases a file's existing content immediately; <code>"a"</code> mode appends after it instead. <code>.write()</code> never adds a newline on its own.</li>
+      <li>The core modes are <code>"r"</code>, <code>"w"</code>, <code>"a"</code>, and <code>"r+"</code>; text mode handles strings and is the default, binary mode handles raw bytes; a relative path is resolved from the current working directory, not necessarily the script's own folder.</li>
+      <li>The <code>csv</code> module reads and writes tabular data correctly, even when fields contain commas — <code>csv.reader</code>/<code>csv.writer</code> use lists per row, <code>csv.DictReader</code>/<code>csv.DictWriter</code> use dictionaries keyed by column name.</li>
+      <li><code>FileNotFoundError</code> and <code>PermissionError</code> are caught with the same <code>try</code>/<code>except</code> pattern from Chapter 12 — <code>open()</code> is simply one more operation that can fail.</li>
+      <li>Real file and CSV processing combines all of this: defensive exception handling around reading, plain Python for processing, and the <code>csv</code> module for output — always inside <code>with</code> to prevent file-handle leaks.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

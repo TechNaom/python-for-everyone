@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 13 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on processing file and CSV content as strings — log-line counting, prefix extraction, csv.DictReader parsing, and column aggregation — for Chapter 13: File Handling & CSV.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-13">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 13 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: File Handling &amp; CSV</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-13 have covered so far &mdash; everything through custom
+    exception classes, and this chapter's own toolkit: string processing of
+    file-shaped content and the <code>csv</code> module. No other class
+    besides a custom exception, and no import beyond
+    <code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why every challenge takes content as a string, not a filename</span>
+    Pyodide's in-browser sandbox has no real filesystem to <code>open()</code>
+    a file from, so every challenge here takes the file's or CSV's
+    <strong>contents</strong> as a plain string argument &mdash; exactly what
+    you'd already have in hand after a real <code>with open(...) as file:
+    content = file.read()</code> call. For the CSV challenges,
+    <code>csv.reader</code> and <code>csv.DictReader</code> both accept any
+    iterable of strings, not just an open file object &mdash; so
+    <code>csv.DictReader(csv_content.splitlines())</code> works exactly the
+    same way <code>csv.DictReader(file)</code> would on a real file.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Count Matching Lines <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_lines_containing(content, keyword)</code> that takes the contents of a log file as a string, splits it into lines, and returns how many lines contain <code>keyword</code> anywhere in them.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>content</code> may be an empty string; <code>keyword</code> matching is case-sensitive and can appear anywhere in the line.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_lines_containing("a\nb\nc", "a")</code> &rarr; <code>1</code><br>
+        <code>count_lines_containing("", "ERROR")</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def count_lines_containing(content, keyword):
+    # TODO: split content into lines with .splitlines(), and return how
+    # many of them contain keyword anywhere in the line.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_lines_containing",
+  "cases": [
+    { "args": ["2026-07-01 10:02:15 INFO Server started\n2026-07-01 10:03:41 ERROR Database connection timeout\n2026-07-01 10:04:02 INFO User login: alice\n2026-07-01 10:05:10 ERROR Database connection timeout\n2026-07-01 10:06:33 WARNING Disk usage above 80%\n2026-07-01 10:07:45 ERROR Invalid API key\n2026-07-01 10:08:12 INFO User login: bob", "ERROR"], "expected": 3 },
+    { "args": ["2026-07-01 10:02:15 INFO Server started\n2026-07-01 10:03:41 ERROR Database connection timeout\n2026-07-01 10:04:02 INFO User login: alice\n2026-07-01 10:05:10 ERROR Database connection timeout\n2026-07-01 10:06:33 WARNING Disk usage above 80%\n2026-07-01 10:07:45 ERROR Invalid API key\n2026-07-01 10:08:12 INFO User login: bob", "INFO"], "expected": 3 },
+    { "args": ["2026-07-01 10:02:15 INFO Server started\n2026-07-01 10:03:41 ERROR Database connection timeout", "CRITICAL"], "expected": 0 },
+    { "args": ["", "ERROR"], "expected": 0 },
+    { "args": ["a\nb\nc", "a"], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def count_lines_containing(content, keyword):
+    count = 0
+    for line in content.splitlines():
+        if keyword in line:
+            count += 1
+    return count</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Extract Lines by Prefix <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>extract_lines_with_prefix(content, prefix)</code> that takes file content as a string and returns a list of every line that starts with <code>prefix</code>, in the order they appear.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>content</code> may be an empty string; no line may match, in which case return an empty list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>extract_lines_with_prefix("apple\nbanana\napricot", "ap")</code> &rarr; <code>["apple", "apricot"]</code><br>
+        <code>extract_lines_with_prefix("apple\nbanana", "z")</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def extract_lines_with_prefix(content, prefix):
+    # TODO: split content into lines, and return a list of every line
+    # where line.startswith(prefix) is True.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "extract_lines_with_prefix",
+  "cases": [
+    { "args": ["2026-07-01 10:02:15 INFO Server started\n2026-07-01 10:03:41 ERROR Database connection timeout", "2026-07-01 10:03"], "expected": ["2026-07-01 10:03:41 ERROR Database connection timeout"] },
+    { "args": ["apple\nbanana\napricot", "ap"], "expected": ["apple", "apricot"] },
+    { "args": ["apple\nbanana", "z"], "expected": [] },
+    { "args": ["", "x"], "expected": [] },
+    { "args": ["Task: A\nTask: B\nNote: C", "Task:"], "expected": ["Task: A", "Task: B"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def extract_lines_with_prefix(content, prefix):
+    matches = []
+    for line in content.splitlines():
+        if line.startswith(prefix):
+            matches.append(line)
+    return matches</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> Count Error Types <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_error_types(log_content)</code> that takes a server log's content as a string. For every line containing <code>"ERROR"</code>, extract the message that comes after it (split the stripped line on <code>"ERROR"</code> once, take the second part, and <code>.strip()</code> it), then return a dict counting how many times each distinct error message occurred.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>log_content</code> may be an empty string, or contain no <code>"ERROR"</code> lines at all, in which case return <code>{}</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_error_types("ERROR bad\nERROR bad")</code> &rarr; <code>{"bad": 2}</code><br>
+        <code>count_error_types("INFO all good")</code> &rarr; <code>{}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def count_error_types(log_content):
+    # TODO: counts = {}. For each line in log_content.splitlines(), if
+    # "ERROR" in line: message = line.strip().split("ERROR", 1)[1].strip(),
+    # then counts[message] = counts.get(message, 0) + 1. Return counts.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_error_types",
+  "cases": [
+    { "args": ["2026-07-01 10:02:15 INFO Server started\n2026-07-01 10:03:41 ERROR Database connection timeout\n2026-07-01 10:04:02 INFO User login: alice\n2026-07-01 10:05:10 ERROR Database connection timeout\n2026-07-01 10:06:33 WARNING Disk usage above 80%\n2026-07-01 10:07:45 ERROR Invalid API key\n2026-07-01 10:08:12 INFO User login: bob"], "expected": { "Database connection timeout": 2, "Invalid API key": 1 } },
+    { "args": [""], "expected": {} },
+    { "args": ["INFO all good"], "expected": {} },
+    { "args": ["ERROR bad\nERROR bad"], "expected": { "bad": 2 } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def count_error_types(log_content):
+    counts = {}
+    for line in log_content.splitlines():
+        if "ERROR" in line:
+            message = line.strip().split("ERROR", 1)[1].strip()
+            counts[message] = counts.get(message, 0) + 1
+    return counts</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Parse CSV Content <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>parse_csv_content(csv_content)</code> that takes the contents of a CSV file as a string and returns a list of dictionaries, one per data row, using <code>csv.DictReader(csv_content.splitlines())</code> &mdash; <code>DictReader</code> accepts any iterable of strings, not just an open file object, so splitting the content into lines first works exactly the way reading from a real file would.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> the first line is always the header row; a CSV with only a header (no data rows) returns an empty list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>parse_csv_content("a,b\n1,2")</code> &rarr; <code>[{"a": "1", "b": "2"}]</code><br>
+        <code>parse_csv_content("a,b")</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+import csv
+
+
+def parse_csv_content(csv_content):
+    # TODO: reader = csv.DictReader(csv_content.splitlines()). Return a
+    # list built from looping over reader and converting each row to a
+    # plain dict with dict(row).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "parse_csv_content",
+  "cases": [
+    { "args": ["product,supplier,price\nWidget,\"Acme, Inc.\",19.99\nGadget,BetaCorp,34.50"], "expected": [ { "product": "Widget", "supplier": "Acme, Inc.", "price": "19.99" }, { "product": "Gadget", "supplier": "BetaCorp", "price": "34.50" } ] },
+    { "args": ["a,b\n1,2"], "expected": [ { "a": "1", "b": "2" } ] },
+    { "args": ["a,b"], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>import csv
+
+
+def parse_csv_content(csv_content):
+    reader = csv.DictReader(csv_content.splitlines())
+    return [dict(row) for row in reader]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Sum a CSV Column <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>sum_csv_column(csv_content, column_name)</code> that parses <code>csv_content</code> with <code>csv.DictReader(csv_content.splitlines())</code>, converts <code>row[column_name]</code> to a <code>float</code> for every row, and returns the total, rounded to 2 decimal places.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> the column always contains numeric strings; a CSV with only a header returns <code>0.0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>sum_csv_column("qty\n1\n2\n3", "qty")</code> &rarr; <code>6.0</code><br>
+        <code>sum_csv_column("qty\n0", "qty")</code> &rarr; <code>0.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import csv
+
+
+def sum_csv_column(csv_content, column_name):
+    # TODO: reader = csv.DictReader(csv_content.splitlines()). total =
+    # 0.0. For each row, total += float(row[column_name]). Return
+    # round(total, 2).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "sum_csv_column",
+  "cases": [
+    { "args": ["product,supplier,price\nWidget,\"Acme, Inc.\",19.99\nGadget,BetaCorp,34.50", "price"], "expected": 54.49 },
+    { "args": ["qty\n1\n2\n3", "qty"], "expected": 6.0 },
+    { "args": ["qty\n0", "qty"], "expected": 0.0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>import csv
+
+
+def sum_csv_column(csv_content, column_name):
+    reader = csv.DictReader(csv_content.splitlines())
+    total = 0.0
+    for row in reader:
+        total += float(row[column_name])
+    return round(total, 2)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Find the Max Row <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>find_max_row(csv_content, column_name, key_column)</code> that parses <code>csv_content</code> with <code>csv.DictReader</code>, finds the row where <code>float(row[column_name])</code> is largest, and returns that row's <code>row[key_column]</code> value.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> there is always at least one data row; no ties are used in the test cases.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>find_max_row("name,score\nA,10\nB,99\nC,5", "score", "name")</code> &rarr; <code>"B"</code><br>
+        <code>find_max_row("name,score\nA,10", "score", "name")</code> &rarr; <code>"A"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import csv
+
+
+def find_max_row(csv_content, column_name, key_column):
+    # TODO: reader = csv.DictReader(csv_content.splitlines()).
+    # best_key = None, best_value = None. For each row, value =
+    # float(row[column_name]); if best_value is None or value >
+    # best_value, update best_value and best_key = row[key_column].
+    # Return best_key.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "find_max_row",
+  "cases": [
+    { "args": ["product,supplier,price\nWidget,\"Acme, Inc.\",19.99\nGadget,BetaCorp,34.50", "price", "product"], "expected": "Gadget" },
+    { "args": ["name,score\nA,10\nB,99\nC,5", "score", "name"], "expected": "B" },
+    { "args": ["name,score\nA,10", "score", "name"], "expected": "A" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>import csv
+
+
+def find_max_row(csv_content, column_name, key_column):
+    reader = csv.DictReader(csv_content.splitlines())
+    best_key = None
+    best_value = None
+    for row in reader:
+        value = float(row[column_name])
+        if best_value is None or value > best_value:
+            best_value = value
+            best_key = row[key_column]
+    return best_key</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Safe Batch Parse <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_parse_int_lines(content)</code> that splits <code>content</code> into lines, skips any blank line, and tries to convert each remaining line (after <code>.strip()</code>) to an <code>int</code> inside a <code>try</code>/<code>except ValueError</code> &mdash; appending successful conversions to a <code>successes</code> list and failing raw lines to a <code>failures</code> list. Return <code>{"successes": successes, "failures": failures}</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>content</code> may be empty or contain only blank lines, in which case both lists are empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_parse_int_lines("1\n2\nabc\n4\nxyz")</code> &rarr; <code>{"successes": [1, 2, 4], "failures": ["abc", "xyz"]}</code><br>
+        <code>safe_parse_int_lines("")</code> &rarr; <code>{"successes": [], "failures": []}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def safe_parse_int_lines(content):
+    # TODO: successes = [], failures = []. For each line in
+    # content.splitlines(): stripped = line.strip(); if stripped == "":
+    # continue (skip blank lines); try int(stripped), appending to
+    # successes; except ValueError, append stripped to failures. Return
+    # {"successes": successes, "failures": failures}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_parse_int_lines",
+  "cases": [
+    { "args": ["1\n2\nabc\n4\nxyz"], "expected": { "successes": [1, 2, 4], "failures": ["abc", "xyz"] } },
+    { "args": [""], "expected": { "successes": [], "failures": [] } },
+    { "args": ["10\n20\n30"], "expected": { "successes": [10, 20, 30], "failures": [] } },
+    { "args": ["\n\n"], "expected": { "successes": [], "failures": [] } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def safe_parse_int_lines(content):
+    successes = []
+    failures = []
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped == "":
+            continue
+        try:
+            successes.append(int(stripped))
+        except ValueError:
+            failures.append(stripped)
+    return {"successes": successes, "failures": failures}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Count Rows by Category <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>csv_row_count_by_category(csv_content, category_column)</code> that parses <code>csv_content</code> with <code>csv.DictReader</code> and returns a dict counting how many rows fall into each distinct value of <code>row[category_column]</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> a CSV with only a header (no data rows) returns <code>{}</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>csv_row_count_by_category("name,dept\nA,eng\nB,sales\nC,eng", "dept")</code> &rarr; <code>{"eng": 2, "sales": 1}</code><br>
+        <code>csv_row_count_by_category("name,dept", "dept")</code> &rarr; <code>{}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import csv
+
+
+def csv_row_count_by_category(csv_content, category_column):
+    # TODO: reader = csv.DictReader(csv_content.splitlines()). counts =
+    # {}. For each row, category = row[category_column]; counts[category]
+    # = counts.get(category, 0) + 1. Return counts.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "csv_row_count_by_category",
+  "cases": [
+    { "args": ["name,dept\nA,eng\nB,sales\nC,eng", "dept"], "expected": { "eng": 2, "sales": 1 } },
+    { "args": ["name,dept\nA,eng", "dept"], "expected": { "eng": 1 } },
+    { "args": ["name,dept", "dept"], "expected": {} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import csv
+
+
+def csv_row_count_by_category(csv_content, category_column):
+    reader = csv.DictReader(csv_content.splitlines())
+    counts = {}
+    for row in reader:
+        category = row[category_column]
+        counts[category] = counts.get(category, 0) + 1
+    return counts</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>
