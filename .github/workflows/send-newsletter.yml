@@ -1,0 +1,61 @@
+name: Send Chapter Newsletter
+
+# Manually triggered only -- never runs on push. Sending an email to the
+# whole subscriber list is not reversible, so this requires a human to
+# open the Actions tab and fill in the inputs every time, plus type
+# "SEND" to actually go live (see confirm_send below). Defaults to a
+# dry run that only prints what would be sent.
+
+on:
+  workflow_dispatch:
+    inputs:
+      chapter_number:
+        description: "Chapter number, e.g. 12"
+        required: true
+      chapter_title:
+        description: "Chapter title, e.g. Exception Handling"
+        required: true
+      chapter_path:
+        description: "Folder name, e.g. chapter-12-exception-handling"
+        required: true
+      project_name:
+        description: "This chapter's project name, e.g. ATM Simulator"
+        required: true
+      subtopics:
+        description: "One line per subtopic, separated by | (pipe)"
+        required: true
+      hook_line:
+        description: "One custom sentence about what's interesting in this chapter (optional but recommended)"
+        required: false
+      ps_teaser:
+        description: "Optional P.S. line about what's coming next"
+        required: false
+      dry_run:
+        description: "true = only print the email, do not send. Set to false to actually send."
+        required: true
+        default: "true"
+      confirm_send:
+        description: "Type SEND (exact, all caps) to allow a real send when dry_run is false. Any other value blocks sending."
+        required: false
+        default: ""
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build and send newsletter
+        env:
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+          CHAPTER_NUMBER: ${{ inputs.chapter_number }}
+          CHAPTER_TITLE: ${{ inputs.chapter_title }}
+          CHAPTER_PATH: ${{ inputs.chapter_path }}
+          PROJECT_NAME: ${{ inputs.project_name }}
+          SUBTOPICS: ${{ inputs.subtopics }}
+          HOOK_LINE: ${{ inputs.hook_line }}
+          PS_TEASER: ${{ inputs.ps_teaser }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          CONFIRM_SEND: ${{ inputs.confirm_send }}
+        run: python3 .github/scripts/send_newsletter.py
