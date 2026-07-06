@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 12: Exception Handling, including two Debug the Code tasks — a bare except: hiding a NameError, and except blocks in the wrong order.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-12">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 12 Exercises</span>
+    <span class="reading-time">25 min, hands-on</span>
+  </div>
+  <h1>Exercises: Exception Handling</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> try/except basics</h3>
+    <p>Write a function <code>parse_quantity(text)</code> that returns <code>int(text)</code>, but catches a <code>ValueError</code> — printing <code>"Not a valid quantity:"</code> followed by <code>repr(text)</code>, and returning <code>None</code>. Call it with <code>"5"</code> and with <code>"five"</code> and print both results.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> else and finally</h3>
+    <p>Write a function <code>safe_average(numbers)</code> that computes <code>sum(numbers) / len(numbers)</code> inside a <code>try</code>. Catch <code>ZeroDivisionError</code> and print <code>"Can't average an empty list."</code>. In an <code>else</code> block, print <code>"Average:"</code> followed by the result. In a <code>finally</code> block, print <code>"Average check done."</code> Call it with <code>[10, 20, 30]</code> and with <code>[]</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Accessing the exception object</h3>
+    <p>Write a function <code>parse_price(text)</code> that returns <code>float(text)</code>, catching a <code>ValueError as e</code> and printing <code>"Could not parse price:"</code> followed by <code>str(e)</code>, then returning <code>None</code>. Call it with <code>"19.99"</code> and with <code>"free"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Raising exceptions deliberately</h3>
+    <p>Write a function <code>set_quantity(qty)</code> that raises a <code>ValueError("quantity must be at least 1")</code> if <code>qty &lt; 1</code>, otherwise returns <code>qty</code>. Call it with <code>0</code> inside a <code>try</code>/<code>except ValueError as e</code> that prints <code>"Rejected:"</code> followed by <code>e</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Custom exception classes</h3>
+    <p>Define <code>class OutOfStockError(Exception): pass</code>. Write a function <code>place_order(stock, requested)</code> that raises an <code>OutOfStockError</code> with the message <code>f"Only {stock} left, requested {requested}"</code> if <code>requested &gt; stock</code>, otherwise returns <code>stock - requested</code>. Call it with <code>stock=3, requested=5</code> inside a <code>try</code>/<code>except OutOfStockError as e</code> that prints <code>"Order failed:"</code> followed by <code>e</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Bringing it together: checkout flow</h3>
+    <p>Write a function <code>checkout(stock, requested)</code> that calls <code>place_order(stock, requested)</code> inside a <code>try</code>. On <code>OutOfStockError as e</code>, print <code>"Checkout failed:"</code> followed by <code>e</code> and return <code>None</code>. In <code>else</code>, print <code>"Checkout succeeded, remaining stock:"</code> followed by the result, and return it. In <code>finally</code>, print <code>"Checkout attempt logged."</code> Call it with <code>(10, 3)</code> and then <code>(10, 20)</code>.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This code uses a bare <code>except:</code> that hides a real bug — a typo'd variable name inside the <code>try</code> block silently prints "Something went wrong" instead of surfacing the actual <code>NameError</code>. Find and fix the bug so the typo is visible and the working code still runs correctly.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_bare_except.py</span>
+      </div>
+      <pre><code>def get_total(price, quantity):
+    try:
+        total = pryce * quantity
+        print("Total:", total)
+    except:
+        print("Something went wrong.")
+
+get_total(10, 3)</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This code has its <code>except</code> blocks in the wrong order, so the more specific <code>ValueError</code> can never be reached — the broader <code>Exception</code> earlier in the chain catches it first. Find and fix the ordering.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_except_order.py</span>
+      </div>
+      <pre><code>def parse_amount(text):
+    try:
+        return int(text)
+    except Exception:
+        print("General error.")
+        return None
+    except ValueError:
+        print("Specifically not a valid number:", repr(text))
+        return None
+
+parse_amount("abc")</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

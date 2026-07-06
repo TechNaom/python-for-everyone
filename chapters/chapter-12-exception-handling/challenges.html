@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on try/except, raising exceptions, and custom exception classes for Chapter 12: Exception Handling.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-12">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 12 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Exception Handling</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-12 have covered so far &mdash; everything through
+    decorators, the <code>math</code> and <code>datetime</code> modules,
+    and this chapter's own toolkit: <code>try</code>/<code>except</code>/
+    <code>else</code>/<code>finally</code>, <code>raise</code>, and
+    custom exception classes that subclass <code>Exception</code>. No
+    file I/O, no other class besides a custom exception, and no import
+    beyond <code>math</code>/<code>datetime</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why every function below returns instead of raising</span>
+    The grader calls your function once per test case and compares its
+    <em>return value</em> to an expected value &mdash; it can't "expect an
+    exception" as the right answer. So every challenge here is designed
+    the way production code often is: catch the risky part
+    <strong>inside</strong> the function, and return a value that
+    describes what happened (a sentinel like <code>None</code>, a status
+    string, a boolean, or a dict) instead of letting the exception escape
+    to the caller.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Safe Divide <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_divide(a, b)</code> that returns <code>a / b</code>, but catches <code>ZeroDivisionError</code> and returns <code>None</code> instead of crashing when <code>b</code> is <code>0</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>b</code> may be <code>0</code>; <code>a</code> and <code>b</code> may be negative.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_divide(10, 2)</code> &rarr; <code>5.0</code><br>
+        <code>safe_divide(10, 0)</code> &rarr; <code>None</code><br>
+        <code>safe_divide(-9, 3)</code> &rarr; <code>-3.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def safe_divide(a, b):
+    # TODO: return a / b inside a try, catching ZeroDivisionError and
+    # returning None instead of letting it crash.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_divide",
+  "cases": [
+    { "args": [10, 2], "expected": 5.0 },
+    { "args": [10, 0], "expected": null },
+    { "args": [-9, 3], "expected": -3.0 },
+    { "args": [0, 5], "expected": 0.0 },
+    { "args": [7, 0], "expected": null }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return None</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Safe Integer Parse <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_int_parse(text, default)</code> that returns <code>int(text)</code>, but catches <code>ValueError</code> and returns <code>default</code> instead when <code>text</code> can't be converted.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> is always a string; it may or may not represent a valid integer.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_int_parse("42", None)</code> &rarr; <code>42</code><br>
+        <code>safe_int_parse("abc", None)</code> &rarr; <code>None</code><br>
+        <code>safe_int_parse("-7", None)</code> &rarr; <code>-7</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def safe_int_parse(text, default):
+    # TODO: return int(text) inside a try, catching ValueError and
+    # returning default instead.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_int_parse",
+  "cases": [
+    { "args": ["42", null], "expected": 42 },
+    { "args": ["abc", null], "expected": null },
+    { "args": ["-7", null], "expected": -7 },
+    { "args": ["3.5", null], "expected": null },
+    { "args": ["0", null], "expected": 0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def safe_int_parse(text, default):
+    try:
+        return int(text)
+    except ValueError:
+        return default</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Safe List Index <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_list_index(items, index)</code> that returns <code>items[index]</code>, but catches <code>IndexError</code> and returns the string <code>"out of range"</code> instead of crashing.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>index</code> may be negative (Python indexing) or completely out of bounds; <code>items</code> may be empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_list_index([1, 2, 3], 0)</code> &rarr; <code>1</code><br>
+        <code>safe_list_index([1, 2, 3], 10)</code> &rarr; <code>"out of range"</code><br>
+        <code>safe_list_index([1, 2, 3], -1)</code> &rarr; <code>3</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def safe_list_index(items, index):
+    # TODO: return items[index] inside a try, catching IndexError and
+    # returning "out of range" instead.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_list_index",
+  "cases": [
+    { "args": [[1, 2, 3], 0], "expected": 1 },
+    { "args": [[1, 2, 3], 10], "expected": "out of range" },
+    { "args": [[1, 2, 3], -1], "expected": 3 },
+    { "args": [[], 0], "expected": "out of range" },
+    { "args": [["a", "b"], 1], "expected": "b" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def safe_list_index(items, index):
+    try:
+        return items[index]
+    except IndexError:
+        return "out of range"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Which Error? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>which_error(a, b)</code> that tries to return <code>"ok:" + str(a / b)</code>, using <strong>separate</strong> <code>except</code> blocks: catch <code>ZeroDivisionError</code> and return the string <code>"ZeroDivisionError"</code>, and catch <code>TypeError</code> (from dividing a non-number) and return the string <code>"TypeError"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>a</code> or <code>b</code> may be a string instead of a number, which raises <code>TypeError</code> when dividing.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>which_error(10, 0)</code> &rarr; <code>"ZeroDivisionError"</code><br>
+        <code>which_error(10, "x")</code> &rarr; <code>"TypeError"</code><br>
+        <code>which_error(10, 2)</code> &rarr; <code>"ok:5.0"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def which_error(a, b):
+    # TODO: try "ok:" + str(a / b). Catch ZeroDivisionError and return
+    # "ZeroDivisionError". Catch TypeError and return "TypeError".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "which_error",
+  "cases": [
+    { "args": [10, 0], "expected": "ZeroDivisionError" },
+    { "args": [10, "x"], "expected": "TypeError" },
+    { "args": [10, 2], "expected": "ok:5.0" },
+    { "args": ["x", 2], "expected": "TypeError" },
+    { "args": [0, 5], "expected": "ok:0.0" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def which_error(a, b):
+    try:
+        result = a / b
+        return "ok:" + str(result)
+    except ZeroDivisionError:
+        return "ZeroDivisionError"
+    except TypeError:
+        return "TypeError"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Divide and Count <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>divide_and_count(values)</code> where <code>values</code> is a list of <code>[a, b]</code> pairs. For each pair, try <code>a / b</code> inside a <code>try</code>/<code>except ZeroDivisionError</code>/<code>finally</code>: count it as a success only if the division works, but use <code>finally</code> to count it as an "attempt" every single time, success or failure. Return <code>[successes, attempts]</code> as a two-item list &mdash; this demonstrates that <code>finally</code> always runs regardless of whether the <code>try</code> succeeded or the <code>except</code> fired.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> may be empty (return <code>[0, 0]</code>); any pair may divide by zero.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>divide_and_count([[10, 2], [5, 0], [8, 4]])</code> &rarr; <code>[2, 3]</code><br>
+        <code>divide_and_count([[1, 0]])</code> &rarr; <code>[0, 1]</code><br>
+        <code>divide_and_count([])</code> &rarr; <code>[0, 0]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def divide_and_count(values):
+    # TODO: successes = 0, attempts = 0. For each [a, b] in values, try
+    # a / b and increment successes if it works; except
+    # ZeroDivisionError and do nothing; finally always increment
+    # attempts. Return [successes, attempts].
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "divide_and_count",
+  "cases": [
+    { "args": [[[10, 2], [5, 0], [8, 4]]], "expected": [2, 3] },
+    { "args": [[[1, 0]]], "expected": [0, 1] },
+    { "args": [[[1, 1], [2, 2], [3, 3]]], "expected": [3, 3] },
+    { "args": [[]], "expected": [0, 0] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def divide_and_count(values):
+    successes = 0
+    attempts = 0
+    for a, b in values:
+        try:
+            a / b
+            successes += 1
+        except ZeroDivisionError:
+            pass
+        finally:
+            attempts += 1
+    return [successes, attempts]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Validate Percentage (Custom Exception) <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Define a custom exception class <code>OutOfRangeError</code> that subclasses <code>Exception</code>. Write a function <code>validate_percentage_safe(value)</code> that raises <code>OutOfRangeError</code> if <code>value</code> is outside 0-100, and otherwise returns <code>True</code> &mdash; but catch that <code>OutOfRangeError</code> inside the same function and return <code>False</code> instead of letting it escape, since the grader can only check a return value.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>value</code> may be negative or greater than 100; boundary values <code>0</code> and <code>100</code> are valid.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>validate_percentage_safe(50)</code> &rarr; <code>True</code><br>
+        <code>validate_percentage_safe(150)</code> &rarr; <code>False</code><br>
+        <code>validate_percentage_safe(0)</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+class OutOfRangeError(Exception):
+    pass
+
+
+def validate_percentage_safe(value):
+    # TODO: inside a try, raise OutOfRangeError(...) if value < 0 or
+    # value > 100, otherwise return True. Catch OutOfRangeError and
+    # return False.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "validate_percentage_safe",
+  "cases": [
+    { "args": [50], "expected": true },
+    { "args": [150], "expected": false },
+    { "args": [-10], "expected": false },
+    { "args": [0], "expected": true },
+    { "args": [100], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>class OutOfRangeError(Exception):
+    pass
+
+
+def validate_percentage_safe(value):
+    try:
+        if value < 0 or value > 100:
+            raise OutOfRangeError(f"{value} out of range")
+        return True
+    except OutOfRangeError:
+        return False</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Safe Transaction (Custom Exception) <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Define a custom exception class <code>InsufficientFundsError</code> that subclasses <code>Exception</code>. Write a function <code>safe_transaction(balance, amount)</code> that raises <code>InsufficientFundsError("not enough funds")</code> if <code>amount</code> is greater than <code>balance</code>, and otherwise returns <code>round(balance - amount, 2)</code> &mdash; but catch that exception inside the same function with <code>as e</code> and return <code>str(e)</code> instead of letting it escape.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>amount</code> may equal <code>balance</code> exactly (that's allowed, not insufficient); values may be floats.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_transaction(100, 30)</code> &rarr; <code>70</code><br>
+        <code>safe_transaction(100, 500)</code> &rarr; <code>"not enough funds"</code><br>
+        <code>safe_transaction(50, 50)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+class InsufficientFundsError(Exception):
+    pass
+
+
+def safe_transaction(balance, amount):
+    # TODO: inside a try, raise InsufficientFundsError("not enough
+    # funds") if amount > balance, otherwise return
+    # round(balance - amount, 2). Catch InsufficientFundsError as e and
+    # return str(e).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_transaction",
+  "cases": [
+    { "args": [100, 30], "expected": 70 },
+    { "args": [100, 500], "expected": "not enough funds" },
+    { "args": [50, 50], "expected": 0 },
+    { "args": [0, 0], "expected": 0 },
+    { "args": [100.5, 0.5], "expected": 100 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>class InsufficientFundsError(Exception):
+    pass
+
+
+def safe_transaction(balance, amount):
+    try:
+        if amount > balance:
+            raise InsufficientFundsError("not enough funds")
+        return round(balance - amount, 2)
+    except InsufficientFundsError as e:
+        return str(e)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Safe Age on Date <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_age_on_date(birth_date_str, on_date_str)</code> that takes two ISO date strings, converts each with <code>datetime.date.fromisoformat(...)</code>, raises <code>ValueError("on_date is before birth_date")</code> if <code>on_date</code> comes before <code>birth_date</code>, and otherwise returns the age in full years on <code>on_date</code> (compute the plain year difference, then subtract 1 if the birthday hasn't happened yet that year by comparing <code>(month, day)</code> tuples). Catch that <code>ValueError</code> inside the function and return <code>-1</code> instead of letting it escape, since a negative age isn't otherwise possible.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> dates are always valid calendar dates; test cases include a birthday not yet reached in the target year, a Feb 29 birth date, and <code>on_date</code> before <code>birth_date</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_age_on_date("2000-07-05", "2026-07-05")</code> &rarr; <code>26</code><br>
+        <code>safe_age_on_date("2000-07-06", "2026-07-05")</code> &rarr; <code>25</code><br>
+        <code>safe_age_on_date("2026-01-01", "2000-01-01")</code> &rarr; <code>-1</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+import datetime
+
+
+def safe_age_on_date(birth_date_str, on_date_str):
+    # TODO: inside a try, convert both strings with
+    # datetime.date.fromisoformat(...). Raise ValueError(...) if on_date
+    # is before birth. Otherwise compute years = on_date.year -
+    # birth.year, subtracting 1 if (on_date.month, on_date.day) <
+    # (birth.month, birth.day). Catch ValueError and return -1.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_age_on_date",
+  "cases": [
+    { "args": ["2000-07-05", "2026-07-05"], "expected": 26 },
+    { "args": ["2000-07-06", "2026-07-05"], "expected": 25 },
+    { "args": ["2026-01-01", "2000-01-01"], "expected": -1 },
+    { "args": ["2020-02-29", "2026-02-28"], "expected": 5 },
+    { "args": ["2000-01-01", "2026-12-31"], "expected": 26 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import datetime
+
+
+def safe_age_on_date(birth_date_str, on_date_str):
+    try:
+        birth = datetime.date.fromisoformat(birth_date_str)
+        on_date = datetime.date.fromisoformat(on_date_str)
+        if on_date < birth:
+            raise ValueError("on_date is before birth_date")
+        years = on_date.year - birth.year
+        if (on_date.month, on_date.day) < (birth.month, birth.day):
+            years -= 1
+        return years
+    except ValueError:
+        return -1</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

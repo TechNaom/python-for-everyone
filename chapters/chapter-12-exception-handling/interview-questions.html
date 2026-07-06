@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 12: Exception Handling — bare except, try/except/else/finally execution order, custom exceptions vs. built-ins, EAFP vs. LBYL, raise vs. raise from, exceptions inside finally, and catching Exception too broadly.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-12-interview" data-active-chapter="chapter-12">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 12 Interview Prep</span>
+    <span class="reading-time">22 min read</span>
+  </div>
+  <h1>Interview Questions: Exception Handling</h1>
+  <p>Exception handling is one of the fastest ways an interviewer can tell if someone writes production-grade code or just "code that works on the happy path." This set covers why a bare <code>except:</code> is a red flag and what it silently swallows, the exact execution order of <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> and what each part is actually <em>for</em>, when a custom exception class earns its keep over a built-in one, the EAFP-vs-LBYL philosophy that shapes idiomatic Python, the difference between <code>raise</code> and <code>raise ... from</code>, the surprising behavior of an exception raised inside <code>finally</code>, why catching <code>Exception</code> broadly can hide real bugs, and how custom exceptions with extra attributes carry more debugging context than a plain string message.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why is a bare <code>except:</code> considered bad practice, and what does it actually catch?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A bare <code>except:</code> (with no exception type named at all) catches <strong>every</strong> exception that inherits from Python's root <code>BaseException</code> class &mdash; not just ordinary errors like <code>ValueError</code> or <code>KeyError</code>, but also <code>KeyboardInterrupt</code> (raised when a user hits Ctrl+C) and <code>SystemExit</code> (raised by <code>sys.exit()</code>). That means a bare <code>except:</code> can silently swallow a user's attempt to kill a hung program, or absorb a deliberate, intentional program exit and keep running anyway &mdash; both surprising and hard to debug. It also catches genuine programming mistakes, like a <code>NameError</code> from a typo'd variable, hiding them behind whatever fallback behavior the <code>except</code> block has instead of surfacing the bug. The fix is almost always to name the specific exception type(s) actually expected (<code>except ValueError:</code>, or <code>except (ValueError, TypeError):</code>) so only the anticipated failure gets caught and everything else still surfaces normally.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating bare <code>except:</code> as just a shorter way to write <code>except Exception:</code>, without knowing it also catches <code>KeyboardInterrupt</code>/<code>SystemExit</code> which <code>except Exception:</code> deliberately does not.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>except Exception:</code> also catch <code>KeyboardInterrupt</code>?" (No &mdash; <code>KeyboardInterrupt</code> and <code>SystemExit</code> inherit directly from <code>BaseException</code>, not from <code>Exception</code>, specifically so that catching <code>Exception</code> doesn't accidentally block a user's Ctrl+C or a deliberate exit; only a genuinely bare <code>except:</code> reaches that far up the hierarchy.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Walk through the execution order of <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> &mdash; what is each part actually for?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The <code>try</code> block runs first. If it raises an exception, Python checks the <code>except</code> clauses in order and runs the first one whose type matches; if it doesn't raise anything, the <code>else</code> block runs instead &mdash; <code>else</code> exists specifically for code that should only run when the <code>try</code> block <em>succeeded</em>, keeping it visibly separate from the risky code itself (so a bug inside the success-path code doesn't accidentally get caught by an <code>except</code> meant for the <code>try</code> block). The <code>finally</code> block runs last, no matter what happened above it &mdash; whether the <code>try</code> succeeded, an exception was caught, or an exception was never caught at all and is about to propagate up. <code>finally</code> exists for cleanup that has to happen regardless of outcome, like closing a resource.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Putting success-path code directly inside <code>try</code> instead of <code>else</code> (which risks that code's own bugs getting silently caught by an <code>except</code> meant for something else), or believing <code>finally</code> gets skipped if an exception was never caught.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If the <code>try</code> block raises an exception that no <code>except</code> clause matches, does <code>finally</code> still run?" (Yes &mdash; <code>finally</code> always runs before the unmatched exception propagates further up the call stack; it's the one block guaranteed to execute regardless of what happened.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> When does a custom exception class earn its keep over just raising a built-in one like <code>ValueError</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A custom exception is worth defining when calling code needs to tell <em>this specific kind of failure</em> apart from every other reason a built-in exception might get raised. Raising a plain <code>ValueError</code> for "insufficient funds" means catching code that wants to react specifically to that case has to either catch every <code>ValueError</code> in that block (including unrelated ones from something else entirely) or inspect the error message as a string, which is fragile and breaks the moment the wording changes. A custom exception like <code>InsufficientFundsError(Exception)</code> gives calling code an exact type to catch with <code>except InsufficientFundsError:</code>, can carry extra structured data as attributes (the attempted amount, the actual balance) instead of cramming everything into a message string, and documents intent &mdash; the exception's very name explains what went wrong. It's not worth it for a one-off internal check with no real distinct failure mode; reaching for a built-in like <code>ValueError</code> or <code>TypeError</code> is completely fine when nothing downstream needs to distinguish that failure from similar ones.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Defining a custom exception for literally every possible failure regardless of whether anything downstream needs to distinguish it, or the opposite: always reaching for a generic <code>ValueError</code>/<code>Exception</code> even when a caller genuinely needs to react differently to one specific failure mode.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a function can fail for three completely different domain reasons that calling code needs to handle differently, is one shared exception class or three separate ones the better design?" (Three separate custom exception classes &mdash; that lets calling code write a distinct <code>except</code> clause per failure mode, rather than one that has to inspect the message string or an extra attribute just to figure out which of three things actually happened.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What is EAFP, and how does it differ from the LBYL style?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>EAFP</strong> stands for "Easier to Ask Forgiveness than Permission" &mdash; the idiomatic Python style of just attempting an operation inside a <code>try</code> block and handling the specific exception if it fails, rather than checking every precondition up front. <strong>LBYL</strong>, "Look Before You Leap," is the opposite style: checking conditions first (<code>if key in dictionary:</code> before accessing it, <code>if os.path.exists(path):</code> before opening a file) and only proceeding if every check passes. Python leans EAFP for a concrete reason: an upfront check and the later operation can get out of sync in a way that isn't the programmer's fault &mdash; a file can exist at check time and be deleted a moment later by something else entirely (a classic race condition), so LBYL's check doesn't actually guarantee the later operation succeeds anyway. EAFP also often reads as fewer lines and avoids a redundant check-then-do-it-anyway double cost, though it isn't automatically "more correct" for every single case &mdash; it's the accepted default in idiomatic Python specifically because of how well it handles this race-condition class of bug.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating EAFP as "just don't validate anything and hope for the best," or being unable to name the race-condition scenario (a check passing, then the underlying thing changing before the real operation runs) that's the actual reason EAFP is preferred over LBYL in Python.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give a concrete example of an LBYL check that could still fail even though it passed." (Checking <code>if os.path.exists(path):</code> and then opening the file right after &mdash; between the check and the open, another process could delete that exact file, so the LBYL check passing doesn't guarantee the subsequent operation will actually succeed; wrapping the open itself in a <code>try</code>/<code>except FileNotFoundError</code> handles that gap correctly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What's the difference between <code>raise SomeError("message")</code> and <code>raise SomeError("message") from original_error</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A plain <code>raise SomeError("message")</code> inside an <code>except</code> block raises a brand-new exception with no explicit, documented link back to whatever exception was originally being handled (Python does still attach it implicitly as <code>__context__</code>, but that's meant as incidental debugging trail, not a deliberate signal). <code>raise SomeError("message") from original_error</code> explicitly sets that new exception's <code>__cause__</code> attribute to <code>original_error</code>, which is a deliberate way of saying "this new exception happened <em>because of</em> that other one" &mdash; and Python's default traceback printing reflects that intent, showing both exceptions chained together with a clear "the above exception was the direct cause of the following exception" message. This matters most when re-raising a different, more meaningful exception type in response to catching a lower-level one &mdash; e.g. catching a built-in <code>ValueError</code> from a failed <code>float()</code> conversion and re-raising it as a project's own custom <code>InvalidAmountError</code>: using <code>from</code> keeps the original technical failure visible in the traceback for debugging, instead of making it look like the <code>InvalidAmountError</code> came out of nowhere.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>raise ... from</code> changes what gets caught by an <code>except</code> clause (it doesn't &mdash; it only affects the exception's <code>__cause__</code> attribute and how the traceback is displayed, not the actual matching/catching behavior).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After <code>raise RuntimeError('wrapped') from e</code>, if that <code>RuntimeError</code> is later caught, how would code retrieve the original exception <code>e</code>?" (Through the caught exception's <code>__cause__</code> attribute &mdash; e.g. <code>except RuntimeError as new_err: original = new_err.__cause__</code> &mdash; since <code>from</code> explicitly stores it there.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What happens if an exception is raised inside a <code>finally</code> block, while a different exception is already being handled?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The new exception raised inside <code>finally</code> completely replaces the original one &mdash; the original exception is discarded (though it's still reachable via the new exception's <code>__context__</code> attribute for debugging), and only the new exception from <code>finally</code> propagates further up the call stack. This is a genuinely surprising, easy-to-miss gotcha: a <code>try</code> block can raise a very specific, meaningful exception, but if the matching <code>finally</code> block also raises (say, a cleanup step that itself fails), whatever called this code only ever sees the <code>finally</code> block's exception, with the original one silently gone from the normal flow of control. The practical lesson is to keep <code>finally</code> blocks simple and defensive &mdash; ideally not doing anything that can itself raise &mdash; specifically so it never accidentally masks a more meaningful exception from the <code>try</code>/<code>except</code> above it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming both exceptions somehow propagate together, or that the original exception "wins" by being first &mdash; in reality, whichever exception is active at the very end of <code>finally</code> is the only one that continues propagating.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A <code>try</code> block raises <code>ValueError('original')</code>, and its <code>finally</code> block raises <code>TypeError('cleanup failed')</code>. What exception type does the caller actually see?" (<code>TypeError</code> &mdash; the <code>finally</code> block's exception replaces the original <code>ValueError</code> entirely; the caller never sees the <code>ValueError</code> unless it goes digging through the <code>TypeError</code>'s <code>__context__</code> attribute.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> Why can catching <code>Exception</code> broadly hide real bugs, even though it's much narrower than a bare <code>except:</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>except Exception:</code> is safer than a bare <code>except:</code> (it doesn't swallow <code>KeyboardInterrupt</code>/<code>SystemExit</code>), but it still catches <em>every</em> ordinary error &mdash; a genuine, unexpected programming bug like a <code>TypeError</code> from passing the wrong argument type, or an <code>AttributeError</code> from a typo'd method name, gets caught by the same broad clause meant to handle one specific, anticipated failure. That means a real bug can get silently absorbed by error-handling logic written for a completely different situation, and the program limps along with a misleading fallback instead of surfacing the actual mistake clearly (with a real traceback) during development. The safer default is to name the specific exception type(s) actually expected from that particular block of code, reserving a broad <code>except Exception:</code> for genuine last-resort boundaries (like a top-level request handler in a web server that must never crash the whole process) where it's a deliberate, considered choice rather than a reflex.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for <code>except Exception:</code> as a default habit on every <code>try</code> block regardless of what's actually expected to fail, rather than naming the specific exception type(s) the code is actually prepared to handle.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A function does <code>try: result = data[key] / divisor except Exception: return None</code>. If <code>divisor</code> is accidentally passed in as a string instead of a number, what happens?" (The resulting <code>TypeError</code> from dividing by a string gets silently caught by the same broad <code>except Exception:</code>, and the function just returns <code>None</code> &mdash; masking a real type-mismatch bug as if it were the same kind of failure as a missing dictionary key.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How does a custom exception with extra attributes carry more debugging context than a plain error message?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A plain exception raised with just a string message (<code>raise ValueError("insufficient funds")</code>) only gives calling code one thing to work with: the text itself, which is meant for humans to read, not for code to parse and act on programmatically. A custom exception class can store the actual structured data behind the failure as real attributes in its <code>__init__</code> &mdash; e.g. <code>InsufficientFundsError</code> storing <code>self.amount</code> (what was requested) and <code>self.balance</code> (what was actually available) &mdash; while <em>still</em> calling <code>super().__init__(...)</code> with a readable message for anyone just printing or logging the exception normally. That means code catching the exception can do more than display a message: it can log the exact numbers involved, decide programmatically how far over the limit the request was, or build a custom user-facing message using the real values, all without resorting to fragile string-parsing of an error message that was never meant to be machine-readable in the first place.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Building every custom exception with only a message and no extra attributes, then having catching code awkwardly parse that message string (e.g. with regex or string-splitting) to recover values that could have just been stored as attributes directly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>except InsufficientFundsError as e:</code>, how would code access the specific balance that caused the failure, assuming the class stores it as <code>self.balance</code>?" (<code>e.balance</code> &mdash; the caught exception object <code>e</code> exposes whatever attributes its <code>__init__</code> assigned to <code>self</code>, directly accessible without parsing anything.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> If multiple <code>except</code> clauses follow one <code>try</code> block, does their order matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Yes, significantly &mdash; Python checks <code>except</code> clauses top to bottom and runs the <em>first</em> one whose type matches (or is a parent class of) the raised exception, then stops checking entirely. If a broader exception type is listed before a more specific one that's actually a subclass of it &mdash; say <code>except Exception:</code> listed before <code>except ValueError:</code> &mdash; the specific <code>ValueError</code> clause becomes unreachable dead code, since the broader <code>Exception</code> clause above it will always match first and Python never even looks further down. The correct order is always most specific exception types first, broader/more general ones last, so each clause actually gets a chance to run for the cases it's meant to handle.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming Python picks the "best" or "most specific" matching <code>except</code> clause automatically regardless of order &mdash; it doesn't; it strictly takes the first match reading top to bottom.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A block has <code>except Exception:</code> first, then <code>except ValueError:</code> below it. If a <code>ValueError</code> is raised in the <code>try</code>, which clause runs?" (The first one, <code>except Exception:</code> &mdash; since <code>ValueError</code> is a subclass of <code>Exception</code>, it matches the broader clause immediately, and the more specific <code>except ValueError:</code> below it never even gets checked.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> Does a custom exception class need to subclass <code>Exception</code> directly, or can it subclass another custom exception?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It can do either, and building a small hierarchy of custom exceptions is a genuinely useful pattern &mdash; a base exception like <code>class AppError(Exception): pass</code> that more specific exceptions subclass, e.g. <code>class ValidationError(AppError): pass</code> and <code>class AuthError(AppError): pass</code>. The payoff is that calling code can choose how broadly or narrowly to catch: <code>except ValidationError:</code> catches only that one specific case, while <code>except AppError:</code> catches <em>any</em> exception from that whole family (validation errors, auth errors, and anything else that subclasses <code>AppError</code>) in one place, which is useful at a boundary that just needs to know "something from my own application's domain went wrong" without caring exactly which kind. This is the same subclass-matching behavior <code>except</code> always uses (a subclass instance matches an <code>except</code> clause naming any of its parent classes) &mdash; it isn't special-cased for custom exceptions, it's just how Python's exception matching already works applied to your own class hierarchy.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing every custom exception must subclass <code>Exception</code> directly with no intermediate hierarchy, missing the chance to group related custom exceptions under one shared base class for easier broad-catching at a boundary.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>class AppError(Exception): pass</code> and <code>class ValidationError(AppError): pass</code>, does <code>except AppError:</code> catch a raised <code>ValidationError</code>?" (Yes &mdash; <code>ValidationError</code> is a subclass of <code>AppError</code>, and <code>except</code> matches on "is this exception an instance of this type or any of its subclasses," so <code>except AppError:</code> catches both a plain <code>AppError</code> and any more specific subclass of it, including <code>ValidationError</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What's the practical difference between catching an exception as <code>except ValueError:</code> versus <code>except ValueError as e:</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both catch exactly the same exception &mdash; the <code>as e</code> part doesn't change what gets caught at all, only whether the caught exception object itself is made available inside the <code>except</code> block, bound to the name <code>e</code>. Without <code>as e</code>, the block knows <em>that</em> a <code>ValueError</code> happened but has no way to inspect it further &mdash; no access to its message via <code>str(e)</code>, no access to any custom attributes a custom exception class might carry. With <code>as e</code>, the block can call <code>str(e)</code> to get the human-readable message, access any extra attributes the exception stores, or re-raise it (possibly wrapped in a different exception via <code>raise ... from e</code>). Skipping <code>as e</code> is fine when the block genuinely doesn't need any detail about the failure beyond knowing it happened (e.g. just printing a fixed fallback message), but it becomes limiting the moment the handling logic needs to reference specifics about what actually went wrong.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>as e</code> changes which exceptions get caught, or not knowing that leaving it off entirely just means the block has no reference to the exception object at all.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Inside <code>except InsufficientFundsError as e:</code>, if the class's <code>__init__</code> stored <code>self.balance = balance</code>, how would the handler print that specific balance?" (<code>print(e.balance)</code> &mdash; <code>e</code> is the actual caught exception instance, so any attribute its <code>__init__</code> assigned to <code>self</code> is directly reachable off <code>e</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> If a <code>try</code> block contains a <code>return</code> statement, does the matching <code>finally</code> block still run before the function actually returns?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Yes &mdash; <code>finally</code>'s whole purpose is to run no matter how the <code>try</code>/<code>except</code> above it is exited, and a <code>return</code> statement is no exception to that rule. If a <code>try</code> block hits <code>return some_value</code>, Python still runs the <code>finally</code> block in full before the function actually hands control back to its caller; the return doesn't skip past it. This is exactly why <code>finally</code> is the reliable place for cleanup code (releasing a resource, logging that an operation finished) that has to happen regardless of which of several possible <code>return</code> statements inside a function actually fired, or whether the function exited normally versus via an uncaught exception.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a <code>return</code> inside <code>try</code> exits the function immediately and skips <code>finally</code> entirely &mdash; it doesn't; <code>finally</code> is genuinely unskippable short of the whole process being killed.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>finally</code> itself also contains a <code>return</code> statement, which value does the function actually return &mdash; the one from <code>try</code>, or the one from <code>finally</code>?" (The one from <code>finally</code> &mdash; a <code>return</code> inside <code>finally</code> overrides any pending <code>return</code> from the <code>try</code>/<code>except</code> above it, which is exactly why deliberately returning from inside <code>finally</code> is generally considered confusing and avoided in practice.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Why would a function re-raise a caught exception with a bare <code>raise</code> (no exception object after it) instead of just letting the exception propagate on its own?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A bare <code>raise</code> inside an <code>except</code> block re-raises the exact exception currently being handled, with its original traceback fully intact &mdash; useful when a block needs to do something in response to an exception (log it, run some cleanup, check a condition) but ultimately still wants the original failure to propagate up unchanged, rather than being swallowed or replaced. The alternative of not catching it at all would skip whatever the block needed to do first; the alternative of raising a brand-new exception object would lose the original one's specific type and traceback unless <code>raise ... from</code> is used deliberately to link them. A bare <code>raise</code> says "I looked at this, possibly reacted to it, but I'm not the one who should actually handle it &mdash; let it keep going exactly as it was."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing a bare <code>raise</code> (re-raises the exception currently being handled) with <code>raise Exception()</code> (raises a brand-new, generic exception with no connection to whatever was just caught), or not knowing a bare <code>raise</code> only works meaningfully inside an <code>except</code> block that's actively handling something.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Inside <code>except ValueError as e:</code>, what's the difference between just writing <code>raise</code> and writing <code>raise e</code>?" (Functionally very similar &mdash; both re-raise the same exception object &mdash; but a bare <code>raise</code> is the idiomatic form since it makes the traceback clearly show the original raise point, while <code>raise e</code> can, in some cases, make it look like the exception originated from that <code>raise e</code> line instead of its true original location.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> The block that always runs last, whether or not an exception was raised or caught, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="finally" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> The block that runs only if the <code>try</code> block completed with no exception raised at all is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="else" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>try: 10 / 0</code> <code>except ZeroDivisionError as e: print(str(e))</code> prints <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="division by zero" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> The keyword used to deliberately trigger an exception yourself, as in <code>____ ValueError("bad input")</code>, is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="raise" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> To explicitly link a newly raised exception to the one that caused it, the syntax is <code>raise NewError("msg") ____ original_error</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="from" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A custom exception class is defined by subclassing Python's built-in <code>____</code> class.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="Exception" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> A custom exception's <code>__init__</code> typically calls <code>____().__init__(message)</code> so the exception's <code>str()</code> still shows a readable message.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="super" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Accessing a missing key in a dict, like <code>{"a": 1}["b"]</code>, raises a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="KeyError" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Accessing an out-of-range list index, like <code>[1, 2, 3][10]</code>, raises an <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="IndexError" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Given <code>except Exception:</code> listed <em>before</em> <code>except ValueError:</code> for the same <code>try</code> block, a raised <code>ValueError</code> is caught by the <code>____</code> clause (name the exception type in that clause).</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="Exception" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> The Python philosophy of just attempting an operation and handling the exception if it fails, rather than checking every precondition first, is abbreviated <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="EAFP" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> The opposite style &mdash; checking conditions up front before attempting an operation &mdash; is abbreviated <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="LBYL" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> If a <code>try</code> block raises <code>ValueError</code> and its <code>finally</code> block then raises <code>TypeError</code>, the exception that actually propagates to the caller is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="TypeError" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

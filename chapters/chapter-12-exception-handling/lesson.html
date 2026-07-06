@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12: Exception Handling — Python for Everyone</title>
+<meta name="description" content="try/except basics, else and finally, accessing the exception object, raising exceptions, custom exception classes, and robust real-world input validation — with a live in-browser playground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-12">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 12 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">45 min read</span>
+  </div>
+  <h1>Exception Handling</h1>
+  <p><em>Every program you've written so far assumes things go right — the user types a number when asked, the math works out, nothing unexpected happens. Real programs can't make that assumption. A user will type "twenty" instead of <code>20</code>, a network request will fail, a file won't be where it's supposed to be. This chapter is about handling those moments on purpose, with <code>try</code>/<code>except</code>, instead of letting them crash your program.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>An exception is Python's way of saying "something went wrong here."</strong> <code>try</code>/<code>except</code> lets your program notice that and respond, instead of stopping dead.</li>
+      <li><strong>Sub-topics build on each other</strong> — basics first, then the full <code>else</code>/<code>finally</code> picture, then raising your own exceptions, then defining your own exception types.</li>
+      <li><strong>This is where "robust" code starts to mean something concrete</strong> — handling bad input gracefully is one of the clearest lines between a beginner script and production-ready code.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#try-except-basics">1. try/except basics</a>
+    <a href="#multiple-except-else-finally">2. Multiple except blocks, else, and finally</a>
+    <a href="#exception-object">3. Accessing the exception object</a>
+    <a href="#raise">4. Raising exceptions deliberately</a>
+    <a href="#custom-exceptions">5. Custom exception classes</a>
+    <a href="#bringing-together">6. Real-world exception handling in production</a>
+  </nav>
+
+  <div class="hook">
+    Ask any user for their age and, sooner or later, someone will type "twenty" instead of <code>20</code>. Without exception handling, that single bad keystroke crashes the entire program with a wall of red traceback text. With it, your program can notice the problem, say something helpful, and keep running — exactly the difference between software that feels broken and software that feels trustworthy.
+  </div>
+
+  <div class="subtopic" id="try-except-basics">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. try/except basics</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>An <strong>exception</strong> is an error that occurs while a program is running, and it normally stops the program immediately.</li>
+        <li><code>try</code>/<code>except</code> lets a program attempt something risky and recover if it fails, instead of crashing.</li>
+        <li>Catching a specific exception type, like <code>ValueError</code>, is far better than guessing what might go wrong.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> nothing you've written before this chapter has protected itself from bad input. <code>int("twenty")</code> simply crashes. This chapter is about no longer accepting that as the only option.
+    </div>
+
+    <p>
+      Converting text typed by a user into a number is one of the most
+      common things a program does — and one of the easiest to get wrong,
+      since a user can type absolutely anything:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">crash_demo.py</span>
+      </div>
+      <pre><code>age_text = "twenty"
+age = int(age_text)
+print("Age:", age)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of crash_demo.py — the program stops here, nothing after this line runs</span>
+      <pre><code>Traceback (most recent call last):
+  File "crash_demo.py", line 2, in &#60;module&#62;
+    age = int(age_text)
+ValueError: invalid literal for int() with base 10: 'twenty'</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an exception?</span>
+      An exception is an error Python detects while a program is actually
+      running (not before it starts, like a typo in your code). By
+      default, an unhandled exception immediately stops the whole
+      program and prints a <strong>traceback</strong> — the red error
+      message showing exactly where things went wrong.
+    </div>
+
+    <p>
+      For a real program — a signup form, a checkout page, a game asking
+      for a player's name — crashing on one bad keystroke is a terrible
+      user experience. <code>try</code>/<code>except</code> wraps the risky
+      line and gives Python somewhere to go instead of stopping outright:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">try_except_basics.py</span>
+      </div>
+      <pre><code>age_text = "twenty"
+
+try:
+    age = int(age_text)
+    print("Age:", age)
+except ValueError:
+    print("That doesn't look like a valid number.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of try_except_basics.py — the program keeps running</span>
+      <pre><code>That doesn't look like a valid number.</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>try</code>/<code>except</code>?</span>
+      <code>try</code> marks a block of code that might fail. If it
+      fails with the exact exception type named in <code>except</code>,
+      Python jumps straight into that <code>except</code> block instead
+      of crashing. If nothing goes wrong, the <code>except</code> block
+      is skipped entirely.
+    </div>
+
+    <p>
+      Naming <code>ValueError</code> specifically — instead of catching
+      "anything" — matters. <code>int("twenty")</code> always raises a
+      <code>ValueError</code>, so that's the one exception type this code
+      needs to plan for; catching only what you expect keeps every other,
+      genuinely unexpected bug visible instead of silently hidden.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_try_except_basics.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="6">age_text = "twenty"
+
+try:
+    age = int(age_text)
+    print("Age:", age)
+except ValueError:
+    print("That doesn't look like a valid number.")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing age_text to a real number like "20".</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: only the exact line inside try that fails gets interrupted</summary>
+      <p>
+        If a <code>try</code> block has several lines, only the one that
+        actually raises the exception gets cut short — everything before
+        it in that block already ran and can't be undone. Any line after
+        the failing one, still inside the same <code>try</code> block, is
+        skipped, and Python jumps straight to <code>except</code>.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>An unhandled exception crashes the program immediately and prints a traceback.</li>
+        <li><code>try</code> marks risky code; a matching <code>except</code> catches the failure instead of crashing.</li>
+        <li>Name a specific exception type, like <code>ValueError</code>, rather than catching everything blindly.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="multiple-except-else-finally">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Multiple except blocks, else, and finally</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A single <code>try</code> can have <strong>multiple <code>except</code> blocks</strong>, each catching a different exception type.</li>
+        <li><code>else</code> runs only if the <code>try</code> block succeeded with no exception at all.</li>
+        <li><code>finally</code> always runs — whether the <code>try</code> succeeded, failed, or even re-raised an error.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> more than one thing could go wrong in the same block, and each failure deserves a different response — plus, separately, when some cleanup step must happen no matter what.
+    </div>
+
+    <p>
+      A single risky operation can fail in more than one way. Dividing
+      two numbers can fail because of a zero, or because one value isn't
+      a number at all — and each deserves its own message:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">multiple_except.py</span>
+      </div>
+      <pre><code>def safe_divide(a, b):
+    try:
+        result = a / b
+    except ZeroDivisionError:
+        print("Can't divide by zero.")
+    except TypeError:
+        print("Both values need to be numbers.")
+    else:
+        print("Result:", result)
+    finally:
+        print("Division attempt finished.")
+
+safe_divide(10, 2)
+print("---")
+safe_divide(10, 0)
+print("---")
+safe_divide(10, "two")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of multiple_except.py — trace of which block runs each time</span>
+      <pre><code>Result: 5.0
+Division attempt finished.
+---
+Can't divide by zero.
+Division attempt finished.
+---
+Both values need to be numbers.
+Division attempt finished.</code></pre>
+    </div>
+
+    <p>
+      Python checks <code>except</code> blocks top to bottom and stops at
+      the first one that matches. Order matters here in exactly the way
+      it doesn't for most Python code:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>else</code> (in a try statement)?</span>
+      <code>else</code> runs only when the <code>try</code> block finished
+      with no exception raised at all. It's a way to separate "code that
+      might fail" (in <code>try</code>) from "code that should only run
+      after success" (in <code>else</code>) — keeping the risky line by
+      itself makes it obvious exactly what's being protected.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>finally</code>?</span>
+      <code>finally</code> runs no matter what happened above it —
+      success, a caught exception, or even an exception that wasn't
+      caught at all. It's built for cleanup work that must always
+      happen, like closing a connection or logging that an attempt was
+      made.
+    </div>
+
+    <p>
+      Notice in the output above: <code>"Division attempt finished."</code>
+      printed all three times, including the two failure cases. That's
+      <code>finally</code> doing exactly what it promises — running
+      unconditionally, every single time.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_multiple_except.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">def safe_divide(a, b):
+    try:
+        result = a / b
+    except ZeroDivisionError:
+        print("Can't divide by zero.")
+    except TypeError:
+        print("Both values need to be numbers.")
+    else:
+        print("Result:", result)
+    finally:
+        print("Division attempt finished.")
+
+safe_divide(20, 4)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try calling safe_divide(5, 0) instead.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: one except block, several exception types</summary>
+      <p>
+        <code>except (ZeroDivisionError, TypeError):</code> catches both
+        exception types with a single block, using a tuple, when they
+        should be handled identically. Use this instead of separate
+        blocks only when the response really is the same for both — if
+        the messages differ, separate <code>except</code> blocks (as
+        above) stay clearer.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Multiple <code>except</code> blocks can catch different exception types from the same <code>try</code>.</li>
+        <li><code>else</code> runs only when <code>try</code> succeeded with no exception.</li>
+        <li><code>finally</code> always runs, regardless of what happened above it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="exception-object">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Accessing the exception object</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>except ValueError as e</code> stores the actual exception object in <code>e</code>, not just its type.</li>
+        <li><code>str(e)</code> gives the exception's human-readable message.</li>
+        <li>An exception carries real information about what specifically went wrong, not just that something did.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> the generic "something went wrong" message isn't enough, and the exact reason a failure happened is worth showing or logging.
+    </div>
+
+    <p>
+      Every exception Python raises carries a message describing exactly
+      what went wrong — <code>as e</code> is how that message gets
+      captured, instead of being thrown away:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">exception_object.py</span>
+      </div>
+      <pre><code>values = ["12", "seven", "45"]
+
+for text in values:
+    try:
+        number = int(text)
+        print("Parsed:", number)
+    except ValueError as e:
+        print("Skipping", repr(text), "&mdash;", str(e))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of exception_object.py</span>
+      <pre><code>Parsed: 12
+Skipping 'seven' — invalid literal for int() with base 10: 'seven'
+Parsed: 45</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>except ... as e</code>?</span>
+      <code>as e</code> gives a name to the actual exception object that
+      was raised, so it can be used inside the <code>except</code> block
+      — most commonly by converting it to text with <code>str(e)</code>
+      to see its message. <code>e</code> is just a variable name; any
+      name would work, but <code>e</code> is the near-universal
+      convention.
+    </div>
+
+    <p>
+      Without <code>as e</code>, an <code>except ValueError:</code> block
+      can only react to "a <code>ValueError</code> happened" — it has no
+      way to say <em>which</em> value failed or why. <code>str(e)</code>
+      turns the exception object into the same message Python's own
+      traceback would have shown, but usable inside your own message
+      instead of crashing the program.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_exception_object.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">values = ["3", "nine", "100", "oops"]
+
+for text in values:
+    try:
+        number = int(text)
+        print("Parsed:", number)
+    except ValueError as e:
+        print("Skipping", repr(text), "-", str(e))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding another bad value to the list.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: an exception object is more than just its message</summary>
+      <p>
+        <code>e.args</code> holds the exception's raw arguments as a
+        tuple (usually just the message), and <code>type(e).__name__</code>
+        gives the exception's type as a string, like <code>"ValueError"</code>
+        — useful when one <code>except</code> block needs to report
+        exactly which type it caught. Everyday code almost always just
+        needs <code>str(e)</code>, but knowing the object holds more is
+        worth remembering.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>except ValueError as e</code> captures the exception object itself, not just its type.</li>
+        <li><code>str(e)</code> gives the exception's human-readable message.</li>
+        <li>An exception object carries real, usable information about the specific failure.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="raise">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Raising exceptions deliberately</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>raise SomeError("message")</code> triggers an exception on purpose, instead of waiting for Python to raise one by accident.</li>
+        <li>Raising with a clear, specific message tells whoever catches it exactly what went wrong.</li>
+        <li>A bare <code>raise</code> inside an <code>except</code> block <strong>re-raises</strong> the same exception, after doing something with it first (like logging).</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Use this when:</strong> your own function detects a problem that Python itself wouldn't catch — an age that's negative, a name that's blank — and needs to signal it the same way built-in exceptions do.
+    </div>
+
+    <p>
+      Not every invalid input triggers a built-in exception on its own.
+      <code>int("-5")</code> succeeds just fine — a negative age is a
+      problem your own code has to notice and reject deliberately:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">raise_basic.py</span>
+      </div>
+      <pre><code>def set_age(age):
+    if age &#60; 0:
+        raise ValueError("age cannot be negative")
+    return age
+
+print(set_age(25))
+print(set_age(-5))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of raise_basic.py — the second call crashes the program, on purpose</span>
+      <pre><code>25
+Traceback (most recent call last):
+  File "raise_basic.py", line 7, in &#60;module&#62;
+    print(set_age(-5))
+  File "raise_basic.py", line 3, in set_age
+    raise ValueError("age cannot be negative")
+ValueError: age cannot be negative</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>raise</code>?</span>
+      <code>raise</code> triggers an exception manually, at the exact
+      line you choose, instead of waiting for Python to hit an error on
+      its own. <code>raise ValueError("age cannot be negative")</code>
+      both picks the exception type and supplies its message.
+    </div>
+
+    <p>
+      A raised exception behaves exactly like one Python raises
+      automatically — it can be caught with <code>try</code>/<code>except</code>
+      just like <code>int("twenty")</code> failing was caught back in
+      Sub-topic 1. <code>raise</code> is simply how your own code
+      participates in that same system.
+    </p>
+
+    <p>
+      Sometimes a function wants to react to a failure — log it,
+      clean something up — but still let the caller decide what happens
+      next. A bare <code>raise</code>, with nothing after it, re-throws
+      the exact same exception that was just caught:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">reraise.py</span>
+      </div>
+      <pre><code>def load_setting(value):
+    try:
+        return int(value)
+    except ValueError:
+        print("Logged: couldn't parse setting", repr(value))
+        raise
+
+try:
+    load_setting("not-a-number")
+except ValueError:
+    print("Caller decided to fall back to a default of 0.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of reraise.py</span>
+      <pre><code>Logged: couldn't parse setting 'not-a-number'
+Caller decided to fall back to a default of 0.</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... re-raising?</span>
+      Re-raising means catching an exception, doing something with it
+      (like printing a log message), and then letting the same
+      exception continue upward with a bare <code>raise</code> —
+      instead of swallowing it silently or replacing it with a new one.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_raise.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">def set_age(age):
+    if age &lt; 0:
+        raise ValueError("age cannot be negative")
+    return age
+
+try:
+    set_age(-1)
+except ValueError as e:
+    print("Caught:", e)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing -1 to a valid age like 30.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: raising a completely different exception type</summary>
+      <p>
+        <code>except ValueError: raise TypeError("...")</code> is legal —
+        an <code>except</code> block can raise a different exception
+        type entirely, not just re-raise the one it caught. This is less
+        common than a bare <code>raise</code>, and worth using sparingly:
+        it's only clearer when the new exception type genuinely means
+        something different to whoever catches it further up.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>raise SomeError("message")</code> triggers an exception on purpose, with your own message.</li>
+        <li>A raised exception can be caught with <code>try</code>/<code>except</code> exactly like a built-in one.</li>
+        <li>A bare <code>raise</code> inside <code>except</code> re-raises the same exception after reacting to it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="custom-exceptions">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Custom exception classes</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>custom exception</strong> is a new exception type you define yourself, for a problem specific to your own program.</li>
+        <li>It's defined with <code>class SomeError(Exception): pass</code> — a narrow, specific use of <code>class</code>, just for exceptions.</li>
+        <li>Catching a custom exception type is far more precise than catching a generic <code>Exception</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Note on scope:</strong> general class design is Chapter 14's topic. The only class-related syntax this chapter uses is <code>class SomeError(Exception): pass</code> — defining your own exception type, and nothing more.
+    </div>
+
+    <p>
+      <code>ValueError</code> is honest but vague — it doesn't say
+      <em>which</em> business rule was broken. A banking app rejecting a
+      withdrawal that exceeds the balance is a problem specific to that
+      program, and deserves its own exception name:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">custom_exception.py</span>
+      </div>
+      <pre><code>class InsufficientFundsError(Exception):
+    pass
+
+def withdraw(balance, amount):
+    if amount &#62; balance:
+        raise InsufficientFundsError(f"Cannot withdraw ${amount} from a ${balance} balance")
+    return balance - amount
+
+try:
+    new_balance = withdraw(100, 250)
+except InsufficientFundsError as e:
+    print("Withdrawal failed:", e)
+else:
+    print("New balance:", new_balance)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of custom_exception.py</span>
+      <pre><code>Withdrawal failed: Cannot withdraw $250 from a $100 balance</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a custom exception class?</span>
+      A custom exception is a new exception type, defined with
+      <code>class InsufficientFundsError(Exception): pass</code>. The
+      <code>(Exception)</code> part means it inherits everything a
+      normal exception already does (a message, being catchable, etc.);
+      <code>pass</code> means nothing extra needs to be added — the name
+      itself is the whole point.
+    </div>
+
+    <p>
+      Once defined, <code>InsufficientFundsError</code> behaves exactly
+      like any built-in exception — it can be raised, caught, and
+      carries a message via <code>str(e)</code>, all the same as
+      <code>ValueError</code> throughout this chapter.
+    </p>
+
+    <p>
+      The real payoff shows up when catching. A generic <code>except
+      Exception:</code> catches an <code>InsufficientFundsError</code>
+      — but it would just as happily catch a typo-caused
+      <code>TypeError</code> or any other unrelated bug hiding in the
+      same block:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">generic_vs_custom.py</span>
+      </div>
+      <pre><code>class InsufficientFundsError(Exception):
+    pass
+
+def withdraw_generic(balance, amount):
+    if amount &#62; balance:
+        raise Exception("not enough money")
+    return balance - amount
+
+def withdraw_custom(balance, amount):
+    if amount &#62; balance:
+        raise InsufficientFundsError("not enough money")
+    return balance - amount
+
+try:
+    withdraw_generic(100, 250)
+except Exception:
+    print("Caught the generic Exception — but so would ANY other error in this block.")
+
+try:
+    withdraw_custom(100, 250)
+except InsufficientFundsError:
+    print("Caught specifically an InsufficientFundsError — nothing else could trigger this except block.")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of generic_vs_custom.py</span>
+      <pre><code>Caught the generic Exception — but so would ANY other error in this block.
+Caught specifically an InsufficientFundsError — nothing else could trigger this except block.</code></pre>
+    </div>
+
+    <p>
+      That precision is the whole reason custom exceptions exist:
+      <code>except InsufficientFundsError:</code> can only ever fire for
+      that one specific business rule, so it can never accidentally
+      swallow an unrelated bug the way a generic <code>except
+      Exception:</code> might.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_custom_exceptions.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">class InsufficientFundsError(Exception):
+    pass
+
+def withdraw(balance, amount):
+    if amount &gt; balance:
+        raise InsufficientFundsError(f"Cannot withdraw ${amount} from a ${balance} balance")
+    return balance - amount
+
+try:
+    withdraw(50, 75)
+except InsufficientFundsError as e:
+    print("Withdrawal failed:", e)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the numbers so the withdrawal succeeds instead.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: custom exceptions can form their own family</summary>
+      <p>
+        Multiple custom exceptions can share a common parent — for
+        example, <code>class BankingError(Exception): pass</code>, then
+        <code>class InsufficientFundsError(BankingError): pass</code> and
+        <code>class AccountFrozenError(BankingError): pass</code>. A
+        single <code>except BankingError:</code> then catches any error
+        in that whole family at once, while each specific type can still
+        be caught individually elsewhere. This pattern is common in
+        larger real-world codebases; a single flat custom exception is
+        plenty for everything in this chapter.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A custom exception is defined with <code>class SomeError(Exception): pass</code>.</li>
+        <li>It behaves exactly like a built-in exception once defined — raisable, catchable, carries a message.</li>
+        <li>Catching a custom exception type is precise; catching generic <code>Exception</code> risks swallowing unrelated bugs too.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="bringing-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Real-world exception handling in production</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Robust input validation combines everything this chapter covered: <code>try</code>/<code>except</code>, <code>raise</code>, and a custom exception.</li>
+        <li>A bare <code>except:</code> is dangerous — it catches <em>everything</em>, including things you almost never want to catch.</li>
+        <li>A caught error should be logged or reported usefully, never silently thrown away.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Pattern to remember:</strong> catch specific exception types, report every failure somehow, and never let a bare <code>except:</code> hide a bug you didn't even know existed.
+    </div>
+
+    <p>
+      A signup form validating ages needs to reject both kinds of bad
+      input this chapter has covered — text that isn't a number at all,
+      and a number that's technically valid but unrealistic (like a
+      negative age):
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">robust_validation.py</span>
+      </div>
+      <pre><code>class InvalidAgeError(Exception):
+    pass
+
+def parse_age(text):
+    try:
+        age = int(text)
+    except ValueError:
+        raise InvalidAgeError(f"'{text}' is not a whole number") from None
+    if age &#60; 0 or age &#62; 130:
+        raise InvalidAgeError(f"{age} is not a realistic age")
+    return age
+
+def process_signup(raw_ages):
+    accepted = []
+    for text in raw_ages:
+        try:
+            accepted.append(parse_age(text))
+        except InvalidAgeError as e:
+            print("Rejected entry:", e)
+        finally:
+            print("Checked entry:", repr(text))
+    return accepted
+
+results = process_signup(["34", "-5", "sixteen", "29"])
+print("Accepted ages:", results)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of robust_validation.py</span>
+      <pre><code>Checked entry: '34'
+Rejected entry: -5 is not a realistic age
+Checked entry: '-5'
+Rejected entry: 'sixteen' is not a whole number
+Checked entry: 'sixteen'
+Checked entry: '29'
+Accepted ages: [34, 29]</code></pre>
+    </div>
+
+    <p>
+      Every bad entry gets rejected with a specific, useful reason
+      instead of crashing the whole signup batch — and <code>finally</code>
+      guarantees every entry gets logged as "checked," whether it passed
+      or not. This is the shape real validation code takes: one custom
+      exception, raised from more than one place, always caught by name.
+    </p>
+
+    <p>
+      It's tempting to write <code>except:</code> with no exception type
+      at all, meaning "catch literally anything." This is a trap:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">bare_except_danger.py</span>
+      </div>
+      <pre><code>def get_age(text):
+    try:
+        return int(text)
+    except:
+        print("Something went wrong.")
+        return None
+
+print(get_age("25"))
+print(get_age("abc"))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of bare_except_danger.py</span>
+      <pre><code>25
+Something went wrong.
+None</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a bare <code>except:</code>?</span>
+      A bare <code>except:</code>, with no exception type named, catches
+      every possible exception — not just the ones the code actually
+      anticipated. That includes things almost no program should ever
+      silently swallow, like <code>KeyboardInterrupt</code> (raised when
+      a user presses Ctrl+C to stop the program) or a plain typo in your
+      own code that raises <code>NameError</code>.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>It hides genuine bugs — a typo'd variable name would just print "Something went wrong" forever, instead of surfacing a clear <code>NameError</code> to fix.</li>
+      <li>It can swallow a user's Ctrl+C, making a program that refuses to stop when asked.</li>
+      <li>It gives no information about what actually failed, unlike <code>except ValueError as e</code>, which does.</li>
+    </ul>
+
+    <p>
+      The fix is always the same: name the specific exception type (or
+      types) actually expected, exactly like every example earlier in
+      this chapter — never a bare <code>except:</code>.
+    </p>
+
+    <p>
+      The other half of production-quality error handling is what
+      happens <em>after</em> catching — silently doing nothing is barely
+      better than crashing, since the problem still went unnoticed:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Printing a clear message (as every example above does) is the simplest form of reporting, and enough for a small script.</li>
+      <li>Real production systems typically log the error to a file or monitoring service, so a team can notice and fix recurring problems even when no one is watching the program run.</li>
+      <li>Either way, an <code>except</code> block that does absolutely nothing — sometimes called "swallowing" an exception — is one of the most common real-world sources of bugs that go unnoticed for months.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_bringing_together.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">class InvalidAgeError(Exception):
+    pass
+
+def parse_age(text):
+    try:
+        age = int(text)
+    except ValueError:
+        raise InvalidAgeError(f"'{text}' is not a whole number") from None
+    if age &lt; 0 or age &gt; 130:
+        raise InvalidAgeError(f"{age} is not a realistic age")
+    return age
+
+for entry in ["42", "-1", "hello"]:
+    try:
+        print("Accepted:", parse_age(entry))
+    except InvalidAgeError as e:
+        print("Rejected:", e)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding your own entries to the list.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: except Exception vs. bare except</summary>
+      <p>
+        <code>except Exception:</code> (naming <code>Exception</code>
+        specifically) is meaningfully safer than a bare <code>except:</code>
+        — it still catches nearly every error worth catching, but leaves
+        a handful of severe, low-level signals like
+        <code>KeyboardInterrupt</code> and <code>SystemExit</code>
+        alone, since those inherit from <code>BaseException</code>
+        rather than <code>Exception</code>. It's still far less precise
+        than naming the exact exception type expected, but if a truly
+        broad catch is ever unavoidable, <code>except Exception:</code>
+        is the safer of the two broad options.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Robust validation combines <code>try</code>/<code>except</code>, <code>raise</code>, and a custom exception into one clear pattern.</li>
+        <li>A bare <code>except:</code> catches everything, including bugs and a user's Ctrl+C — always name a specific exception type instead.</li>
+        <li>A caught exception should be reported (printed, logged) — never silently swallowed with no trace.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every production API and web form validates user input with exactly this chapter's pattern — <code>try</code>/<code>except</code> around parsing, a custom exception for business rules, and a clear message back to the user.</li>
+      <li>Custom exceptions like Sub-topic 5's <code>InsufficientFundsError</code> are everywhere in real codebases — payment systems, authentication, inventory checks — because they let calling code react to one specific failure without guessing what a generic error actually meant.</li>
+      <li>Logging instead of silently swallowing errors (Sub-topic 6) is how real engineering teams find out about bugs in software running on servers they aren't personally watching, often before a single user complains.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li><code>try</code>/<code>except</code> lets a program recover from a runtime error instead of crashing; name a specific exception type like <code>ValueError</code> rather than catching blindly.</li>
+      <li>A <code>try</code> can have multiple <code>except</code> blocks for different exception types; <code>else</code> runs only on success, <code>finally</code> always runs.</li>
+      <li><code>except ValueError as e</code> captures the exception object; <code>str(e)</code> gives its human-readable message.</li>
+      <li><code>raise SomeError("message")</code> triggers an exception deliberately; a bare <code>raise</code> inside <code>except</code> re-raises the same exception after reacting to it.</li>
+      <li>A custom exception, <code>class SomeError(Exception): pass</code>, gives a specific problem its own catchable name — more precise than a generic <code>Exception</code>.</li>
+      <li>A bare <code>except:</code> is dangerous — it catches everything, including bugs and <code>KeyboardInterrupt</code> — and a caught error should always be reported, never silently swallowed.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/playground.js"></script>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

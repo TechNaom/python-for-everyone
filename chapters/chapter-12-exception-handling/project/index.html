@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12 Project: ATM Simulator — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven ATM simulator using custom exception classes, raise, and try/except — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-12">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 12 Project</span>
+    <span class="reading-time">50 min build</span>
+  </div>
+  <h1>ATM Simulator</h1>
+  <p>A menu-driven ATM simulator built <strong>around custom exceptions</strong> as its core organizing principle &mdash; every rule about what makes a transaction valid (can't withdraw more than the balance, can't deposit or withdraw a non-positive amount) is enforced by <em>raising</em> a custom exception class subclassed from <code>Exception</code>, and the menu loop's whole job is just to <em>catch</em> those exceptions and print a friendly message, exactly like Chapter 11's project was organized around <code>math</code>/<code>datetime</code>. Each operation lives in its own small function, matching Chapter 10's function-library pattern.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== ATM Simulator ===
+Today's date: 2026-07-06
+Starting balance: $100.00
+
+1. Check balance
+2. Deposit
+3. Withdraw
+4. View transaction history
+5. Quit
+Choose an option (1-5): 2
+Amount to deposit: $50
+Deposited $50.00. New balance: $150.00
+
+1. Check balance
+2. Deposit
+3. Withdraw
+4. View transaction history
+5. Quit
+Choose an option (1-5): 3
+Amount to withdraw: $30
+Withdrew $30.00. New balance: $120.00
+
+1. Check balance
+2. Deposit
+3. Withdraw
+4. View transaction history
+5. Quit
+Choose an option (1-5): 3
+Amount to withdraw: $99999
+Withdrawal failed: cannot withdraw $99999.00 -- balance is only $120.00
+
+1. Check balance
+2. Deposit
+3. Withdraw
+4. View transaction history
+5. Quit
+Choose an option (1-5): 3
+Amount to withdraw: $-5
+Withdrawal failed: amount must be a positive number, got -5.0
+
+1. Check balance
+2. Deposit
+3. Withdraw
+4. View transaction history
+5. Quit
+Choose an option (1-5): 4
+
+1. [2026-07-06] deposit    $50.00  (balance after: $150.00)
+2. [2026-07-06] withdraw   $30.00  (balance after: $120.00)
+
+1. Check balance
+2. Deposit
+3. Withdraw
+4. View transaction history
+5. Quit
+Choose an option (1-5): 5
+
+Session summary: 2 transaction(s), final balance $120.00.
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice that two of the calls above &mdash; withdrawing more than the balance, and withdrawing a negative amount &mdash; both raise a custom exception, and the program keeps running afterward instead of crashing. That's the entire point of this project: exceptions aren't decorative, they're the actual mechanism enforcing "this transaction isn't allowed," caught gracefully at the one place (the menu loop) that knows how to explain the problem to a user.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A function library built around custom exceptions &mdash;
+    <code>InsufficientFundsError</code>, <code>InvalidAmountError</code>,
+    <code>validate_amount</code>, <code>parse_amount</code>,
+    <code>deposit</code>, <code>withdraw</code>,
+    <code>record_transaction</code>, and <code>print_transaction</code>
+    &mdash; wired to a <code>while True</code> menu loop with five options:
+    check balance, deposit, withdraw, view transaction history, or quit.
+    Every transaction gets appended to a running <code>history</code> list,
+    the same running-state pattern earlier projects have used, just now
+    organized around raising and catching well-named exceptions instead of
+    a data structure or module.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below and run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The function library</h2>
+  <ul>
+    <li><code>InsufficientFundsError(Exception)</code> &mdash; a custom exception raised when a withdrawal amount is more than the current balance. Its <code>__init__</code> stores <code>amount</code> and <code>balance</code> as attributes so calling code can inspect exactly what was attempted, not just read a message.</li>
+    <li><code>InvalidAmountError(Exception)</code> &mdash; a custom exception raised when a deposit/withdrawal amount is zero, negative, or not a number at all. Stores the bad <code>amount</code> as an attribute the same way.</li>
+    <li><code>validate_amount(amount)</code> &mdash; raises <code>InvalidAmountError</code> if <code>amount</code> isn't a positive number.</li>
+    <li><code>parse_amount(raw)</code> &mdash; converts typed text into a positive float, catching the built-in <code>ValueError</code> from a bad <code>float(raw)</code> call and <strong>re-raising</strong> it as <code>InvalidAmountError</code> (<code>raise ... from e</code>) so the rest of the program only ever has to handle this project's own exception types.</li>
+    <li><code>deposit(balance, amount)</code> / <code>withdraw(balance, amount)</code> &mdash; validate the amount and return the new balance, with <code>withdraw</code> additionally raising <strong><code>InsufficientFundsError</code></strong> if the amount is more than the balance.</li>
+    <li><code>record_transaction(history, kind, amount, balance_after, today)</code> &mdash; builds one transaction dict and appends it to the running <code>history</code> list.</li>
+    <li><code>print_transaction(entry, index)</code> &mdash; prints one numbered, aligned transaction line.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a <code>NegativeBalanceError</code> guard rail: raise a custom exception if any bug elsewhere ever leaves <code>balance</code> negative after a deposit or withdrawal, as a defensive double-check on top of <code>withdraw</code>'s own validation.</li>
+    <li>Add a "transfer to another simulated account" option that runs <code>withdraw</code> on one balance and <code>deposit</code> on another, re-raising <code>InsufficientFundsError</code> if the withdrawal half fails so the deposit half never happens.</li>
+    <li>Add a <code>DailyLimitExceededError</code> custom exception that tracks total withdrawals for the session and blocks any single day's withdrawals from exceeding a fixed limit (e.g. $500), reusing the same raise/catch pattern as <code>InsufficientFundsError</code>.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>An ATM refusing an overdraft, a payment API rejecting a negative charge amount, a banking app locking an account after too many bad PIN attempts &mdash; all of these are, underneath, the exact same shape: some rule about what's allowed gets violated, a specific, well-named exception gets raised carrying the details of what went wrong, and code further up the call stack catches that specific exception and decides what to tell the user. That's the real skill this project practices &mdash; custom exceptions with real attributes (<code>e.amount</code>, <code>e.balance</code>) that carry actual debugging context, not just a generic error string, are what separates a defensive, production-ready function from one that merely "works on the happy path."</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The ATM Simulator above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 12 (everything through Chapter 11's modules material, plus <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code>/<code>raise</code> and custom exception classes subclassing <code>Exception</code>). No starter or solution files are provided on purpose &mdash; building one of these unassisted, menu loop and all, is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Signup Form Validator</h3>
+    <p><strong>Problem:</strong> Every signup form &mdash; a SaaS product, a newsletter, a game account &mdash; needs to reject bad input (an empty username, a password that's too short, an age that isn't a number) with a specific, useful error message per rule, not one generic "invalid input" message that leaves the user guessing what to fix.</p>
+    <p><strong>What it should do:</strong> Define one custom exception per validation rule &mdash; e.g. <code>UsernameTooShortError</code>, <code>WeakPasswordError</code>, <code>InvalidAgeError</code> &mdash; each carrying the offending value as an attribute. Build <code>validate_username(username)</code>, <code>validate_password(password)</code>, and <code>validate_age(raw_age)</code> functions that each raise their specific exception when a rule is broken. A menu loop collects a full signup attempt (username, password, age) and reports every rule that failed, not just the first one, by trying each validator inside its own <code>try</code>/<code>except</code> instead of stopping at the first failure.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's pattern of a custom exception's <code>__init__</code> building a clear message via <code>super().__init__(...)</code> while also storing the bad value as an attribute. A <code>run_all_validators(username, password, raw_age)</code> function that calls each validator in its own <code>try</code>/<code>except Exception as e</code> and collects <code>str(e)</code> into a list of problems (instead of letting the first exception stop the whole check) is the core engine.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Inventory Stock Manager</h3>
+    <p><strong>Problem:</strong> Any store or warehouse system &mdash; physical retail, e-commerce, a small business's back office &mdash; needs to refuse selling more of an item than is in stock, and refuse an obviously broken order (a negative or zero quantity), without the whole system crashing over one bad request.</p>
+    <p><strong>What it should do:</strong> Track a running <code>{item_name: quantity}</code> inventory dict. Define <code>OutOfStockError</code> (raised when a requested sale quantity is more than what's on hand, carrying the item name and how much was requested vs. available) and <code>InvalidQuantityError</code> (raised for a zero/negative/non-numeric quantity). Menu options: add stock for an item, sell/remove stock for an item (raising the custom exceptions as needed), check current stock for an item, and list all items low on stock (below some threshold).</p>
+    <p><strong>Suggested approach:</strong> A <code>sell(inventory, item_name, quantity)</code> function mirrors this project's <code>withdraw</code> almost exactly &mdash; validate the quantity first, then compare it against <code>inventory.get(item_name, 0)</code> and raise <code>OutOfStockError</code> if it's too much, otherwise subtract and return the new quantity.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Unit Conversion Tool</h3>
+    <p><strong>Problem:</strong> A cooking app converting cups to milliliters, a shipping calculator converting pounds to kilograms, a science tool converting Celsius to Kelvin &mdash; all need to convert between compatible units, and clearly reject a request to convert between two units that don't make sense together (like trying to convert kilograms into liters).</p>
+    <p><strong>What it should do:</strong> Support a handful of unit categories (length, weight, temperature) each with a small set of convertible units. Define <code>UnsupportedConversionError</code>, raised when a requested "from unit" and "to unit" pair aren't in the same category (carrying both unit names as attributes so the error message can name exactly which pair failed). Menu options: pick a category, enter a value and the from/to units, and see the converted result; trying an unsupported pair should print a clear message and return to the menu instead of crashing.</p>
+    <p><strong>Suggested approach:</strong> A dict-of-dicts (or a dict keyed by <code>(from_unit, to_unit)</code> tuples) mapping valid conversion pairs to a conversion function is the core lookup; a <code>convert(category, from_unit, to_unit, value)</code> function raises <code>UnsupportedConversionError</code> the moment a requested pair isn't a key in that lookup, before attempting any math.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Quiz Answer Grader</h3>
+    <p><strong>Problem:</strong> An online quiz tool, a classroom auto-grader, or a trivia app all need to accept a learner's typed answer, grade it against the correct answer, and gracefully reject malformed input (an empty answer, or a numeric-answer question where the learner typed letters) instead of crashing the whole quiz session over one bad response.</p>
+    <p><strong>What it should do:</strong> Store a list of question dicts (prompt, correct answer, expected answer type &mdash; text or number). Define <code>MalformedAnswerError</code>, raised when a numeric question receives non-numeric text, or any question receives a blank answer (carrying the raw offending input as an attribute). A <code>grade_answer(question, raw_answer)</code> function raises that exception for bad input, and otherwise returns whether the answer was correct. Menu options: run through the full quiz asking every question, show the running score, and re-attempt any question that was answered with malformed input instead of silently counting it wrong.</p>
+    <p><strong>Suggested approach:</strong> For a numeric question, try converting <code>raw_answer</code> with <code>float(raw_answer)</code> inside a <code>try</code>/<code>except ValueError</code>, re-raising as <code>MalformedAnswerError</code> (<code>raise ... from e</code>) &mdash; the same re-raise pattern this project's <code>parse_amount</code> uses to turn a built-in exception into the project's own custom one.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 12: Exception Handling, including interview-style scenario problems on try/except, raising exceptions, and custom exception classes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-12">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 12 Practice Bank</span>
+    <span class="reading-time">60-80 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Exception Handling</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Uses
+    everything from Chapters 1-11 plus this chapter's own toolkit:
+    <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code>,
+    accessing the exception object (<code>as e</code>, <code>str(e)</code>),
+    <code>raise</code> (including re-raising), and custom exception classes
+    that subclass <code>Exception</code>. No file I/O, no other class
+    besides a custom exception subclassing <code>Exception</code>, and no
+    import beyond <code>math</code>/<code>datetime</code>/<code>random</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">A note on randomness and dates</span>
+    Any problem using <code>random</code> or <code>datetime.date.today()</code>
+    prints a different result every time you run it &mdash; that's the
+    point. <code>solution.py</code> checks a <em>property</em> of the
+    result (like "is this in range") instead of one exact value, so your
+    output won't match anyone else's line-for-line, and that's fine.
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#topic-try-except-basics">1. Try/Except Basics</a>
+    <a href="#topic-multiple-except-else-finally">2. Multiple Except, Else, Finally</a>
+    <a href="#topic-exception-object">3. The Exception Object</a>
+    <a href="#topic-raise">4. Raising Exceptions</a>
+    <a href="#topic-custom-exceptions">5. Custom Exception Classes</a>
+    <a href="#topic-bringing-together">6. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run it from a terminal
+    with <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="topic-try-except-basics">Topic 1: Try/Except Basics</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Safe integer parsing</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>safe_int(text)</code>, returning <code>int(text)</code> inside a <code>try</code>, or <code>None</code> if a <code>ValueError</code> is raised.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Safe division</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>safe_divide(a, b)</code>, catching <code>ZeroDivisionError</code> and returning <code>None</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Safe list indexing</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Write <code>safe_list_get(items, index)</code>, catching <code>IndexError</code> for an out-of-range index.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Safe dictionary lookup</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write <code>safe_dict_get(data, key)</code>, catching <code>KeyError</code> for a missing key.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This function is supposed to catch a bad <code>int()</code> conversion, but its <code>except</code> clause catches the wrong exception type entirely. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Validating form input</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>parse_age_field(text)</code> for a signup form that must not crash just because someone typed letters into an age box.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What if nothing goes wrong?</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_no_exception_case()</code>, explaining what happens if no exception is raised inside a <code>try</code> block at all.</p>
+  </div>
+
+  <h2 id="topic-multiple-except-else-finally">Topic 2: Multiple Except Blocks, Else, Finally</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Separate except blocks</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>describe_error(a, b)</code>, using separate <code>except ZeroDivisionError</code> and <code>except TypeError</code> blocks.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Using <code>else</code> for the success path</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>divide_with_message(a, b)</code>, using <code>try</code>/<code>except</code>/<code>else</code> so the success message only builds when no error occurred.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Using <code>finally</code> for cleanup</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write <code>parse_with_finally(text)</code>, using a <code>finally</code> block that always runs regardless of success or failure.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Combining except and else</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Write <code>lookup_with_fallback(data, key)</code>, returning a fallback only when the lookup actually failed.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This function's <code>except</code> blocks are ordered so a more specific exception can never be reached. Fix the order.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Payment processing cleanup</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>process_payment(amount)</code>, using <code>finally</code> to always run a cleanup step regardless of whether the payment succeeded.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>else</code> vs. the end of <code>try</code></h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_else_vs_try_tail()</code>, explaining the difference between putting code in <code>else</code> versus leaving it at the end of <code>try</code>.</p>
+  </div>
+
+  <h2 id="topic-exception-object">Topic 3: The Exception Object</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reading a ValueError's message</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>describe_value_error(text)</code>, catching <code>ValueError as e</code> and returning <code>str(e)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reading a ZeroDivisionError's message</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>describe_zero_division(a, b)</code>, catching <code>ZeroDivisionError as e</code> and returning <code>str(e)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Getting the exception's type name</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Write <code>error_type_name(func, *args)</code>, catching <code>Exception as e</code> and returning <code>type(e).__name__</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A KeyError's own message</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write <code>safe_key_lookup(data, key)</code>, catching <code>KeyError as e</code> and formatting a string using <code>e</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This function catches the exception <code>as e</code> but never actually uses <code>e</code> in its return value. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>User-friendly error messages</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>friendly_parse_error(text)</code>, turning a raw exception message into something a non-technical user could read.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>str(e)</code> vs. the exception type name</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_str_e_value()</code>, explaining why <code>str(e)</code> is more useful to log than just the exception's type name alone.</p>
+  </div>
+
+  <h2 id="topic-raise">Topic 4: Raising Exceptions Deliberately</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Raising on invalid input</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>require_positive(n)</code>, raising <code>ValueError</code> with a message if <code>n</code> is not positive.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Raising on an out-of-range value</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>validate_percentage(value)</code>, raising <code>ValueError</code> if <code>value</code> is outside 0-100.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Raising on a business rule violation</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write <code>withdraw(balance, amount)</code>, raising <code>ValueError</code> if <code>amount</code> exceeds <code>balance</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Re-raising with added context</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write <code>reraise_with_context(func, *args)</code>, catching an exception and re-raising it with extra context using <code>raise ... from e</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This function raises a bare <code>Exception("...")</code> instead of a specific, meaningful exception type. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Input validation gate</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>validate_signup_age(age)</code> for a signup flow that must raise on invalid ages before any account gets created.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>raise</code> vs. returning <code>None</code></h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_raise_vs_none()</code>, explaining when you'd choose to raise an exception instead of silently returning <code>None</code>.</p>
+  </div>
+
+  <h2 id="topic-custom-exceptions">Topic 5: Custom Exception Classes</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A custom banking exception</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Define <code>class InsufficientFundsError(Exception)</code> and write <code>withdraw_strict(balance, amount)</code>, raising it when funds are short.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A custom validation exception</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Define <code>class InvalidAgeError(Exception)</code> and write <code>register_user(name, age)</code>, raising it for an invalid age.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Catching your own exception</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write <code>custom_error_message(balance, amount)</code>, catching <code>InsufficientFundsError as e</code> and returning <code>str(e)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Another custom exception</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Define <code>class NegativeValueError(Exception)</code> and write <code>safe_sqrt(n)</code>, raising it for a negative input.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This custom exception class forgot to subclass <code>Exception</code> at all, so it can't be raised. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Domain-specific errors in a banking app</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>transfer_funds(balance, amount)</code>, using <code>InsufficientFundsError</code> to make the failure self-documenting.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why bother with custom exceptions?</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_custom_exception_value()</code>, explaining why teams define custom exception classes instead of always raising a generic exception.</p>
+  </div>
+
+  <h2 id="topic-bringing-together">Topic 6: Bringing It Together &mdash; Exception Handling in Production</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A structured API response</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>safe_api_response(status_code, payload)</code>, combining multiple <code>except</code> blocks and a custom exception to return a structured result dict.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Validating every input</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>process_order(item_price, quantity, discount_percent)</code>, raising specific exceptions for each bad case.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Retrying a flaky operation</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write <code>retry_flaky_operation(func, max_attempts=3)</code>, retrying a function that might raise, and returning whether it eventually succeeded.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Processing a batch with partial failures</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Write <code>safe_batch_process(items)</code>, collecting successes and failures separately from a list of inputs where some may fail.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This function's broad <code>except Exception:</code> silently swallows an unrelated bug instead of surfacing it. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Production-grade checkout validator</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>validate_checkout(cart_total, payment_amount)</code>, combining a custom exception, <code>finally</code> logging, and a structured return value.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why broad <code>except</code> is a code smell</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_broad_except_risk()</code>, explaining why catching <code>Exception</code> too broadly is considered a code smell in production code.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. Remember that any
+    random or "today's date" output will legitimately differ each time
+    you run it.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
