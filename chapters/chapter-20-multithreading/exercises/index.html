@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 20: Multithreading, including two Debug the Code tasks — a thread pool run one-at-a-time by mistake, and a missing lock causing a race condition.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-20">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 20 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Multithreading</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. Every "download" or "wait" uses <code>time.sleep()</code> to stand
+    in for a slow network or disk operation — nothing here needs a real
+    network connection.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Creating and joining threads</h3>
+    <p>Write <code>square_task(n, results_list)</code> that appends <code>n * n</code> to <code>results_list</code>. Create a thread for each of <code>[2, 3, 4]</code>, start every thread, join every thread, then print <code>sorted(results)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> I/O-bound vs. CPU-bound</h3>
+    <p>Write <code>classify_work(description)</code> returning <code>"I/O-bound"</code> for <code>"downloading a file"</code>, <code>"calling an API"</code>, or <code>"reading from a database"</code>, and <code>"CPU-bound"</code> otherwise.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A race condition</h3>
+    <p>Run the provided <code>increment_unsafe(times)</code> (no lock) on 4 threads and print the final, unreliable count.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Fixing it with a lock</h3>
+    <p>Write <code>increment_safe(times)</code> — identical to <code>increment_unsafe</code>, but with the shared counter's read/write wrapped in <code>with lock:</code>. Confirm the final count is always exactly correct.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> <code>ThreadPoolExecutor.map()</code></h3>
+    <p>Write <code>cube(n)</code> returning <code>n ** 3</code>, and run it across <code>[1, 2, 3]</code> using <code>ThreadPoolExecutor(max_workers=3).map()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Locking a shared results list</h3>
+    <p>Write <code>add_order_total(order, totals_list, lock_obj)</code> that safely appends <code>sum(order)</code> to a shared list from multiple threads.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This is supposed to run three simulated downloads concurrently, but it calls <code>t.join()</code> immediately after <code>t.start()</code> inside the same loop, so each thread fully finishes before the next one even starts — running them one at a time instead of concurrently, defeating the entire point of threading. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_sequential_threads.py</span>
+      </div>
+      <pre><code>results = []
+for name, seconds in [("a", 0.05), ("b", 0.05), ("c", 0.05)]:
+    t = threading.Thread(target=slow_task, args=(name, seconds, results))
+    t.start()
+    t.join()
+
+print(sorted(results))</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This is supposed to safely increment a shared counter across 4 threads, but it reads and writes the shared counter without ever using <code>total_lock</code>, so it's vulnerable to the same race condition as Task 3. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_missing_lock.py</span>
+      </div>
+      <pre><code>def increment_fixed(times):
+    global shared_total
+    for _ in range(times):
+        current = shared_total
+        time.sleep(0)
+        shared_total = current + 1</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 20: Multithreading — threads, threading.Thread/.start()/.join(), the GIL, race conditions, threading.Lock, thread safety patterns, and concurrent.futures.ThreadPoolExecutor.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-20-interview" data-active-chapter="chapter-20">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 20 Interview Prep</span>
+    <span class="reading-time">45 min read</span>
+  </div>
+  <h1>Interview Questions: Multithreading</h1>
+  <p>The GIL and race conditions are two of the most commonly asked Python interview topics, because they test whether a candidate actually understands what threading does and doesn't help with, rather than just knowing the syntax. This set covers <code>threading.Thread</code>/<code>.start()</code>/<code>.join()</code>, I/O-bound vs. CPU-bound work, the GIL's real behavior, race conditions and why they're hard to catch, <code>threading.Lock</code>, thread safety patterns, and <code>concurrent.futures.ThreadPoolExecutor</code>.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Does Python's threading module give a program true parallelism?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Not for CPU-bound work, and that distinction is the crux of this question. The GIL (Global Interpreter Lock) allows only one thread to execute Python bytecode at a time, even on a multi-core machine, so two threads never run Python code <em>simultaneously</em> on separate cores. What threading genuinely does provide is <strong>concurrency</strong> for I/O-bound work: a thread waiting on a network response, disk read, or <code>time.sleep()</code> releases the GIL during that wait, letting another thread make real progress. So the honest answer is "it depends on the kind of work" &mdash; true parallel execution of Python code needs <code>multiprocessing</code> (separate processes, each with its own interpreter and GIL) or specialized libraries, not <code>threading</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Answering with a flat "yes" (ignoring the GIL entirely) or a flat "no, threading is pointless in Python" (ignoring that it genuinely helps I/O-bound work).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a program needs to genuinely max out 8 CPU cores computing something, is <code>threading</code> or <code>multiprocessing</code> the better tool?" (<code>multiprocessing</code> &mdash; each process gets its own interpreter and its own GIL, so 8 processes can actually use 8 cores simultaneously; 8 threads cannot, since they all share one GIL.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What is the difference between I/O-bound and CPU-bound work, and why does it matter for choosing whether to use threading?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>I/O-bound</strong> work spends most of its time waiting on something outside the CPU &mdash; a network response, a disk read, a database query &mdash; the CPU is idle during that wait. <strong>CPU-bound</strong> work spends most of its time actually computing, with the CPU busy continuously and nothing to wait on. It matters because threading's entire benefit comes from overlapping waits: a thread waiting on I/O releases the GIL, letting other threads run during that idle time. A CPU-bound thread almost never releases the GIL, so adding more threads to CPU-bound work doesn't meaningfully speed anything up &mdash; it can even slow things down slightly, from the overhead of switching between threads that all still have to take turns on one CPU core's worth of GIL access.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for threading to speed up a pure computation, or not being able to give a concrete example of each category.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is calculating the ten-millionth prime number I/O-bound or CPU-bound?" (CPU-bound &mdash; it's pure computation with nothing to wait on, so threading wouldn't meaningfully speed it up in standard Python.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Walk through what <code>threading.Thread(target=fn, args=(...))</code>, <code>.start()</code>, and <code>.join()</code> each do.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>threading.Thread(target=fn, args=(...))</code> creates a thread object configured to run <code>fn</code> with the given arguments, but doesn't start it running yet. <code>.start()</code> actually begins running the thread, immediately returning control to the calling code rather than waiting for the thread to finish &mdash; calling <code>.start()</code> on several threads in a row is what lets their work begin overlapping. <code>.join()</code> pauses the calling code until that specific thread has completely finished. The common pattern is: create every thread, call <code>.start()</code> on every one in a first loop, then call <code>.join()</code> on every one in a <em>separate</em> second loop &mdash; calling <code>.join()</code> immediately after each <code>.start()</code> inside the same loop iteration would make every thread finish before the next one even begins, removing all concurrency.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Calling <code>.join()</code> immediately after <code>.start()</code> for each thread inside one loop (accidentally serializing everything), or not knowing that <code>Thread()</code> alone doesn't start anything.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If code creates 5 threads, calls <code>.start()</code> and then immediately <code>.join()</code> on each one inside the same loop iteration, is that actually concurrent?" (No &mdash; each thread fully finishes (via <code>.join()</code>) before the next one is even created and started, so the 5 threads run one after another, exactly like ordinary sequential code, just with unnecessary thread overhead added.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What is the GIL, and why does CPython have it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The <strong>Global Interpreter Lock</strong> is a lock built into the standard Python interpreter (CPython) that allows only one thread to execute Python bytecode at any given instant, regardless of how many CPU cores the machine has. It exists primarily to keep CPython's internal memory management (specifically, reference counting for garbage collection) simple and safe by default, without needing much more fine-grained locking scattered throughout the interpreter's internals. The tradeoff is exactly what makes this a common interview question: it simplifies the interpreter's implementation at the cost of true parallel execution of Python bytecode across threads.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing what the GIL protects (reference counting / internal interpreter state) or claiming it's an arbitrary, purposeless limitation.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is the GIL a feature of the Python language itself, or specific to one implementation?" (Specific to CPython, the standard/reference implementation most people mean by "Python" &mdash; other implementations, like Jython or the experimental free-threaded CPython builds, handle this differently.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> If the GIL only lets one thread run Python code at a time, why does threading still speed up I/O-bound programs at all?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because a thread that's genuinely waiting on I/O &mdash; a network call, a disk read, <code>time.sleep()</code> &mdash; isn't executing any Python bytecode during that wait at all, so it releases the GIL for the duration. That's the exact moment another thread can pick up the GIL and make real progress. The result: multiple I/O-bound waits can genuinely overlap in wall-clock time, even though, at the level of "which thread is executing bytecode right now," it's always exactly one thread or none. This is the single most important nuance to get right about the GIL &mdash; it restricts <em>bytecode execution</em>, not <em>waiting</em>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Concluding "the GIL means threading is useless" without distinguishing bytecode execution from waiting, which throws away the entire I/O-bound use case.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"During a <code>time.sleep(2)</code> call inside a thread, is that thread holding the GIL for the full 2 seconds?" (No &mdash; it releases the GIL for the duration of the sleep, specifically so other threads can run during that otherwise-wasted time.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What is a race condition, and what two conditions need to be true for one to happen?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>race condition</strong> is a bug where a program's correctness depends on the unpredictable timing/order in which multiple threads happen to run. Two things need to be true simultaneously: the state has to be <strong>shared</strong> (more than one thread can see and touch it), and it has to be <strong>mutated</strong> (at least one thread writes to it, not just reads it) &mdash; multiple threads only reading shared state, with nobody writing, is perfectly safe with no lock needed. When both are true and there's no coordination between the threads (no lock, no shared-nothing design), the outcome depends on exactly how the threads happen to interleave, which can differ from run to run.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying any shared state is automatically risky (read-only sharing is fine) or not being able to name both required conditions (shared AND mutated).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If five threads all only read the same shared dict, with nobody ever writing to it, is a lock needed?" (No &mdash; read-only access from multiple threads, with no writer, has nothing to race on; a lock is needed specifically when at least one thread writes while others read or write the same state.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> Why can something as simple-looking as <code>counter += 1</code> cause a race condition?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because it isn't actually one atomic step under the hood &mdash; it's three: read the current value of <code>counter</code>, add 1 to it, and write the new value back. If a thread reads <code>counter</code>, gets paused before writing back (the GIL can switch to another thread between these steps), and a second thread reads the same still-old value and writes its own update, the first thread's eventual write can overwrite the second thread's work entirely &mdash; one whole increment is silently lost. This is exactly why "this line looks simple" is not the same question as "is this line safe to run from multiple threads" &mdash; the safety question is about how many underlying steps an operation actually takes, not how it looks in source code.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming any single line of Python source code is automatically one atomic operation from the interpreter's point of view.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If 4 threads each run <code>counter += 1</code> exactly 1000 times with no lock, will the final value of <code>counter</code> always be exactly 4000?" (Not reliably &mdash; it's very likely to be 4000 or close to it much of the time in practice, but it is not <em>guaranteed</em>, and a correct answer should never depend on something that isn't guaranteed; a lock is what actually guarantees the correct total every time.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How does <code>threading.Lock</code> actually fix a race condition?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A lock lets only one thread execute the code inside a protected block at a time &mdash; any other thread that reaches <code>with lock:</code> while the lock is already held simply waits until it's released. Wrapping the exact read-modify-write sequence that caused the race (reading the shared value, computing a new value, writing it back) inside <code>with lock:</code> closes the interleaving gap entirely: no other thread can start its own read-modify-write sequence on that same state until the current thread's is completely finished and the lock is released. <code>with lock:</code> is preferred over manual <code>lock.acquire()</code>/<code>lock.release()</code> because it automatically releases the lock even if an exception happens inside the block, avoiding a permanently-stuck lock.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing a lock makes code run faster (it doesn't &mdash; it trades some concurrency for correctness) or using manual <code>acquire()</code>/<code>release()</code> without a <code>try</code>/<code>finally</code>, risking a lock that never gets released if an exception is raised.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does adding a lock make threaded code run faster?" (No &mdash; it makes it <em>correct</em> when shared mutable state is involved, at the cost of some threads occasionally having to wait their turn; the actual code, once inside the lock, still runs on one thread at a time, same as without threading at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> How much code should be inside a lock's protected block?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Only the minimum code that actually touches the shared mutable state being protected &mdash; not more. Every line inside a lock's block forces every other thread wanting that lock to wait, so locking more than necessary (an entire function's body, for instance, when only one shared counter update inside it actually needs protecting) needlessly serializes work that could otherwise run concurrently, undermining much of threading's benefit. The habit to build: identify exactly which read-modify-write sequence touches shared state, and scope <code>with lock:</code> as tightly as possible around just that.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Wrapping an entire function (including I/O waits, unrelated computation, or anything not touching the shared state) inside a lock "just to be safe."</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a function does a slow <code>time.sleep()</code> call and then a quick shared-counter update, should the lock wrap the sleep too?" (No &mdash; only the counter update needs the lock; wrapping the sleep as well would make every other thread wait for that entire sleep before it can even attempt its own update, needlessly serializing the slow part of the work.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the alternative to using a lock, and when is it preferable?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The alternative is avoiding shared mutable state between threads entirely &mdash; giving each thread its own independent local data to work with, and only combining results together <em>after</em> every thread has finished (after every <code>.join()</code>). This "shared-nothing" pattern is preferable whenever the actual work naturally splits into independent pieces that don't need to see each other's progress mid-execution &mdash; it's simpler to reason about and faster, since there's nothing to protect and nothing for threads to wait on each other for. A lock becomes the necessary tool specifically when threads genuinely need to read and update the <em>same</em> piece of state as they go, not just contribute to a final combined result at the end.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a lock by default even when the work could easily be restructured to avoid sharing state at all, or not recognizing when shared state actually is unavoidable.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If 4 threads each need to compute an independent partial sum and the only thing that matters is their combined total at the very end, does the combining step itself need a lock?" (Not if each thread computes its own local partial sum and only appends it to a shared list once, at the very end &mdash; a single append per thread, after all computation is done, avoids the read-modify-write pattern that actually causes race conditions.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What does <code>threading.local()</code> do?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It creates a special object where each thread automatically sees its own separate, private copy of whatever attributes are stored on it. If Thread A sets <code>data.value = 1</code> and Thread B sets <code>data.value = 2</code> on the exact same <code>threading.local()</code> object, they never collide or overwrite each other &mdash; each thread is silently reading and writing its own private storage behind the same shared name. It's most useful when a shared object genuinely needs to exist across a library or framework's code, but different threads should each keep their own version of specific values on it, without every piece of code that touches it needing to manually thread the right per-thread value through as a parameter.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing <code>threading.local()</code> with a lock (it's not a synchronization primitive at all &mdash; it sidesteps sharing rather than protecting it) or assuming it automatically makes any object thread-safe.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>threading.local()</code> remove the need for a lock elsewhere in the same program?" (Only for the specific attributes stored on that particular <code>threading.local()</code> object &mdash; any other genuinely shared, mutated state elsewhere in the program still needs its own protection, either a lock or a shared-nothing design.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What does <code>concurrent.futures.ThreadPoolExecutor</code> offer over creating raw <code>Thread</code> objects directly?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It manages a fixed, reusable pool of worker threads automatically, removing the need to manually create, start, and join every individual <code>Thread</code> object, and removing the need to manually collect results into a shared list (a raw <code>Thread</code>'s target function has no built-in way to hand a return value back). <code>.map(fn, items)</code> runs <code>fn</code> across every item concurrently and returns results in the same order as the input, regardless of which one actually finished first. <code>.submit(fn, *args)</code> plus <code>as_completed()</code> is the alternative for when a program wants to react to each result as soon as it's ready, in completion order rather than submission order. It's the higher-level, more commonly reached-for tool in real-world threaded code specifically because it removes most of the manual bookkeeping raw <code>Thread</code> objects require.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing the difference between <code>.map()</code> (ordered) and <code>.submit()</code>/<code>as_completed()</code> (completion order), or believing a thread pool makes shared mutable state automatically safe.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does using a <code>ThreadPoolExecutor</code> remove the need for a lock if the submitted work reads and writes the same shared counter?" (No &mdash; a thread pool changes how threads are created and managed, not whether shared mutable state needs protecting; the exact same lock or shared-nothing pattern is still required.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Why are race conditions considered especially dangerous or hard-to-catch bugs in production code?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because their symptoms depend on precise, unpredictable timing between threads rather than on the input data alone. Code with a race condition can pass every test run during development &mdash; if the specific bad interleaving simply doesn't happen to occur during those particular runs &mdash; and then fail unpredictably in production, often only under real concurrent load or heavier traffic than any test environment produces. This makes "it passed my tests" much weaker evidence of correctness for threaded code sharing mutable state than it is for ordinary sequential code, and it's exactly why defensive habits (locking shared mutable state, or avoiding sharing it at all) have to be reasoned about directly rather than verified by testing alone.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating a threaded program that "passed all tests" as proven correct with respect to race conditions, without separately reasoning about which state is shared and mutated.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a race condition exists in some code but happens to not manifest during 100 test runs, does that mean the code is safe?" (No &mdash; it means the bad interleaving simply didn't occur during those particular 100 runs; the underlying unsafe pattern (shared, mutated state with no lock) is still there and can still fail under different timing, load, or hardware.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> Give three real-world examples of tasks well-suited to threading, and explain what they have in common.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Concurrent file downloads (pulling several files from a server, or several servers, at once instead of one at a time), concurrent API calls (checking several external services' responses at once, like weather for five cities, instead of sequentially), and parallel file processing (reading and processing several independent files, where each one spends real time waiting on disk I/O). What they all have in common: every one is I/O-bound &mdash; the actual work is mostly waiting on something outside the CPU, not computing &mdash; which is exactly the category threading speeds up by letting those waits overlap instead of happening one after another. None of them would benefit meaningfully if the "work" were pure computation instead of waiting.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Naming a CPU-bound example (image processing's actual pixel math, heavy numerical computation) as a good threading use case without qualifying that the I/O part (reading the file, not processing it) is the piece that actually benefits.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would resizing 1,000 images in memory (pure CPU-bound pixel computation, no file I/O) benefit meaningfully from Python threading?" (Not meaningfully &mdash; that's CPU-bound work with almost nothing to wait on, so threads would mostly take turns on the GIL rather than genuinely overlapping; <code>multiprocessing</code> would be the better fit for that specific case.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> Threading speeds up ____-bound work (waiting on network, disk, a database), not CPU-bound work.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="I/O,io" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>threading.Thread(target=fn, args=(...))</code> creates a thread but does not ____ it running yet.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="start" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Calling <code>.____()</code> on a thread pauses the calling code until that thread finishes.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="join" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> The ____ (Global Interpreter Lock) allows only one thread to execute Python bytecode at a time.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="GIL,gil" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A thread waiting on I/O ____ the GIL during that wait, letting another thread run.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="releases" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A ____ condition happens when multiple threads read and write shared mutable state without coordination.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="race" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>counter += 1</code> is really three steps: read, add, and write ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="back" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>threading.____()</code> creates a lock that only one thread can hold at a time.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="Lock,lock" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Only the ____ code that actually touches shared state should be inside a lock's protected block.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="minimum,least" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Giving each thread its own local data and combining results only after every thread ____ avoids needing a lock.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="finishes,joins" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>threading.____()</code> gives each thread its own private copy of an attribute, automatically.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="local" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> <code>ThreadPoolExecutor.____(fn, items)</code> returns results in the same order as the input.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="map" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> <code>pool.submit(fn, *args)</code> returns a ____ representing a result that doesn't exist yet.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="Future,future" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

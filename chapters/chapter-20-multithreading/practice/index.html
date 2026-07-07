@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 20: Multithreading, including interview-style scenario problems on threads, the GIL, race conditions, threading.Lock, thread safety patterns, and ThreadPoolExecutor.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-20">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 20 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Multithreading</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Every
+    "wait" here uses <code>time.sleep()</code> to stand in for a slow
+    network or disk operation &mdash; no real network access or file I/O
+    happens anywhere in this bank. No import beyond
+    <code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>/<code>threading</code>/<code>concurrent.futures</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-thread">1. What a Thread Is</a>
+    <a href="#creating-threads">2. Creating &amp; Starting Threads</a>
+    <a href="#the-gil">3. The GIL</a>
+    <a href="#race-conditions">4. Race Conditions</a>
+    <a href="#threading-lock">5. <code>threading.Lock</code></a>
+    <a href="#thread-safety-patterns">6. Thread Safety Patterns</a>
+    <a href="#thread-pool-executor">7. <code>ThreadPoolExecutor</code></a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="what-is-a-thread">Topic 1: What a Thread Is, and I/O-Bound vs. CPU-Bound</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Classifying I/O-bound vs. CPU-bound</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>is_io_bound(task_name)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Estimating sequential time</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>estimate_sequential_time(task_seconds)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Estimating threaded time</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Write <code>estimate_threaded_time(task_seconds)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. This classifies a download as CPU-bound. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Explaining why threading helps downloads</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>explain_why_threading_helps_downloads()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>I/O-bound vs. CPU-bound</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_io_vs_cpu_bound()</code>.</p>
+  </div>
+
+  <h2 id="creating-threads">Topic 2: Creating and Starting Threads</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Threads appending to a shared list</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>append_double(n, results_list)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Two named tasks</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>slow_greet(name, seconds, results_list)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Counting started threads</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write <code>count_threads_started(n)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Threads are joined immediately after starting, removing all concurrency. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Running any task concurrently</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>run_tasks_concurrently(task_fn, items, results_list)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Start before join</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_start_vs_join()</code>.</p>
+  </div>
+
+  <h2 id="the-gil">Topic 3: The GIL</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Which operations release the GIL</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>gil_releases_during(operation)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Would threading help?</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>would_threading_help(work_type)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This claims Python threads run fully in parallel on separate cores. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Explaining the GIL to a teammate</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>explain_gil_to_a_teammate()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The GIL's practical impact</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_gil_interview_answer()</code>.</p>
+  </div>
+
+  <h2 id="race-conditions">Topic 4: Race Conditions</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Spotting race-condition risk</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>has_race_risk(shared, mutated_by_multiple_threads)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> An unsafe shared counter</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Run <code>unsafe_increment(times)</code> across 4 threads.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> The hidden steps of <code>+=</code></h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Write <code>steps_in_plus_equals()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. This claims the GIL fully prevents race conditions. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Diagnosing a flaky counter bug</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>diagnose_flaky_counter_bug()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why race conditions are hard to catch</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_why_races_are_hard_to_catch()</code>.</p>
+  </div>
+
+  <h2 id="threading-lock">Topic 5: <code>threading.Lock</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Fixing the shared counter</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>safe_increment(times)</code> using <code>lock_51</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Safely appending to a shared list</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>append_safely(item, shared_list, lock_obj)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> The <code>with lock:</code> pattern</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write <code>with_lock_pattern_steps()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. A lock was created but never actually used. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A thread-safe logger</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>build_thread_safe_logger()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The tradeoff of using a lock</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_lock_tradeoff()</code>.</p>
+  </div>
+
+  <h2 id="thread-safety-patterns">Topic 6: Thread Safety Patterns</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Combining independent results</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>compute_square(n, results_list)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>threading.local()</code></h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>make_thread_local_counter()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Summing independent ranges</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Write <code>sum_ranges_independently(ranges)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Harden a shared-dict write with a lock.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Parallel word count</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>parallel_word_count(chunks)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Shared-nothing design vs. locking</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_shared_nothing_vs_locking()</code>.</p>
+  </div>
+
+  <h2 id="thread-pool-executor">Topic 7: <code>ThreadPoolExecutor</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> <code>.map()</code> for ordered results</h3>
+    <p>Find <code>&#35; TODO 7.1</code>. Write <code>double_val(n)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>.submit()</code> + <code>as_completed()</code></h3>
+    <p>Find <code>&#35; TODO 7.2</code>. Write <code>slow_square(n)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A reusable pool-running helper</h3>
+    <p>Find <code>&#35; TODO 7.3</code>. Write <code>run_with_pool(fn, items, max_workers)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 7.4</code>. A pool was never used as a context manager. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Fetching weather for several cities concurrently</h3>
+    <p>Find <code>&#35; TODO 7.A</code>. Write <code>fetch_all_weather(cities)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why <code>ThreadPoolExecutor</code> over raw <code>Thread</code></h3>
+    <p>Find <code>&#35; TODO 7.B</code>. Write <code>explain_threadpoolexecutor_benefits()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. One exception:
+    Topic 4's race-condition demo and Topic 5's "broken" debug case print
+    a number that varies between runs by design &mdash; that's the whole
+    point of those two tasks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

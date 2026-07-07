@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20: Multithreading — Python for Everyone</title>
+<meta name="description" content="Threads, the GIL, race conditions, threading.Lock, and concurrent.futures.ThreadPoolExecutor — why Python threading speeds up I/O-bound work like downloads and API calls, but not CPU-bound work, and how to share state between threads safely.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-20">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 20 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">80 min read</span>
+  </div>
+  <h1>Multithreading</h1>
+  <p><em>Every program so far has run one line at a time, from top to bottom. That's fine for pure computation, but a huge amount of real software spends most of its time <strong>waiting</strong> &mdash; for a file to download, a database to respond, an API to answer. <strong>Threading</strong> lets a program start several of those waits at the same time instead of one after another, which is exactly why a browser can load a dozen images at once instead of one at a time. This chapter builds threading's real mechanics: starting threads, the tradeoff Python's GIL creates, the race conditions that come with sharing data across threads, and the tools &mdash; <code>Lock</code> and <code>ThreadPoolExecutor</code> &mdash; that keep it safe.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topics 1-2 are the entry point:</strong> what a thread actually is, the I/O-bound vs. CPU-bound distinction that decides whether threading even helps, and the raw mechanics of <code>threading.Thread</code>, <code>.start()</code>, <code>.join()</code>.</li>
+      <li><strong>Sub-topic 3 is the honest caveat:</strong> the GIL (Global Interpreter Lock) &mdash; why Python threads speed up waiting but not crunching numbers.</li>
+      <li><strong>Sub-topics 4-5 are the real danger and its fix:</strong> race conditions from shared mutable state, and <code>threading.Lock</code> to prevent them.</li>
+      <li><strong>Sub-topic 6 is a broader habit:</strong> structuring code to avoid sharing mutable state in the first place, which avoids needing a lock at all.</li>
+      <li><strong>Sub-topic 7 is the modern, higher-level tool:</strong> <code>concurrent.futures.ThreadPoolExecutor</code>, which most real code reaches for instead of raw <code>Thread</code> objects.</li>
+      <li><strong>Sub-topic 8 ties it together</strong> with the real-world cases threading actually shows up in &mdash; concurrent downloads, concurrent API calls (ties back to Chapter 19), and parallel file processing.</li>
+      <li><strong>Every timing example uses <code>time.sleep()</code> to stand in for a slow network or disk operation.</strong> No example makes a real network call or writes a real file &mdash; this chapter simulates exactly the kind of waiting threading is built for, so every example runs identically and safely for every learner, every time.</li>
+      <li><strong>Thread execution order can vary between runs &mdash; the chapter is built around that.</strong> Every graded example is deliberately designed so the <em>final</em> result is the same no matter which thread happens to run first.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-thread">1. What a thread is, and why it helps</a>
+    <a href="#creating-threads">2. Creating and starting threads</a>
+    <a href="#the-gil">3. The GIL</a>
+    <a href="#race-conditions">4. Race conditions</a>
+    <a href="#threading-lock">5. <code>threading.Lock</code></a>
+    <a href="#thread-safety-patterns">6. Thread safety patterns</a>
+    <a href="#thread-pool-executor">7. <code>ThreadPoolExecutor</code></a>
+    <a href="#real-world-threading">8. Real-world threading</a>
+  </nav>
+
+  <div class="hook">
+    Picture downloading three files from the internet, one at a time: each download takes a full second of the program just sitting there waiting for data to arrive over the network, so three files take three seconds total, even though the computer's CPU was doing almost nothing that whole time. Now picture starting all three downloads at once and waiting for them together &mdash; the total time is close to whichever single download takes longest, not the sum of all three. That's the entire point of this chapter: letting a program overlap multiple waits instead of doing them one after another.
+  </div>
+
+  <div class="subtopic" id="what-is-a-thread">
+    <span class="subtopic-label">Sub-topic 1 of 8</span>
+    <h2>1. What a thread is, and why it helps</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>thread</strong> is a separate line of execution inside the same running program, able to run alongside other threads.</li>
+        <li><strong>I/O-bound</strong> work spends most of its time waiting (network, disk, a database) &mdash; threading helps here.</li>
+        <li><strong>CPU-bound</strong> work spends most of its time actually computing &mdash; threading does not speed this up in Python (Sub-topic 3 explains exactly why).</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every other tool in this chapter only matters for the right kind of problem. Using threading on the wrong kind of work (CPU-bound) is a genuinely common mistake, and this distinction is the one thing to get right before writing any threading code at all.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a thread?</span>
+      A <strong>thread</strong> is a separate line of execution running inside
+      the same program, sharing that program's memory with every other
+      thread it runs alongside. Every Python program already runs on one
+      thread (the "main thread") by default &mdash; this chapter is about
+      deliberately starting more of them so a program can do several things
+      at once instead of one after another.
+    </div>
+
+    <p>
+      Not every kind of work benefits from more threads. The distinction
+      that decides it:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... I/O-bound vs. CPU-bound work?</span>
+      <strong>I/O-bound</strong> work spends most of its time waiting on
+      something outside the CPU &mdash; a network response, a disk read, a
+      database query &mdash; the CPU itself is idle during that wait.
+      <strong>CPU-bound</strong> work spends most of its time actually
+      computing &mdash; crunching numbers, running a loop that does real
+      math on every iteration &mdash; the CPU is busy the entire time, with
+      nothing to wait on. Downloading a file is I/O-bound; calculating the
+      ten-millionth prime number is CPU-bound.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">why overlapping waits helps: 3 downloads, 1 second each</span>
+      <pre><code>One at a time (sequential):
+[--download 1--][--download 2--][--download 3--]
+0s              1s              2s              3s
+
+At the same time (threaded):
+[--download 1--]
+[--download 2--]
+[--download 3--]
+0s                                                1s</code></pre>
+    </div>
+
+    <p>
+      Nothing about the network itself got faster in the threaded version
+      &mdash; each individual download still takes a full second. What
+      changed is that all three waits now happen <em>at the same time</em>
+      instead of back to back, so the program's <em>total</em> wall-clock
+      time shrinks toward the length of the single slowest download, rather
+      than the sum of all three. This is the entire payoff threading offers
+      for I/O-bound work, and it's exactly why a real download manager,
+      web browser, or API client uses it.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Threading helps when a program spends time waiting &mdash; downloads, API calls (Chapter 19), database queries, reading many files.</li>
+      <li>Threading does not help pure number-crunching in Python &mdash; more threads doesn't make one CPU compute any faster.</li>
+      <li>This chapter's examples use <code>time.sleep()</code> to simulate a wait, since it behaves exactly like waiting on the network without needing a real, possibly-flaky network call.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what actually helps CPU-bound work, if not threads?</summary>
+      <p>
+        Python's <code>multiprocessing</code> module runs code in separate
+        full processes instead of threads &mdash; each process gets its own
+        Python interpreter and its own CPU core to run on, which genuinely
+        speeds up CPU-bound work by spreading the actual computation across
+        multiple cores. It's a heavier tool (each process has its own
+        memory, so sharing data between them is more work than sharing
+        between threads) and outside this chapter's scope, but it's the
+        answer to "what do I use for CPU-bound work instead of threading?"
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A thread is a separate line of execution inside the same program, sharing its memory with other threads.</li>
+        <li>I/O-bound work (waiting on network, disk, a database) benefits from threading; CPU-bound work (pure computation) does not.</li>
+        <li>Overlapping several waits at once shrinks a program's total time toward the slowest single wait, rather than the sum of every wait.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="creating-threads">
+    <span class="subtopic-label">Sub-topic 2 of 8</span>
+    <h2>2. Creating and starting threads</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>threading.Thread(target=function, args=(...))</code> creates a thread that will run <code>function</code> when started.</li>
+        <li><code>.start()</code> actually begins running the thread, alongside the main program.</li>
+        <li><code>.join()</code> pauses the calling code until that thread has finished.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> <code>Thread</code>, <code>.start()</code>, and <code>.join()</code> are the three raw building blocks every other tool in this chapter (including <code>ThreadPoolExecutor</code> in Sub-topic 7) is built on top of &mdash; understanding them directly is what makes the higher-level tools feel like a shortcut rather than magic.
+    </div>
+
+    <p>
+      First, the same download simulation from Sub-topic 1, running one
+      download at a time &mdash; no threading yet, just a baseline to
+      compare against:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">sequential_download_demo.py</span>
+      </div>
+      <pre><code>import time
+
+def download_file(name, seconds):
+    time.sleep(seconds)  # stands in for time spent waiting on the network
+    return f"{name} downloaded"
+
+
+start = time.time()
+results = []
+for name, seconds in [("photo.jpg", 1), ("song.mp3", 1), ("video.mp4", 1)]:
+    results.append(download_file(name, seconds))
+elapsed = time.time() - start
+
+for r in results:
+    print(r)
+print(f"Sequential total: about {round(elapsed)}s")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of sequential_download_demo.py</span>
+      <pre><code>photo.jpg downloaded
+song.mp3 downloaded
+video.mp4 downloaded
+Sequential total: about 3s</code></pre>
+    </div>
+
+    <p>
+      Three one-second waits, run back to back, take about three seconds
+      total &mdash; exactly what's expected with no concurrency at all.
+      Starting a thread for each download instead changes only <em>how</em>
+      the waiting happens, not what each function does:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>threading.Thread</code>?</span>
+      <code>threading.Thread(target=some_function, args=(arg1, arg2))</code>
+      creates a new thread object configured to run <code>some_function</code>
+      with the given arguments once started &mdash; creating it doesn't
+      start it running yet, that's what <code>.start()</code> is for.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">threaded_download_demo.py</span>
+      </div>
+      <pre><code>import time
+import threading
+
+def download_file_threaded(name, seconds, results_list):
+    time.sleep(seconds)
+    results_list.append(f"{name} downloaded")
+
+
+results = []
+start = time.time()
+threads = []
+for name, seconds in [("photo.jpg", 1), ("song.mp3", 1), ("video.mp4", 1)]:
+    t = threading.Thread(target=download_file_threaded, args=(name, seconds, results))
+    threads.append(t)
+    t.start()
+
+for t in threads:
+    t.join()
+elapsed = time.time() - start
+
+for r in sorted(results):
+    print(r)
+print(f"Threaded total: about {round(elapsed)}s")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of threaded_download_demo.py</span>
+      <pre><code>photo.jpg downloaded
+song.mp3 downloaded
+video.mp4 downloaded
+Threaded total: about 1s</code></pre>
+    </div>
+
+    <p>
+      All three one-second waits now happen at the same time, so the total
+      time drops to about one second instead of three &mdash; the exact
+      speedup Sub-topic 1's diagram predicted. Three things make this work:
+      <code>t.start()</code> is called for every thread <em>before</em>
+      any <code>t.join()</code> is called, so all three downloads actually
+      begin overlapping; each thread appends its own result to a shared
+      <code>results</code> list instead of returning a value directly
+      (an ordinary function's <code>target</code> can't hand a return value
+      back the way a normal function call does); and the results are
+      printed with <code>sorted()</code>, since the order threads finish in
+      isn't guaranteed &mdash; sorting first is what makes this example's
+      printed output the same on every run despite that.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>.join()</code>?</span>
+      Calling <code>some_thread.join()</code> pauses whichever code called
+      it until <code>some_thread</code> has completely finished running.
+      Without calling <code>.join()</code> on every thread before reading
+      their results, the main program could try to read
+      <code>results</code> before every thread has actually finished
+      appending to it &mdash; <code>.join()</code> is what guarantees
+      "wait until this thread is truly done" before moving on.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>threading.Thread(target=fn, args=(...))</code> creates a thread; it hasn't started running yet.</li>
+      <li><code>.start()</code> begins running the thread; calling <code>.start()</code> on several threads before joining any of them is what lets their waits overlap.</li>
+      <li><code>.join()</code> blocks until a specific thread finishes &mdash; call it on every thread before trusting their combined results.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">import time
+import threading
+
+def task(name, seconds, results_list):
+    time.sleep(seconds)
+    results_list.append(f"{name} finished")
+
+
+results = []
+threads = []
+for name, seconds in [("A", 0.3), ("B", 0.3), ("C", 0.3)]:
+    t = threading.Thread(target=task, args=(name, seconds, results))
+    threads.append(t)
+    t.start()
+
+for t in threads:
+    t.join()
+
+print(sorted(results))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a fourth task with a different name and duration.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why append to a shared list instead of returning a value?</summary>
+      <p>
+        A function passed as <code>target=</code> to <code>Thread()</code>
+        does still technically <code>return</code> a value like any
+        function, but nothing in the <code>threading</code> module ever
+        reads that return value back out &mdash; there's no built-in
+        <code>thread.result()</code>. The two standard ways to actually get
+        a result out of a raw <code>Thread</code> are appending to a shared
+        list (as this sub-topic's demo does) or storing onto a shared
+        object each thread has a reference to; Sub-topic 7's
+        <code>ThreadPoolExecutor</code> fixes this awkwardness directly,
+        which is one of the real reasons it's the more commonly reached-for
+        tool for new code.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>threading.Thread(target=fn, args=(...))</code> creates a thread; <code>.start()</code> begins running it.</li>
+        <li>Starting every thread before joining any of them is what lets their waits happen concurrently.</li>
+        <li><code>.join()</code> blocks until a thread finishes; a raw <code>Thread</code> has no built-in way to return a value, so results are usually collected into a shared list or object instead.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="the-gil">
+    <span class="subtopic-label">Sub-topic 3 of 8</span>
+    <h2>3. The GIL</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>The <strong>GIL</strong> (Global Interpreter Lock) allows only one thread at a time to actually execute Python bytecode, even on a multi-core machine.</li>
+        <li>A thread waiting on I/O releases the GIL during that wait, letting another thread run &mdash; this is exactly why threading speeds up I/O-bound work.</li>
+        <li>CPU-bound work never gives up the GIL for long, so extra threads doing pure computation don't run any faster in standard Python.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is one of the most commonly asked Python interview questions, and getting it wrong ("Python threads don't run in parallel, so threading is pointless") throws away a genuinely useful tool for exactly the I/O-bound case this chapter is built around.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the GIL?</span>
+      The <strong>Global Interpreter Lock</strong> (GIL) is a lock built
+      into the standard Python interpreter (CPython) that only allows one
+      thread to execute Python bytecode at any given instant, no matter how
+      many CPU cores the machine has. It exists to keep Python's internal
+      memory management simple and safe by default &mdash; the tradeoff is
+      that multiple Python threads never truly run Python code
+      <em>simultaneously</em> on separate cores.
+    </div>
+
+    <p>
+      That sounds like it should make threading useless &mdash; and for
+      pure computation, it very nearly does. The detail that changes
+      everything for I/O-bound work: a thread that's waiting on something
+      outside the CPU (a network response, a disk read, <code>time.sleep()</code>)
+      releases the GIL for the duration of that wait, letting a different
+      thread run during it.
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the GIL during an I/O wait vs. a CPU-bound loop</span>
+      <pre><code>I/O-bound (time.sleep, network, disk):
+Thread A: [holds GIL, briefly][--- waiting, GIL released ---][holds GIL again]
+Thread B:                     [--- runs here, holds GIL ----]
+
+CPU-bound (a tight computation loop):
+Thread A: [-------------- holds GIL almost the whole time --------------]
+Thread B: [ barely runs at all -- A rarely lets go of the GIL long enough ]</code></pre>
+    </div>
+
+    <p>
+      During <code>time.sleep()</code> specifically (and during a real
+      network call or file read), the thread genuinely isn't running any
+      Python bytecode at all &mdash; it's just waiting &mdash; so releasing
+      the GIL during that wait costs nothing and lets other threads make
+      real progress. A CPU-bound loop, by contrast, is running Python
+      bytecode continuously, so it only gives up the GIL for brief,
+      periodic intervals, leaving little room for another thread to
+      meaningfully progress. This is the entire reason Sub-topic 1's
+      I/O-bound vs. CPU-bound distinction matters as much as it does.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>The GIL means only one thread runs Python bytecode at a time, even with multiple CPU cores.</li>
+      <li>A thread waiting on I/O releases the GIL for that wait, which is exactly what lets other threads run concurrently during it.</li>
+      <li>A thread doing pure computation holds the GIL almost continuously, so more threads doing CPU-bound work don't meaningfully speed anything up.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is the GIL going away?</summary>
+      <p>
+        Recent CPython releases have introduced an experimental
+        "free-threaded" build that can run without the GIL at all, and this
+        is an active area of ongoing work in the Python project. As of this
+        writing it's still opt-in and not yet the default for most
+        production code, so the GIL's behavior described here is still the
+        practical reality for the vast majority of Python programs running
+        today &mdash; worth knowing the direction things are heading, but
+        not a reason to skip understanding how the GIL behaves right now.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>The GIL lets only one thread run Python bytecode at a time, regardless of CPU core count.</li>
+        <li>A thread waiting on I/O releases the GIL during that wait, letting other threads run &mdash; the reason threading helps I/O-bound work.</li>
+        <li>A CPU-bound thread rarely releases the GIL, so threading doesn't meaningfully speed up pure computation in standard Python.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="race-conditions">
+    <span class="subtopic-label">Sub-topic 4 of 8</span>
+    <h2>4. Race conditions</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>race condition</strong> happens when two threads read and write the same shared value without coordination, and the result depends on unpredictable timing.</li>
+        <li>Even a single line like <code>counter += 1</code> is really three separate steps under the hood: read, add, write back.</li>
+        <li>If one thread's read/add/write gets interleaved with another thread's, updates can be silently lost.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the GIL (Sub-topic 3) stops two threads from executing Python bytecode at the exact same instant, but it does <em>not</em> stop a thread from being paused mid-operation while another thread runs &mdash; and that gap is exactly where race conditions live.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a race condition?</span>
+      A <strong>race condition</strong> is a bug that happens when the
+      correctness of a program depends on the precise order or timing in
+      which multiple threads happen to run &mdash; the code "races" to see
+      which thread's operations interleave with which, and the outcome
+      isn't guaranteed to be the same every time. It's called a shared
+      mutable state problem: it only happens when multiple threads read
+      <em>and</em> write the same value without any coordination.
+    </div>
+
+    <p>
+      <code>counter += 1</code> looks like one atomic step, but it's
+      genuinely three: read the current value of <code>counter</code>, add
+      1 to it, then write the new value back. If Thread A reads
+      <code>counter</code>, then gets paused before it writes back, and
+      Thread B reads the same (still-old) value and writes its own update,
+      Thread A's eventual write overwrites Thread B's work entirely &mdash;
+      one whole increment is silently lost:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">race_condition_demo.py</span>
+      </div>
+      <pre><code>import time
+import threading
+
+counter = 0
+
+def increment_unsafe(times):
+    global counter
+    for _ in range(times):
+        current = counter
+        time.sleep(0)  # forces a moment where another thread can run
+        counter = current + 1
+
+
+threads = [threading.Thread(target=increment_unsafe, args=(2000,)) for _ in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"Expected 8000, got {counter} (a lower, inconsistent number -- lost updates)")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of race_condition_demo.py (varies run to run)</span>
+      <pre><code>Expected 8000, got 2002 (a lower, inconsistent number -- lost updates)</code></pre>
+    </div>
+
+    <p>
+      Four threads each increment <code>counter</code> 2000 times, so the
+      correct final total is <code>4 &times; 2000 = 8000</code>. The
+      printed number instead comes out lower &mdash; and a different,
+      unpredictable amount lower on different runs &mdash; because
+      <code>time.sleep(0)</code> deliberately creates a gap between reading
+      <code>current</code> and writing it back, giving another thread the
+      exact opening it needs to read the same stale value first. The
+      specific number is never reliable, but one thing about this example
+      <em>is</em> completely reliable: it never prints the correct
+      <code>8000</code>, run after run &mdash; which is the whole
+      demonstration.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A race condition needs shared, <em>mutable</em> state that more than one thread both reads and writes.</li>
+      <li>An operation that looks like one line in Python source code can still be several separate steps underneath &mdash; a gap between any of those steps is where a race condition can slip in.</li>
+      <li>The GIL prevents two threads from running Python bytecode at the literal same instant, but does not prevent this kind of interleaving between separate operations &mdash; it does not make Python threading automatically thread-safe.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why don't ordinary programs hit this constantly?</summary>
+      <p>
+        Most day-to-day threaded code either avoids sharing mutable state
+        between threads at all (Sub-topic 6) or already protects the state
+        it does share with a lock (Sub-topic 5) &mdash; race conditions show
+        up specifically when a program shares mutable data across threads
+        <em>without</em> either safeguard. They're also notoriously hard to
+        catch by accident during testing, since the bad interleaving needs
+        exact timing to happen &mdash; a race condition can pass every test
+        run during development and then fail unpredictably in production
+        under real concurrent load, which is exactly why defensive habits
+        (Sub-topics 5-6) matter more here than "just try running it and see
+        if it breaks."
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A race condition happens when multiple threads read and write shared mutable state without coordination.</li>
+        <li>Even a simple-looking update like <code>counter += 1</code> is really several separate steps, and threads can interleave between them.</li>
+        <li>The GIL does not prevent race conditions &mdash; it only stops two threads from executing bytecode at the exact same instant, not from interleaving between separate operations.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="threading-lock">
+    <span class="subtopic-label">Sub-topic 5 of 8</span>
+    <h2>5. <code>threading.Lock</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>lock</strong> lets only one thread at a time run a specific block of code, forcing every other thread to wait its turn.</li>
+        <li><code>lock = threading.Lock()</code> creates one; <code>with lock:</code> is the standard way to use it.</li>
+        <li>Wrapping the read-modify-write steps in a lock closes exactly the gap that caused Sub-topic 4's race condition.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 4 showed the problem; this is the direct fix, using the exact same shared counter so the before-and-after contrast is as concrete as possible.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a lock?</span>
+      A <strong>lock</strong> (also called a mutex, short for "mutual
+      exclusion") is an object that only one thread can hold at a time.
+      Any thread that tries to acquire a lock another thread is already
+      holding simply waits until it's released &mdash; this is what turns a
+      block of code from "any thread might interleave here" into "only one
+      thread runs this at a time," closing the exact gap a race condition
+      needs.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">lock_demo.py</span>
+      </div>
+      <pre><code>import time
+import threading
+
+counter = 0
+lock = threading.Lock()
+
+def increment_safe(times):
+    global counter
+    for _ in range(times):
+        with lock:
+            current = counter
+            time.sleep(0)
+            counter = current + 1
+
+
+threads = [threading.Thread(target=increment_safe, args=(2000,)) for _ in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"Expected 8000, got {counter} (always correct, every run)")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of lock_demo.py</span>
+      <pre><code>Expected 8000, got 8000 (always correct, every run)</code></pre>
+    </div>
+
+    <p>
+      The code is identical to Sub-topic 4's race condition demo, with one
+      change: the read-modify-write sequence is now wrapped in
+      <code>with lock:</code>. A thread that reaches
+      <code>with lock:</code> while another thread already holds
+      <code>lock</code> simply waits there until it's released &mdash; so
+      the <code>time.sleep(0)</code> gap that used to let another thread
+      sneak in and read a stale value can no longer do any damage, since no
+      other thread can even enter that block while one is inside it.
+      <code>counter</code> now comes out exactly <code>8000</code> on every
+      single run, with no exceptions.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>with lock:</code>?</span>
+      <code>with lock:</code> acquires <code>lock</code> at the start of the
+      block and automatically releases it at the end &mdash; including if
+      an exception happens partway through, which manual
+      <code>lock.acquire()</code>/<code>lock.release()</code> calls would
+      require a <code>try</code>/<code>finally</code> to guarantee safely.
+      This is the exact same context-manager pattern from Chapter 17's
+      <code>with open(...) as f:</code>, just applied to a different kind
+      of resource &mdash; a chunk of code that needs exclusive access
+      instead of an open file.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>threading.Lock()</code> creates a lock; only one thread can hold it at a time.</li>
+      <li><code>with lock:</code> is the standard way to use one &mdash; it acquires the lock, runs the block, and always releases it afterward.</li>
+      <li>Only the code that actually touches shared, mutable state needs to be inside the lock &mdash; locking more than necessary just makes threads wait on each other for no benefit.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="18">import time
+import threading
+
+total = 0
+lock = threading.Lock()
+
+def add_to_total(amount, times):
+    global total
+    for _ in range(times):
+        with lock:
+            current = total
+            time.sleep(0)
+            total = current + amount
+
+
+threads = [
+    threading.Thread(target=add_to_total, args=(1, 1000)),
+    threading.Thread(target=add_to_total, args=(2, 1000)),
+    threading.Thread(target=add_to_total, args=(3, 1000)),
+]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"Expected 6000, got {total}")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try removing "with lock:" (unindent the two lines inside it) and see the result become unreliable.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what happens if two threads each wait on a lock the other is holding?</summary>
+      <p>
+        That specific situation &mdash; two (or more) threads each waiting
+        on a lock the other one holds, so neither can ever proceed &mdash;
+        is called a <strong>deadlock</strong>, and it's the classic failure
+        mode locks introduce as a tradeoff for the safety they provide. It
+        typically only happens when code needs to hold <em>multiple</em>
+        locks at once in an inconsistent order across different threads;
+        every example in this chapter uses exactly one lock at a time, which
+        avoids the problem entirely, but it's worth knowing the name for
+        when locking gets more advanced.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A lock lets only one thread run a given block of code at a time; other threads wait their turn.</li>
+        <li><code>with lock:</code> acquires and releases a <code>threading.Lock()</code> automatically, including if an exception occurs inside the block.</li>
+        <li>Wrapping shared state's read-modify-write steps in a lock is what actually fixes a race condition, as opposed to just making it less likely.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="thread-safety-patterns">
+    <span class="subtopic-label">Sub-topic 6 of 8</span>
+    <h2>6. Thread safety patterns</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>The most reliable way to avoid a race condition is to avoid sharing mutable state between threads in the first place.</li>
+        <li>Giving each thread its own separate data to work with, then combining results afterward, sidesteps needing a lock at all.</li>
+        <li><code>threading.local()</code> gives each thread its own private copy of a value, automatically.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a lock (Sub-topic 5) fixes a race condition, but it also means threads spend time waiting on each other &mdash; the fastest, simplest fix is often not needing a lock at all, by structuring the work so nothing is actually shared.
+    </div>
+
+    <p>
+      The cleanest thread-safety pattern doesn't add a lock &mdash; it
+      removes the reason one was needed. Instead of every thread writing
+      into one shared list or counter, give each thread its own private
+      space to work in, and only combine everything <em>after</em> every
+      thread has finished:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">per_thread_results_demo.py</span>
+      </div>
+      <pre><code>import threading
+
+def count_up_to(n, result_holder):
+    total = 0
+    for i in range(1, n + 1):
+        total += i
+    result_holder.append(total)  # each thread only ever appends its OWN total
+
+
+result_holder = []
+threads = [threading.Thread(target=count_up_to, args=(1000, result_holder)) for _ in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+grand_total = sum(result_holder)
+print(f"Each thread's total: {sorted(result_holder)}")
+print(f"Grand total: {grand_total}")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of per_thread_results_demo.py</span>
+      <pre><code>Each thread's total: [500500, 500500, 500500, 500500]
+Grand total: 2002000</code></pre>
+    </div>
+
+    <p>
+      No lock appears anywhere in this example, and it's still completely
+      safe. The key difference from Sub-topic 4's race condition: each
+      thread computes its own independent <code>total</code> (a variable
+      local to that thread's own function call, never touched by any other
+      thread) and only appends once, at the very end. Appending to a
+      Python list is itself a safe, effectively atomic operation for this
+      use case &mdash; the actual risk (reading, then later writing back a
+      value based on that read) never happens here at all, because nothing
+      is shared until every thread is completely done computing.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>threading.local()</code>?</span>
+      <code>threading.local()</code> creates a special object where each
+      thread automatically gets its own separate copy of whatever
+      attributes are stored on it &mdash; Thread A setting
+      <code>data.value = 1</code> and Thread B setting
+      <code>data.value = 2</code> on the exact same <code>threading.local()</code>
+      object never collide, since each thread is silently reading and
+      writing its own private copy. It's a more advanced tool than this
+      chapter's examples need (the "give each thread its own local variable
+      and combine results afterward" pattern above covers the same idea
+      more simply), but it's the standard name for this pattern when a
+      library or framework needs many pieces of code to share one object
+      while still keeping each thread's data separate.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Structuring code so each thread only touches its own local data avoids race conditions without needing a lock at all.</li>
+      <li>Combine results only after every thread has finished (after every <code>.join()</code>), never while threads are still running.</li>
+      <li><code>threading.local()</code> is the standard tool when a shared object genuinely needs to exist, but each thread should see its own private version of specific values on it.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: "share nothing" vs. "lock what's shared" — which to reach for?</summary>
+      <p>
+        When the work naturally splits into independent pieces (each
+        thread's job doesn't need to know about any other thread's job
+        until the very end), avoiding shared state entirely is almost
+        always simpler and faster &mdash; there's nothing to protect, so
+        there's nothing threads have to wait on each other for. A lock
+        becomes necessary specifically when threads genuinely need to
+        update the <em>same</em> piece of state as they go (a running
+        total that has to stay accurate mid-execution, not just at the
+        end, for instance) &mdash; in that case, structuring around shared
+        state isn't optional, and a lock is the correct tool rather than a
+        workaround.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Avoiding shared mutable state between threads sidesteps race conditions entirely, without needing a lock.</li>
+        <li>Giving each thread its own local data and combining results only after every thread finishes is the simplest version of this pattern.</li>
+        <li><code>threading.local()</code> automatically gives each thread its own private copy of an attribute on a shared object.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="thread-pool-executor">
+    <span class="subtopic-label">Sub-topic 7 of 8</span>
+    <h2>7. <code>concurrent.futures.ThreadPoolExecutor</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>ThreadPoolExecutor</code> manages a fixed pool of worker threads automatically &mdash; no manual <code>Thread()</code>/<code>.start()</code>/<code>.join()</code> bookkeeping.</li>
+        <li><code>.map(function, items)</code> runs <code>function</code> across every item in <code>items</code> concurrently and returns results in the original order.</li>
+        <li><code>.submit(function, *args)</code> plus <code>as_completed()</code> is used when results are needed as soon as each one finishes, in whatever order that happens to be.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 2's raw <code>Thread</code> objects work, but they require manually tracking every thread, manually collecting results into a shared list, and manually calling <code>.join()</code> on each one. <code>ThreadPoolExecutor</code> is the modern, higher-level tool that handles all of that, and it's what most real-world threaded code reaches for by default.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a thread pool?</span>
+      A <strong>thread pool</strong> is a fixed, reusable set of worker
+      threads that a program hands pieces of work to, instead of creating
+      and destroying a brand-new thread for every single task.
+      <code>ThreadPoolExecutor(max_workers=N)</code> creates a pool of
+      <code>N</code> worker threads and takes care of assigning submitted
+      work to whichever worker is free, entirely automatically.
+    </div>
+
+    <p>
+      <code>.map()</code> is the simplest entry point &mdash; it looks and
+      feels almost exactly like the built-in <code>map()</code> from
+      Chapter 9, just running each call on its own thread from the pool:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">thread_pool_map_demo.py</span>
+      </div>
+      <pre><code>import time
+from concurrent.futures import ThreadPoolExecutor
+
+def download_v2(item):
+    name, seconds = item
+    time.sleep(seconds)
+    return f"{name} downloaded"
+
+
+items = [("photo.jpg", 0.3), ("song.mp3", 0.3), ("video.mp4", 0.3)]
+with ThreadPoolExecutor(max_workers=3) as pool:
+    results = list(pool.map(download_v2, items))
+
+for r in results:
+    print(r)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of thread_pool_map_demo.py</span>
+      <pre><code>photo.jpg downloaded
+song.mp3 downloaded
+video.mp4 downloaded</code></pre>
+    </div>
+
+    <p>
+      No <code>Thread()</code>, <code>.start()</code>, <code>.join()</code>,
+      or shared results list anywhere in sight &mdash; <code>pool.map()</code>
+      hands every item to the pool's workers, waits for all of them, and
+      returns the results as a list in the <em>same order as the input</em>
+      <code>items</code>, regardless of which download actually finished
+      first. That guaranteed ordering is exactly why this example needs no
+      <code>sorted()</code> call the way Sub-topic 2's raw-<code>Thread</code>
+      version did &mdash; <code>.map()</code> already handles it. The
+      <code>with ThreadPoolExecutor(...) as pool:</code> line is the same
+      context-manager pattern as <code>with open(...)</code>: it
+      automatically shuts down every worker thread in the pool once the
+      block finishes.
+    </p>
+
+    <p>
+      When results are needed as soon as each one finishes &mdash; not
+      necessarily in the original order &mdash; <code>.submit()</code>
+      returns a <strong>future</strong> for each call, and
+      <code>as_completed()</code> yields each future the moment its task
+      finishes:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a <code>Future</code>?</span>
+      A <strong>future</strong> is an object representing a result that
+      doesn't exist yet, but will once its underlying task finishes.
+      <code>pool.submit(fn, *args)</code> returns a <code>Future</code>
+      immediately, without waiting for <code>fn</code> to actually run
+      &mdash; calling <code>.result()</code> on that future later blocks
+      until the task is done and then returns its actual return value.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">thread_pool_submit_demo.py</span>
+      </div>
+      <pre><code>import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def download_v3(name, seconds):
+    time.sleep(seconds)
+    return f"{name} downloaded"
+
+
+items = [("photo.jpg", 0.3), ("song.mp3", 0.3), ("video.mp4", 0.3)]
+with ThreadPoolExecutor(max_workers=3) as pool:
+    futures = [pool.submit(download_v3, name, seconds) for name, seconds in items]
+    completed = []
+    for future in as_completed(futures):
+        completed.append(future.result())
+
+for r in sorted(completed):
+    print(r)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of thread_pool_submit_demo.py</span>
+      <pre><code>photo.jpg downloaded
+song.mp3 downloaded
+video.mp4 downloaded</code></pre>
+    </div>
+
+    <p>
+      <code>as_completed(futures)</code> yields each future as soon as its
+      task finishes &mdash; useful for processing results the moment
+      they're ready rather than waiting for every single one, but it means
+      the completion order isn't guaranteed to match submission order (all
+      three downloads here take the same simulated time, so this example
+      sorts before printing to keep the printed output identical on every
+      run). <code>.map()</code> is simpler and preserves input order
+      automatically; <code>.submit()</code> plus <code>as_completed()</code>
+      is the right tool specifically when a program wants to react to each
+      result as soon as it's available.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>ThreadPoolExecutor(max_workers=N)</code> manages a pool of <code>N</code> worker threads automatically.</li>
+      <li><code>.map(fn, items)</code> is the simplest option: results come back as a list, in input order.</li>
+      <li><code>.submit(fn, *args)</code> returns a <code>Future</code> immediately; <code>as_completed()</code> yields each one as its task finishes, in completion order rather than submission order.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">import time
+from concurrent.futures import ThreadPoolExecutor
+
+def square_after_delay(n):
+    time.sleep(0.1)
+    return n * n
+
+
+with ThreadPoolExecutor(max_workers=4) as pool:
+    results = list(pool.map(square_after_delay, [1, 2, 3, 4]))
+
+print(results)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing max_workers to 1 and notice it still returns the same result, just slower.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does ThreadPoolExecutor need locks too?</summary>
+      <p>
+        Yes &mdash; <code>ThreadPoolExecutor</code> changes how threads are
+        <em>created and managed</em>, not the fact that Python threads
+        share memory. If work submitted to a pool reads and writes the same
+        shared mutable state the way Sub-topic 4's race condition demo did,
+        it needs exactly the same <code>threading.Lock()</code> protection
+        (Sub-topic 5) or shared-nothing structuring (Sub-topic 6) as raw
+        <code>Thread</code> objects would. <code>ThreadPoolExecutor</code>
+        makes starting and managing threads easier; it doesn't make sharing
+        state between them automatically safe.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>ThreadPoolExecutor</code> manages a pool of worker threads, removing manual <code>Thread</code>/<code>.start()</code>/<code>.join()</code> bookkeeping.</li>
+        <li><code>.map(fn, items)</code> returns results in input order; <code>.submit()</code> + <code>as_completed()</code> yields results as each one finishes.</li>
+        <li>A thread pool changes how threads are created and managed, not whether shared state still needs a lock or a shared-nothing structure.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="real-world-threading">
+    <span class="subtopic-label">Sub-topic 8 of 8</span>
+    <h2>8. Real-world threading</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Concurrent downloads, concurrent API calls, and parallel file processing are the three most common real-world reasons to reach for threading.</li>
+        <li>Chapter 19's API-fetching pattern (fetch &rarr; parse &rarr; format) is the exact kind of I/O-bound work threading was built for.</li>
+        <li>This chapter's project combines everything: a menu-driven "concurrent download simulator" comparing sequential vs. threaded timing, protected shared progress, and a <code>ThreadPoolExecutor</code> alternative.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every tool in this chapter exists to solve one of a small number of genuinely common real-world problems &mdash; seeing them named explicitly is what turns "I learned about threads" into "I know exactly when to reach for one."
+    </div>
+
+    <p>
+      Three shapes of real work show up constantly, and all three are
+      exactly Sub-topic 1's I/O-bound case:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Concurrent downloads:</strong> pulling multiple files from a server (or multiple servers) at once, rather than one at a time &mdash; this chapter's project builds exactly this, simulated with <code>time.sleep()</code>.</li>
+      <li><strong>Concurrent API calls:</strong> Chapter 19's <code>requests.get()</code> pattern, called several times for different resources at once instead of sequentially &mdash; checking the weather for five cities concurrently instead of one after another, for instance.</li>
+      <li><strong>Parallel file processing:</strong> reading and processing several independent files (Chapter 13's file handling) at the same time, when each file's processing spends real time waiting on disk I/O.</li>
+    </ul>
+
+    <div class="what-is">
+      <span class="label">What is... connecting this to Chapter 19?</span>
+      Chapter 19's <code>fetch_weather(city)</code> pattern makes one API
+      call and waits for it. A real dashboard checking five cities'
+      weather could call that same function five times, each on its own
+      thread (or through a <code>ThreadPoolExecutor</code>), and the total
+      wait would shrink toward the time of the single slowest API call
+      instead of the sum of all five &mdash; the exact same "overlap the
+      waits" idea as this chapter's download examples, applied to API
+      calls instead of file downloads.
+    </div>
+
+    <p>
+      This chapter's project brings every piece together: a menu-driven
+      tool that "downloads" several files concurrently (each a
+      <code>time.sleep()</code> standing in for real network time), reports
+      how much faster that was than doing them one at a time, uses a
+      <code>Lock</code> to safely update shared progress as downloads
+      complete, and offers a second implementation of the same idea built
+      on <code>ThreadPoolExecutor</code> instead of raw <code>Thread</code>
+      objects &mdash; a direct, hands-on comparison of Sub-topic 2's raw
+      approach against Sub-topic 7's higher-level one.
+    </p>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: how many threads is too many?</summary>
+      <p>
+        More threads doesn't mean unlimited speedup &mdash; past a certain
+        point, the overhead of managing many threads (and, for I/O-bound
+        work, limits like how many connections a server or operating
+        system will allow at once) outweighs any further benefit. Real
+        production code usually caps concurrency deliberately (exactly what
+        <code>ThreadPoolExecutor</code>'s <code>max_workers</code> argument
+        is for) rather than starting one thread per item unconditionally,
+        especially when the number of items could be very large.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Concurrent downloads, concurrent API calls, and parallel file processing are the three most common real-world uses of threading &mdash; all I/O-bound.</li>
+        <li>Chapter 19's fetch-parse-format pattern is exactly the kind of work threading speeds up when called multiple times concurrently.</li>
+        <li>This chapter's project combines timing comparisons, a <code>Lock</code>-protected shared progress log, and a <code>ThreadPoolExecutor</code> alternative into one tool.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Web browsers, download managers, and any app with a "loading several things at once" screen rely on threading (or an equivalent concurrency tool) to overlap waits instead of doing them one at a time.</li>
+      <li>Race conditions are a real, expensive category of production bug specifically because they're timing-dependent &mdash; code can pass every test during development and still fail unpredictably under real concurrent load, which is exactly why defensive locking or shared-nothing design (Sub-topics 5-6) matters more here than in most other chapters.</li>
+      <li><code>ThreadPoolExecutor</code> (or an equivalent thread-pool abstraction) is the default choice in most production Python code that needs concurrency for I/O-bound work &mdash; raw <code>Thread</code> objects are still worth understanding, but real code rarely manages them by hand once a pool-based tool is available.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A thread is a separate line of execution sharing a program's memory; threading speeds up I/O-bound work (waiting on network, disk, a database) but not CPU-bound work (pure computation).</li>
+      <li><code>threading.Thread(target=fn, args=(...))</code> creates a thread; <code>.start()</code> begins it; <code>.join()</code> waits for it to finish. Start every thread before joining any of them to let their waits overlap.</li>
+      <li>The GIL lets only one thread run Python bytecode at a time, but a thread waiting on I/O releases it, letting other threads run &mdash; the reason threading helps I/O-bound work specifically.</li>
+      <li>A race condition happens when multiple threads read and write shared mutable state without coordination; the GIL does not prevent this.</li>
+      <li><code>with lock:</code> (from <code>threading.Lock()</code>) lets only one thread run a block of code at a time, fixing a race condition by closing the gap it depends on.</li>
+      <li>Avoiding shared mutable state between threads (giving each thread its own data, combining results only after every thread finishes) sidesteps race conditions without needing a lock at all.</li>
+      <li><code>concurrent.futures.ThreadPoolExecutor</code> manages a pool of worker threads automatically &mdash; <code>.map()</code> for ordered results, <code>.submit()</code> + <code>as_completed()</code> for results as they finish.</li>
+      <li>Concurrent downloads, concurrent API calls, and parallel file processing are the most common real-world reasons to reach for threading, all of them I/O-bound.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 Project: Concurrent File-Download Simulator — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven simulator that downloads several mocked files at once using threading.Thread, threading.Lock, and ThreadPoolExecutor, comparing sequential vs. concurrent timing — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-20">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 20 Project</span>
+    <span class="reading-time">50 min build</span>
+  </div>
+  <h1>Concurrent File-Download Simulator</h1>
+  <p>A menu-driven mini-app built <strong>around this chapter's core tools</strong> as its organizing principle &mdash; <code>threading.Thread</code>, <code>threading.Lock</code>, and <code>concurrent.futures.ThreadPoolExecutor</code>. It simulates "downloading" several files at once, reports how much faster that was than downloading them one at a time, safely updates shared progress with a lock, and offers a second implementation of the same idea built on <code>ThreadPoolExecutor</code> instead of raw <code>Thread</code> objects. Every "download" is a <code>time.sleep()</code> call standing in for real network transfer time &mdash; no real network access or file I/O happens anywhere, so it runs identically for every learner, every time.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Concurrent File-Download Simulator ===
+
+1. List available files
+2. Download files sequentially
+3. Download files concurrently (raw threads)
+4. Download files concurrently (ThreadPoolExecutor)
+5. Show download history
+6. Quit
+Choose an option (1-6): 1
+
+Available files:
+  1. report.pdf (12MB, ~1.0s to download)
+  2. photo.jpg (4MB, ~0.4s to download)
+  3. video.mp4 (50MB, ~2.0s to download)
+  4. song.mp3 (8MB, ~0.6s to download)
+  5. archive.zip (30MB, ~1.5s to download)
+
+1. List available files
+2. Download files sequentially
+3. Download files concurrently (raw threads)
+4. Download files concurrently (ThreadPoolExecutor)
+5. Show download history
+6. Quit
+Choose an option (1-6): 2
+
+Available files:
+  1. report.pdf (12MB, ~1.0s to download)
+  2. photo.jpg (4MB, ~0.4s to download)
+  3. video.mp4 (50MB, ~2.0s to download)
+  4. song.mp3 (8MB, ~0.6s to download)
+  5. archive.zip (30MB, ~1.5s to download)
+File numbers to download, separated by spaces: 1 2 4
+--- Sequential ---
+  photo.jpg (4MB) downloaded
+  report.pdf (12MB) downloaded
+  song.mp3 (8MB) downloaded
+Total time: 2.00s
+
+1. List available files
+2. Download files sequentially
+3. Download files concurrently (raw threads)
+4. Download files concurrently (ThreadPoolExecutor)
+5. Show download history
+6. Quit
+Choose an option (1-6): 3
+
+... (same file prompt) ...
+File numbers to download, separated by spaces: 1 2 4
+--- Threaded (raw Thread objects) ---
+  photo.jpg (4MB) downloaded
+  report.pdf (12MB) downloaded
+  song.mp3 (8MB) downloaded
+Total time: 1.00s
+
+1. List available files
+2. Download files sequentially
+3. Download files concurrently (raw threads)
+4. Download files concurrently (ThreadPoolExecutor)
+5. Show download history
+6. Quit
+Choose an option (1-6): 6
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice the same three files take about 2 seconds sequentially (the sum of each file's simulated download time), but only about 1 second concurrently &mdash; bounded by whichever single file among the ones chosen takes the longest, exactly the speedup Sub-topic 1's diagram predicted. The exact same set of files is downloaded either way; only the total time changes.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A menu loop with six options: list available mocked files, download a
+    chosen set sequentially, download the same set concurrently with raw
+    <code>threading.Thread</code> objects, download it again with
+    <code>ThreadPoolExecutor</code>, show download history, or quit.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><code>download_file(file_id, progress_log, lock)</code> &mdash; simulates downloading one file with <code>time.sleep()</code>, then safely appends a completion message to the shared <code>progress_log</code> inside <code>with lock:</code>, since multiple threads may call this at the same time.</li>
+    <li><code>run_sequential_download(file_ids)</code> / <code>run_threaded_download(file_ids)</code> / <code>run_pool_download(file_ids)</code> &mdash; three different ways to download the same set of files: one at a time, concurrently with raw <code>threading.Thread</code> objects, and concurrently with <code>ThreadPoolExecutor</code>. Each returns <code>(progress_log, elapsed_seconds)</code>, so the three approaches' timing can be compared directly.</li>
+    <li><code>format_report(progress_log, elapsed, label)</code> &mdash; turns a <code>(progress_log, elapsed)</code> pair into a readable report, sorting the log so the printed order never depends on which download happened to finish first.</li>
+  </ul>
+  <p>Every menu option ties back directly to a sub-topic: option 2 is the sequential baseline, option 3 uses Sub-topic 2's raw <code>Thread</code> objects (with Sub-topic 5's <code>Lock</code> protecting the shared <code>progress_log</code>), and option 4 uses Sub-topic 7's <code>ThreadPoolExecutor</code> &mdash; the exact same download logic, running on the more modern, higher-level tool.</p>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "download the same files with a random simulated failure" mode, where one file's <code>download_file()</code> call sometimes raises an exception (like Chapter 12's custom exceptions), and the report shows which files succeeded and which failed.</li>
+    <li>Track and display, per file, how long it took to download inside the threaded/pooled runs (not just the total), using a shared dict protected by the same lock instead of a plain list.</li>
+    <li>Add a "compare all three at once" menu option that runs the exact same file selection through all three approaches back to back and prints a single side-by-side timing summary.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Every download manager, package installer (<code>pip install</code> fetching several packages), and browser loading a page's images and scripts relies on exactly this pattern: several I/O-bound waits overlapped instead of run one after another. The comparison this project makes explicit &mdash; sequential vs. raw threads vs. a thread pool, all downloading the exact same files &mdash; is also a genuinely useful mental model for deciding which tool to reach for in real code: raw <code>Thread</code> objects when full manual control is needed, <code>ThreadPoolExecutor</code> for nearly everything else.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Concurrent File-Download Simulator above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 20 (everything through Chapter 19's APIs and JSON, plus this chapter's <code>threading</code> and <code>concurrent.futures</code> tools). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Concurrent Web-Scraping Simulator (Mocked Responses, Ties to Chapter 19)</h3>
+    <p><strong>Problem:</strong> A research tool needs to check several websites' mocked "status" and "title" at once, instead of checking them one at a time.</p>
+    <p><strong>What it should do:</strong> Build a small dict of mocked page responses (each a JSON string like Chapter 19's mocked API responses, with <code>"status"</code> and <code>"title"</code> keys), plus <code>fetch_page(url, results_list, lock)</code> (using <code>time.sleep()</code> to simulate the request, then safely appending a parsed result), and functions to run the whole set sequentially vs. concurrently via <code>ThreadPoolExecutor</code>. Menu options: scrape a chosen set of mocked URLs concurrently, and compare against running them sequentially.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's exact <code>run_sequential_*</code>/<code>run_threaded_*</code> naming convention and lock pattern &mdash; the shape doesn't change based on what's being fetched, only what each mocked response contains.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Parallel Image-Resize Simulator</h3>
+    <p><strong>Problem:</strong> A photo tool needs to "resize" a batch of images, and wants to compare doing that one at a time versus concurrently.</p>
+    <p><strong>What it should do:</strong> Build a small list of mocked image filenames with a fake "processing time" per image, plus <code>resize_image(filename, results_list, lock)</code> that sleeps for that image's processing time and safely records a completion message. Menu options: resize a chosen batch sequentially, and resize the same batch concurrently, comparing total time both ways.</p>
+    <p><strong>Suggested approach:</strong> This is a good candidate for pointing out the GIL's real limits explicitly in your own README &mdash; note that a <em>real</em> image resize is CPU-bound (actual pixel computation), so a real version of this tool would see far less benefit from threading than this I/O-bound simulation shows; a real implementation would likely reach for <code>multiprocessing</code> instead. Simulating it with <code>time.sleep()</code> is intentionally showing the I/O-bound case this chapter focuses on.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Multi-Sensor Data Collector Simulator</h3>
+    <p><strong>Problem:</strong> A monitoring system needs to poll several simulated sensors (temperature, humidity, pressure) at once and combine their latest readings into one report.</p>
+    <p><strong>What it should do:</strong> Build a <code>poll_sensor(sensor_name, readings_dict, lock)</code> function that sleeps briefly (simulating the sensor's response time) and then safely writes a random-ish reading into a shared <code>readings_dict</code> using the sensor's name as the key. Menu options: poll all sensors concurrently and print the combined readings, and show how long polling all sensors sequentially would have taken by comparison.</p>
+    <p><strong>Suggested approach:</strong> Since each sensor writes to its own distinct key, this is a good opportunity to also demonstrate Sub-topic 6's shared-nothing pattern as an alternative implementation &mdash; note in your README whether a lock was strictly necessary here or not, and why.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Chat-Room Message Broadcaster Simulator</h3>
+    <p><strong>Problem:</strong> A simplified chat system needs to simulate broadcasting one message to several "connected users" at once, instead of sending it to each one sequentially.</p>
+    <p><strong>What it should do:</strong> Build a small list of mocked usernames, plus a function <code>send_to_user(username, message, delivery_log, lock)</code> that sleeps briefly (simulating network delivery time to that user) and safely appends a delivery confirmation to a shared <code>delivery_log</code>. Menu options: broadcast a message to all users concurrently, and compare the total time against sending it to each user one at a time.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's <code>format_report()</code> pattern for printing the delivery confirmations, sorted so the printed order doesn't depend on which user's simulated delivery happened to finish first.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

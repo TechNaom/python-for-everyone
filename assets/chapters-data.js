@@ -185,7 +185,16 @@ window.PFE_MODULES = [
         { id: "real-api", title: "A real, keyless API to try" },
         { id: "pipeline", title: "The fetch-parse-format pipeline" }
       ] },
-      { id: "chapter-20", num: 20, title: "Multithreading", path: null },
+      { id: "chapter-20", num: 20, title: "Multithreading", path: "chapters/chapter-20-multithreading/lesson.html", subtopics: [
+        { id: "what-is-a-thread", title: "What a thread is, and why it helps" },
+        { id: "creating-threads", title: "Creating and starting threads" },
+        { id: "the-gil", title: "The GIL" },
+        { id: "race-conditions", title: "Race conditions" },
+        { id: "threading-lock", title: "threading.Lock" },
+        { id: "thread-safety-patterns", title: "Thread safety patterns" },
+        { id: "thread-pool-executor", title: "ThreadPoolExecutor" },
+        { id: "real-world-threading", title: "Real-world threading" }
+      ] },
       { id: "chapter-21", num: 21, title: "Working with Databases (MySQL)", path: null }
     ]
   },

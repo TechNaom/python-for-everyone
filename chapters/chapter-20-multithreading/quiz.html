@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 20 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 20: Multithreading.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-20" data-active-chapter="chapter-20">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 20 Quiz</span>
+  <h1>Multithreading</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What is a thread?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">A separate program running in its own isolated memory</button>
+        <button type="button" class="mcq-option" data-correct="true">A separate line of execution running inside the same program, sharing its memory</button>
+        <button type="button" class="mcq-option" data-correct="false">A special kind of Python variable that updates automatically</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> Threading speeds up which kind of work?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">CPU-bound work, like crunching numbers in a tight loop</button>
+        <button type="button" class="mcq-option" data-correct="true">I/O-bound work, like waiting on a network response or disk read</button>
+        <button type="button" class="mcq-option" data-correct="false">Neither kind of work benefits from threading in Python</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does <code>threading.Thread(target=fn, args=(...))</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">Immediately starts running <code>fn</code> on a new thread</button>
+        <button type="button" class="mcq-option" data-correct="true">Creates a thread configured to run <code>fn</code>, without starting it yet</button>
+        <button type="button" class="mcq-option" data-correct="false">Runs <code>fn</code> once on the main thread, then returns</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What does calling <code>.join()</code> on a thread do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">Starts the thread running</button>
+        <button type="button" class="mcq-option" data-correct="true">Pauses the calling code until that thread has finished</button>
+        <button type="button" class="mcq-option" data-correct="false">Merges two threads into one</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What is the GIL?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">A tool for managing files across threads</button>
+        <button type="button" class="mcq-option" data-correct="true">A lock in CPython that allows only one thread to execute Python bytecode at a time</button>
+        <button type="button" class="mcq-option" data-correct="false">A type of error raised when two threads conflict</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> Why does the GIL still allow threading to help I/O-bound work?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">The GIL is disabled automatically during I/O</button>
+        <button type="button" class="mcq-option" data-correct="true">A thread waiting on I/O releases the GIL during that wait, letting another thread run</button>
+        <button type="button" class="mcq-option" data-correct="false">I/O-bound code doesn't use the GIL at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What is a race condition?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">An error raised when a thread runs too slowly</button>
+        <button type="button" class="mcq-option" data-correct="true">A bug where the correctness of a program depends on unpredictable thread timing, from shared mutable state</button>
+        <button type="button" class="mcq-option" data-correct="false">A built-in Python exception for thread failures</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> Why can <code>counter += 1</code> cause a race condition even though it looks like one step?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">Because <code>+=</code> is not valid inside a thread</button>
+        <button type="button" class="mcq-option" data-correct="true">Because it's really a read, an add, and a write-back — three separate steps another thread can interleave with</button>
+        <button type="button" class="mcq-option" data-correct="false">Because integers cannot be shared between threads at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> What does <code>threading.Lock()</code> combined with <code>with lock:</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">Prevents a thread from ever being paused</button>
+        <button type="button" class="mcq-option" data-correct="true">Lets only one thread run the code inside the block at a time, making others wait</button>
+        <button type="button" class="mcq-option" data-correct="false">Speeds up a thread's execution</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What's the simplest way to avoid a race condition without using a lock?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">Add more threads to the program</button>
+        <button type="button" class="mcq-option" data-correct="true">Avoid sharing mutable state between threads — give each thread its own data and combine results afterward</button>
+        <button type="button" class="mcq-option" data-correct="false">Use <code>time.sleep()</code> inside every thread</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What does <code>threading.local()</code> provide?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">A lock scoped to the current function only</button>
+        <button type="button" class="mcq-option" data-correct="true">An object where each thread automatically gets its own private copy of its attributes</button>
+        <button type="button" class="mcq-option" data-correct="false">A way to run a thread only on the local machine</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> What does <code>ThreadPoolExecutor.map(fn, items)</code> return, compared to raw <code>Thread</code> objects?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing — results still have to be collected manually into a shared list</button>
+        <button type="button" class="mcq-option" data-correct="true">Results in the same order as the input <code>items</code>, with no manual thread bookkeeping needed</button>
+        <button type="button" class="mcq-option" data-correct="false">Only the result of whichever thread finishes first</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> What is a <code>Future</code>, as returned by <code>pool.submit()</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">The actual return value of the submitted function, available immediately</button>
+        <button type="button" class="mcq-option" data-correct="true">An object representing a result that doesn't exist yet, but will once the task finishes</button>
+        <button type="button" class="mcq-option" data-correct="false">A special kind of thread that runs faster than normal threads</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> Does using a <code>ThreadPoolExecutor</code> remove the need for a lock when threads share mutable state?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">Yes, thread pools are always automatically thread-safe for any shared data</button>
+        <button type="button" class="mcq-option" data-correct="true">No — a pool changes how threads are managed, not whether shared mutable state still needs protecting</button>
+        <button type="button" class="mcq-option" data-correct="false">Yes, but only if <code>max_workers</code> is set to 1</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> Which of these is the best real-world use case for threading, as covered in this chapter?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">Calculating a large mathematical result as fast as possible on one CPU core</button>
+        <button type="button" class="mcq-option" data-correct="true">Downloading several files, or calling several APIs, at the same time instead of one after another</button>
+        <button type="button" class="mcq-option" data-correct="false">Sorting a large list of numbers</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>threading.____()</code> creates a lock that only one thread can hold at a time.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="Lock,lock" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> The <code>____</code> (Global Interpreter Lock) allows only one thread to run Python bytecode at a time.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="GIL,gil" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> Calling <code>fn.____()</code> on a thread blocks until that thread has finished running.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="join" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>from concurrent.futures import ThreadPool____</code> is used to manage a pool of worker threads.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="Executor,executor" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> A ____ condition happens when multiple threads read and write shared mutable state without coordination.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="race" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 20 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
