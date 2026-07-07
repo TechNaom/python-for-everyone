@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on email/phone validation, findall/finditer, re.sub()/re.split(), named groups, and compiled patterns, for Chapter 18: Regular Expressions.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-18">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 18 Coding Challenges</span>
+    <span class="reading-time">55-70 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Regular Expressions</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-18 have covered so far &mdash; including <code>import re</code>
+    and every <code>re</code> function and pattern feature from this
+    chapter's lesson. No import beyond
+    <code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Valid Email Checker <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_valid_email(text)</code> that returns whether <code>text</code>, in its <strong>entirety</strong>, looks like a valid email address: one or more letters/digits/<code>.</code>/<code>+</code>/<code>-</code>/<code>_</code>, then an <code>@</code>, then one or more letters/digits/<code>-</code>, then a literal dot, then 2 or more letters. Use <code>re.fullmatch()</code> with the pattern <code>r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}"</code> and return whether the result is not <code>None</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> is always a string, possibly empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_valid_email("ann@example.com")</code> &rarr; <code>true</code><br>
+        <code>is_valid_email("not-an-email")</code> &rarr; <code>false</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import re
+
+def is_valid_email(text):
+    # TODO: use re.fullmatch() with the pattern
+    # r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}" against text, and return whether
+    # the result is not None.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_valid_email",
+  "cases": [
+    { "args": ["ann@example.com"], "expected": true },
+    { "args": ["not-an-email"], "expected": false },
+    { "args": ["bob.smith@company.co"], "expected": true },
+    { "args": ["@missing.com"], "expected": false },
+    { "args": ["no-domain@"], "expected": false },
+    { "args": ["a@b.io"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>import re
+
+def is_valid_email(text):
+    return re.fullmatch(r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}", text) is not None</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Extract Every Number <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>extract_numbers(text)</code> that returns every run of one or more digits found in <code>text</code>, as a list of strings, in the order they appear. Use <code>re.findall()</code> with the pattern <code>r"\d+"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> may be empty or contain no digits at all, in which case return an empty list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>extract_numbers("Room 42 has 7 chairs")</code> &rarr; <code>["42", "7"]</code><br>
+        <code>extract_numbers("no numbers here")</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+import re
+
+def extract_numbers(text):
+    # TODO: return re.findall(r"\d+", text).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "extract_numbers",
+  "cases": [
+    { "args": ["Room 42 has 7 chairs and 100 tables"], "expected": ["42", "7", "100"] },
+    { "args": ["no numbers here"], "expected": [] },
+    { "args": [""], "expected": [] },
+    { "args": ["v2.0 released in 2026"], "expected": ["2", "0", "2026"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>import re
+
+def extract_numbers(text):
+    return re.findall(r"\d+", text)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Word Counter via Regex <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_words(text)</code> that returns how many words are in <code>text</code>, using <code>len(re.findall(r"\b\w+\b", text))</code> &mdash; a word being any run of letters/digits/underscores bounded by word boundaries, regardless of how much whitespace separates them.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> may be empty or contain irregular spacing (multiple spaces, leading/trailing spaces).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_words("one two three")</code> &rarr; <code>3</code><br>
+        <code>count_words("")</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+import re
+
+def count_words(text):
+    # TODO: return len(re.findall(r"\b\w+\b", text)).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_words",
+  "cases": [
+    { "args": ["one two three"], "expected": 3 },
+    { "args": [""], "expected": 0 },
+    { "args": ["  spaced   out   words  "], "expected": 3 },
+    { "args": ["single"], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>import re
+
+def count_words(text):
+    return len(re.findall(r"\b\w+\b", text))</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Mask Every Phone Number <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>mask_phone_numbers(text)</code> that replaces every phone number shaped like <code>###-###-####</code> in <code>text</code> with <code>"XXX-XXX-XXXX"</code>, using <code>re.sub()</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> may contain zero, one, or several phone numbers, or none at all.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>mask_phone_numbers("Call 555-123-4567 or 555-987-6543")</code> &rarr; <code>"Call XXX-XXX-XXXX or XXX-XXX-XXXX"</code><br>
+        <code>mask_phone_numbers("no numbers")</code> &rarr; <code>"no numbers"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import re
+
+def mask_phone_numbers(text):
+    # TODO: return re.sub(r"\d{3}-\d{3}-\d{4}", "XXX-XXX-XXXX", text).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "mask_phone_numbers",
+  "cases": [
+    { "args": ["Call 555-123-4567 or 555-987-6543"], "expected": "Call XXX-XXX-XXXX or XXX-XXX-XXXX" },
+    { "args": ["no numbers"], "expected": "no numbers" },
+    { "args": [""], "expected": "" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>import re
+
+def mask_phone_numbers(text):
+    return re.sub(r"\d{3}-\d{3}-\d{4}", "XXX-XXX-XXXX", text)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Split on Multiple Delimiters <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>split_on_multiple_delimiters(text)</code> that splits <code>text</code> wherever a comma or semicolon appears, optionally followed by whitespace, using <code>re.split()</code> with the pattern <code>r"[,;]\s*"</code>. Return the resulting list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> may use a mix of commas and semicolons, with or without spaces after them.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>split_on_multiple_delimiters("apple,banana; cherry,  date")</code> &rarr; <code>["apple", "banana", "cherry", "date"]</code><br>
+        <code>split_on_multiple_delimiters("single")</code> &rarr; <code>["single"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import re
+
+def split_on_multiple_delimiters(text):
+    # TODO: return re.split(r"[,;]\s*", text).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "split_on_multiple_delimiters",
+  "cases": [
+    { "args": ["apple,banana; cherry,  date"], "expected": ["apple", "banana", "cherry", "date"] },
+    { "args": ["single"], "expected": ["single"] },
+    { "args": [""], "expected": [""] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>import re
+
+def split_on_multiple_delimiters(text):
+    return re.split(r"[,;]\s*", text)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">6</span> Extract Every Hashtag <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>extract_hashtags(text)</code> that returns every hashtag in <code>text</code> (a <code>#</code> followed by one or more letters/digits/underscores), as a list of strings, using <code>re.findall()</code> with the pattern <code>r"#\w+"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>text</code> may contain zero, one, or several hashtags.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>extract_hashtags("Loving this #sunset and #BeachLife")</code> &rarr; <code>["#sunset", "#BeachLife"]</code><br>
+        <code>extract_hashtags("no hashtags")</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+import re
+
+def extract_hashtags(text):
+    # TODO: return re.findall(r"#\w+", text).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "extract_hashtags",
+  "cases": [
+    { "args": ["Loving this #sunset and #BeachLife"], "expected": ["#sunset", "#BeachLife"] },
+    { "args": ["no hashtags"], "expected": [] },
+    { "args": [""], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>import re
+
+def extract_hashtags(text):
+    return re.findall(r"#\w+", text)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Parse a Log Line Into Named Fields <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>parse_log_line(line)</code> that matches <code>line</code> against the pattern <code>r"(?P&lt;time&gt;\d{2}:\d{2}:\d{2})\s+\[(?P&lt;level&gt;\w+)\]\s+(?P&lt;message&gt;.+)"</code> using <code>re.match()</code>. If it matches, return <code>match.groupdict()</code> (a dict with keys <code>"time"</code>, <code>"level"</code>, and <code>"message"</code>). If it doesn't match, return <code>None</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>line</code> may not be in the expected log format at all, in which case return <code>None</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>parse_log_line("10:15:00 [ERROR] disk full")</code> &rarr; <code>{"time": "10:15:00", "level": "ERROR", "message": "disk full"}</code><br>
+        <code>parse_log_line("not a log line")</code> &rarr; <code>null</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+import re
+
+def parse_log_line(line):
+    # TODO: use re.match() with the pattern
+    # r"(?P<time>\d{2}:\d{2}:\d{2})\s+\[(?P<level>\w+)\]\s+(?P<message>.+)"
+    # against line. If the match is None, return None. Otherwise return
+    # match.groupdict().
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "parse_log_line",
+  "cases": [
+    { "args": ["10:15:00 [ERROR] disk full"], "expected": { "time": "10:15:00", "level": "ERROR", "message": "disk full" } },
+    { "args": ["not a log line"], "expected": null },
+    { "args": ["09:00:00 [INFO] server started"], "expected": { "time": "09:00:00", "level": "INFO", "message": "server started" } }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>import re
+
+def parse_log_line(line):
+    match = re.match(
+        r"(?P<time>\d{2}:\d{2}:\d{2})\s+\[(?P<level>\w+)\]\s+(?P<message>.+)",
+        line,
+    )
+    if match is None:
+        return None
+    return match.groupdict()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> First N Matches, Using a Compiled Pattern <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>first_n_matches(text, pattern, n)</code> that builds a compiled pattern with <code>re.compile(pattern)</code>, then loops over <code>compiled.finditer(text)</code>, collecting each match's <code>.group()</code> into a list, and stopping (breaking out of the loop) once the list already has <code>n</code> items &mdash; even if more matches remain in <code>text</code>. Return the list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> there may be fewer than <code>n</code> matches total in <code>text</code>, in which case return only however many were actually found.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>first_n_matches("a1 b2 c3 d4 e5", r"[a-z]\d", 3)</code> &rarr; <code>["a1", "b2", "c3"]</code><br>
+        <code>first_n_matches("no matches", r"\d+", 2)</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="24">
+import re
+
+def first_n_matches(text, pattern, n):
+    # TODO: build compiled = re.compile(pattern). Loop over
+    # compiled.finditer(text), collecting each match's .group() into a
+    # results list, breaking out of the loop once len(results) reaches n.
+    # Return results.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "first_n_matches",
+  "cases": [
+    { "args": ["a1 b2 c3 d4 e5", "[a-z]\\d", 3], "expected": ["a1", "b2", "c3"] },
+    { "args": ["a1 b2", "[a-z]\\d", 10], "expected": ["a1", "b2"] },
+    { "args": ["no matches", "\\d+", 2], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import re
+
+def first_n_matches(text, pattern, n):
+    compiled = re.compile(pattern)
+    results = []
+    for match in compiled.finditer(text):
+        if len(results) >= n:
+            break
+        results.append(match.group())
+    return results</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

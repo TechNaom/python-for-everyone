@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 18: Regular Expressions — match() vs. search() vs. fullmatch(), findall() vs. finditer(), greedy vs. non-greedy, why patterns need raw strings, groups vs. named groups, re.sub()/re.split(), re.compile(), and the classic email-validation-regex trap.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-18-interview" data-active-chapter="chapter-18">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 18 Interview Prep</span>
+    <span class="reading-time">35 min read</span>
+  </div>
+  <h1>Interview Questions: Regular Expressions</h1>
+  <p>Regex questions in interviews test two different things at once: whether the exact pattern syntax is fluent (character classes, quantifiers, anchors, groups), and whether the underlying model of how matching actually works is solid (greedy vs. non-greedy, why raw strings matter, what a failed match returns, when to reach for <code>compile()</code>). This set covers <code>match()</code>/<code>search()</code>/<code>fullmatch()</code>, <code>findall()</code>/<code>finditer()</code>, the pattern vocabulary, groups and named groups, <code>re.sub()</code>/<code>re.split()</code>, <code>re.compile()</code>, the greedy-matching and raw-string gotchas, flags, and one question interviewers love: why "just write a regex for a valid email" is a trap question with no single right answer.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the actual difference between <code>re.match()</code>, <code>re.search()</code>, and <code>re.fullmatch()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>All three test the same kind of thing &mdash; does a pattern match against a string &mdash; but they differ in <em>where</em> the match is allowed to happen. <code>re.match(pattern, text)</code> only succeeds if the pattern matches starting at position 0; if the pattern would match later in the string but not at the very start, <code>match()</code> still returns <code>None</code>. <code>re.search(pattern, text)</code> scans the entire string and succeeds on the first match found anywhere, which is why it's almost always the right default when a pattern could be located anywhere in real, messy text. <code>re.fullmatch(pattern, text)</code> is the strictest of the three: it only succeeds if the pattern matches the <em>entire</em> string from the first character to the last, with nothing left over on either side &mdash; exactly the right tool for form validation, where the question is "is this whole input a valid email/username/ZIP code?" rather than "does something like that appear somewhere in it?"</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>match()</code> and <code>search()</code> as interchangeable, or reaching for <code>search()</code> when validating a whole input field (which can incorrectly pass input that merely <em>contains</em> a valid-looking substring rather than being entirely valid).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would <code>re.search(r'\d{5}', 'abc123456')</code> succeed, even though the string is not a valid 5-digit ZIP code on its own?" (Yes &mdash; <code>search()</code> only needs to find a matching 5-digit run <em>somewhere</em> in the string, so it succeeds even on messy, non-ZIP-shaped input; <code>re.fullmatch(r'\d{5}', 'abc123456')</code> would correctly return <code>None</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What does a failed regex match actually return, and what should calling code check for?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>re.match()</code>, <code>re.search()</code>, and <code>re.fullmatch()</code> all return <code>None</code> on failure and a <code>Match</code> object on success &mdash; never an exception, and never an empty string. Since a <code>Match</code> object is truthy and <code>None</code> is falsy, the idiomatic check is a plain <code>if re.search(pattern, text):</code> rather than comparing against <code>None</code> explicitly or wrapping the call in a <code>try</code>/<code>except</code>. This is worth being precise about in an interview, since a common mistake is assuming a failed match raises an exception (it never does) or returns something like an empty <code>Match</code> object (there's no such thing &mdash; it's <code>None</code> or nothing).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Wrapping a regex match in <code>try</code>/<code>except</code> to "catch" a failed match, or checking <code>if match != ""</code> instead of the correct truthy/<code>None</code> check.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>re.search(r'\d+', 'no digits here')</code> raise an exception?" (No &mdash; it simply returns <code>None</code>; regex functions never raise on a failed match, only on a malformed pattern string itself, which is a separate, much rarer failure mode.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's the difference between <code>re.findall()</code> and <code>re.finditer()</code>, and when would you reach for one over the other?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both scan the whole string and return every match, not just the first &mdash; the difference is in what shape the results come back as. <code>re.findall()</code> returns a plain <strong>list of strings</strong> (or tuples, if the pattern has multiple groups), which is exactly right when only the matched text itself is needed. <code>re.finditer()</code> returns an <strong>iterator of <code>Match</code> objects</strong> instead &mdash; each one carries the match's <code>.start()</code>/<code>.end()</code> position in the original string, plus access to any groups via <code>.group()</code>/<code>.groupdict()</code>, information <code>findall()</code> throws away. The rule of thumb: reach for <code>findall()</code> for a quick "just give me the matched text" job, and <code>finditer()</code> the moment position or per-match group data matters, since <code>findall()</code> genuinely cannot provide either.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that <code>findall()</code> discards position information entirely, or assuming <code>finditer()</code> is just a slower version of the same thing with no functional difference.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a pattern like <code>r'\[(?P&lt;level&gt;\w+)\]'</code> needs both the matched text and where each match starts in the original string, which function should be used?" (<code>re.finditer()</code> &mdash; <code>findall()</code> would return only the matched text or captured groups, with no way to recover each match's position afterward.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between a character class, a quantifier, and an anchor?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>These are three genuinely different kinds of pattern pieces, and confusing them is a common early mistake. A <strong>character class</strong> (<code>[aeiou]</code>, <code>\d</code>, <code>\w</code>, <code>\s</code>) matches exactly one character, chosen from some set. A <strong>quantifier</strong> (<code>*</code>, <code>+</code>, <code>?</code>, <code>{m,n}</code>) doesn't match a character at all on its own &mdash; it modifies whatever comes immediately before it, saying how many times that piece is allowed to repeat. An <strong>anchor</strong> (<code>^</code>, <code>$</code>, <code>\b</code>) matches a <em>position</em> in the string, not a character &mdash; it never consumes any text itself, it just asserts something about where the surrounding pattern is located (start of string, end of string, a word boundary). A full pattern like <code>r"^\d{3}-\d{4}$"</code> combines all three: <code>^</code>/<code>$</code> are anchors, <code>\d</code> is a character class, and <code>{3}</code>/<code>{4}</code> are quantifiers.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Calling <code>^</code> or <code>$</code> a "character that gets matched," or not being able to explain that a quantifier has no meaning by itself &mdash; it always modifies the token directly before it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does the pattern <code>r'^$'</code> ever match a character?" (No &mdash; both <code>^</code> and <code>$</code> are pure position anchors with zero width, so <code>r'^$'</code> only matches the empty string: the position where the string starts is immediately followed by the position where it ends, with nothing in between.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Why does an unescaped <code>.</code> in a regex pattern behave unexpectedly to beginners?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because <code>.</code> on its own doesn't mean "a literal period" at all &mdash; it means "any single character except a newline." A pattern like <code>r"c.t"</code> matches <code>"cat"</code>, <code>"cot"</code>, <code>"c9t"</code>, and even <code>"c.t"</code> itself, since an actual period is just one of the many characters <code>.</code> is willing to match in that position. To match a literal period specifically, it has to be escaped with a backslash: <code>r"c\.t"</code> matches only <code>"c.t"</code>. This trips people up constantly when writing patterns for things like decimal numbers, file extensions, or domain names, where the period is meant literally but gets typed unescaped &mdash; the pattern still "works" in the sense that it doesn't error, it just silently matches more than intended.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>.</code> matches a literal dot by default, or not knowing that this mistake fails silently (over-matching) rather than raising any kind of error.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would the unescaped pattern <code>r'3.14'</code> match the string <code>'3x14'</code>?" (Yes &mdash; the unescaped <code>.</code> matches any character in that position, including <code>x</code>, so <code>r'3.14'</code> incorrectly matches <code>'3x14'</code> as well as the intended <code>'3.14'</code>; the fix is <code>r'3\.14'</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the difference between a numbered group and a named group, and why would you prefer one over the other?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both are created by wrapping part of a pattern in parentheses, and both let that piece be retrieved separately from the rest of the match afterward &mdash; the difference is purely in how that piece gets referenced later. A plain group, <code>(...)</code>, is retrieved by position: <code>match.group(1)</code>, <code>match.group(2)</code>, numbered left to right in the order the parentheses appear (group <code>0</code> is always the entire match). A named group, <code>(?P&lt;name&gt;...)</code>, matches exactly the same text but is retrieved by a meaningful string name instead: <code>match.group("year")</code>. Named groups are almost always the better choice once a pattern has more than one or two groups, since <code>group(1)</code> says nothing about what that piece actually represents, and inserting a new group earlier in the pattern later silently shifts every numbered reference after it &mdash; a bug that's easy to introduce and easy to miss. Named groups don't have that fragility, and <code>match.groupdict()</code> conveniently returns every named group at once as a ready-to-use dictionary.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that inserting a new group earlier in a pattern re-numbers every group after it, or being unable to name the syntax for a named group.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a working pattern with three numbered groups gets a brand-new fourth group added at the very front, does <code>match.group(1)</code> still refer to the same piece it did before?" (No &mdash; the new group at the front becomes group 1, and everything that used to be groups 1-3 shifts to groups 2-4, silently breaking any code that referenced them by number; named groups avoid this entirely since they're referenced by name regardless of position.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What happens when calling <code>.group()</code> for a group that's part of an optional piece of the pattern that didn't actually participate in the match?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It returns <code>None</code>, not an empty string. If part of a pattern is optional (via <code>?</code>, or one side of an alternation with <code>|</code>) and that specific piece never matched anything on a given input, the corresponding group is considered to have "not participated" in the match at all &mdash; and Python represents that specifically as <code>None</code>, distinct from the group having matched an empty string. This distinction matters in practice: code that calls a string method on a group's result (like <code>.upper()</code> or <code>.strip()</code>) without first checking for <code>None</code> will crash with an <code>AttributeError</code> the moment that optional group doesn't participate, even though the overall match succeeded.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a non-participating group returns an empty string, or not anticipating that calling a method on it directly can crash even when the overall <code>Match</code> object is not <code>None</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>match = re.match(r'(\d+)(x)?', '42')</code>, what does <code>match.group(2)</code> return?" (<code>None</code> &mdash; the optional <code>(x)?</code> group never matched anything against <code>'42'</code>, so it's reported as not having participated, rather than as an empty string.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How is <code>re.sub()</code> different from <code>str.replace()</code>, and what's a real production use case where that difference matters?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>str.replace(old, new)</code> only replaces one exact, fixed string &mdash; it has no concept of a pattern at all. <code>re.sub(pattern, replacement, text)</code> replaces every match of an entire <em>pattern</em>, which can describe a whole category of text rather than one fixed value. The production use case that comes up constantly: masking sensitive data before logging or displaying it, e.g. replacing every credit-card-number-shaped or phone-number-shaped substring in a block of text with <code>"XXXX-XXXX-XXXX-XXXX"</code> in a single <code>re.sub()</code> call &mdash; something <code>str.replace()</code> simply cannot do, since it would need to already know every specific number appearing in the text ahead of time. <code>re.sub()</code> also supports referencing captured groups in the replacement string (<code>\1</code>, <code>\2</code>, ...), which lets it rearrange matched text rather than only deleting or masking it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing <code>re.sub()</code> as "just a fancier <code>replace()</code>" without being able to name a concrete case where a fixed-string replace genuinely cannot do the job.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could <code>text.replace(phone_number, 'XXX-XXXX')</code> mask every phone number in a block of text containing several different numbers, in one call?" (No &mdash; <code>str.replace()</code> only replaces one specific string value per call, so masking several distinct phone numbers would require one call per distinct number, or knowing every number in advance; <code>re.sub(r'\d{3}-\d{4}', 'XXX-XXXX', text)</code> masks all of them in a single call regardless of what the actual digits are.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why compile a pattern with <code>re.compile()</code> instead of just calling <code>re.search()</code> with a raw pattern string every time?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>re.compile(pattern)</code> processes a pattern string once into a reusable compiled pattern object, which then exposes its own <code>.match()</code>/<code>.search()</code>/<code>.findall()</code> methods without needing the pattern string passed in again on every call. The practical benefit shows up specifically when the same pattern gets applied repeatedly &mdash; scanning every line of a large log file for the same timestamp shape, for instance &mdash; where compiling once outside the loop and reusing the compiled object inside it avoids re-parsing the same pattern string on every single iteration. It's worth being fair about the tradeoff in an interview, though: Python's <code>re</code> module already keeps a small internal cache of recently used pattern strings, so the raw performance difference for a single reused pattern is often smaller than people assume. The clearer, more defensible benefit is readability and intent &mdash; a named, compiled pattern object makes it visually obvious that a particular pattern is meant to be reused, rather than being re-typed as a string literal at every call site.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming <code>re.compile()</code> is strictly necessary for reused patterns to work correctly at all (it isn't &mdash; correctness is identical either way, only the workflow and clarity differ), or not knowing about the module's internal pattern cache.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is calling <code>re.search(pattern, text)</code> with the exact same pattern string 10,000 times in a loop functionally incorrect compared to compiling it first?" (No &mdash; it's still correct, and Python's internal cache reduces the practical performance gap; compiling first is mainly a readability and intent-signaling improvement, not a correctness requirement.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between a greedy and a non-greedy quantifier? Give a concrete example where the difference produces a different match.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Every quantifier (<code>*</code>, <code>+</code>, <code>{m,n}</code>) is <strong>greedy</strong> by default: it tries to consume as much text as possible while still letting the rest of the pattern succeed. Adding a <code>?</code> immediately after a quantifier (<code>*?</code>, <code>+?</code>) makes it <strong>non-greedy</strong> (or "lazy") instead: it consumes as little text as possible. The classic example is matching HTML-like tags in <code>"&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;"</code>: the greedy pattern <code>r"&lt;.*&gt;"</code> stretches from the very first <code>&lt;</code> all the way to the very <em>last</em> <code>&gt;</code> in the string, swallowing everything in between as one giant match, since greedy matching is allowed to keep consuming as long as the pattern can still eventually succeed. The non-greedy version, <code>r"&lt;.*?&gt;"</code>, instead stops at the very first <code>&gt;</code> it can find, correctly producing four separate small matches (<code>"&lt;b&gt;"</code>, <code>"&lt;/b&gt;"</code>, <code>"&lt;i&gt;"</code>, <code>"&lt;/i&gt;"</code>) instead of one. Whenever a pattern needs "the shortest thing between two delimiters" rather than "everything from the first delimiter to the last one," non-greedy is the fix.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not being able to produce a concrete example where greedy vs. non-greedy actually changes the result, or thinking non-greedy quantifiers only apply to <code>.*</code> specifically rather than any quantifier.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Against <code>'aaa'</code>, does the greedy pattern <code>r'a+'</code> and the non-greedy pattern <code>r'a+?'</code> return the same single match from <code>re.match()</code>?" (No &mdash; <code>r'a+'</code> greedily matches all three <code>a</code>s, <code>'aaa'</code>, while <code>r'a+?'</code> matches the shortest string that still satisfies "one or more," which is just <code>'a'</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Why does forgetting the <code>r</code> prefix on a regex pattern string cause bugs, and why are those bugs specifically hard to spot?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because Python processes backslash escape sequences in an ordinary string <em>before</em> the <code>re</code> module ever sees the pattern. A regex pattern uses backslashes constantly &mdash; <code>\d</code>, <code>\w</code>, <code>\s</code>, <code>\b</code> &mdash; and some of those same two-character sequences already mean something different to Python's own string parser. <code>"\bcat\b"</code> without the <code>r</code> prefix isn't the five characters backslash-b-c-a-t at all: Python's string rules silently convert <code>\b</code> into an actual backspace control character (<code>\x08</code>) first, so <code>re</code> receives a corrupted pattern that can never match anything meaningful. The reason this bug is specifically hard to spot: many other backslash sequences commonly used in regex (like <code>\d</code> or <code>\w</code>) aren't recognized Python escape sequences, so Python leaves them alone and the pattern happens to work fine without <code>r</code> &mdash; right up until a sequence like <code>\b</code>, <code>\n</code>, or <code>\t</code> gets added later, at which point it silently breaks with no error raised anywhere. The fix is a blanket rule, not a case-by-case judgment call: write every regex pattern as a raw string, without exception.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing a missing <code>r</code> prefix always causes an obvious error (it doesn't &mdash; many patterns "work" without it purely by coincidence), or not knowing which specific escape sequences are the dangerous ones.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would the pattern <code>"\d+"</code> (without an <code>r</code> prefix) behave any differently from <code>r"\d+"</code>?" (No, in this specific case &mdash; <code>\d</code> is not a recognized Python string escape sequence, so Python leaves the backslash alone either way; the danger is patterns using sequences Python <em>does</em> recognize, like <code>\b</code>, <code>\n</code>, or <code>\t</code>, which is exactly why "it happened to work without <code>r</code> once" is not a safe signal that a pattern is fine.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What do the <code>re.IGNORECASE</code> and <code>re.MULTILINE</code> flags actually change?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>They're optional extra arguments passed to a <code>re</code> function (or to <code>re.compile()</code>) that change how the entire pattern behaves, and they solve two unrelated, easy-to-forget default behaviors. <code>re.IGNORECASE</code> makes matching case-insensitive &mdash; without it, <code>r"python"</code> matches <code>"python"</code> but not <code>"Python"</code> or <code>"PYTHON"</code>, since patterns are case-sensitive by default. <code>re.MULTILINE</code> changes what <code>^</code> and <code>$</code> anchor to: by default, they only match the very start and end of the <em>entire</em> string, even if that string spans multiple lines separated by <code>\n</code>; with <code>re.MULTILINE</code>, they instead match the start and end of <em>every individual line</em> within the string. Multiple flags can be combined with the bitwise OR operator, <code>re.IGNORECASE | re.MULTILINE</code>, to apply both at once.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>^</code>/<code>$</code> always anchor per-line by default, or not knowing flags can be combined with <code>|</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Against the string <code>'start one\nstart two'</code>, does <code>re.findall(r'^start', text)</code> find one match or two, without any flag?" (One &mdash; without <code>re.MULTILINE</code>, <code>^</code> only anchors to the very beginning of the whole string, so it finds the first line's <code>'start'</code> but not the second line's, even though both lines individually begin with that word.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> "Write a regex that validates an email address" is a classic interview prompt. What's the honest answer to give?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A genuinely correct email-validating regex, matching the full RFC 5322 specification, is notoriously long and impractical to hand-write &mdash; and the honest, senior answer is to say that up front rather than pretending a short pattern is bulletproof. A practical pattern like <code>r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}"</code> (used against <code>re.fullmatch()</code>) covers the large majority of real-world addresses correctly and is exactly the kind of pattern actually used in production form validation &mdash; but it will reject some technically valid edge cases (quoted local parts, some newer top-level domains) and, in principle, could accept a few unusual strings that aren't real deliverable addresses. The interview-worthy point isn't memorizing a "perfect" pattern; it's knowing that client-side regex validation is a first-pass sanity check, not a guarantee &mdash; genuine validation of "does this email actually work" ultimately requires sending a confirmation email and having the recipient click a link, which no regex, however sophisticated, can substitute for.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Presenting any single regex as a fully correct, complete email validator with no caveats, or not knowing that real-world email validation ultimately depends on a confirmation step, not pattern matching alone.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would a practical email-validation pattern like <code>r'[\w.+-]+@[\w-]+\.[A-Za-z]{2,}'</code> ever be wrong to ship to production?" (No &mdash; it's a reasonable, genuinely common first-pass check; the point isn't that it's wrong to use, it's that calling it a complete, airtight validator overstates what any practical regex can guarantee, and a confirmation email remains the actual source of truth.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>re.____()</code> only succeeds if the pattern matches starting at position 0 of the string.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="match" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>re.____()</code> only succeeds if the pattern matches the entire string, start to end.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="fullmatch" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> A failed call to <code>re.search()</code> returns <code>____</code>, never raises an exception.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="None,none" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>re.findall()</code> returns a list of plain strings; <code>re.finditer()</code> returns an iterator of <code>____</code> objects.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="Match,match" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A quantifier like <code>*</code>, <code>+</code>, or <code>{m,n}</code> controls how many times the piece right ____ it can repeat.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="before" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Anchors like <code>^</code> and <code>$</code> match a <code>____</code> in the string, not a character.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="position" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> An unescaped <code>.</code> in a pattern means "any single ____," not a literal period.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="character" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> A named group is written <code>(?P&lt;name&gt;...)</code> and retrieved with <code>match.____("name")</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="group" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> If an optional group never participated in a match, calling <code>.group()</code> for it returns <code>____</code>, not an empty string.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="None,none" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Unlike <code>str.replace()</code>, <code>re.sub()</code> can replace every match of a whole <code>____</code>, not just one fixed string.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="pattern" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> A greedy quantifier matches as ____ text as possible while still letting the rest of the pattern succeed.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="much" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Adding <code>?</code> right after a quantifier (e.g. <code>*?</code>) makes it <code>____</code> instead of greedy.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="non-greedy,nongreedy,lazy" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Without the <code>r</code> prefix, Python's own escape rules can silently corrupt a backslash sequence like <code>____</code> before <code>re</code> ever sees it.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="\b,\n,\t" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

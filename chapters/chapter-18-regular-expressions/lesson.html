@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18: Regular Expressions — Python for Everyone</title>
+<meta name="description" content="Pattern matching against text with Python's re module: re.match() vs re.search() vs re.fullmatch(), findall()/finditer(), character classes, quantifiers, anchors, groups & named groups, re.sub()/re.split(), compiled patterns, and the greedy-vs-non-greedy and raw-string gotchas that trip up every regex beginner.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-18">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 18 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">80 min read</span>
+  </div>
+  <h1>Regular Expressions</h1>
+  <p><em>Every chapter so far has checked text with tools like <code>.startswith()</code>, <code>in</code>, or a chain of <code>if</code>/<code>elif</code> conditions on strings. That works fine for exact, fixed text — but "does this look like a valid email address?" or "pull every phone number out of this messy paragraph" isn't a fixed-text question at all, it's a <em>pattern</em> question. This chapter introduces <strong>regular expressions</strong> (regex): a mini-language, built into Python's <code>re</code> module, for describing text patterns instead of exact text — the same tool that powers real form validation, log parsing, and data extraction across the industry.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topics 1-2 are the entry point:</strong> what a regular expression actually is, the three ways to test a string against one (<code>match()</code>/<code>search()</code>/<code>fullmatch()</code>), and the two ways to pull out every match at once (<code>findall()</code>/<code>finditer()</code>).</li>
+      <li><strong>Sub-topics 3-4 are the pattern-writing vocabulary:</strong> character classes, quantifiers, anchors, and the escaping rules that let a pattern describe "any digit" or "3 to 5 letters" instead of one exact string — then groups, which let a pattern pull out labeled pieces of what it matched.</li>
+      <li><strong>Sub-topics 5-7 round out the toolkit:</strong> search-and-replace with <code>re.sub()</code>/<code>re.split()</code>, compiling a pattern once for reuse, and the specific gotchas (greedy matching, raw strings, flags) that catch nearly everyone the first time.</li>
+      <li><strong>Everything from Chapters 1-17 still applies</strong> — strings, loops, functions, file handling, classes, all of it. The <code>re</code> module's functions and pattern syntax are the new ingredients.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-regex">1. What a regular expression is</a>
+    <a href="#findall-finditer">2. Finding every match: <code>findall()</code> &amp; <code>finditer()</code></a>
+    <a href="#pattern-vocabulary">3. Character classes, quantifiers &amp; anchors</a>
+    <a href="#groups">4. Groups &amp; named groups</a>
+    <a href="#sub-split">5. Search-and-replace: <code>re.sub()</code> &amp; <code>re.split()</code></a>
+    <a href="#compiled-patterns">6. Compiled patterns with <code>re.compile()</code></a>
+    <a href="#gotchas">7. Gotchas: greedy matching, raw strings &amp; flags</a>
+  </nav>
+
+  <div class="hook">
+    Picture a hiring tool that needs to scan hundreds of resumes for a candidate's email address and phone number, buried somewhere in a wall of unstructured text with no fixed format. <code>"email:" in resume_text</code> and <code>.split()</code> can't describe "something that looks like an email address" — there's no fixed string to search for, only a <em>shape</em>: some characters, an <code>@</code>, more characters, a dot, a few letters. Regular expressions exist precisely to describe shapes like that, and this chapter builds up the exact pattern syntax needed to do it.
+  </div>
+
+  <div class="subtopic" id="what-is-regex">
+    <span class="subtopic-label">Sub-topic 1 of 7</span>
+    <h2>1. What a regular expression is</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>regular expression</strong> is a mini-language for describing a <em>pattern</em> of text, not one exact string.</li>
+        <li>Python's built-in <code>re</code> module provides the functions that test a pattern against real text.</li>
+        <li><code>re.match()</code>, <code>re.search()</code>, and <code>re.fullmatch()</code> all check for a pattern, but at different positions in the string.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> almost every later sub-topic in this chapter is just richer syntax for the pattern string itself — the three functions here are how that pattern actually gets checked against real text.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a regular expression?</span>
+      A <strong>regular expression</strong> (often shortened to "regex") is a
+      string written in a special pattern syntax that describes a <em>shape</em>
+      of text, rather than one exact sequence of characters — "three digits, a
+      dash, four digits" instead of the literal text <code>"555-1234"</code>.
+      Python's <code>re</code> module (<code>import re</code>) is what actually
+      tests a pattern against a real string.
+    </div>
+
+    <p>
+      Start with the import every example in this chapter needs, then the
+      simplest possible check — does a pattern appear anywhere in a string?
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">match_search_fullmatch_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "Contact us at support@example.com for help."
+
+match_result = re.match(r"support", text)
+print(match_result)
+
+search_result = re.search(r"support", text)
+print(search_result)
+
+email_pattern = r"support@example\.com"
+full_result = re.fullmatch(email_pattern, text)
+print(full_result)
+
+full_result_2 = re.fullmatch(email_pattern, "support@example.com")
+print(full_result_2)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of match_search_fullmatch_demo.py</span>
+      <pre><code>None
+&lt;re.Match object; span=(14, 21), match='support'&gt;
+None
+&lt;re.Match object; span=(0, 19), match='support@example.com'&gt;</code></pre>
+    </div>
+
+    <p>
+      Each of the three functions checks the pattern against the string in a
+      different place. <code>re.match()</code> only looks right at the very
+      start of the string — since <code>text</code> starts with
+      <code>"Contact"</code>, not <code>"support"</code>, it finds nothing and
+      returns <code>None</code>.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>re.match(pattern, text)</code> only succeeds if the pattern matches starting at position 0.</li>
+      <li><code>re.search(pattern, text)</code> scans the whole string and succeeds on the first match anywhere.</li>
+      <li><code>re.fullmatch(pattern, text)</code> only succeeds if the pattern matches the <em>entire</em> string, start to end.</li>
+    </ul>
+
+    <p>
+      <code>re.search()</code> found <code>"support"</code> starting at index
+      14, since it's allowed to look anywhere in the string.
+      <code>re.fullmatch()</code> against the whole sentence found nothing,
+      because the sentence has more text around the email address — but
+      against the bare email address string by itself, with nothing else in
+      it, <code>re.fullmatch()</code> succeeded. This is exactly why
+      <code>fullmatch()</code> is the right choice for form validation: "is
+      this input, in its entirety, a valid email address?" is a fullmatch
+      question, not a search question.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a <code>Match</code> object?</span>
+      A successful call to <code>match()</code>, <code>search()</code>, or
+      <code>fullmatch()</code> returns a <strong><code>Match</code> object</strong>
+      (truthy in an <code>if</code> check) holding details about what matched
+      and where; a failed call returns <code>None</code> (falsy), which is why
+      <code>if re.search(...):</code> is the standard way to test "did this
+      pattern appear at all?"
+    </p>
+
+    <p>
+      The difference between <code>match()</code> and <code>search()</code>
+      matters most on real, messy text where the pattern isn't at position 0:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">match_vs_search_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "Call 555-1234 now"
+
+match_result = re.match(r"\d{3}-\d{4}", text)
+print(match_result)
+
+search_result = re.search(r"\d{3}-\d{4}", text)
+print(search_result)
+print(search_result.group())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of match_vs_search_demo.py</span>
+      <pre><code>None
+&lt;re.Match object; span=(5, 13), match='555-1234'&gt;
+555-1234</code></pre>
+    </div>
+
+    <p>
+      <code>re.match()</code> returns <code>None</code> here even though the
+      phone number genuinely exists in the string — it just isn't at
+      position 0, and <code>match()</code> refuses to look anywhere else.
+      <code>re.search()</code> finds it fine, and calling <code>.group()</code>
+      on the resulting <code>Match</code> object returns the actual matched
+      text as a plain string. <code>\d</code> and <code>{3}</code> are pattern
+      syntax covered in full in Sub-topic 3 — for now, just notice that
+      <code>search()</code> is almost always the right default when scanning
+      real text for a pattern that could be anywhere.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">import re
+
+text = "Order #48213 shipped today"
+
+if re.search(r"\d+", text):
+    print("Found a number in the text.")
+else:
+    print("No number found.")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the text to remove all digits.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just use string methods for everything?</summary>
+      <p>
+        <code>.startswith()</code>, <code>.endswith()</code>, and
+        <code>in</code> are still the right tool when checking for one exact,
+        fixed piece of text — they're simpler and faster than regex for that
+        job. Regex earns its complexity specifically when the thing being
+        checked for is a <em>pattern</em> rather than one fixed string: "any
+        sequence of digits," "something shaped like an email," "one or more
+        spaces." Reach for <code>re</code> only once a plain string method
+        genuinely can't express what's being searched for.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A regular expression describes a pattern of text, not one exact string, and Python's <code>re</code> module tests patterns against real strings.</li>
+        <li><code>re.match()</code> checks only at the start of the string; <code>re.search()</code> checks anywhere; <code>re.fullmatch()</code> requires the whole string to match.</li>
+        <li>A successful match returns a truthy <code>Match</code> object with a <code>.group()</code> method; a failed one returns <code>None</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="findall-finditer">
+    <span class="subtopic-label">Sub-topic 2 of 7</span>
+    <h2>2. Finding every match: <code>findall()</code> &amp; <code>finditer()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>re.findall()</code> returns every match in a string as a plain list of strings.</li>
+        <li><code>re.finditer()</code> returns every match as an iterator of <code>Match</code> objects, giving access to each match's position too.</li>
+        <li>Both scan the entire string, unlike <code>match()</code>/<code>search()</code>, which stop at the first hit.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 1's functions only ever report the first match (or none). Real text — a log file, a resume, a paragraph of user input — usually has a pattern appearing many times, and these two functions are how every occurrence gets pulled out at once.
+    </div>
+
+    <p>
+      A log line with several timestamps shows the difference clearly:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>findall()</code> vs. <code>finditer()</code>?</span>
+      <code>re.findall(pattern, text)</code> returns a plain
+      <strong>list of strings</strong> — one per match, in order.
+      <code>re.finditer(pattern, text)</code> returns an
+      <strong>iterator of <code>Match</code> objects</strong> — slightly
+      more setup to loop over, but each one carries its start/end position,
+      not just the matched text.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">findall_finditer_demo.py</span>
+      </div>
+      <pre><code>import re
+
+log_line = "Errors at 10:15, 10:42, and 11:03 -- three total."
+
+times = re.findall(r"\d{2}:\d{2}", log_line)
+print(times)
+
+for match in re.finditer(r"\d{2}:\d{2}", log_line):
+    print(match.group(), match.start(), match.end())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of findall_finditer_demo.py</span>
+      <pre><code>['10:15', '10:42', '11:03']
+10:15 10 15
+10:42 17 22
+11:03 28 33</code></pre>
+    </div>
+
+    <p>
+      <code>findall()</code> hands back exactly what's usually wanted — a
+      plain list of the three matched timestamps, ready to loop over, count,
+      or store. <code>finditer()</code> takes one extra step (a
+      <code>for</code> loop instead of printing the result directly) but pays
+      it back with <code>.start()</code> and <code>.end()</code> on each
+      match — the exact character positions where that match was found in
+      the original string, which <code>findall()</code> throws away.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Reach for <code>findall()</code> when only the matched text itself is needed.</li>
+      <li>Reach for <code>finditer()</code> when the match's position in the string matters too, or when the pattern has groups (Sub-topic 4) and each match needs individual inspection.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import re
+
+text = "SKU-1001, SKU-2044, and SKU-3399 are backordered"
+skus = re.findall(r"SKU-\d+", text)
+print(skus)
+print(f"Found {len(skus)} SKUs")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding another "SKU-####" to the text.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: findall() with a pattern that has no matches</summary>
+      <p>
+        If nothing in the string matches the pattern, <code>findall()</code>
+        returns an empty list <code>[]</code> rather than <code>None</code> —
+        useful, since checking <code>if matches:</code> or
+        <code>len(matches)</code> works the same way it would for any other
+        list, with no special <code>None</code>-handling needed first.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>findall()</code> returns every match as a list of plain strings.</li>
+        <li><code>finditer()</code> returns every match as an iterator of <code>Match</code> objects, with position info via <code>.start()</code>/<code>.end()</code>.</li>
+        <li>Both scan the whole string for every occurrence, not just the first.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="pattern-vocabulary">
+    <span class="subtopic-label">Sub-topic 3 of 7</span>
+    <h2>3. Character classes, quantifiers &amp; anchors</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>character class</strong> like <code>[aeiou]</code> or the shorthand <code>\d</code> matches one character from a set.</li>
+        <li>A <strong>quantifier</strong> like <code>*</code>, <code>+</code>, <code>?</code>, or <code>{m,n}</code> says how many times the thing before it can repeat.</li>
+        <li>An <strong>anchor</strong> like <code>^</code> or <code>$</code> matches a position (start/end of string), not a character.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> these three ingredients are the actual vocabulary of a regex pattern — everything from Sub-topic 1's <code>\d{3}-\d{4}</code> phone-number pattern to a real email or resume-scanning pattern is built entirely out of character classes, quantifiers, and anchors strung together.
+    </div>
+
+    <p>
+      A character class matches exactly one character, chosen from a set —
+      either written out explicitly or as one of a few common shorthands:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a character class?</span>
+      A <strong>character class</strong>, written <code>[...]</code>, matches
+      any <em>one</em> character from the set inside the brackets —
+      <code>[aeiou]</code> matches one vowel, <code>[A-Z]</code> matches one
+      uppercase letter. Python's <code>re</code> module also has shorthand
+      classes: <code>\d</code> (any digit), <code>\w</code> (any letter,
+      digit, or underscore), and <code>\s</code> (any whitespace character).
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">character_classes_demo.py</span>
+      </div>
+      <pre><code>import re
+
+print(re.findall(r"[aeiou]", "hello world"))
+print(re.findall(r"[A-Z][a-z]+", "Alice met Bob and Carol"))
+print(re.findall(r"\d+", "order 12 has 345 items"))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of character_classes_demo.py</span>
+      <pre><code>['e', 'o', 'o']
+['Alice', 'Bob', 'Carol']
+['12', '345']</code></pre>
+    </div>
+
+    <p>
+      <code>[aeiou]</code> found every individual vowel character in
+      <code>"hello world"</code> — each match is exactly one character.
+      <code>[A-Z][a-z]+</code> combines a character class with a quantifier
+      (the <code>+</code>, explained next) to find whole capitalized words:
+      one uppercase letter, followed by one or more lowercase letters.
+      <code>\d+</code> is the shorthand digit class plus the same
+      <code>+</code>, finding runs of one or more digits anywhere in the
+      text.
+    </p>
+
+    <p>
+      A quantifier controls how many times whatever comes right before it is
+      allowed to repeat — this is the piece that turns "one character" into
+      "a whole number" or "an optional letter":
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">quantifier reference</span>
+      <pre><code>*       zero or more
++       one or more
+?       zero or one (optional)
+{m}     exactly m times
+{m,n}   between m and n times, inclusive
+{m,}    m or more times</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">quantifiers_demo.py</span>
+      </div>
+      <pre><code>import re
+
+print(re.findall(r"colou?r", "color colour"))
+print(re.findall(r"\d{2,4}", "a 5 b 55 c 555 d 5555 e 55555"))
+
+anchored = re.match(r"^\d+$", "42")
+print(anchored)
+anchored_fail = re.match(r"^\d+$", "42 apples")
+print(anchored_fail)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of quantifiers_demo.py</span>
+      <pre><code>['color', 'colour']
+['55', '555', '5555', '5555']
+&lt;re.Match object; span=(0, 2), match='42'&gt;
+None</code></pre>
+    </div>
+
+    <p>
+      <code>colou?r</code> matches both spellings by making the <code>u</code>
+      optional with <code>?</code>. <code>\d{2,4}</code> matches runs of 2 to
+      4 digits — notice the 5-digit run <code>"55555"</code> splits into two
+      separate matches, <code>"5555"</code> and then a leftover <code>"5"</code>
+      too short to match on its own (which is why it's missing from the
+      output entirely; a lone digit doesn't satisfy <code>{2,4}</code>'s
+      minimum of 2).
+    </p>
+
+    <p>
+      The last two lines introduce <strong>anchors</strong> — <code>^</code>
+      and <code>$</code> don't match a character at all, they match a
+      <em>position</em>: the very start and very end of the string,
+      respectively. <code>^\d+$</code> only succeeds if the <em>entire</em>
+      string, from position 0 to the last character, is nothing but digits —
+      exactly why <code>"42"</code> matches but <code>"42 apples"</code>
+      doesn't, since there's text after the digits that the pattern's
+      <code>$</code> anchor refuses to allow.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... escaping a special character?</span>
+      Characters like <code>.</code>, <code>*</code>, <code>+</code>, and
+      <code>?</code> have special meaning in a regex pattern. To match one of
+      them <em>literally</em> — an actual period, not "any character" — put a
+      backslash before it: <code>\.</code> matches a literal dot,
+      <code>\*</code> matches a literal asterisk.
+    </div>
+
+    <p>
+      <code>.</code> on its own means "any single character" — which makes
+      matching an actual, literal period require escaping it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">escaping_dot_demo.py</span>
+      </div>
+      <pre><code>import re
+
+print(re.findall(r"c.t", "cat cot c9t c.t"))
+print(re.findall(r"3\.14", "pi is 3.14 not 3x14"))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of escaping_dot_demo.py</span>
+      <pre><code>['cat', 'cot', 'c9t', 'c.t']
+['3.14']</code></pre>
+    </div>
+
+    <p>
+      Unescaped <code>.</code> in <code>c.t</code> matches
+      <em>any</em> character between <code>c</code> and <code>t</code> —
+      including a literal period, since <code>.</code> means "anything
+      here," not "a dot specifically." <code>3\.14</code> escapes the dot, so
+      it only matches an actual decimal point — which is why it finds
+      <code>"3.14"</code> but correctly skips <code>"3x14"</code>, which has
+      a different character in that position.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import re
+
+text = "ZIP codes: 90210, 1002, 733210"
+valid_zips = re.findall(r"^\d{5}$", text)
+print(re.findall(r"\b\d{5}\b", text))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — \b marks a word boundary, so \b\d{5}\b matches a standalone 5-digit run.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: greedy quantifiers try to match as much as possible</summary>
+      <p>
+        Every quantifier introduced here (<code>*</code>, <code>+</code>,
+        <code>{m,n}</code>) is <strong>greedy</strong> by default — it tries
+        to consume as many characters as it possibly can while still letting
+        the rest of the pattern succeed, which is exactly why
+        <code>\d{2,4}</code> grabbed 4 digits at a time instead of stopping
+        at 2. Sub-topic 7 covers the non-greedy versions
+        (<code>*?</code>, <code>+?</code>) and exactly when the difference
+        matters.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A character class (<code>[...]</code>, <code>\d</code>, <code>\w</code>, <code>\s</code>) matches one character from a set.</li>
+        <li>A quantifier (<code>*</code>, <code>+</code>, <code>?</code>, <code>{m,n}</code>) controls how many times the preceding piece can repeat.</li>
+        <li>Anchors (<code>^</code>, <code>$</code>) match a position, not a character; special characters like <code>.</code> need a backslash to match literally.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="groups">
+    <span class="subtopic-label">Sub-topic 4 of 7</span>
+    <h2>4. Groups &amp; named groups</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Parentheses <code>(...)</code> create a <strong>group</strong> — a labeled piece of the overall match, accessible on its own.</li>
+        <li><code>.group(n)</code> retrieves group number <code>n</code>; <code>.group(0)</code> (or no argument) is the entire match.</li>
+        <li><code>(?P&lt;name&gt;...)</code> creates a <strong>named group</strong>, accessed by name via <code>.group("name")</code> or all at once via <code>.groupdict()</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> so far, a match either succeeds or fails as one whole unit. Groups are how a pattern pulls out specific labeled <em>pieces</em> of what it matched — the year, the month, and the day out of one date, rather than just the date as one undivided blob.
+    </div>
+
+    <p>
+      Wrapping part of a pattern in parentheses doesn't change what it
+      matches — it just makes that piece separately retrievable afterward:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a group?</span>
+      A <strong>group</strong> is a parenthesized part of a pattern,
+      <code>(...)</code>. It matches exactly what it would have matched
+      without the parentheses, but the matched text for that piece becomes
+      individually retrievable through the resulting <code>Match</code>
+      object, numbered left to right starting at 1 (group <code>0</code> is
+      always the whole match).
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">groups_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "2026-07-06"
+match = re.match(r"(\d{4})-(\d{2})-(\d{2})", text)
+print(match.group())
+print(match.group(0))
+print(match.group(1))
+print(match.group(2), match.group(3))
+print(match.groups())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of groups_demo.py</span>
+      <pre><code>2026-07-06
+2026-07-06
+2026
+07 06
+('2026', '07', '06')</code></pre>
+    </div>
+
+    <p>
+      <code>match.group()</code> and <code>match.group(0)</code> are
+      identical — both return the entire matched text,
+      <code>"2026-07-06"</code>. <code>match.group(1)</code> returns just
+      what the first pair of parentheses matched, the year; groups 2 and 3
+      are the month and day, in the order the parentheses appear in the
+      pattern, left to right. <code>match.groups()</code> is a shortcut that
+      returns every numbered group at once, as a tuple.
+    </p>
+
+    <p>
+      Numbered groups work, but <code>group(1)</code>,
+      <code>group(2)</code>, and <code>group(3)</code> don't say what each
+      piece actually <em>is</em> — a named group fixes that:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a named group?</span>
+      A <strong>named group</strong>, written <code>(?P&lt;name&gt;...)</code>,
+      works exactly like a regular group but can be retrieved by a
+      meaningful name instead of a position number — <code>match.group("year")</code>
+      instead of <code>match.group(1)</code> — which reads far more clearly
+      once a pattern has more than one or two groups in it.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">named_groups_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "2026-07-06"
+match = re.match(r"(?P&lt;year&gt;\d{4})-(?P&lt;month&gt;\d{2})-(?P&lt;day&gt;\d{2})", text)
+print(match.group("year"))
+print(match.group("month"))
+print(match.groupdict())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of named_groups_demo.py</span>
+      <pre><code>2026
+07
+{'year': '2026', 'month': '07', 'day': '06'}</code></pre>
+    </div>
+
+    <p>
+      <code>(?P&lt;year&gt;\d{4})</code> matches the exact same four digits a
+      plain <code>(\d{4})</code> would, but now that piece is retrievable as
+      <code>match.group("year")</code> — self-documenting, and immune to
+      breaking if a group gets reordered or a new one gets inserted earlier
+      in the pattern later on. <code>match.groupdict()</code> returns every
+      named group at once as a ready-to-use dictionary, exactly the shape a
+      real program usually wants for structured data pulled out of text.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import re
+
+log_entry = "2026-07-06 14:22:10 [ERROR] payment failed"
+match = re.search(r"\[(?P<level>\w+)\]", log_entry)
+print(match.group("level"))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing [ERROR] in log_entry to [WARNING].</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what happens if a group didn't participate in the match?</summary>
+      <p>
+        If part of a pattern is optional (like <code>?</code> or an
+        alternation) and that optional group never actually matched
+        anything, calling <code>.group()</code> for it returns
+        <code>None</code> rather than an empty string — worth checking for
+        before doing further string operations on a group that might not
+        have matched.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Parentheses <code>(...)</code> create a numbered group, retrievable with <code>.group(n)</code>; group 0 is always the whole match.</li>
+        <li><code>(?P&lt;name&gt;...)</code> creates a named group, retrievable with <code>.group("name")</code>.</li>
+        <li><code>.groups()</code> returns every numbered group as a tuple; <code>.groupdict()</code> returns every named group as a dict.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="sub-split">
+    <span class="subtopic-label">Sub-topic 5 of 7</span>
+    <h2>5. Search-and-replace: <code>re.sub()</code> &amp; <code>re.split()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>re.sub(pattern, replacement, text)</code> replaces every match of <code>pattern</code> in <code>text</code> with <code>replacement</code>.</li>
+        <li><code>re.split(pattern, text)</code> splits <code>text</code> wherever <code>pattern</code> matches, returning a list of the pieces in between.</li>
+        <li>Both work with patterns, not just fixed strings — <code>str.replace()</code>/<code>str.split()</code> can only do exact-text versions of the same job.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> everything so far has only ever <em>read</em> a match out of text. <code>sub()</code> and <code>split()</code> are how a pattern actually changes text — masking sensitive data, or breaking messy input apart on more than one possible separator.
+    </div>
+
+    <p>
+      <code>str.replace()</code> only replaces one exact string; <code>re.sub()</code>
+      replaces anything matching a whole pattern, which is the difference that
+      makes it useful for masking a whole category of sensitive data at once:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">sub_split_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "Call 555-1234 or 555-5678"
+masked = re.sub(r"\d{3}-\d{4}", "XXX-XXXX", text)
+print(masked)
+
+sentence = "one,  two,three   four"
+parts = re.split(r"[,\s]+", sentence)
+print(parts)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of sub_split_demo.py</span>
+      <pre><code>Call XXX-XXXX or XXX-XXXX
+['one', 'two', 'three', 'four']</code></pre>
+    </div>
+
+    <p>
+      <code>re.sub()</code> found and replaced <em>both</em> phone numbers in
+      one call, since it applies to every match, not just the first — a
+      fixed-text <code>str.replace("555-1234", "XXX-XXXX")</code> would have
+      needed one call per distinct number, and couldn't have described "any
+      phone number" as a single rule at all.
+    </p>
+
+    <p>
+      <code>re.split(r"[,\s]+", sentence)</code> splits on a comma or one or
+      more whitespace characters, in any mix — which is exactly why it
+      correctly handles a comma with no space (<code>"two,three"</code>) and
+      multiple spaces (<code>"three   four"</code>) in the very same call.
+      <code>str.split(",")</code> alone could never have handled both
+      separator styles in one pass, since it only recognizes a single, fixed
+      separator string.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the real-world use for <code>re.sub()</code>?</span>
+      Masking sensitive data (credit card numbers, phone numbers, emails)
+      before logging or displaying it, cleaning up inconsistent whitespace or
+      formatting in scraped or user-submitted text, and normalizing messy
+      input (e.g. collapsing every kind of dash into one standard dash) are
+      all genuinely common <code>re.sub()</code> use cases in real systems.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import re
+
+review = "This product is AMAZING!!! Best purchase EVER!!!"
+cleaned = re.sub(r"!+", "!", review)
+print(cleaned)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing r"!+" to r"[A-Z]{2,}" and see what happens to the shouted words.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: re.sub() can use captured groups in the replacement</summary>
+      <p>
+        A replacement string can reference groups from the pattern using
+        <code>\1</code>, <code>\2</code>, and so on — useful for
+        rearranging matched text rather than just deleting or masking it,
+        for example turning <code>"07/06/2026"</code> into
+        <code>"2026-07-06"</code> with
+        <code>re.sub(r"(\d{2})/(\d{2})/(\d{4})", r"\3-\1-\2", text)</code>.
+        This chapter's exercises and practice bank stick to simpler
+        replacements, but this is worth knowing exists.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>re.sub(pattern, replacement, text)</code> replaces every match of a pattern, not just one fixed string.</li>
+        <li><code>re.split(pattern, text)</code> splits on anything matching a pattern, handling multiple separator styles in one call.</li>
+        <li>Both go beyond what <code>str.replace()</code>/<code>str.split()</code> can do, since those only recognize one fixed separator or target string.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="compiled-patterns">
+    <span class="subtopic-label">Sub-topic 6 of 7</span>
+    <h2>6. Compiled patterns with <code>re.compile()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>re.compile(pattern)</code> turns a pattern string into a reusable <strong>compiled pattern object</strong>.</li>
+        <li>A compiled pattern has its own <code>.match()</code>/<code>.search()</code>/<code>.findall()</code> methods — same behavior, no need to pass the pattern string again each time.</li>
+        <li>Compiling once and reusing it is faster than passing the same raw pattern string to <code>re.search()</code> repeatedly in a loop.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every example so far has passed a plain pattern string directly to <code>re.match()</code>/<code>re.search()</code>/etc. That's fine for a one-off check, but scanning many lines of a real file with the same pattern is exactly the case <code>re.compile()</code> is built for.
+    </div>
+
+    <p>
+      Scanning several lines of text for the same phone-number pattern shows
+      the compiled-pattern workflow directly:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a compiled pattern?</span>
+      <code>re.compile(pattern)</code> processes a pattern string once into a
+      reusable <strong>compiled pattern object</strong>. Calling
+      <code>.search()</code>, <code>.match()</code>, or <code>.findall()</code>
+      directly on that object works exactly like the module-level
+      <code>re.search(pattern, text)</code> version, just without needing to
+      pass (and re-parse) the pattern string on every single call.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">compile_demo.py</span>
+      </div>
+      <pre><code>import re
+
+phone_pattern = re.compile(r"\d{3}-\d{3}-\d{4}")
+
+lines = [
+    "Call 555-123-4567 for support.",
+    "No phone number here.",
+    "Reach sales at 555-987-6543 today.",
+]
+
+for line in lines:
+    match = phone_pattern.search(line)
+    if match:
+        print(match.group())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of compile_demo.py</span>
+      <pre><code>555-123-4567
+555-987-6543</code></pre>
+    </div>
+
+    <p>
+      <code>phone_pattern</code> is built once, outside the loop, from
+      <code>re.compile(r"\d{3}-\d{3}-\d{4}")</code>. Inside the loop, calling
+      <code>phone_pattern.search(line)</code> reuses that already-processed
+      pattern against each line — the pattern itself never gets re-parsed on
+      every iteration, only the search against new text happens each time.
+      The second line has no phone number, so <code>phone_pattern.search()</code>
+      correctly returns <code>None</code> and the <code>if match:</code>
+      check skips it.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>For a pattern used once, plain <code>re.search(pattern, text)</code> is simplest — no need to compile first.</li>
+      <li>For a pattern reused across many lines, files, or calls — exactly the log-scanning and resume-scanning scenarios this chapter keeps returning to — compiling it once with <code>re.compile()</code> is the standard, more efficient approach.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">import re
+
+word_pattern = re.compile(r"\b[A-Z][a-z]*\b")
+
+sentences = ["Alice went home", "the Cat sat down", "no capitals here"]
+for sentence in sentences:
+    print(word_pattern.findall(sentence))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a fourth sentence with two capitalized words.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: re.search() already caches compiled patterns internally</summary>
+      <p>
+        Python's <code>re</code> module actually keeps a small internal cache
+        of recently used patterns, so calling <code>re.search()</code> with
+        the exact same pattern string repeatedly isn't as slow as it might
+        seem. The real benefit of an explicit <code>re.compile()</code> is
+        readability and clarity of intent — a named, reusable pattern object
+        makes it obvious the same pattern is meant to be applied many times
+        — plus it avoids any risk of the cache being evicted under heavy,
+        varied pattern use across a large program.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>re.compile(pattern)</code> returns a reusable compiled pattern object with its own <code>.search()</code>/<code>.match()</code>/<code>.findall()</code> methods.</li>
+        <li>Compiling once and reusing it is the standard approach when the same pattern gets applied across many lines, files, or calls.</li>
+        <li>For a single one-off check, the plain module-level <code>re.search(pattern, text)</code> form is simpler and perfectly fine.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="gotchas">
+    <span class="subtopic-label">Sub-topic 7 of 7</span>
+    <h2>7. Gotchas: greedy matching, raw strings &amp; flags</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Greedy</strong> quantifiers (<code>*</code>, <code>+</code>) match as much as possible; adding <code>?</code> after them (<code>*?</code>, <code>+?</code>) makes them <strong>non-greedy</strong>, matching as little as possible.</li>
+        <li>A pattern string should almost always be a <strong>raw string</strong> (<code>r"..."</code>) — without it, Python's own string-escaping rules can silently corrupt the pattern before <code>re</code> ever sees it.</li>
+        <li><code>re.IGNORECASE</code> and <code>re.MULTILINE</code> are optional <strong>flags</strong> that change how a pattern behaves.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> these three gotchas are responsible for the large majority of "my regex doesn't do what I expected" bugs — greedy matching grabbing too much, a missing <code>r</code> silently changing the pattern, or forgetting a pattern is case-sensitive by default.
+    </div>
+
+    <p>
+      Sub-topic 3's Go Deeper box mentioned that quantifiers are greedy by
+      default — here's exactly what that means on text with more than one
+      possible stopping point:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">what greedy vs. non-greedy actually try to match</span>
+      <pre><code>text:        &lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;
+greedy    &lt;.*&gt;   -->  &lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;   (one huge match)
+non-greedy &lt;.*?&gt; -->  &lt;b&gt;   &lt;/b&gt;   &lt;i&gt;   &lt;/i&gt;          (four small matches)</code></pre>
+    </div>
+
+    <p>
+      <code>&lt;.*&gt;</code>'s greedy <code>*</code> tries to match as much
+      text as it possibly can while still finding a closing <code>&gt;</code>
+      somewhere — so it stretches all the way from the very first
+      <code>&lt;</code> to the very <em>last</em> <code>&gt;</code> in the
+      string, swallowing everything in between as one giant match. A
+      <code>?</code> right after a quantifier makes it non-greedy instead —
+      it matches as little as possible, stopping at the very first
+      <code>&gt;</code> it finds.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... greedy vs. non-greedy?</span>
+      A <strong>greedy</strong> quantifier (<code>*</code>, <code>+</code>,
+      <code>{m,n}</code>) matches the longest possible text that still lets
+      the rest of the pattern succeed. Adding a <code>?</code> right after it
+      (<code>*?</code>, <code>+?</code>) makes it <strong>non-greedy</strong>
+      (or "lazy"): it matches the <em>shortest</em> possible text instead.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">greedy_vs_nongreedy_demo.py</span>
+      </div>
+      <pre><code>import re
+
+html_like = "&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;"
+greedy = re.findall(r"&lt;.*&gt;", html_like)
+print(greedy)
+
+non_greedy = re.findall(r"&lt;.*?&gt;", html_like)
+print(non_greedy)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of greedy_vs_nongreedy_demo.py</span>
+      <pre><code>['&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;']
+['&lt;b&gt;', '&lt;/b&gt;', '&lt;i&gt;', '&lt;/i&gt;']</code></pre>
+    </div>
+
+    <p>
+      This confirms the diagram: the greedy version returns one match
+      spanning the entire string, while the non-greedy version correctly
+      returns each of the four individual tags as its own separate match.
+      Whenever a pattern needs to match "the shortest thing between two
+      delimiters" rather than "everything from the first delimiter to the
+      last one," a non-greedy quantifier is almost always the fix.
+    </p>
+
+    <p>
+      The second gotcha has nothing to do with regex syntax at all — it's
+      about how Python reads the pattern <em>string itself</em> before
+      <code>re</code> ever sees it:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a raw string, and why regex needs one?</span>
+      A <strong>raw string</strong>, written <code>r"..."</code>, tells
+      Python not to process backslash escape sequences (like <code>\n</code>
+      for newline) inside it — the backslash is kept exactly as typed. Regex
+      patterns use backslashes constantly (<code>\d</code>, <code>\s</code>,
+      <code>\b</code>...), so without the <code>r</code> prefix, Python's own
+      string rules can quietly turn part of the pattern into something
+      completely different before <code>re</code> ever gets it.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">raw_strings_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "cat catalog concatenate"
+
+not_raw_pattern = "\bcat\b"
+raw_pattern = r"\bcat\b"
+
+print(repr(not_raw_pattern))
+print(repr(raw_pattern))
+
+print(re.findall(not_raw_pattern, text))
+print(re.findall(raw_pattern, text))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of raw_strings_demo.py</span>
+      <pre><code>'\x08cat\x08'
+'\\bcat\\b'
+[]
+['cat']</code></pre>
+    </div>
+
+    <p>
+      <code>"\bcat\b"</code> without the <code>r</code> prefix isn't the
+      three characters backslash-b-c-a-t at all — Python's own string rules
+      silently turned <code>\b</code> into the actual backspace control
+      character (<code>\x08</code>) before <code>re</code> ever saw it,
+      which is why <code>repr()</code> shows <code>\x08</code> instead of a
+      literal backslash-b, and why the search for that corrupted pattern
+      finds nothing. <code>r"\bcat\b"</code> keeps the backslash exactly as
+      typed, so <code>re</code> correctly interprets <code>\b</code> as the
+      word-boundary anchor it's meant to be, matching only the standalone
+      word <code>"cat"</code> — not the <code>"cat"</code> hiding inside
+      <code>"catalog"</code> or <code>"concatenate"</code>.
+    </p>
+
+    <div class="lesson-note">
+      <strong>Rule of thumb:</strong> write every regex pattern as a raw string, <code>r"..."</code>, without exception — even patterns that happen to work without it today can silently break the moment a backslash sequence is added later.
+    </div>
+
+    <p>
+      The last gotcha is easy to forget rather than easy to get visibly
+      wrong: patterns are case-sensitive by default, and <code>^</code>/<code>$</code>
+      only apply to the whole string by default, not each line within it —
+      two optional <strong>flags</strong> change both behaviors:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a regex flag?</span>
+      A <strong>flag</strong> is an optional extra argument passed to a
+      <code>re</code> function (or <code>re.compile()</code>) that changes
+      how the whole pattern behaves. <code>re.IGNORECASE</code> makes
+      matching case-insensitive; <code>re.MULTILINE</code> makes
+      <code>^</code>/<code>$</code> match the start/end of <em>each line</em>
+      in a multi-line string, not just the very start/end of the whole
+      string.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">flags_demo.py</span>
+      </div>
+      <pre><code>import re
+
+text = "Python is great. PYTHON is popular. python is fun."
+matches_case_sensitive = re.findall(r"python", text)
+print(matches_case_sensitive)
+
+matches_ignorecase = re.findall(r"python", text, re.IGNORECASE)
+print(matches_ignorecase)
+
+multiline_text = "start of line one\nstart of line two\nend"
+starts = re.findall(r"^start", multiline_text, re.MULTILINE)
+print(starts)
+
+starts_no_flag = re.findall(r"^start", multiline_text)
+print(starts_no_flag)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of flags_demo.py</span>
+      <pre><code>['python']
+['Python', 'PYTHON', 'python']
+['start', 'start']
+['start']</code></pre>
+    </div>
+
+    <p>
+      Without <code>re.IGNORECASE</code>, <code>r"python"</code> only
+      matches the one all-lowercase occurrence — <code>"Python"</code> and
+      <code>"PYTHON"</code> are different text as far as a case-sensitive
+      pattern is concerned. Adding the flag matches all three, regardless of
+      capitalization. Without <code>re.MULTILINE</code>, <code>^</code>
+      only anchors to the very beginning of the entire string, finding just
+      one match on the first line; with it, <code>^</code> anchors to the
+      start of <em>every</em> line, correctly finding both.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import re
+
+usernames = "Admin, ADMIN, admin, Guest"
+admin_matches = re.findall(r"admin", usernames, re.IGNORECASE)
+print(admin_matches)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try removing the re.IGNORECASE argument and see how the result changes.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: combining multiple flags</summary>
+      <p>
+        More than one flag can be combined with Python's bitwise OR operator
+        (from Chapter 3): <code>re.IGNORECASE | re.MULTILINE</code> applies
+        both at once. This reads naturally once bitwise <code>|</code> is
+        already familiar — no new operator to learn here, just a new place
+        it shows up.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Greedy quantifiers match as much as possible; adding <code>?</code> after one (<code>*?</code>, <code>+?</code>) makes it non-greedy, matching as little as possible.</li>
+        <li>Always write regex patterns as raw strings (<code>r"..."</code>) — without it, Python's own escape-sequence rules can silently corrupt backslash sequences like <code>\d</code> or <code>\b</code>.</li>
+        <li><code>re.IGNORECASE</code> makes matching case-insensitive; <code>re.MULTILINE</code> makes <code>^</code>/<code>$</code> apply per line instead of to the whole string.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Form validation (email addresses, phone numbers, postal codes, usernames) is one of the single most common production uses of regex, almost always via <code>re.fullmatch()</code> against user input.</li>
+      <li>Log parsing and monitoring tools use regex constantly to pull structured fields — timestamps, log levels, error codes — out of unstructured text lines, exactly the pattern this chapter's project builds on.</li>
+      <li>Data cleaning pipelines lean on <code>re.sub()</code> to mask sensitive data, normalize inconsistent formatting, and strip unwanted characters before further processing.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A regular expression describes a pattern of text, not one exact string; <code>re.match()</code>/<code>re.search()</code>/<code>re.fullmatch()</code> test a pattern at the start, anywhere, or across the whole string respectively.</li>
+      <li><code>re.findall()</code> returns every match as a list of strings; <code>re.finditer()</code> returns every match as an iterator of <code>Match</code> objects with position info.</li>
+      <li>Character classes (<code>\d</code>, <code>\w</code>, <code>[...]</code>), quantifiers (<code>*</code>, <code>+</code>, <code>?</code>, <code>{m,n}</code>), and anchors (<code>^</code>, <code>$</code>) are the core vocabulary a pattern is built from.</li>
+      <li>Parentheses <code>(...)</code> create numbered groups; <code>(?P&lt;name&gt;...)</code> creates named groups — both let a match be broken into labeled, individually retrievable pieces.</li>
+      <li><code>re.sub()</code> replaces every match of a pattern; <code>re.split()</code> splits text on every match of a pattern — both go beyond what fixed-text string methods can do.</li>
+      <li><code>re.compile()</code> turns a pattern into a reusable object, worth doing whenever the same pattern gets applied across many lines or calls.</li>
+      <li>Greedy quantifiers match as much as possible (use <code>*?</code>/<code>+?</code> for the opposite); always write patterns as raw strings (<code>r"..."</code>); <code>re.IGNORECASE</code> and <code>re.MULTILINE</code> change matching behavior when needed.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

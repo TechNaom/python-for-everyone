@@ -29,21 +29,50 @@ moving to the next. The rendered, always-current version lives at
 | 15 | OOP Deeper | `@staticmethod`, `@classmethod` & alternative constructors, encapsulation/privacy conventions (`_x`/`__x`, name mangling), `@property` getters, property setters with validation, real-world deeper OOP — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Quiz introduces the new multiple-choice question type (16 MCQ + 5 fill-in-the-blank) alongside fill-in-the-blank. Project: Bank Account System |
 | 16 | Inheritance & Polymorphism | `class Child(Parent):` and what's inherited automatically, `super().__init__()`, method overriding & extending with `super()`, polymorphism, `isinstance()` vs `type()`, real-world inheritance & polymorphism (with a caution on composition-over-inheritance) — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Quiz: 15 MCQ + 5 fill-in-the-blank. This is the chapter where inheritance finally becomes allowed. Project: Vehicle Rental System |
 | 17 | Generators, Iterators & Context Managers | Iterables vs. iterators (`__iter__`/`__next__`/`StopIteration`), generator functions (`yield`), generator expressions & lazy evaluation, the `with` protocol (`__enter__`/`__exit__`), writing custom context managers, real-world use in streaming large files — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Quiz: 15 MCQ + 5 fill-in-the-blank. Project: Large-File Streaming Log Analyzer |
+| 18 | Regular Expressions | `re.match()`/`re.search()`/`re.fullmatch()`, `findall()`/`finditer()`, character classes/quantifiers/anchors, groups & named groups, `re.sub()`/`re.split()`, `re.compile()`, greedy-vs-non-greedy, raw strings & flags (`IGNORECASE`/`MULTILINE`), real-world pattern matching — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Project: Resume Keyword Scanner |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 18 | Regular Expressions | Resume keyword scanner |
 | 19 | Working with APIs & JSON | Weather/quote-of-the-day fetcher |
 | 20 | Multithreading | Concurrent file-download simulator |
-| 21 | Working with Databases (MySQL) | Student record management system |
-| 22 | NumPy for Data Analysis | Grade/statistics analyzer |
-| 23 | Pandas for Data Analysis | Sales-data dashboard (CSV in, insights out) |
-| 24 | Testing Your Code (unittest/pytest) | Test suite for an earlier project |
-| 25 | Professional Python (git, venv, logging, argparse) | CLI tool with proper packaging |
-| 26 | Capstone Projects | Combine 2-3 earlier projects into one portfolio piece |
-| 27 | Interview & Career Prep | Mock interview + portfolio checklist |
+| 21 | Working with Databases (MySQL, MongoDB & Cloud-Hosted DBs) | Student record management system |
+| 22 | Building Web Apps & APIs (Flask & FastAPI) | Task-manager web app with a REST API |
+| 23 | NumPy for Data Analysis | Grade/statistics analyzer |
+| 24 | Pandas for Data Analysis | Sales-data dashboard (CSV in, insights out) |
+| 25 | Testing Your Code (unittest/pytest) | Test suite for an earlier project |
+| 26 | Professional Python (git, venv, logging, argparse) | CLI tool with proper packaging |
+| 27 | Capstone Projects | Combine 2-3 earlier projects into one portfolio piece |
+| 28 | Interview & Career Prep | Mock interview + portfolio checklist |
+
+**Chapter 22 scope note:** Python-only web framework chapter — no
+JavaScript/React is taught step-by-step (out of scope for a Python
+course), but the lesson should explicitly acknowledge where a real
+frontend (e.g. React) would plug into the API being built, so learners
+know what's next. Covers (1) **Flask**: routes, `render_template`,
+request/response basics, serving a simple server-rendered HTML page
+(ties back to templating concepts, reuses Ch13 file-handling instincts);
+(2) **FastAPI**: path/query params, Pydantic request/response models,
+automatic interactive docs (`/docs`), and why type hints matter here
+specifically (contrast with Flask's untyped-by-default style); (3) a
+short "what's next" callout comparing server-rendered HTML (Flask) vs.
+a JSON API meant for a separate frontend (FastAPI) vs. where something
+like React would consume that JSON API — conceptual only, no React code.
+Project: a task-manager web app exposing a REST API (CRUD on tasks),
+built once in Flask and once in FastAPI so the contrast is concrete,
+optionally persisting to the DB layer from Ch21.
+
+**Chapter 21 scope note:** covers three connection scenarios, not just
+MySQL — (1) MySQL via `mysql-connector-python` (cursors, parameterized
+queries, avoiding SQL injection), (2) MongoDB via `pymongo` (collections,
+documents-as-dicts, basic CRUD, contrasting relational rows vs. JSON-like
+documents), and (3) connecting to a cloud-hosted instance of either
+(connection strings/URIs, credentials via environment variables instead of
+hardcoding, TLS basics) rather than a local database — framed as "the same
+`pymongo`/`mysql-connector` code, pointed at a remote host." Keep the
+relational-vs-document contrast explicit throughout, since it's the
+conceptual payoff of covering both.
 
 ## Format every chapter follows
 

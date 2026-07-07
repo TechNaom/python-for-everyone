@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18 Project: Resume Keyword Scanner — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven resume scanner that finds required-skill keywords with word-boundary-anchored regex and extracts emails/phone numbers with compiled patterns — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-18">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 18 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Resume Keyword Scanner</h1>
+  <p>A menu-driven resume scanner built <strong>around this chapter's core tool</strong> as its organizing principle &mdash; a <code>ResumeScanner</code> class scans one resume's raw text for required-skill keywords using word-boundary-anchored, case-insensitive patterns (so <code>"SQL"</code> matches <code>"sql"</code> but not the <code>"SQL"</code> hiding inside <code>"MySQL"</code>), and separately extracts contact info (emails and phone numbers) using two module-level compiled patterns &mdash; exactly the "scan hundreds of resumes for a candidate's email and phone number" scenario this chapter's lesson opened with.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Resume Keyword Scanner ===
+
+1. Generate sample resume file
+2. Load resume from file
+3. Scan resume for required skills
+4. Extract contact info (email &amp; phone)
+5. Quit
+Choose an option (1-5): 1
+
+Wrote sample resume to sample_resume.txt.
+
+1. Generate sample resume file
+2. Load resume from file
+3. Scan resume for required skills
+4. Extract contact info (email &amp; phone)
+5. Quit
+Choose an option (1-5): 3
+
+Enter required skills, comma-separated (e.g. Python, SQL, Docker): Python, SQL, Docker, Kubernetes
+Matched 3/4 required skills (75%).
+  Found: Python, SQL, Docker
+  Missing: Kubernetes
+
+1. Generate sample resume file
+2. Load resume from file
+3. Scan resume for required skills
+4. Extract contact info (email &amp; phone)
+5. Quit
+Choose an option (1-5): 4
+
+Emails found: ['jordan.alvarez@example.com', 'jordan.a.alvarez@gmail.com']
+Phone numbers found: ['555-241-8890', '(555) 903-2214']
+
+1. Generate sample resume file
+2. Load resume from file
+3. Scan resume for required skills
+4. Extract contact info (email &amp; phone)
+5. Quit
+Choose an option (1-5): 5
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice that the sample resume deliberately has <em>two</em> email addresses and <em>two</em> phone numbers, in two different formats each (<code>555-241-8890</code> vs. <code>(555) 903-2214</code>) &mdash; <code>PHONE_PATTERN</code>'s optional parentheses and mixed separator characters are exactly what let a single pattern catch both formats in one pass, instead of needing a separate pattern per format.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A <code>ResumeScanner</code> class with methods built entirely from
+    this chapter's <code>re</code> tools &mdash; two compiled patterns for
+    emails and phone numbers, and a word-boundary-anchored,
+    case-insensitive keyword matcher for required skills &mdash; wired to
+    a <code>while True</code> menu loop with five options: generate the
+    sample resume file, load a resume from a file, scan for required
+    skills, extract contact info, or quit.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, then run
+    <code>python3 starter.py</code>. Choose option 1 first to generate
+    <code>sample_resume.txt</code> if you don't have a resume file of your
+    own handy.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The scanner</h2>
+  <ul>
+    <li><code>EMAIL_PATTERN</code> / <code>PHONE_PATTERN</code> &mdash; two patterns compiled once at module load with <code>re.compile()</code>, since both get reused across every scan (exactly the <code>re.compile()</code> use case from Sub-topic 6). <code>EMAIL_PATTERN</code> matches <code>r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}"</code> (an email shape); <code>PHONE_PATTERN</code> matches <code>r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}"</code> (a phone number, with or without parentheses, dashes, dots, or spaces).</li>
+    <li><code>ResumeScanner.find_emails()</code> / <code>.find_phones()</code> &mdash; call <code>.findall()</code> on the two compiled patterns against the resume's raw text, returning every email-shaped and phone-shaped match found.</li>
+    <li><code>ResumeScanner.find_keyword_matches(keywords)</code> &mdash; for each required keyword, compiles a fresh pattern <code>r"\b" + re.escape(keyword) + r"\b"</code> with the <code>re.IGNORECASE</code> flag, and checks whether it <code>.search()</code>es the resume text. The word boundaries (<code>\b</code>) matter here: without them, a keyword like <code>"SQL"</code> would also match as a substring of an unrelated word like <code>"MySQL"</code>, something plain <code>in</code>/<code>.find()</code> on the text can't rule out. <code>re.escape()</code> keeps a keyword containing regex-special characters (like <code>"C++"</code>) from accidentally being interpreted as pattern syntax.</li>
+    <li><code>ResumeScanner.match_report(keywords)</code> &mdash; calls <code>find_keyword_matches()</code> to get the found list, computes the missing list as everything in <code>keywords</code> not found, and the match percentage, returning all three as one dict.</li>
+  </ul>
+  <p>Every menu option that needs a resume loaded first checks <code>resume_ready</code> and prints a friendly message instead of crashing if nothing has been loaded yet.</p>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "batch scan" menu option that loads every <code>.txt</code> file in a folder and prints a one-line match-percentage summary per resume, so several candidates can be compared against the same required-skills list at once.</li>
+    <li>Add a <code>find_years_of_experience()</code> method using a pattern like <code>r"(\d+)\+?\s+years?"</code> to pull a stated years-of-experience number out of the resume text, if present.</li>
+    <li>Change <code>find_keyword_matches()</code> to also return <em>where</em> each matched keyword was found (via <code>finditer()</code> and <code>.start()</code>) instead of just whether it matched at all, so a caller could highlight matches in context.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Applicant Tracking Systems (ATS) &mdash; the software behind most large companies' hiring pipelines &mdash; do almost exactly what this project does at industrial scale: scan thousands of resumes for required keywords and structured contact info before a human recruiter ever opens one. Regex is the actual tool behind a large share of that scanning, specifically because job requirements and resume formatting are never perfectly consistent &mdash; a fixed-string search for <code>"5 years"</code> would miss <code>"5+ years"</code> or <code>"five years"</code>, but a pattern can describe the whole shape at once. The word-boundary technique in <code>find_keyword_matches()</code> (<code>\bSQL\b</code> instead of a bare <code>SQL</code>) mirrors a genuinely common ATS correctness bug in the wild: naive substring keyword-matching that falsely credits a resume mentioning <code>"MySQL"</code> with the separate skill <code>"SQL"</code>, or <code>"Java"</code> with a match against <code>"JavaScript"</code>.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Resume Keyword Scanner above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 18 (everything through Chapter 17's generators/iterators/context managers, plus this chapter's <code>re</code> module: <code>match()</code>/<code>search()</code>/<code>fullmatch()</code>, <code>findall()</code>/<code>finditer()</code>, character classes, quantifiers, anchors, groups &amp; named groups, <code>re.sub()</code>/<code>re.split()</code>, and <code>re.compile()</code>). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Log-File Anomaly Extractor</h3>
+    <p><strong>Problem:</strong> An operations engineer needs to scan a server's log file and pull out every line that looks like a genuine problem &mdash; an error level, a stack-trace-shaped line, or a request that took unusually long &mdash; without manually reading every line of a file that could have tens of thousands of entries.</p>
+    <p><strong>What it should do:</strong> Build a function that streams a log file (reusing Chapter 17's <code>stream_lines()</code>-style generator, one line at a time) and, for each line, checks it against a compiled pattern like <code>r"\[(ERROR|CRITICAL)\]"</code> using <code>.search()</code>, plus a second pattern that pulls out a request duration like <code>r"(\d+)ms"</code> and flags any line where that number exceeds a threshold. Menu options: generate a sample log file, scan for error/critical lines, scan for slow requests over a user-given millisecond threshold, and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep the two anomaly checks as two separately compiled patterns (one for log level, one for duration) rather than trying to cram both conditions into a single giant pattern &mdash; small, named, purpose-specific patterns read far more clearly than one pattern trying to do everything at once.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> CSV/Text Data Cleaner</h3>
+    <p><strong>Problem:</strong> A dataset exported from an old system has inconsistent formatting &mdash; phone numbers in five different formats, extra whitespace, mismatched date separators (<code>/</code> vs. <code>-</code>) &mdash; and needs to be normalized into one consistent shape before it can be loaded anywhere else.</p>
+    <p><strong>What it should do:</strong> Build a function that takes a raw string field and normalizes it: strip and collapse repeated whitespace with <code>re.sub(r"\s+", " ", text)</code>, normalize any phone number found (using <code>PHONE_PATTERN</code>-style matching plus <code>re.sub()</code> to rewrite it into one consistent <code>XXX-XXX-XXXX</code> shape), and normalize date separators with <code>re.sub(r"[/-]", "-", date_text)</code>. Menu options: generate a sample messy CSV file (via Chapter 13's <code>csv</code> module) with a few inconsistent fields, clean it and write out a normalized version, show a before/after diff for one row, and quit.</p>
+    <p><strong>Suggested approach:</strong> Write one cleaning function per field type (<code>clean_phone()</code>, <code>clean_date()</code>, <code>clean_whitespace()</code>) rather than one do-everything function, then apply each to the right column while reading rows with <code>csv.DictReader</code> &mdash; the same per-field, single-purpose approach the log anomaly extractor above uses for its two separate pattern checks.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Simple Form Validator</h3>
+    <p><strong>Problem:</strong> A signup form needs to validate several different field types &mdash; username, email, password strength, phone number &mdash; each with its own shape rules, before accepting the submission.</p>
+    <p><strong>What it should do:</strong> Build a <code>FormValidator</code> class with one method per field type, each using <code>re.fullmatch()</code> against a purpose-built pattern: a username pattern (letters/digits/underscore, 3-20 characters, <code>r"^\w{3,20}$"</code>), an email pattern (reusing this chapter's <code>EMAIL_PATTERN</code>), and a password-strength check built from several smaller <code>re.search()</code> calls (at least one digit, at least one uppercase letter, minimum length) rather than one unreadable giant pattern. Menu options: validate a username, validate an email, validate a password and report which specific rule(s) it failed, and quit.</p>
+    <p><strong>Suggested approach:</strong> For the password check specifically, resist the urge to write one pattern that enforces every rule at once &mdash; several separate <code>re.search()</code> calls, each checking one rule and reporting which one failed, gives far more useful feedback to a real user than a single opaque pass/fail from one dense pattern.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> URL &amp; Hashtag Extractor from Social Text</h3>
+    <p><strong>Problem:</strong> A social-media analytics tool needs to pull every URL and every hashtag out of a batch of posts, to build a simple "most-mentioned hashtag" or "most-linked domain" report.</p>
+    <p><strong>What it should do:</strong> Build two functions, <code>extract_urls(text)</code> (pattern along the lines of <code>r"https?://[^\s]+"</code>) and <code>extract_hashtags(text)</code> (reusing this chapter's <code>r"#\w+"</code> pattern from the Coding Challenges), plus an <code>extract_domain(url)</code> helper using a named group (<code>r"https?://(?P&lt;domain&gt;[^/\s]+)"</code>) to pull just the domain out of a full URL. Menu options: paste in a batch of sample post text, extract and count every hashtag (most-mentioned first), extract and count every domain linked, and quit.</p>
+    <p><strong>Suggested approach:</strong> Build the hashtag/domain counts with a plain dictionary (keyword or domain as the key, running count as the value), the same accumulate-and-count pattern used throughout earlier chapters &mdash; the new part here is only how the raw hashtags/URLs get pulled out of the text in the first place, not how they get counted afterward.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

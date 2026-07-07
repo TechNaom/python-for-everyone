@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 18: Regular Expressions, including interview-style scenario problems on match/search/fullmatch, groups, re.sub()/re.split(), compiled patterns, and greedy-vs-non-greedy matching.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-18">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 18 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Regular Expressions</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This is the
+    chapter where the <code>re</code> module's pattern matching
+    (<code>match()</code>/<code>search()</code>/<code>fullmatch()</code>,
+    <code>findall()</code>/<code>finditer()</code>, character classes,
+    quantifiers, anchors, groups &amp; named groups,
+    <code>re.sub()</code>/<code>re.split()</code>, <code>re.compile()</code>,
+    greedy/non-greedy quantifiers, raw strings, and flags) becomes allowed,
+    on top of everything from Chapters 1-17 (including generators,
+    iterators, context managers, all OOP, exceptions, and file/CSV
+    handling). No import beyond
+    <code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-regex">1. <code>match()</code>/<code>search()</code>/<code>fullmatch()</code></a>
+    <a href="#findall-finditer">2. <code>findall()</code> &amp; <code>finditer()</code></a>
+    <a href="#pattern-vocabulary">3. Classes, Quantifiers &amp; Anchors</a>
+    <a href="#groups">4. Groups &amp; Named Groups</a>
+    <a href="#sub-split">5. <code>re.sub()</code> &amp; <code>re.split()</code></a>
+    <a href="#compiled-patterns">6. Compiled Patterns</a>
+    <a href="#gotchas">7. Bringing It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="what-is-regex">Topic 1: <code>match()</code>/<code>search()</code>/<code>fullmatch()</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Matching at the start of a string</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Use <code>re.match()</code> with the pattern <code>r"\d+"</code> on the string <code>"42 apples"</code> and print the resulting match's <code>.group()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Matching anywhere in a string</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Use <code>re.search()</code> with the pattern <code>r"\d+"</code> on the string <code>"there are 42 apples"</code> and print the resulting match's <code>.group()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Matching the entire string</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Use <code>re.fullmatch()</code> with the pattern <code>r"\d+"</code> on both <code>"42"</code> (should succeed) and <code>"42 apples"</code> (should fail). Print both results.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Checking a prefix across several words</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Loop over <code>["cat", "concatenate", "category"]</code> and use <code>re.match()</code> with the pattern <code>r"cat"</code> on each word, printing whether it starts with "cat".</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.5</code>. This uses <code>re.match()</code> where <code>re.search()</code> was actually needed, since the target text isn't at position 0. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Validating a username field on a signup form</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>is_valid_username(username)</code> using <code>re.fullmatch()</code> to check the entire input is 3-16 letters/digits/underscores.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>match()</code> vs. <code>search()</code></h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_match_vs_search()</code>, explaining the actual difference between <code>re.match()</code> and <code>re.search()</code>, and when each is the right choice.</p>
+  </div>
+
+  <h2 id="findall-finditer">Topic 2: <code>findall()</code> &amp; <code>finditer()</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Extracting every dollar amount</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Use <code>re.findall()</code> with the pattern <code>r"\$\d+"</code> on <code>"Items cost $5, $12, and $100"</code> and print the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Getting each match's text and position</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Use <code>re.finditer()</code> with the pattern <code>r"\w+at"</code> on <code>"cat hat bat mat"</code>, printing each match's <code>.group()</code> and <code>.start()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Counting every word</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Use <code>re.findall()</code> with the pattern <code>r"\b\w+\b"</code> on <code>"one two three"</code>, then print <code>len(...)</code> of the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Extracting every hashtag</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. Use <code>re.findall()</code> with the pattern <code>r"#\w+"</code> on a string of social-media-style text, and print the result.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.5</code>. This pattern is missing a <code>+</code> quantifier, so multi-digit numbers split into single digits. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Extracting every error code from a support ticket</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>extract_error_codes(ticket_text)</code> to pull every <code>ERR-####</code> code out of free-text notes.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>findall()</code> vs. <code>finditer()</code></h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_findall_vs_finditer()</code>, explaining when to reach for one over the other.</p>
+  </div>
+
+  <h2 id="pattern-vocabulary">Topic 3: Character Classes, Quantifiers &amp; Anchors</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Counting vowels with a character class</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Use <code>re.findall()</code> with the pattern <code>r"[aeiouAEIOU]"</code> to count every vowel in a string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> An optional character with <code>?</code></h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Use <code>re.findall()</code> with the pattern <code>r"colou?r"</code> to match both American and British spellings in one pattern.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> An exact-count quantifier</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Use <code>re.findall()</code> with the pattern <code>r"[A-Z]{2}\d{3}"</code> to match a specific letter+digit code shape.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A range quantifier with anchors</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Use <code>re.fullmatch()</code> with the pattern <code>r"^\d{3,5}$"</code> to validate several strings.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This pattern has an unescaped literal decimal point, so it matches more than intended. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Validating a simple password policy</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>is_strong_password(password)</code> requiring at least 8 letters/digits/underscores.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Quantifiers and anchors together</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_quantifiers_and_anchors()</code>, explaining how they work together in a validation pattern.</p>
+  </div>
+
+  <h2 id="groups">Topic 4: Groups &amp; Named Groups</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Two numbered groups</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Use <code>re.match()</code> with the pattern <code>r"(\w+)@(\w+)\.com"</code> and print <code>match.group(1)</code>/<code>match.group(2)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> The same pieces as named groups</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Use <code>re.match()</code> with named groups <code>(?P&lt;user&gt;...)</code>/<code>(?P&lt;domain&gt;...)</code> and print <code>.groupdict()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Every numbered group as a tuple</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Use <code>re.match()</code> with three groups on a timestamp string and print <code>.groups()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Looping over multiple matches' groups</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Use <code>re.finditer()</code> with named groups, printing each match's <code>.groupdict()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This named group is missing the required <code>P</code> in <code>(?P&lt;name&gt;...)</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Parsing a "Last, First" name field</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>split_last_first(full_name)</code> using named groups to split a stored name field.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What problem do groups solve?</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_groups_purpose()</code>, explaining what problem groups actually solve.</p>
+  </div>
+
+  <h2 id="sub-split">Topic 5: <code>re.sub()</code> &amp; <code>re.split()</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Masking a credit card number</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Use <code>re.sub()</code> to mask a credit-card-shaped pattern with <code>X</code>s.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Stripping punctuation and symbols</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Use <code>re.sub()</code> with a negated character class to strip out anything that isn't a letter, digit, or space.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Splitting on a flexible separator</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Use <code>re.split()</code> to split on a semicolon with optional surrounding whitespace.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Collapsing repeated characters</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Use <code>re.sub()</code> to collapse two-or-more repeated dashes down to a single dash.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This call to <code>re.sub()</code> has its arguments in the wrong order. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Redacting Social Security Numbers from a document</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>redact_ssns(document_text)</code> to mask any SSN-shaped pattern before sharing a document.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why not just use plain string methods?</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_sub_split_benefit()</code>, explaining why <code>re.sub()</code>/<code>re.split()</code> beat fixed-text string methods here.</p>
+  </div>
+
+  <h2 id="compiled-patterns">Topic 6: Compiled Patterns</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A compiled digit pattern</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Build <code>digit_pattern</code> with <code>re.compile()</code> and call <code>.findall()</code> on it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Scanning multiple lines with one compiled pattern</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Build a compiled email pattern and search several lines with it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A compiled "long word" pattern</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Build a compiled pattern for words of 5 or more characters.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A compiled IP-address-shaped pattern</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Build a compiled pattern and collect matches across multiple lines into a list.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This code compiles a pattern but never actually uses the compiled object. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Scanning many log lines for the same error pattern</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>count_error_lines(log_lines)</code> using a compiled pattern reused across every line.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>When is compiling actually worth it?</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_compile_benefit()</code>, explaining when compiling a pattern pays off.</p>
+  </div>
+
+  <h2 id="gotchas">Topic 7: Bringing It Together &mdash; Greedy Matching, Raw Strings &amp; Flags</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Greedy vs. non-greedy, side by side</h3>
+    <p>Find <code>&#35; TODO 7.1</code>. Compare a greedy <code>.*</code> match against a non-greedy <code>.*?</code> match on the same quoted text.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Confirming a raw-string pattern</h3>
+    <p>Find <code>&#35; TODO 7.2</code>. Build a raw-string pattern and confirm it matches version-number-shaped text.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Case-insensitive matching with a flag</h3>
+    <p>Find <code>&#35; TODO 7.3</code>. Use <code>re.IGNORECASE</code> to match regardless of capitalization.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Per-line anchoring with a flag</h3>
+    <p>Find <code>&#35; TODO 7.4</code>. Use <code>re.MULTILINE</code> so <code>^</code> anchors to each line instead of the whole string.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 7.5</code>. This greedy <code>.*</code> swallowed two separate quoted phrases into one match. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A log-scanning tool combining everything</h3>
+    <p>Find <code>&#35; TODO 7.A</code>. Write <code>scan_log_for_errors(log_text)</code> combining a compiled pattern, named groups, and a flag.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The most common regex mistakes</h3>
+    <p>Find <code>&#35; TODO 7.B</code>. Write <code>explain_regex_gotchas()</code>, naming the most common regex mistakes beginners make.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -167,7 +167,15 @@ window.PFE_MODULES = [
         { id: "custom-context-managers", title: "Custom context managers" },
         { id: "bringing-together", title: "Real-world generators & context managers" }
       ] },
-      { id: "chapter-18", num: 18, title: "Regular Expressions", path: null },
+      { id: "chapter-18", num: 18, title: "Regular Expressions", path: "chapters/chapter-18-regular-expressions/lesson.html", subtopics: [
+        { id: "what-is-regex", title: "What a regular expression is" },
+        { id: "findall-finditer", title: "findall() & finditer()" },
+        { id: "pattern-vocabulary", title: "Character classes, quantifiers & anchors" },
+        { id: "groups", title: "Groups & named groups" },
+        { id: "sub-split", title: "re.sub() & re.split()" },
+        { id: "compiled-patterns", title: "Compiled patterns with re.compile()" },
+        { id: "gotchas", title: "Gotchas: greedy matching, raw strings & flags" }
+      ] },
       { id: "chapter-19", num: 19, title: "Working with APIs & JSON", path: null },
       { id: "chapter-20", num: 20, title: "Multithreading", path: null },
       { id: "chapter-21", num: 21, title: "Working with Databases (MySQL)", path: null }
