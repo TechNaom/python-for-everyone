@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 19: Working with APIs & JSON.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-19" data-active-chapter="chapter-19">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 19 Quiz</span>
+  <h1>Working with APIs &amp; JSON</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What is an API?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">A file format for storing images</button>
+        <button type="button" class="mcq-option" data-correct="true">A defined way for one program to ask another for data or trigger an action</button>
+        <button type="button" class="mcq-option" data-correct="false">A type of Python variable</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> Why did JSON become the standard data format for web APIs?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">It only works with Python</button>
+        <button type="button" class="mcq-option" data-correct="true">Nearly every programming language can read and write it, and it maps directly onto dicts and lists</button>
+        <button type="button" class="mcq-option" data-correct="false">It's the fastest format for a computer to store on disk</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does <code>response.status_code</code> tell you?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">How many bytes the response contains</button>
+        <button type="button" class="mcq-option" data-correct="true">A 3-digit number summarizing whether the request succeeded or failed</button>
+        <button type="button" class="mcq-option" data-correct="false">The exact text of the response body</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What's the difference between <code>response.text</code> and <code>response.json()</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">They always return identical values</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>.text</code> is the raw response as a plain string; <code>.json()</code> parses it into a Python dict/list</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>.text</code> only works for error responses</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What does <code>json.loads(text)</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Converts Python data into a JSON string</button>
+        <button type="button" class="mcq-option" data-correct="true">Parses a JSON string into Python data (dicts, lists, etc.)</button>
+        <button type="button" class="mcq-option" data-correct="false">Loads a Python module from a file</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> What does <code>json.dumps(data, indent=2)</code> do differently from plain <code>json.dumps(data)</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">It changes what data is included in the output</button>
+        <button type="button" class="mcq-option" data-correct="true">It formats the exact same data across multiple readable, indented lines</button>
+        <button type="button" class="mcq-option" data-correct="false">It converts the data to XML instead of JSON</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> Given <code>data = {"forecast": [{"day": "Mon", "high_f": 88}]}</code>, how do you get <code>88</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>data["high_f"]</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>data["forecast"][0]["high_f"]</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>data.forecast.high_f</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What does <code>requests.exceptions.RequestException</code> represent?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">A bad status code like 404 returned by the server</button>
+        <button type="button" class="mcq-option" data-correct="true">A network-level failure — no connection, a timeout, a broken URL — before there's even a status code</button>
+        <button type="button" class="mcq-option" data-correct="false">A missing key in a parsed JSON dict</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> Why use <code>data.get("condition", "unknown")</code> instead of <code>data["condition"]</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">They always behave identically</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>.get()</code> returns a fallback instead of raising <code>KeyError</code> when a key might legitimately be missing</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>.get()</code> is required for every dict lookup in Python</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What is a query parameter?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">A header sent to authenticate a request</button>
+        <button type="button" class="mcq-option" data-correct="true">A key-value pair appended to a URL (after <code>?</code>) to customize what's being requested</button>
+        <button type="button" class="mcq-option" data-correct="false">A special kind of JSON key that can't be parsed</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> Where should a real API key live in a program's source code?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">Hardcoded as a string literal, so it's easy to find</button>
+        <button type="button" class="mcq-option" data-correct="true">Nowhere in the source code — read from an environment variable at runtime instead</button>
+        <button type="button" class="mcq-option" data-correct="false">In a comment, so it's documented</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> What's the difference between a header and a query parameter?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">They are exactly the same thing, just different names</button>
+        <button type="button" class="mcq-option" data-correct="true">A query parameter customizes what's being requested; a header carries metadata about the request itself (like authentication)</button>
+        <button type="button" class="mcq-option" data-correct="false">Headers can only be used with POST requests</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> In the fetch-parse-format pipeline, which step is the only one that would need to change if a program switched from a mocked response to a real network call?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="true">Fetch</button>
+        <button type="button" class="mcq-option" data-correct="false">Parse</button>
+        <button type="button" class="mcq-option" data-correct="false">Format</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> Why does this chapter's graded content (exercises, practice, challenges, project) use a mocked JSON response instead of calling a real API?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">Because mocked responses are faster to type than real API calls</button>
+        <button type="button" class="mcq-option" data-correct="true">So every example runs correctly offline, forever, with no API key and no dependency on any specific live service</button>
+        <button type="button" class="mcq-option" data-correct="false">Because Python cannot make real network requests</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> A JSON response's status code 404 falls into which range, and what does that range mean?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">2xx — success</button>
+        <button type="button" class="mcq-option" data-correct="true">4xx — a problem with the request itself, like a bad URL</button>
+        <button type="button" class="mcq-option" data-correct="false">5xx — the server broke while handling a valid request</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>requests.____(url)</code> sends a request to <code>url</code> and returns a <code>Response</code> object.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="get" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> <code>json.____()</code> converts Python data back into a JSON string.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="dumps" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A status code in the ____ range means the server itself broke while handling an otherwise valid request.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="5xx,500s" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>dict.____(key, default)</code> returns a fallback value instead of raising <code>KeyError</code> for a missing key.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="get" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> A real API key should be read from an environment variable using <code>os.environ.____()</code>, never hardcoded.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="get" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 19 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

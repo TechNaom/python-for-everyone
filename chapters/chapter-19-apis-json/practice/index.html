@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 19: Working with APIs & JSON, including interview-style scenario problems on requests basics, the json module, nested JSON navigation, error handling, query params/headers, and building a fetch-parse-format pipeline.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-19">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 19 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Working with APIs &amp; JSON</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Every
+    "response" here is a hardcoded JSON string standing in for what a
+    real API would send back &mdash; no network access is needed or used
+    anywhere in this bank. No import beyond
+    <code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-api">1. What an API Is, and Why JSON</a>
+    <a href="#requests-basics">2. <code>requests</code> Basics</a>
+    <a href="#json-module">3. <code>json</code> Module</a>
+    <a href="#nested-json">4. Navigating Nested JSON</a>
+    <a href="#error-handling">5. Error Handling</a>
+    <a href="#params-headers">6. Params &amp; Headers</a>
+    <a href="#pipeline">7. Fetch-Parse-Format Pipeline</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="what-is-api">Topic 1: What an API Is, and Why JSON</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Parsing a JSON string</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Parse <code>json_text</code> with <code>json.loads()</code> and print its type and value.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Converting Python to JSON text</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Build a dict and convert it to a JSON string with <code>json.dumps()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> <code>true</code>/<code>null</code> becoming <code>True</code>/<code>None</code></h3>
+    <p>Find <code>&#35; TODO 1.3</code>. Parse JSON containing <code>true</code> and <code>null</code>, and confirm what Python types they become.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. This prints unparsed JSON text instead of parsing it first. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Explaining why an app needs an API instead of hardcoded data</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>explain_why_use_an_api()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why JSON became the standard</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_why_json()</code>.</p>
+  </div>
+
+  <h2 id="requests-basics">Topic 2: The <code>requests</code> Library Basics</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Checking a status code</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Print success or failure based on <code>status_code</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A mocked <code>response.text</code></h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Confirm the mocked text's type, then parse it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Classifying status codes</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write <code>classify_status(code)</code> covering success/client/server error ranges.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. This compares a status code to the wrong type. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Explaining <code>requests.get()</code> to a teammate</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>explain_requests_get()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>.text</code> vs. <code>.json()</code></h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_text_vs_json()</code>.</p>
+  </div>
+
+  <h2 id="json-module">Topic 3: The <code>json</code> Module: <code>loads()</code> &amp; <code>dumps()</code></h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Pretty-printing nested data</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Use <code>json.dumps(nested, indent=2)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Parsing and summing values</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Parse compact JSON text and sum its values.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A dumps/loads round trip</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. Confirm converting to JSON and back recovers the same data.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. This passes <code>indent="2"</code> as a string. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Saving an API response to a readable log file</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>format_for_log(data)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>When does <code>indent=</code> help?</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_indent_tradeoff()</code>.</p>
+  </div>
+
+  <h2 id="nested-json">Topic 4: Navigating Nested JSON</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> One level of nesting</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Read a value from a dict nested inside a dict.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A list nested inside a dict</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Read a value from a list of dicts.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Looping over nested records</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. Loop over a list of order dicts.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Three levels deep</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Chain lookups through several nested layers.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. This skips a required list-index step. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Summing every line item on an invoice API response</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>invoice_total(invoice)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Approaching an unfamiliar nested response</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_nested_navigation_approach()</code>.</p>
+  </div>
+
+  <h2 id="error-handling">Topic 5: Handling Errors: Bad Responses &amp; Missing Keys</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Returning <code>None</code> on failure</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>safe_get_response(status_code, mock_body)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>.get()</code> with a default</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Safely read a possibly-missing key.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Classifying a failure</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Write <code>classify_failure(status_code)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Catching a custom exception</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. Catch a custom <code>NetworkError</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.5</code>. This is missing a <code>.get()</code> default, causing a <code>TypeError</code>. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Building a resilient weather summary</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>summarize_weather(data)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Two failure modes</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_two_failure_modes()</code>.</p>
+  </div>
+
+  <h2 id="params-headers">Topic 6: Query Parameters &amp; Headers</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Building a query string</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Build a query string from a <code>params</code> dict.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Building an auth header</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>build_auth_header(api_key)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Reading a missing environment variable</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. Use <code>os.environ.get()</code> with a fallback.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A query string with a boolean value</h3>
+    <p>Find <code>&#35; TODO 6.4</code>. Build another query string, this time with a boolean param.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.5</code>. This hardcodes an API key. Fix it to read from an environment variable.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Building a search request URL</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>build_search_url(query, limit)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why an API key should never be hardcoded</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_api_key_safety()</code>.</p>
+  </div>
+
+  <h2 id="pipeline">Topic 7: Building a Pipeline: API &rarr; Data &rarr; Output</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A fetch function</h3>
+    <p>Find <code>&#35; TODO 7.1</code>. Write <code>fetch_mock_joke()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A parse function</h3>
+    <p>Find <code>&#35; TODO 7.2</code>. Write <code>parse_joke(raw_text)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A format function</h3>
+    <p>Find <code>&#35; TODO 7.3</code>. Write <code>format_joke(setup, punchline)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> The full pipeline</h3>
+    <p>Find <code>&#35; TODO 7.4</code>. Chain fetch &rarr; parse &rarr; format together.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">5</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 7.5</code>. This parses data before fetching it. Fix the order.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A currency converter pipeline</h3>
+    <p>Find <code>&#35; TODO 7.A</code>. Write <code>fetch_rate_data()</code>/<code>parse_rate()</code>/<code>format_conversion()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why the fetch/parse/format split matters</h3>
+    <p>Find <code>&#35; TODO 7.B</code>. Write <code>explain_pipeline_testability()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

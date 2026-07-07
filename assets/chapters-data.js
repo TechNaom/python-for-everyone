@@ -176,7 +176,15 @@ window.PFE_MODULES = [
         { id: "compiled-patterns", title: "Compiled patterns with re.compile()" },
         { id: "gotchas", title: "Gotchas: greedy matching, raw strings & flags" }
       ] },
-      { id: "chapter-19", num: 19, title: "Working with APIs & JSON", path: null },
+      { id: "chapter-19", num: 19, title: "Working with APIs & JSON", path: "chapters/chapter-19-apis-json/lesson.html", subtopics: [
+        { id: "what-is-api", title: "What an API is, and why JSON" },
+        { id: "json-basics", title: "json.loads() & json.dumps()" },
+        { id: "nested-json", title: "Navigating nested JSON" },
+        { id: "error-handling", title: "Handling bad responses & missing keys" },
+        { id: "params-headers", title: "Query params & headers" },
+        { id: "real-api", title: "A real, keyless API to try" },
+        { id: "pipeline", title: "The fetch-parse-format pipeline" }
+      ] },
       { id: "chapter-20", num: 20, title: "Multithreading", path: null },
       { id: "chapter-21", num: 21, title: "Working with Databases (MySQL)", path: null }
     ]

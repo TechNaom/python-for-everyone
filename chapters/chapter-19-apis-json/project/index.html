@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19 Project: Weather & Quote-of-the-Day Fetcher — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven fetcher that pulls mocked weather and quote-of-the-day 'API responses' through a fetch-parse-format pipeline, handling a simulated bad response gracefully — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-19">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 19 Project</span>
+    <span class="reading-time">50 min build</span>
+  </div>
+  <h1>Weather &amp; Quote-of-the-Day Fetcher</h1>
+  <p>A menu-driven mini-app built <strong>around this chapter's core pipeline</strong> as its organizing principle &mdash; fetch a mocked JSON "API response," parse it into Python data (handling a simulated bad response gracefully), and format the result for a person to read. Every "API call" in this project uses a JSON string embedded directly in the script, standing in for what a real weather API and a real quote-of-the-day API would send back &mdash; no network access is needed or used anywhere, so it runs identically for every learner, every time.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Weather &amp; Quote-of-the-Day Fetcher ===
+
+1. Get weather for a city
+2. Get weather for a city (simulate a bad response)
+3. Get quote of the day
+4. Show quote history
+5. Quit
+Choose an option (1-5): 1
+
+City name: Austin
+Austin: 89F, Sunny (humidity 41%)
+  Mon: 91F, Sunny
+  Tue: 87F, Cloudy
+  Wed: 78F, Rain
+
+1. Get weather for a city
+2. Get weather for a city (simulate a bad response)
+3. Get quote of the day
+4. Show quote history
+5. Quit
+Choose an option (1-5): 2
+
+City name (this demo call will simulate an error): Nowhereville
+Could not retrieve weather data.
+
+1. Get weather for a city
+2. Get weather for a city (simulate a bad response)
+3. Get quote of the day
+4. Show quote history
+5. Quit
+Choose an option (1-5): 3
+
+Quote index (0, 1, or 2): 0
+"Simple is better than complex."
+    -- Tim Peters
+
+1. Get weather for a city
+2. Get weather for a city (simulate a bad response)
+3. Get quote of the day
+4. Show quote history
+5. Quit
+Choose an option (1-5): 4
+
+1. "Simple is better than complex." -- Tim Peters
+
+1. Get weather for a city
+2. Get weather for a city (simulate a bad response)
+3. Get quote of the day
+4. Show quote history
+5. Quit
+Choose an option (1-5): 5
+
+Goodbye!</code></pre>
+  </div>
+  <p><em>Notice that option 2 deliberately calls the same <code>fetch_weather()</code> function with <code>simulate_error=True</code>, producing the exact "Could not retrieve weather data." message a real failed API call would trigger &mdash; this is the same error-handling path a real integration needs, exercised safely and reproducibly without depending on a real API actually being down.</em></p>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A <code>fetch</code> &rarr; <code>parse</code> &rarr; <code>format</code>
+    pipeline for two different mocked data sources (weather and a
+    quote-of-the-day), wired to a <code>while True</code> menu loop with
+    five options: get weather for a city, get weather with a simulated
+    bad response, get a quote of the day, show quote history, or quit.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The pipeline</h2>
+  <ul>
+    <li><code>fetch_weather(city, simulate_error=False)</code> / <code>fetch_quote(index)</code> &mdash; stand in for <code>requests.get(...).text</code>, returning a hardcoded JSON string. <code>fetch_weather()</code> can be told to simulate a bad response (<code>{"status": "error", ...}</code>) instead of a good one, exactly to exercise the error-handling path from Sub-topic 5 without needing a real API to actually fail on demand.</li>
+    <li><code>parse_weather(raw_text)</code> / <code>parse_quote(raw_text)</code> &mdash; use <code>json.loads()</code> to parse the raw text, check <code>data.get("status")</code> before trusting the rest of the shape, and return <code>None</code> if the mocked response reports an error &mdash; exactly the defensive pattern Sub-topic 5 covers. On success, they navigate the nested response (<code>data["current"]["temp_f"]</code>, <code>data["forecast"]</code>, <code>data["quote"]</code>) exactly as Sub-topic 4 covers.</li>
+    <li><code>format_weather(weather)</code> / <code>format_quote(quote)</code> &mdash; turn the parsed data (or <code>None</code>, on failure) into a readable string, never needing to know anything about JSON or the mocked "API" at all.</li>
+  </ul>
+  <p>Every menu option calls its three-stage pipeline in order &mdash; fetch, then parse, then format &mdash; mirroring exactly the shape Sub-topic 7 introduces.</p>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "forecast only" menu option that prints just <code>weather["forecast"]</code>, formatted as a small table, without the current conditions line.</li>
+    <li>Add a fourth mocked quote to <code>MOCK_QUOTE_RESPONSES</code> and a "random quote" menu option using <code>random.randint()</code> (from Chapter 11) to pick an index automatically instead of asking the user for one.</li>
+    <li>Change <code>parse_weather()</code> to also return a <code>"forecast_high"</code> key (the maximum <code>high_f</code> across the whole forecast, using <code>max()</code> and a generator expression), and show it in <code>format_weather()</code>'s output.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Nearly every consumer app with a "current conditions" screen &mdash; weather, stocks, sports scores, a system status page &mdash; runs exactly this same fetch &rarr; parse &rarr; format pipeline behind the scenes, refreshed on a timer or a pull-to-refresh gesture. The mocked-response technique used throughout this project (a hardcoded JSON string standing in for "what the API would return") is also the exact same technique real production test suites use to test this kind of code without hitting a live network on every test run &mdash; this project isn't just a simplified stand-in for the real thing, it's built the way the real thing gets tested.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Weather &amp; Quote-of-the-Day Fetcher above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 19 (everything through Chapter 18's regular expressions, plus this chapter's <code>json</code> module and fetch-parse-format pipeline pattern &mdash; <code>requests</code> itself is never actually called in graded code, only referenced conceptually). No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Currency Converter (Mocked Exchange-Rate Response)</h3>
+    <p><strong>Problem:</strong> A traveler needs to quickly convert an amount between two currencies using a current exchange rate, without needing to know the rate by heart.</p>
+    <p><strong>What it should do:</strong> Build a mocked exchange-rate response, e.g. <code>json.dumps({"base": "USD", "rates": {"EUR": 0.92, "GBP": 0.79, "JPY": 149.5}})</code>, plus <code>fetch_rates()</code>, <code>parse_rates(raw_text)</code> (returning the <code>"rates"</code> dict), and <code>convert(amount, rate)</code> (returning <code>round(amount * rate, 2)</code>). Menu options: convert an amount to a chosen currency, show all available rates, and quit.</p>
+    <p><strong>Suggested approach:</strong> Keep the mocked rates as one dict of currency code &rarr; rate, and use <code>.get(currency, None)</code> when looking up a user-entered currency code, printing a friendly "not supported" message if it's missing rather than crashing on a <code>KeyError</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> GitHub Repo Stats Summarizer (Mocked Repo JSON)</h3>
+    <p><strong>Problem:</strong> A developer wants a quick command-line summary of a repository's stats (stars, open issues, primary language) without opening a browser.</p>
+    <p><strong>What it should do:</strong> Build a mocked repo JSON response resembling a real <code>api.github.com/repos/...</code> response (a handful of realistic keys: <code>"full_name"</code>, <code>"stargazers_count"</code>, <code>"open_issues_count"</code>, <code>"language"</code>), plus <code>fetch_repo_data(repo_name)</code>, <code>parse_repo_stats(raw_text)</code>, and <code>format_repo_summary(stats)</code>. Menu options: look up a (mocked) repo by name from a small built-in dictionary of 2-3 sample repos, and quit.</p>
+    <p><strong>Suggested approach:</strong> Store the mocked repos as a dict of repo name &rarr; JSON string, so <code>fetch_repo_data()</code> is a simple dict lookup with a "repo not found" fallback for anything not in the mocked set &mdash; the same <code>.get()</code>-with-a-default pattern from Sub-topic 5.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Joke/Trivia Fetcher</h3>
+    <p><strong>Problem:</strong> A small CLI tool needs to serve up a random joke or trivia question from a fixed set, formatted consistently regardless of which one is chosen.</p>
+    <p><strong>What it should do:</strong> Build a list of several mocked joke/trivia JSON responses (each with <code>"setup"</code>/<code>"punchline"</code> or <code>"question"</code>/<code>"answer"</code> keys), plus <code>fetch_joke(index)</code>, <code>parse_joke(raw_text)</code>, and <code>format_joke(joke)</code>. Menu options: get a specific joke by number, get a random one (using <code>random.choice()</code> from Chapter 11), and quit.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's exact <code>fetch</code>/<code>parse</code>/<code>format</code> naming convention and structure for the joke pipeline &mdash; the shape doesn't change based on what kind of content is being fetched, only the specific fields being parsed and formatted.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> JSON Config File Loader &amp; Validator</h3>
+    <p><strong>Problem:</strong> A small application needs to load a <code>config.json</code> file at startup and validate that it has all the required settings before running, rather than crashing partway through with a confusing error.</p>
+    <p><strong>What it should do:</strong> Build a function <code>load_config(path)</code> using <code>json.load()</code> (the file-based version, on an already-open file object from Chapter 13's <code>with open(...) as f:</code>) to read a local <code>.json</code> file. Build a function <code>validate_config(config, required_keys)</code> that returns a list of any keys from <code>required_keys</code> missing from <code>config</code>, using the same "collect what's missing" pattern from this chapter's <code>.get()</code>/missing-key coverage. Menu options: generate a sample <code>config.json</code> file, load and validate it (printing either "Config OK" or the specific missing keys), and quit.</p>
+    <p><strong>Suggested approach:</strong> This is the one idea in this list that uses <code>json.load()</code>/<code>json.dump()</code> (file-based, no trailing "s" difference from Sub-topic 3's Go Deeper box) instead of <code>loads()</code>/<code>dumps()</code>, since a config file is a genuinely local file rather than an API response &mdash; otherwise, the validation logic is the same "check what's expected against what's actually there" pattern used throughout this chapter.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

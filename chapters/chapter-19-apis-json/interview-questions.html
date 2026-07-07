@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 19: Working with APIs & JSON — requests.get(), status codes, json.loads()/dumps(), navigating nested JSON, error handling for bad responses and missing keys, query params/headers, API key safety, and the fetch-parse-format pipeline.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-19-interview" data-active-chapter="chapter-19">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 19 Interview Prep</span>
+    <span class="reading-time">40 min read</span>
+  </div>
+  <h1>Interview Questions: Working with APIs &amp; JSON</h1>
+  <p>API and JSON questions come up in almost every backend or full-stack interview, because consuming a third-party API is one of the most universal day-to-day tasks in professional software work. This set covers <code>requests.get()</code> and the <code>Response</code> object, status codes, <code>json.loads()</code>/<code>json.dumps()</code>, navigating nested JSON, the two genuinely different request failure modes, <code>.get()</code> for missing keys, query params vs. headers, why API keys must never be hardcoded, and the fetch-parse-format pipeline that almost every real API-consuming program follows.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What does <code>requests.get(url)</code> actually return, and what are its three most commonly used attributes?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>requests.get(url)</code> sends an HTTP request to <code>url</code> and returns a <strong><code>Response</code></strong> object describing what came back &mdash; it does not return the data itself directly. The three attributes used constantly: <code>response.status_code</code>, a 3-digit number reporting success or failure; <code>response.text</code>, the raw response body as a plain string, regardless of what format it's actually in; and <code>response.json()</code>, a method (not an attribute) that parses <code>.text</code> as JSON and returns ready-to-use Python data, but only if the body genuinely is valid JSON. A common beginner assumption is that <code>requests.get()</code> itself returns the data &mdash; it returns the whole response wrapper, and getting the actual data is a second, separate step.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying <code>requests.get(url)</code> returns a dict directly, or not knowing the difference between <code>.text</code> and <code>.json()</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a server returns a 404 page written in plain HTML, what happens if <code>.json()</code> is called on that response anyway?" (It raises an error, since the body isn't valid JSON &mdash; which is exactly why real code checks <code>.status_code</code> before ever calling <code>.json()</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What do the status code ranges 2xx, 4xx, and 5xx each mean?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The ranges matter more than any individual number. <strong>2xx</strong> means success &mdash; the request was understood and handled as expected (<code>200 OK</code> is the most common). <strong>4xx</strong> means the request itself had a problem &mdash; a bad URL, missing authentication, a malformed parameter &mdash; the fault is on the caller's side (<code>404 Not Found</code>, <code>401 Unauthorized</code>). <strong>5xx</strong> means the request was perfectly fine, but the server broke while trying to handle it &mdash; the fault is on the server's side (<code>500 Internal Server Error</code>). Distinguishing 4xx from 5xx matters practically: a 4xx usually means the calling code needs to change something about the request, while a 5xx usually means retrying later (or reporting the outage) is the more sensible response.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating every non-200 code the same way, or not knowing which range means a client-side mistake versus a server-side one.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does getting a 500 status code usually mean the request itself was malformed?" (No &mdash; a 500 specifically means the server accepted a valid-looking request but failed internally while processing it; the request format itself wasn't the problem.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's the difference between <code>json.loads()</code> and <code>json.dumps()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>They go in opposite directions. <code>json.loads(text)</code> ("load string") parses a JSON <em>string</em> into real Python data &mdash; dicts, lists, strings, numbers, booleans, <code>None</code>. <code>json.dumps(data)</code> ("dump string") does the reverse: converts Python data into a JSON string. A useful memory aid: data coming <em>in</em> from an API response needs <code>loads()</code>; data going <em>out</em> to be sent, saved, or printed readably needs <code>dumps()</code>, optionally with <code>indent=2</code> for human-readable formatting. Both functions handle the type translation automatically in both directions &mdash; JSON's <code>true</code>/<code>false</code>/<code>null</code> become Python's <code>True</code>/<code>False</code>/<code>None</code>, and back again.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Mixing up which function goes which direction, or not knowing that a <code>Response</code> object's <code>.json()</code> method is essentially calling <code>json.loads()</code> on <code>.text</code> automatically.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>data = json.loads('{\"active\": true}')</code>, what type is <code>data[\"active\"]</code> in Python?" (<code>bool</code> &mdash; specifically <code>True</code>; JSON's lowercase <code>true</code> is automatically converted to Python's capitalized <code>True</code> during parsing.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> Why does <code>json.dumps(data, indent=2)</code> matter, and when should it <em>not</em> be used?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>indent=2</code> reformats the exact same JSON data across multiple lines with consistent indentation, purely for human readability &mdash; it adds newlines and whitespace, no new information. It's genuinely useful when printing JSON to a terminal for debugging, writing it to a log file a person will read later, or inspecting an unfamiliar API response's shape for the first time. It should specifically <em>not</em> be used when actually sending JSON over a network connection (as the body of a real API request, for instance) &mdash; the extra whitespace adds bytes to every request with zero benefit, since nothing on the receiving end needs to visually read it before parsing it back with <code>json.loads()</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>indent=</code> as changing the underlying data in any way, or not being able to name a case where it's actively the wrong choice.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does <code>json.dumps({\"a\": 1}, indent=2) == json.dumps({\"a\": 1})</code> evaluate to <code>True</code> or <code>False</code>?" (<code>False</code> &mdash; they're different strings, since one has extra whitespace/newlines the other doesn't; but <code>json.loads()</code> on either one recovers the identical underlying data, since the difference is purely cosmetic.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> How would you read a value three levels deep in a nested JSON response, like <code>{"a": {"b": {"c": 42}}}</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>By chaining ordinary <code>[key]</code> lookups, one level at a time, in the order the nesting goes: <code>data["a"]["b"]["c"]</code>. Nothing special is needed for depth &mdash; each <code>[key]</code> simply returns whatever value is stored there, and if that value happens to be another dict (or list), the next <code>[key]</code>/<code>[index]</code> in the chain operates on that. The practical skill isn't a special syntax; it's reading the actual shape of a real response first (often by pretty-printing a sample with <code>json.dumps(data, indent=2)</code>) so the chain of lookups matches the real structure, rather than guessing blindly.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming there's a special "deep get" syntax or method built into core Python for this (there isn't &mdash; it's plain chained indexing), or not being able to read an unfamiliar nested structure's shape before writing navigation code.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Given <code>data = {\"users\": [{\"name\": \"Kai\"}, {\"name\": \"Lee\"}]}</code>, how would you get <code>\"Lee\"</code>?" (<code>data[\"users\"][1][\"name\"]</code> &mdash; first reach the list with <code>[\"users\"]</code>, then its second item with <code>[1]</code>, then that dict's <code>\"name\"</code> key.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What are the two genuinely different ways a real API request can fail, and how does handling differ between them?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The first is a <strong>network-level failure</strong>: the request never even completes &mdash; no internet connection, a timeout, an unreachable host, a malformed URL. This is caught with <code>try</code>/<code>except requests.exceptions.RequestException</code>, and there's no status code to check at all, because no response ever came back. The second is a <strong>bad status code on a completed response</strong>: the network call succeeded (a response genuinely arrived), but that response reports a problem &mdash; a 404, a 500 &mdash; checked with <code>if response.status_code != 200:</code> or the <code>response.raise_for_status()</code> shortcut. Treating both as one single category misses real cases: code that only catches exceptions will crash (or silently mishandle) a perfectly well-formed error response, and code that only checks status codes will crash outright the moment the network itself fails, since there's no <code>response</code> object at all to check a status on.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "the request failed" as one single case, or assuming a <code>try</code>/<code>except</code> around <code>requests.get()</code> alone is sufficient without also checking the status code on a successful call.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If <code>requests.get(url)</code> completes with no exception at all, but the server is down for maintenance and returns a 503, would a bare <code>try</code>/<code>except requests.exceptions.RequestException</code> catch that on its own?" (No &mdash; the request completed successfully at the network level, so no exception is raised; a 503 is only caught by checking <code>response.status_code</code>, or using <code>raise_for_status()</code>, separately from the exception handling.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> When should <code>.get(key, default)</code> be used instead of a plain <code>[key]</code> lookup on a parsed API response?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.get(key, default)</code> should be used for any field that is genuinely <em>optional</em> in the API's response &mdash; a field that might legitimately be absent depending on the data, not because something has gone wrong. A plain <code>[key]</code> lookup is still the right choice for a field the API's documentation guarantees will always be present; if that field is ever actually missing, letting <code>[key]</code> raise a loud <code>KeyError</code> is more honest than silently treating a required field as optional and papering over what is, in that case, a genuine data problem worth noticing. The distinction to hold onto: <code>.get()</code> is for expected absence, not for hiding unexpected absence.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reflexively using <code>.get()</code> everywhere "just in case," which can silently mask a real bug when a required field goes missing, or never using <code>.get()</code> at all and crashing on every optional field's absence.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If an API's documentation guarantees a response always includes an <code>\"id\"</code> field, and that field is somehow missing on a real call, is silently returning a default via <code>.get(\"id\", None)</code> the right call?" (Arguably not &mdash; if a documented, required field is missing, that's a sign something is genuinely wrong with the response, and a loud failure (or explicit logging) is often more useful than quietly proceeding with a placeholder value.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What's the difference between a query parameter and a header, and when is each one used?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A <strong>query parameter</strong> customizes <em>what</em> is being requested &mdash; it's part of the URL itself, appended after a <code>?</code> (<code>?city=Austin&amp;units=imperial</code>), and is used for things like a search term, a city, a page number, or a sort order. A <strong>header</strong> carries information <em>about</em> the request itself, sent separately from the URL &mdash; most commonly used for authentication (an API key) or content negotiation (what response format is acceptable). <code>requests.get(url, params={...})</code> builds the query string automatically from a dict; <code>requests.get(url, headers={...})</code> attaches headers separately. Mixing the two up matters practically: an API key sent as a query parameter can end up logged in plain text in a server's access logs (URLs are commonly logged, headers usually aren't as visibly), which is one reason authentication almost always goes in a header instead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that query parameters end up as part of the visible URL (and can end up in logs, browser history, etc.), or treating params and headers as interchangeable.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would sending an API key as <code>params={\"api_key\": \"...\"}</code> instead of a header have any practical downside?" (Yes &mdash; it becomes part of the visible URL, which is far more likely to end up logged somewhere (server access logs, browser history, shared links) than a header value, making it a less safe place for a secret.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why should a real API key never be hardcoded directly into source code, even in a private repository?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because a hardcoded key becomes part of that file's committed history &mdash; if the repository is ever made public, transferred, forked, or if the commit history is ever exposed in any way, the key is visible in every commit that ever included it, even if a later commit removes it. For a genuinely public repository, this risk is immediate: automated bots specifically scan public repos for exposed API keys within minutes of a push, and a compromised key can rack up usage charges or be used to impersonate whoever owns it. The fix is to read the key from an <strong>environment variable</strong> at runtime, via <code>os.environ.get(\"API_KEY\")</code>, so the key itself never appears in any file that gets committed at all &mdash; it lives only in the environment of whatever machine is running the code, set up separately from the source.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing a "private" repository is a safe place for a hardcoded secret (repos can be made public, forked, or leaked), or not knowing the environment-variable pattern as the standard alternative.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a hardcoded API key is committed and then removed in a later commit, is the key still exposed?" (Yes &mdash; the key is visible in the earlier commit's history forever, unless the entire git history is rewritten and force-pushed, which doesn't help if the repo has already been cloned, forked, or scanned by then; the safe fix is never committing it in the first place.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What is the fetch-parse-format pipeline, and why is splitting a program into those three separate steps useful?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It's the repeatable three-stage shape almost every API-consuming program follows: <strong>fetch</strong> (get the raw response, real or mocked), <strong>parse</strong> (turn that raw text into usable Python data, pulling out the specific fields needed and handling anything malformed or missing along the way), and <strong>format</strong> (turn that parsed data into a human-readable result). Splitting these into separate functions means each one can be understood, tested, and changed independently &mdash; the parse function never needs to know or care whether its input string came from a real network call or a hand-written test string, and the format function never needs to know anything about HTTP, JSON, or networking at all. The fetch function ends up being the only piece that would ever need to change if the data source itself changed (a different API, a mocked response instead of a real one) &mdash; everything downstream of it stays identical either way.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Writing one large function that fetches, parses, and formats all in one block, making it impossible to test the parsing logic without also making a real network call.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a parse function is written to accept a raw JSON string (rather than calling <code>requests.get()</code> itself), can it be tested with a hand-written mock string with no network access at all?" (Yes &mdash; that's precisely the benefit of the separation; the parse function only cares that it received a string of JSON text, never where that text came from.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Why does this course (and this chapter specifically) avoid making real network calls in its graded exercises, and is that a realistic way to learn the material?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A live API can go offline, change its response shape, enforce a rate limit, or require a key that expires or costs money &mdash; none of which makes for a reliable, reproducible lesson that still works correctly years later for anyone reading it. Using a mocked response (a hardcoded JSON string standing in for "what the API would return") sidesteps all of that while teaching the exact same mechanics: parsing the same shape of JSON, navigating the same nested structure, handling the same kinds of missing fields and bad statuses &mdash; the only thing that changes between a mocked example and a real one is where the raw text originally came from, which the fetch-parse-format split (Question 10) deliberately isolates into one small, swappable piece. This is also precisely the same technique used to unit-test real production code that calls APIs, so it's not just a teaching shortcut &mdash; it's the actual professional pattern for testing this kind of code without hitting a real network on every test run.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming mocked-response practice is somehow "not the real thing" or a lesser substitute, rather than recognizing it as the same technique real test suites use.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If code correctly parses a hand-written mock JSON string matching a real API's documented response shape, will that same code correctly parse the real API's actual response?" (Yes, as long as the mock accurately reflects the real shape &mdash; <code>json.loads()</code>/dict navigation behave identically regardless of where the string originated.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What happens if <code>json.loads()</code> is called on text that isn't actually valid JSON?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It raises a <code>json.JSONDecodeError</code> &mdash; a missing comma, an unquoted key, a trailing comma, or text that's simply a different format entirely (like an HTML error page) all trigger this. This matters in real API code because a status code of 200 doesn't strictly guarantee the body is valid JSON in every conceivable edge case &mdash; a misconfigured server could return a 200 with an HTML body, for instance. Defensive real-world code sometimes wraps <code>response.json()</code> (or <code>json.loads()</code> directly) in its own <code>try</code>/<code>except json.JSONDecodeError</code>, on top of the status-code check, for exactly this rarer but real edge case.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a successful status code guarantees a parseable JSON body in every case, or not knowing what exception invalid JSON actually raises.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does a 200 status code alone guarantee <code>response.json()</code> will succeed without raising an error?" (Not with absolute certainty &mdash; it's true the overwhelming majority of the time for a well-behaved API, but a malformed or unexpected body can still cause <code>json.JSONDecodeError</code> even on a 200 response, which is why some production code checks for it explicitly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What's the difference between <code>json.loads()</code>/<code>json.dumps()</code> and <code>json.load()</code>/<code>json.dump()</code> (without the trailing "s")?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>They do the identical conversion job, but work with different sources/destinations. <code>json.loads()</code>/<code>json.dumps()</code> (with the "s", for "string") work with a JSON string already sitting in memory &mdash; exactly the case for an API response, which arrives as a string. <code>json.load()</code>/<code>json.dump()</code> (no "s") work directly with an already-open file object instead, combining "read/write the file" and "parse/serialize the JSON" into one call &mdash; useful for a local <code>config.json</code> file opened with <code>with open(...) as f:</code>, rather than a network response. Using the wrong pair for the situation (e.g. trying to call <code>json.load()</code> on a plain string instead of a file object) raises an <code>AttributeError</code>, since a plain string doesn't have the <code>.read()</code> method <code>json.load()</code> expects to call internally.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating the "s" as a stylistic difference rather than a meaningful one (string vs. file object), or trying to call <code>json.load()</code> directly on a string.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would <code>json.load(response.text)</code> work correctly on a real <code>Response</code> object?" (No &mdash; <code>response.text</code> is a plain string, not an open file object, so <code>json.load()</code> is the wrong function here; <code>json.loads(response.text)</code>, or simply <code>response.json()</code>, is correct.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>requests.get(url)</code> returns a <code>____</code> object, not the data itself directly.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="Response,response" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> A status code starting with <code>____</code> means a problem with the request itself, like a bad URL.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="4,4xx" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>json.____()</code> parses a JSON string into Python data.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="loads" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>json.dumps(data, indent=2)</code> is purely a ____ feature, adding no new information to the data.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="readability,formatting" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> Reaching a deeply nested value means chaining <code>[key]</code>/<code>[index]</code> lookups, one ____ at a time.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="level" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> <code>requests.exceptions.____</code> is the base exception raised for a network-level failure, before there's even a status code.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="RequestException,requestexception" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>dict.get(key, default)</code> returns <code>____</code> instead of raising <code>KeyError</code> if the key is missing.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="default" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> A query ____ customizes what's being requested; it's appended to the URL after a <code>?</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="parameter,param" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> An API key belongs in an ____ variable, never hardcoded directly in source code.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="environment" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> In the fetch-parse-____ pipeline, only the fetch step needs to change if the data source changes.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="format" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> This course uses ____ JSON responses in every graded exercise, so examples run offline with no API key needed.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="mocked,mock,hardcoded" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Calling <code>json.loads()</code> on invalid JSON text raises a <code>json.____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="JSONDecodeError,jsondecodeerror" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> <code>json.load()</code> (no trailing "s") reads directly from an already-open ____ object, unlike <code>json.loads()</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="file" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

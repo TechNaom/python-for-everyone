@@ -30,12 +30,12 @@ moving to the next. The rendered, always-current version lives at
 | 16 | Inheritance & Polymorphism | `class Child(Parent):` and what's inherited automatically, `super().__init__()`, method overriding & extending with `super()`, polymorphism, `isinstance()` vs `type()`, real-world inheritance & polymorphism (with a caution on composition-over-inheritance) — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Quiz: 15 MCQ + 5 fill-in-the-blank. This is the chapter where inheritance finally becomes allowed. Project: Vehicle Rental System |
 | 17 | Generators, Iterators & Context Managers | Iterables vs. iterators (`__iter__`/`__next__`/`StopIteration`), generator functions (`yield`), generator expressions & lazy evaluation, the `with` protocol (`__enter__`/`__exit__`), writing custom context managers, real-world use in streaming large files — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Quiz: 15 MCQ + 5 fill-in-the-blank. Project: Large-File Streaming Log Analyzer |
 | 18 | Regular Expressions | `re.match()`/`re.search()`/`re.fullmatch()`, `findall()`/`finditer()`, character classes/quantifiers/anchors, groups & named groups, `re.sub()`/`re.split()`, `re.compile()`, greedy-vs-non-greedy, raw strings & flags (`IGNORECASE`/`MULTILINE`), real-world pattern matching — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Project: Resume Keyword Scanner |
+| 19 | Working with APIs & JSON | What an API is and why JSON is the shared data format, `requests.get()`/`response.status_code`/`.text`/`.json()`, the `json` module (`loads()`/`dumps()`, `indent=`), navigating nested JSON (dicts of lists of dicts), handling bad responses and missing keys (`requests.exceptions.RequestException`, status-code checks, `dict.get()`), query params & headers (including the API-key-via-environment-variable pattern), and a real, keyless public API to try locally — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Every graded example uses a mocked JSON response, so nothing here requires live network access or an API key. Project: Weather & Quote-of-the-Day Fetcher |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 19 | Working with APIs & JSON | Weather/quote-of-the-day fetcher |
 | 20 | Multithreading | Concurrent file-download simulator |
 | 21 | Working with Databases (MySQL, MongoDB & Cloud-Hosted DBs) | Student record management system |
 | 22 | Building Web Apps & APIs (Flask & FastAPI) | Task-manager web app with a REST API |

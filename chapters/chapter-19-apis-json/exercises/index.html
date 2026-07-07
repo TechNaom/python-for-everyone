@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 19: Working with APIs & JSON, including two Debug the Code tasks — a missing json.loads() call, and a missing-key KeyError that .get() would have prevented.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-19">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 19 Exercises</span>
+    <span class="reading-time">30 min, hands-on</span>
+  </div>
+  <h1>Exercises: Working with APIs &amp; JSON</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. Every "response" in these exercises is a hardcoded JSON string —
+    nothing here needs an internet connection.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> <code>json.loads()</code> on a mocked response</h3>
+    <p>Parse <code>mock_response_text</code> (a JSON string standing in for <code>response.text</code>) with <code>json.loads()</code> into a dict named <code>weather</code>. Print <code>weather["city"]</code> and <code>weather["temp_f"]</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>json.dumps()</code> with <code>indent=</code></h3>
+    <p>Build a dict named <code>profile</code> with keys <code>"username"</code> (<code>"cleo"</code>) and <code>"followers"</code> (<code>1204</code>). Convert it to a pretty-printed JSON string named <code>pretty</code> using <code>json.dumps(profile, indent=2)</code>, and print it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Navigating nested JSON</h3>
+    <p>Parse <code>mock_nested_text</code> into <code>data</code>. Print <code>data["repo"]</code>, then loop over <code>data["contributors"]</code> (a list of dicts), printing each contributor's name and commit count.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Checking a status code</h3>
+    <p>Given <code>status_code = 404</code>, print <code>"Success!"</code> if it's <code>200</code>, otherwise print a message including the actual status code.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> <code>.get()</code> with a default</h3>
+    <p>Read <code>quote_data</code>'s <code>"author"</code> key with <code>.get()</code> and a default of <code>"Unknown"</code> (the dict deliberately has no <code>"author"</code> key), then print the quote with its author.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Building a query string</h3>
+    <p>Build a query string from the <code>params</code> dict in the form <code>"key1=value1&amp;key2=value2"</code>, and print the full URL it would produce.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 7 — Debug the Code</h3>
+    <p>This is supposed to parse <code>mock_text</code> and print its <code>"city"</code> key, but it forgot to actually call <code>json.loads()</code> first, so it's indexing into a plain string instead of a dict, which raises a <code>TypeError</code>. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_missing_loads.py</span>
+      </div>
+      <pre><code>mock_text = '{"city": "Seattle", "temp_f": 61}'
+data = mock_text
+print(data["city"])</code></pre>
+    </div>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This is supposed to safely handle a response that's missing the <code>"condition"</code> key using <code>.get()</code> with a default, but it used square-bracket indexing instead, which raises a <code>KeyError</code> since <code>"condition"</code> genuinely isn't present. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_missing_key.py</span>
+      </div>
+      <pre><code>weather_data = {"city": "Miami", "temp_f": 90}
+condition = weather_data["condition"]
+print(f"Condition: {condition}")</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19: Working with APIs & JSON — Python for Everyone</title>
+<meta name="description" content="Fetching and parsing data the way real software does: requests.get(), status codes, .text vs .json(), json.loads()/json.dumps(), navigating nested JSON, handling bad responses and missing keys, query params & headers, and the fetch-parse-format pipeline behind every weather app, quote-of-the-day widget, and third-party integration.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-19">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 19 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">75 min read</span>
+  </div>
+  <h1>Working with APIs &amp; JSON</h1>
+  <p><em>Every program so far has worked entirely with data typed directly into the source code, or read from a local file. Real software constantly needs data that lives somewhere else &mdash; a weather service, a payments provider, a social platform &mdash; and the standard way that data travels between two completely different programs, written in different languages, running on different machines, is a <strong>web API</strong> exchanging <strong>JSON</strong>. This chapter builds the exact mechanics: making a request, checking whether it worked, and turning the response into ordinary Python data structures the rest of a program already knows how to use.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topics 1-2 are the entry point:</strong> what an API and JSON actually are, and the two core tools &mdash; <code>requests.get()</code> for asking a server for data, and <code>json.loads()</code>/<code>json.dumps()</code> for converting between a JSON string and Python data.</li>
+      <li><strong>Sub-topic 3 is the shape of real responses:</strong> JSON almost never comes back flat &mdash; it's dicts nested inside lists nested inside dicts, and this is how to navigate that safely.</li>
+      <li><strong>Sub-topic 4 is what happens when things go wrong:</strong> a bad status code, a network failure, a key that isn't there &mdash; real API code has to expect all three.</li>
+      <li><strong>Sub-topics 5-6 round out real usage:</strong> sending query parameters and headers (the API-key pattern), plus one real, safe, keyless public API to try locally.</li>
+      <li><strong>Sub-topic 7 ties it together</strong> as one repeatable pipeline: request &rarr; parse &rarr; format &mdash; the shape every real API-consuming program follows, which the project builds on directly.</li>
+      <li><strong>No example in this chapter needs a live network connection.</strong> Every graded exercise, practice problem, challenge, and the project use a hardcoded JSON string standing in for "what the API would return," parsed with the exact same code that would handle a real response.</li>
+      <li><strong>Everything from Chapters 1-18 still applies</strong> &mdash; strings, dicts, lists, loops, functions, exceptions, file handling, classes, and regex, all of it. <code>requests</code> and <code>json</code> are the new ingredients.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-api">1. What an API is, and why JSON</a>
+    <a href="#json-basics">2. <code>json.loads()</code> &amp; <code>json.dumps()</code></a>
+    <a href="#nested-json">3. Navigating nested JSON</a>
+    <a href="#error-handling">4. Handling bad responses &amp; missing keys</a>
+    <a href="#params-headers">5. Query params &amp; headers</a>
+    <a href="#real-api">6. A real, keyless API to try</a>
+    <a href="#pipeline">7. The fetch-parse-format pipeline</a>
+  </nav>
+
+  <div class="hook">
+    Picture a weather app on a phone. It doesn't have its own weather satellites or meteorologists &mdash; it sends a request to a weather company's server asking "what's the forecast for this location right now?", and that server sends back an answer. Neither side needs to know what language the other is written in, or how its internals work &mdash; they just need to agree on <em>how to ask</em> and <em>how the answer is shaped</em>. That agreement is exactly what this chapter covers: the request side (<code>requests</code>) and the answer's shape (JSON).
+  </div>
+
+  <div class="subtopic" id="what-is-api">
+    <span class="subtopic-label">Sub-topic 1 of 7</span>
+    <h2>1. What an API is, and why JSON</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>An <strong>API</strong> is a defined way for one program to ask another program for data or to trigger an action.</li>
+        <li>A <strong>web API</strong> exchanges data over the internet using HTTP &mdash; the same protocol a browser uses to load a page.</li>
+        <li><strong>JSON</strong> is the plain-text format almost every web API uses to shape its data, since it maps directly onto dicts and lists.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every later sub-topic in this chapter is just deeper mechanics for one of these two ideas &mdash; asking a server for data (the API call) and understanding the shape of what comes back (JSON).
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an API?</span>
+      An <strong>API</strong> (Application Programming Interface) is a defined
+      way for one piece of software to ask another for data or ask it to do
+      something, without either side needing to know how the other is built
+      internally. A <strong>web API</strong> is an API reached over the
+      internet, using ordinary web requests &mdash; the same underlying
+      technology (HTTP) a browser uses to load any web page.
+    </div>
+
+    <p>
+      Python's <code>requests</code> library (installed separately from the
+      standard library, via <code>pip install requests</code>) is the
+      standard way to make a web request from Python code. This chapter
+      never actually calls a real server &mdash; every example simulates
+      what a response would look like with a hardcoded string standing in
+      for it, since a course with no backend can't depend on live internet
+      access being available to every learner every time.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... JSON?</span>
+      <strong>JSON</strong> (JavaScript Object Notation) is a plain-text
+      format for structured data that looks almost exactly like a Python
+      dict or list written out as text &mdash; <code>{"name": "Ana",
+      "age": 30}</code> is valid JSON and valid Python at the same time.
+      It became the standard data format for web APIs because nearly every
+      programming language can read and write it, making it a shared
+      language between programs that otherwise have nothing in common.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">simulated_get_demo.py</span>
+      </div>
+      <pre><code># In real code this would be:
+#     import requests
+#     response = requests.get("https://api.example.com/weather?city=Austin")
+#
+# This chapter simulates that response with a small class standing in for
+# what requests.get() would actually return, so every example runs with
+# no network access needed.
+
+class FakeResponse:
+    """Stands in for what requests.get() returns, for offline examples."""
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
+
+    def json(self):
+        import json
+        return json.loads(self.text)
+
+
+response = FakeResponse(
+    status_code=200,
+    text='{"city": "Austin", "temp_f": 88, "condition": "Sunny"}',
+)
+
+print(response.status_code)
+print(response.text)
+print(response.json())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of simulated_get_demo.py</span>
+      <pre><code>200
+{"city": "Austin", "temp_f": 88, "condition": "Sunny"}
+{'city': 'Austin', 'temp_f': 88, 'condition': 'Sunny'}</code></pre>
+    </div>
+
+    <p>
+      A real call to <code>requests.get(url)</code> returns a
+      <code>Response</code> object with exactly these same three things:
+      <code>.status_code</code> (a number reporting whether the request
+      succeeded), <code>.text</code> (the raw response body as one plain
+      string), and <code>.json()</code> (a method that parses that string
+      into Python dicts/lists automatically, only if the body actually is
+      JSON). <code>FakeResponse</code> above is a small stand-in built
+      specifically so this chapter's examples can use identical code
+      against a value that never touches the network.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>.status_code</code> is a number: <code>200</code> means success, <code>404</code> means "not found," <code>500</code> means the server itself had an error.</li>
+      <li><code>.text</code> is the raw response, always a plain string, whether or not it happens to be valid JSON.</li>
+      <li><code>.json()</code> parses <code>.text</code> into real Python data &mdash; but only works if the body is actually valid JSON, otherwise it raises an error.</li>
+    </ul>
+
+    <div class="what-is">
+      <span class="label">What is... a status code?</span>
+      A <strong>status code</strong> is a 3-digit number every HTTP response
+      includes, summarizing what happened. The ranges matter more than any
+      individual number: <strong>2xx</strong> means success,
+      <strong>4xx</strong> means the request itself was wrong somehow (a bad
+      URL, missing permission), and <strong>5xx</strong> means the server
+      broke while trying to handle an otherwise-fine request.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="12">import json
+
+class FakeResponse:
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
+
+    def json(self):
+        return json.loads(self.text)
+
+
+response = FakeResponse(200, '{"quote": "Simple is better than complex.", "author": "Tim Peters"}')
+if response.status_code == 200:
+    data = response.json()
+    print(f'"{data["quote"]}" -- {data["author"]}')
+else:
+    print(f"Request failed with status {response.status_code}")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing status_code to 404 and see what prints instead.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just use XML, or a program's own custom text format?</summary>
+      <p>
+        XML predates JSON as a web data format and is still used in some
+        older or enterprise systems, but it's considerably more verbose for
+        the same data (opening and closing tags for everything) and doesn't
+        map onto a language's native data structures nearly as directly as
+        JSON maps onto dicts and lists. A fully custom format would require
+        every API consumer to write its own one-off parser instead of
+        reusing a standard library function &mdash; JSON won as the default
+        specifically because "just about every language already has a
+        built-in JSON parser" removes that entire category of work.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>An API is a defined way for one program to ask another for data; a web API does this over HTTP.</li>
+        <li>JSON is the plain-text data format most web APIs use, since it maps directly onto dicts and lists.</li>
+        <li>A response has a status code (2xx success, 4xx client error, 5xx server error), raw text, and (if the body is JSON) a parsed form.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="json-basics">
+    <span class="subtopic-label">Sub-topic 2 of 7</span>
+    <h2>2. <code>json.loads()</code> &amp; <code>json.dumps()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>json.loads(text)</code> parses a JSON string into Python data (dicts, lists, strings, numbers, booleans, <code>None</code>).</li>
+        <li><code>json.dumps(data)</code> does the reverse &mdash; converts Python data into a JSON string.</li>
+        <li><code>json.dumps(data, indent=2)</code> pretty-prints the result, which is far easier to read than one long unbroken line.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a <code>Response</code> object's <code>.json()</code> method (Sub-topic 1) is really just calling <code>json.loads()</code> on <code>.text</code> automatically &mdash; understanding <code>json.loads()</code>/<code>json.dumps()</code> directly is what makes that automatic step stop feeling like magic.
+    </div>
+
+    <p>
+      Python's built-in <code>json</code> module (<code>import json</code>,
+      no separate install needed) is the standard-library tool for moving
+      between a JSON string and real Python data:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... "parsing"?</span>
+      <strong>Parsing</strong> means converting text written in some
+      structured format into the actual data structures a program can work
+      with &mdash; here, converting a JSON string like
+      <code>'{"a": 1}'</code> (one plain string, no dict features at all)
+      into a real Python dict, <code>{"a": 1}</code>, that supports
+      indexing, <code>.get()</code>, looping, and everything else a dict
+      normally supports.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">loads_dumps_demo.py</span>
+      </div>
+      <pre><code>import json
+
+json_text = '{"name": "Ana", "age": 30, "active": true}'
+
+data = json.loads(json_text)
+print(type(data))
+print(data["name"])
+print(data["age"] + 1)
+
+back_to_text = json.dumps(data)
+print(back_to_text)
+print(type(back_to_text))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of loads_dumps_demo.py</span>
+      <pre><code>&lt;class 'dict'&gt;
+Ana
+31
+{"name": "Ana", "age": 30, "active": true}
+&lt;class 'str'&gt;</code></pre>
+    </div>
+
+    <p>
+      <code>json.loads(json_text)</code> turns the plain string into a real
+      Python <code>dict</code> &mdash; confirmed by <code>type(data)</code>
+      &mdash; which is why <code>data["age"] + 1</code> works: it's a real
+      integer now, not text. <code>json.dumps(data)</code> reverses the
+      process, turning the dict back into a plain string. Notice one detail:
+      JSON's <code>true</code> became Python's <code>True</code> during
+      parsing, and would convert back to <code>true</code> again on the way
+      out &mdash; the <code>json</code> module handles that translation
+      automatically for booleans, <code>null</code>/<code>None</code>, and
+      numbers.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>json.loads()</code> takes a string, returns Python data (the "s" is for "string").</li>
+      <li><code>json.dumps()</code> takes Python data, returns a string (the "s" is for "string" here too &mdash; it's the reverse direction).</li>
+      <li>A one-line JSON string is fine for a computer to send over a network, but painful for a human to read &mdash; which is exactly what pretty-printing fixes.</li>
+    </ul>
+
+    <p>
+      Adding <code>indent=</code> to <code>json.dumps()</code> reformats the
+      same data across multiple lines with consistent spacing, which matters
+      constantly when debugging what an API actually sent back:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">pretty_print_demo.py</span>
+      </div>
+      <pre><code>import json
+
+data = {"city": "Austin", "temp_f": 88, "forecast": ["Sunny", "Clear"]}
+
+compact = json.dumps(data)
+pretty = json.dumps(data, indent=2)
+
+print(compact)
+print()
+print(pretty)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of pretty_print_demo.py</span>
+      <pre><code>{"city": "Austin", "temp_f": 88, "forecast": ["Sunny", "Clear"]}
+
+{
+  "city": "Austin",
+  "temp_f": 88,
+  "forecast": [
+    "Sunny",
+    "Clear"
+  ]
+}</code></pre>
+    </div>
+
+    <p>
+      Both strings represent the exact same data &mdash; <code>indent=2</code>
+      only changes how it's <em>displayed</em>, spreading nested pieces
+      across their own lines with 2 spaces of indentation per level. This is
+      purely a readability tool for humans; a real program sending JSON over
+      a network almost always uses the compact form, since the extra
+      whitespace serves no purpose once nothing is going to visually inspect
+      it.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">import json
+
+profile = {"username": "cleo", "followers": 1204, "verified": False}
+print(json.dumps(profile, indent=2))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding another key to the profile dict before printing.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: json.load() and json.dump() (no "s") work directly with files</summary>
+      <p>
+        <code>json.load(file_object)</code> and <code>json.dump(data,
+        file_object)</code> &mdash; without the trailing "s" &mdash; do the
+        exact same job as <code>loads()</code>/<code>dumps()</code>, but
+        read from or write directly to an already-open file object (from
+        Chapter 13's <code>with open(...) as f:</code>) instead of a string
+        already sitting in memory. This chapter sticks to the string-based
+        <code>loads()</code>/<code>dumps()</code> versions since API
+        responses arrive as strings, not files, but the file versions are
+        worth knowing about for reading a local <code>config.json</code> or
+        similar.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>json.loads(text)</code> parses a JSON string into Python data; <code>json.dumps(data)</code> converts Python data back into a JSON string.</li>
+        <li>JSON's <code>true</code>/<code>false</code>/<code>null</code> map to Python's <code>True</code>/<code>False</code>/<code>None</code> automatically in both directions.</li>
+        <li><code>json.dumps(data, indent=2)</code> pretty-prints the same data across multiple readable lines, purely for human inspection.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="nested-json">
+    <span class="subtopic-label">Sub-topic 3 of 7</span>
+    <h2>3. Navigating nested JSON</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Real API responses are almost never flat &mdash; they're dicts containing lists containing more dicts, several levels deep.</li>
+        <li>Each level is navigated with the same tools already known: <code>[key]</code> for a dict, <code>[index]</code> for a list.</li>
+        <li>A loop is usually needed once a list of several similar items shows up anywhere in the structure.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the flat one-level dicts in Sub-topics 1-2 were kept simple on purpose to introduce <code>loads()</code>/<code>dumps()</code> cleanly &mdash; real responses look much more like this sub-topic's example, and this is the actual skill of "reading" a real API response.
+    </div>
+
+    <p>
+      A response listing several days of forecast data is a realistic shape
+      to practice on &mdash; a dict, containing a list, containing more dicts:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the shape of a realistic weather response</span>
+      <pre><code>{
+  "city": "Austin",
+  "forecast": [
+    {"day": "Mon", "high_f": 88, "condition": "Sunny"},
+    {"day": "Tue", "high_f": 84, "condition": "Cloudy"},
+    {"day": "Wed", "high_f": 79, "condition": "Rain"}
+  ]
+}</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... "nested" data?</span>
+      Data is <strong>nested</strong> when one data structure contains
+      another as one of its values &mdash; a dict whose value is itself a
+      list, whose items are themselves dicts, and so on. Nothing new is
+      needed to navigate it: each level is just a normal <code>[key]</code>
+      or <code>[index]</code> lookup, one level at a time, same as any dict
+      or list already covered in Chapters 7-8.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">nested_json_demo.py</span>
+      </div>
+      <pre><code>import json
+
+response_text = """
+{
+  "city": "Austin",
+  "forecast": [
+    {"day": "Mon", "high_f": 88, "condition": "Sunny"},
+    {"day": "Tue", "high_f": 84, "condition": "Cloudy"},
+    {"day": "Wed", "high_f": 79, "condition": "Rain"}
+  ]
+}
+"""
+
+data = json.loads(response_text)
+print(data["city"])
+print(data["forecast"][0])
+print(data["forecast"][0]["day"])
+
+for day in data["forecast"]:
+    print(f"{day['day']}: {day['high_f']}F, {day['condition']}")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of nested_json_demo.py</span>
+      <pre><code>Austin
+{'day': 'Mon', 'high_f': 88, 'condition': 'Sunny'}
+Mon
+Mon: 88F, Sunny
+Tue: 84F, Cloudy
+Wed: 79F, Rain</code></pre>
+    </div>
+
+    <p>
+      <code>data["city"]</code> is one dict lookup, same as always.
+      <code>data["forecast"]</code> is a list, so <code>[0]</code> reaches
+      its first item &mdash; which is itself a dict, so
+      <code>["day"]</code> reaches one more level in. The
+      <code>for day in data["forecast"]:</code> loop is the real payoff:
+      once a list of several similar records shows up (three days of
+      forecast here), looping over it is almost always simpler than
+      indexing each one by hand.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Read the shape from the outside in: is the top level a dict or a list? What's inside each key/index?</li>
+      <li>A pretty-printed sample (Sub-topic 2's <code>indent=2</code>) makes the actual nesting visible, which is often the fastest way to figure out how to navigate an unfamiliar response.</li>
+      <li>Chain lookups one level at a time (<code>data["forecast"][0]["day"]</code>) rather than trying to guess the whole path before writing any code.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">import json
+
+response_text = """
+{
+  "user": {"name": "Priya", "id": 501},
+  "posts": [
+    {"title": "Hello world", "likes": 12},
+    {"title": "Second post", "likes": 34}
+  ]
+}
+"""
+
+data = json.loads(response_text)
+print(data["user"]["name"])
+total_likes = sum(post["likes"] for post in data["posts"])
+print(f"Total likes: {total_likes}")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a third post to the JSON string and see the total update.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: real APIs often nest much deeper than this</summary>
+      <p>
+        A production API response can easily be five or six levels deep,
+        with lists inside dicts inside lists. The technique never changes
+        as depth increases &mdash; only the number of chained
+        <code>[key]</code>/<code>[index]</code> lookups (or nested loops)
+        needed to reach a particular piece of data. When a structure gets
+        deep enough to be genuinely hard to read at a glance, pretty-printing
+        it once with <code>json.dumps(data, indent=2)</code> and reading
+        that output top to bottom is usually the fastest way to understand
+        it before writing any navigation code at all.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Real JSON responses are typically nested: dicts containing lists containing more dicts.</li>
+        <li>Each level is navigated with an ordinary <code>[key]</code> or <code>[index]</code> lookup, chained one level at a time.</li>
+        <li>A loop is the natural tool once a list of several similar records appears anywhere in the structure.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="error-handling">
+    <span class="subtopic-label">Sub-topic 4 of 7</span>
+    <h2>4. Handling bad responses &amp; missing keys</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A real request can fail in two different ways: the network call itself fails (<code>requests.exceptions.RequestException</code>), or it succeeds but returns a non-2xx status code.</li>
+        <li><code>dict.get(key, default)</code> returns a fallback instead of raising <code>KeyError</code> when a key genuinely might not be present.</li>
+        <li>Real API code checks for both failure modes before trusting the response contains what's expected.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every example so far has assumed the request succeeds and the JSON has exactly the expected keys. Real APIs go down, rate-limit callers, and change their response shape over time &mdash; code that doesn't anticipate any of that crashes in production the first time reality doesn't match the happy path.
+    </div>
+
+    <p>
+      The first failure mode is a status code that isn't in the 2xx success
+      range &mdash; the request itself worked (a response came back at all),
+      but it's reporting a problem rather than the expected data:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a client error vs. a server error?</span>
+      A <strong>4xx</strong> status code (like <code>404 Not Found</code> or
+      <code>401 Unauthorized</code>) means the request itself was somehow
+      invalid &mdash; a bad URL, missing credentials. A <strong>5xx</strong>
+      status code (like <code>500 Internal Server Error</code>) means the
+      request was fine, but the server broke while trying to handle it.
+      Either way, the response almost certainly does <em>not</em> contain
+      the JSON data a program was hoping for.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">status_check_demo.py</span>
+      </div>
+      <pre><code>import json
+
+class FakeResponse:
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
+
+    def json(self):
+        return json.loads(self.text)
+
+
+def get_quote(response):
+    if response.status_code != 200:
+        print(f"Request failed with status {response.status_code}")
+        return None
+    return response.json()
+
+
+good_response = FakeResponse(200, '{"quote": "Simplicity is the ultimate sophistication."}')
+bad_response = FakeResponse(404, "Not Found")
+
+print(get_quote(good_response))
+print(get_quote(bad_response))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of status_check_demo.py</span>
+      <pre><code>{'quote': 'Simplicity is the ultimate sophistication.'}
+Request failed with status 404
+None</code></pre>
+    </div>
+
+    <p>
+      <code>get_quote()</code> checks <code>response.status_code</code>
+      before ever calling <code>.json()</code> &mdash; if the request
+      didn't succeed, calling <code>.json()</code> on a 404 response's body
+      (which is often plain text like <code>"Not Found"</code>, not valid
+      JSON at all) would raise its own separate error. Checking the status
+      first and returning early on failure means the rest of the function
+      never has to worry about a malformed body.
+    </p>
+
+    <p>
+      The second failure mode happens before any status code even exists:
+      the network call itself might fail outright &mdash; no internet
+      connection, a timeout, the server unreachable. Real
+      <code>requests</code> code wraps the call in a <code>try</code>/<code>except</code>
+      for exactly this:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>requests.exceptions.RequestException</code>?</span>
+      <code>RequestException</code> is the base exception class the
+      <code>requests</code> library raises when a request fails at the
+      network level &mdash; no connection, a timeout, a broken URL &mdash;
+      before there's even a status code to check. Catching it is how real
+      code tells "the server responded, just with an error status" (Sub-topic
+      4's first half) apart from "the request never reached a server at
+      all."
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">request_exception_demo.py</span>
+      </div>
+      <pre><code># In real code:
+#
+# import requests
+#
+# try:
+#     response = requests.get("https://api.example.com/weather", timeout=5)
+#     response_ok = response.status_code == 200
+# except requests.exceptions.RequestException as e:
+#     print(f"Network error: {e}")
+#     response_ok = False
+
+# Simulated here with a function standing in for requests.get(), since a
+# real network call can't run offline:
+
+class NetworkError(Exception):
+    """Stands in for requests.exceptions.RequestException in this offline demo."""
+    pass
+
+
+def simulated_get(should_fail):
+    if should_fail:
+        raise NetworkError("Connection timed out")
+    return "response would go here"
+
+
+try:
+    result = simulated_get(should_fail=True)
+    print(result)
+except NetworkError as e:
+    print(f"Network error: {e}")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of request_exception_demo.py</span>
+      <pre><code>Network error: Connection timed out</code></pre>
+    </div>
+
+    <p>
+      The commented-out block at the top is the real, live pattern &mdash;
+      <code>requests.get()</code> wrapped in a <code>try</code>/<code>except
+      requests.exceptions.RequestException</code>. The runnable code below it
+      simulates the same shape with a custom <code>NetworkError</code> class
+      (Chapter 12's custom exceptions) standing in for the real one, so the
+      exact same <code>try</code>/<code>except</code> structure can be
+      demonstrated without any actual network access.
+    </p>
+
+    <p>
+      The third failure mode is more subtle: the request succeeds, the
+      status is 200, the body really is valid JSON &mdash; but the JSON
+      doesn't have a key the code expected. Chapter 8 already covered the
+      dict methods involved; this is exactly where they matter:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">missing_key_demo.py</span>
+      </div>
+      <pre><code>data = {"city": "Austin", "temp_f": 88}
+
+print(data.get("condition", "unknown"))
+print(data.get("temp_f", 0))
+
+try:
+    print(data["condition"])
+except KeyError as e:
+    print(f"Missing key: {e}")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of missing_key_demo.py</span>
+      <pre><code>unknown
+88
+Missing key: 'condition'</code></pre>
+    </div>
+
+    <p>
+      <code>data.get("condition", "unknown")</code> returns the fallback
+      string <code>"unknown"</code> instead of crashing, since
+      <code>"condition"</code> genuinely isn't in this particular response
+      &mdash; a very real scenario, since not every API guarantees every
+      field is always present. <code>data["condition"]</code> with square
+      brackets, by contrast, raises <code>KeyError</code> the moment a key
+      is missing. The rule of thumb for real API code: use
+      <code>.get()</code> with a sensible default for any field that might
+      legitimately be absent, and reserve <code>[key]</code> only for fields
+      the API's documentation guarantees will always be there.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="10">data = {"quote": "Stay hungry, stay foolish.", "author": "Steve Jobs"}
+
+quote = data.get("quote", "No quote available")
+source = data.get("source", "unknown source")
+print(f'"{quote}" ({source})')</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try removing "quote" from the dict and see the fallback kick in.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: raise_for_status() as a shortcut</summary>
+      <p>
+        Real <code>requests</code> responses have a convenience method,
+        <code>response.raise_for_status()</code>, which raises an
+        <code>HTTPError</code> automatically if the status code is 4xx or
+        5xx, and does nothing at all if it's a success code &mdash; letting
+        a single line replace an explicit
+        <code>if response.status_code != 200:</code> check in code that
+        prefers to handle all failures through one <code>try</code>/<code>except</code>
+        block instead of a separate <code>if</code>.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A response can fail at the network level (caught with <code>try</code>/<code>except requests.exceptions.RequestException</code>) or succeed but report a bad status code (checked with <code>if response.status_code != 200:</code>).</li>
+        <li><code>dict.get(key, default)</code> returns a fallback instead of raising <code>KeyError</code> for a key that might legitimately be missing from a response.</li>
+        <li>Real API code checks the network, the status code, and individual keys &mdash; trusting none of the three by default.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="params-headers">
+    <span class="subtopic-label">Sub-topic 5 of 7</span>
+    <h2>5. Query params &amp; headers</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>params=</code> sends extra key-value information as part of the URL, without hand-building the URL string.</li>
+        <li><code>headers=</code> sends extra metadata alongside the request &mdash; commonly used to pass an API key.</li>
+        <li>An API key belongs in an environment variable, never hardcoded directly in source code.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every request so far has pointed at one fixed URL with no extra information attached. Real APIs almost always need extra input &mdash; which city's weather, which page of results, proof of who's asking &mdash; and query params and headers are the two standard ways that extra information travels alongside a request.
+    </div>
+
+    <p>
+      A query parameter is extra information appended to a URL after a
+      <code>?</code>, like <code>?city=Austin&amp;units=imperial</code> &mdash;
+      <code>requests.get()</code> can build that automatically from a plain
+      dict instead of it being typed by hand:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a query parameter?</span>
+      A <strong>query parameter</strong> is a key-value pair appended to a
+      URL to customize a request, written after a <code>?</code> (and joined
+      by <code>&amp;</code> if there's more than one):
+      <code>https://api.example.com/weather?city=Austin&amp;units=imperial</code>.
+      <code>requests.get(url, params={"city": "Austin", "units": "imperial"})</code>
+      builds that exact URL automatically from a plain dict, correctly
+      handling spaces and special characters that would otherwise need
+      manual escaping.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">params_demo.py</span>
+      </div>
+      <pre><code># In real code:
+#
+# import requests
+# response = requests.get(
+#     "https://api.example.com/weather",
+#     params={"city": "Austin", "units": "imperial"},
+# )
+# print(response.url)
+# --> https://api.example.com/weather?city=Austin&units=imperial
+
+# What requests builds behind the scenes, shown directly:
+base_url = "https://api.example.com/weather"
+params = {"city": "Austin", "units": "imperial"}
+
+query_string = "&".join(f"{key}={value}" for key, value in params.items())
+full_url = f"{base_url}?{query_string}"
+print(full_url)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of params_demo.py</span>
+      <pre><code>https://api.example.com/weather?city=Austin&units=imperial</code></pre>
+    </div>
+
+    <p>
+      The commented block is the real, one-line way to do this with
+      <code>requests</code> &mdash; passing a plain dict as <code>params=</code>
+      instead of building the query string by hand. The runnable code below
+      it manually reconstructs what that dict turns into, using an
+      f-string-and-<code>join()</code> pattern from Chapter 9, purely to make
+      visible what <code>params=</code> is doing under the hood. Real
+      <code>requests</code> code should always use <code>params=</code>
+      directly rather than building URLs by hand &mdash; it also correctly
+      escapes spaces and special characters, which the simplified version
+      above does not.
+    </p>
+
+    <p>
+      Headers work similarly but travel separately from the URL &mdash;
+      metadata about the request itself, most commonly used to prove who's
+      making the request:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a header, and the API-key pattern?</span>
+      An HTTP <strong>header</strong> is a key-value pair sent alongside a
+      request, separate from the URL &mdash; used for metadata like
+      authentication rather than the data being requested itself. A very
+      common pattern is an <strong>API key</strong>: a private string that
+      identifies who's making the request, sent as a header
+      (<code>{"Authorization": f"Bearer {api_key}"}</code> is one common
+      format), and read from an <strong>environment variable</strong> via
+      <code>os.environ.get("API_KEY")</code> &mdash; never hardcoded
+      directly into source code, since committing a real key to a public
+      repository exposes it to everyone.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">headers_demo.py</span>
+      </div>
+      <pre><code>import os
+
+# In real code, this pulls a secret value from the environment instead of
+# ever typing it directly in the source file:
+api_key = os.environ.get("WEATHER_API_KEY", "")
+
+if not api_key:
+    print("No API key found in the environment -- using a placeholder for this demo.")
+    api_key = "demo-placeholder-key"
+
+headers = {"Authorization": f"Bearer {api_key}"}
+print(headers)
+
+# In real code:
+# response = requests.get(url, headers=headers)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of headers_demo.py (no WEATHER_API_KEY set)</span>
+      <pre><code>No API key found in the environment -- using a placeholder for this demo.
+{'Authorization': 'Bearer demo-placeholder-key'}</code></pre>
+    </div>
+
+    <p>
+      <code>os.environ.get("WEATHER_API_KEY", "")</code> reads a value from
+      the operating system's environment variables &mdash; a place to store
+      configuration and secrets outside of source code entirely, so a real
+      key never appears in a file that could accidentally get committed to
+      a public repository. This example prints a placeholder fallback
+      message specifically because no real key is set here, which is
+      exactly the point: this chapter never handles a real key at all, only
+      the pattern for how one would be read safely if it existed.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Query params (<code>params=</code>) customize <em>what</em> is being requested &mdash; which city, which page, which sort order.</li>
+      <li>Headers (<code>headers=</code>) carry metadata <em>about</em> the request &mdash; who's asking, what format is acceptable in response.</li>
+      <li>A real API key always comes from an environment variable, never a literal string typed into a source file.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="8">params = {"q": "python", "sort": "newest", "page": 2}
+query_string = "&".join(f"{k}={v}" for k, v in params.items())
+print(f"https://api.example.com/search?{query_string}")</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a fourth param and see it appended to the URL.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does params= handle special characters better than manual string building?</summary>
+      <p>
+        A URL has its own set of reserved characters (spaces, <code>&amp;</code>,
+        <code>#</code>, and others) that need to be "percent-encoded"
+        (a space becomes <code>%20</code>, for instance) to safely appear
+        inside one. Manually building a query string with an f-string, as
+        the demo above did purely to show the mechanism, skips that encoding
+        entirely &mdash; which breaks the moment a value contains a space or
+        special character. <code>requests.get(url, params=params)</code>
+        handles that encoding automatically and correctly, which is the real
+        reason to always prefer it over building query strings by hand in
+        actual production code.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>params=</code> passed to <code>requests.get()</code> builds a query string automatically from a plain dict.</li>
+        <li><code>headers=</code> sends metadata alongside a request, most commonly used for authentication via an API key.</li>
+        <li>API keys always come from environment variables (<code>os.environ.get(...)</code>), never hardcoded in source code.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="real-api">
+    <span class="subtopic-label">Sub-topic 6 of 7</span>
+    <h2>6. A real, keyless API to try</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Public APIs that need no key exist and are safe to try locally &mdash; api.github.com is one well-known example.</li>
+        <li>This is the one place in the chapter that describes a real network call, as an optional local exercise, not a graded one.</li>
+        <li>Everything from Sub-topics 1-5 applies identically to a real response as it did to every simulated one so far.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every example so far has deliberately avoided the network so this chapter runs identically for every learner regardless of internet access. This sub-topic is the bridge to reality &mdash; a real, working example to run locally once the mechanics feel solid, using nothing that isn't already covered.
+    </div>
+
+    <p>
+      GitHub's public API exposes basic information about any public
+      repository with no API key required at all &mdash; a genuinely safe
+      first real API call to try from a local Python installation:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">try_this_locally.py (not run in this lesson -- needs internet + requests installed)</span>
+      </div>
+      <pre><code>import requests
+
+response = requests.get("https://api.github.com/repos/python/cpython")
+
+if response.status_code == 200:
+    data = response.json()
+    print(data["full_name"])
+    print(data["description"])
+    print(data["stargazers_count"], "stars")
+else:
+    print(f"Request failed with status {response.status_code}")</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a keyless, public API?</span>
+      Some APIs are open for anyone to call with no signup, no API key, and
+      no authentication at all &mdash; usually for read-only, publicly
+      available information. <code>api.github.com</code>'s endpoints for
+      public repository data are a well-known example, which is why this
+      chapter can reference a genuinely real API call without ever handling
+      a real secret.
+    </div>
+
+    <p>
+      This code is never run inside this lesson &mdash; it's presented as an
+      example to copy and run locally (after <code>pip install requests</code>,
+      if not already installed), specifically because this course's live
+      pages can't depend on every learner having internet access at every
+      moment. Everything about it should look completely familiar:
+      <code>requests.get()</code>, checking <code>.status_code</code>,
+      calling <code>.json()</code>, then navigating the result with
+      ordinary <code>[key]</code> lookups &mdash; the exact same pattern
+      every simulated example in this chapter has already used.
+    </p>
+
+    <div class="lesson-note">
+      <strong>Nothing graded in this chapter requires running this.</strong> The quiz, exercises, practice bank, challenges, and project all use simulated responses and run completely offline &mdash; this sub-topic exists purely as a bridge to trying the real thing once the mechanics feel solid.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: rate limits on public APIs</summary>
+      <p>
+        Even keyless public APIs like GitHub's usually enforce a
+        <strong>rate limit</strong> &mdash; a cap on how many requests one
+        source can make in a given time window &mdash; specifically to keep
+        the service usable for everyone. Exceeding it typically returns a
+        <code>403</code> or <code>429</code> status code rather than the
+        expected data, which is exactly the kind of bad-status-code case
+        Sub-topic 4's error handling exists to catch.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Some real APIs are open and keyless, safe to call directly with no signup &mdash; <code>api.github.com</code> is one well-known example.</li>
+        <li>The exact same <code>requests.get()</code> / status-check / <code>.json()</code> pattern used on every simulated response in this chapter applies unchanged to a real one.</li>
+        <li>Nothing graded in this chapter needs a live network call &mdash; this is an optional bridge to reality, not a requirement.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="pipeline">
+    <span class="subtopic-label">Sub-topic 7 of 7</span>
+    <h2>7. The fetch-parse-format pipeline</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Nearly every program that consumes an API follows the same three-step shape: <strong>fetch</strong> the raw response, <strong>parse</strong> it into Python data, <strong>format</strong> it for a human to read.</li>
+        <li>Keeping the three steps as separate functions makes each one independently testable and reusable.</li>
+        <li>This exact shape is what this chapter's project builds, end to end.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every individual tool in this chapter &mdash; <code>requests.get()</code>, <code>json.loads()</code>, dict navigation, error handling &mdash; is a piece of one repeatable three-step shape. Seeing them combined into that shape once, explicitly, is what makes the project (and any real API-consuming program) feel like an assembly of familiar parts rather than something new.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">the fetch &rarr; parse &rarr; format pipeline</span>
+      <pre><code>fetch                    parse                     format
+-----                    -----                     ------
+requests.get(url)   -->  response.json()      -->  build a human-readable
+(or a simulated          (or json.loads() on       string/printout from
+response, for this        raw text)                  the parsed data
+chapter's examples)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... separating fetch, parse, and format?</span>
+      Splitting a program into three distinct steps &mdash; <strong>fetch</strong>
+      (get the raw response), <strong>parse</strong> (turn it into usable
+      Python data), <strong>format</strong> (turn that data into readable
+      output) &mdash; means each step can be tested, reused, or replaced on
+      its own. A parse function never needs to know whether the data came
+      from a real network call or a hardcoded test string; a format
+      function never needs to know anything about HTTP at all.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">pipeline_demo.py</span>
+      </div>
+      <pre><code>import json
+
+# --- Step 1: fetch (simulated -- stands in for requests.get(url).text) ---
+def fetch_quote_data():
+    return '{"quote": "Talk is cheap. Show me the code.", "author": "Linus Torvalds"}'
+
+
+# --- Step 2: parse ---
+def parse_quote(raw_text):
+    data = json.loads(raw_text)
+    quote = data.get("quote", "No quote available")
+    author = data.get("author", "Unknown")
+    return quote, author
+
+
+# --- Step 3: format ---
+def format_quote(quote, author):
+    return f'"{quote}"\n    -- {author}'
+
+
+raw = fetch_quote_data()
+quote, author = parse_quote(raw)
+print(format_quote(quote, author))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of pipeline_demo.py</span>
+      <pre><code>"Talk is cheap. Show me the code."
+    -- Linus Torvalds</code></pre>
+    </div>
+
+    <p>
+      Each function has exactly one job. <code>fetch_quote_data()</code>
+      would be the only function that changes if this switched from a
+      simulated string to a real <code>requests.get()</code> call &mdash;
+      <code>parse_quote()</code> and <code>format_quote()</code> wouldn't
+      need to change at all, since they only ever deal with already-fetched
+      text and already-parsed data, respectively. This separation is
+      exactly what makes API-consuming code testable without a network
+      connection: <code>parse_quote()</code> can be tested directly against
+      any hardcoded JSON string, real or fake, with identical code either
+      way.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Fetch:</strong> get the raw response (a real network call, or &mdash; for every example and exercise in this chapter &mdash; a hardcoded string standing in for one).</li>
+      <li><strong>Parse:</strong> turn the raw text into Python data with <code>json.loads()</code> (or <code>.json()</code>), then pull out the specific pieces needed, defensively with <code>.get()</code> where a key might be missing.</li>
+      <li><strong>Format:</strong> turn that data into a readable string or printout &mdash; the part a human actually sees.</li>
+    </ul>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">import json
+
+def fetch_weather_data():
+    return '{"city": "Austin", "temp_f": 88, "condition": "Sunny"}'
+
+
+def parse_weather(raw_text):
+    data = json.loads(raw_text)
+    return data.get("city", "Unknown"), data.get("temp_f"), data.get("condition", "Unknown")
+
+
+def format_weather(city, temp_f, condition):
+    return f"{city}: {temp_f}F, {condition}"
+
+
+raw = fetch_weather_data()
+city, temp_f, condition = parse_weather(raw)
+print(format_weather(city, temp_f, condition))</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the JSON string in fetch_weather_data() to a different city and temperature.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: this pipeline shape scales to error handling too</summary>
+      <p>
+        Sub-topic 4's status-code and network-error checks slot cleanly
+        into the <strong>fetch</strong> step &mdash; a real
+        <code>fetch_weather_data()</code> would wrap its
+        <code>requests.get()</code> call in a <code>try</code>/<code>except</code>
+        and return <code>None</code> (or raise a custom exception) on
+        failure, and the <strong>parse</strong> step would check for that
+        <code>None</code> before ever calling <code>json.loads()</code> on
+        it. The three-step shape doesn't change when error handling is
+        added &mdash; it just means each step has one more thing to check
+        before handing its result to the next one.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Fetch, parse, and format are the three repeatable steps behind almost every API-consuming program.</li>
+        <li>Keeping them as separate functions makes each one testable and reusable on its own, independent of whether the data came from a real network call or a hardcoded string.</li>
+        <li>This chapter's project builds exactly this pipeline, end to end, around a menu-driven mini-app.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Nearly every mobile app, website, and integration between two companies' software relies on a web API exchanging JSON somewhere behind the scenes &mdash; payments, maps, weather, authentication, and social features are almost never built from scratch by the app calling them.</li>
+      <li>Real production code treats a network call as something that <em>will</em> eventually fail &mdash; timeouts, bad status codes, and unexpected response shapes are handled defensively, not assumed away, exactly as Sub-topic 4 covers.</li>
+      <li>The fetch-parse-format separation from Sub-topic 7 is the same shape behind everything from a weather widget to a stock-market dashboard to a CI/CD pipeline checking a deployment's status &mdash; a small number of ingredients, combined the same repeatable way.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>An API is a defined way for one program to ask another for data; a web API does this over HTTP, almost always exchanging JSON.</li>
+      <li>A response has <code>.status_code</code> (2xx success, 4xx client error, 5xx server error), <code>.text</code> (raw string), and <code>.json()</code> (parsed Python data, only valid if the body actually is JSON).</li>
+      <li><code>json.loads(text)</code> parses a JSON string into Python data; <code>json.dumps(data)</code> (optionally with <code>indent=</code>) converts it back, pretty-printed or compact.</li>
+      <li>Real JSON is usually nested &mdash; dicts inside lists inside dicts &mdash; navigated with ordinary chained <code>[key]</code>/<code>[index]</code> lookups and loops.</li>
+      <li>Real API code handles network failures (<code>try</code>/<code>except requests.exceptions.RequestException</code>), bad status codes (<code>if response.status_code != 200:</code>), and missing keys (<code>.get(key, default)</code>) &mdash; trusting none of the three by default.</li>
+      <li><code>params=</code> builds a query string from a dict; <code>headers=</code> sends metadata like an API key, always read from an environment variable, never hardcoded.</li>
+      <li>Keyless public APIs like <code>api.github.com</code> exist for safe real-world practice, though nothing graded in this chapter requires a live network call.</li>
+      <li>The fetch &rarr; parse &rarr; format pipeline is the repeatable shape behind almost every real program that consumes an API.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
