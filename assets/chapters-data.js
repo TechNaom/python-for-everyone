@@ -228,7 +228,14 @@ window.PFE_MODULES = [
         { id: "aggregates-axis", title: "Aggregate functions & axis=" },
         { id: "reshaping-stacking", title: "Reshaping & stacking" }
       ] },
-      { id: "chapter-24", num: 24, title: "Pandas for Data Analysis", path: null },
+      { id: "chapter-24", num: 24, title: "Pandas for Data Analysis", path: "chapters/chapter-24-pandas-data-analysis/lesson.html", subtopics: [
+        { id: "what-is-pandas", title: "What pandas is, and why it exists" },
+        { id: "creating-dataframes", title: "Creating a DataFrame" },
+        { id: "inspecting-data", title: "Inspecting data" },
+        { id: "selecting-filtering", title: "Selecting, filtering & .loc[] vs. .iloc[]" },
+        { id: "columns-missing-data", title: "Adding columns & handling missing data" },
+        { id: "grouping-aggregation", title: "Grouping, aggregation & sorting" }
+      ] },
       { id: "chapter-25", num: 25, title: "Testing Your Code", path: null },
       { id: "chapter-26", num: 26, title: "Professional Python", path: null },
       { id: "chapter-27", num: 27, title: "Capstone Projects", path: null },

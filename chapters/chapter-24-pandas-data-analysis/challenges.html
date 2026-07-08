@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on pandas DataFrames, filtering, groupby aggregation, sorting, missing data, and .iloc[], for Chapter 24: Pandas for Data Analysis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-24">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 24 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Pandas for Data Analysis</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    using real pandas &mdash; no local install needed. Write your
+    function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-24 have covered so far. No import
+    beyond
+    <code>pandas</code>/<code>numpy</code>/<code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>/<code>threading</code>/<code>concurrent.futures</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly), with pandas loaded automatically alongside it &mdash;
+    nothing is uploaded anywhere. Keep the function name in the stub
+    exactly as given, since the grader calls it by name. Return plain
+    Python types (lists/dicts/numbers/strings) from your function &mdash;
+    never a raw DataFrame or Series &mdash; using
+    <code>.tolist()</code>/<code>.to_dict()</code>/<code>int()</code>/<code>float()</code>
+    so the grader can compare your result reliably.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Total Revenue <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>total_revenue(products, revenues)</code> that builds a DataFrame from the two plain Python lists (columns <code>"product"</code> and <code>"revenue"</code>) and returns the total of the <code>revenue</code> column as a plain Python <code>int</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>products</code> and <code>revenues</code> are same-length lists (possibly empty); revenue values are ints.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>total_revenue(["Widget", "Gadget"], [1200, 950])</code> &rarr; <code>2150</code><br>
+        <code>total_revenue([], [])</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def total_revenue(products, revenues):
+    # TODO: build a DataFrame, return the sum of "revenue" as a plain int.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "total_revenue",
+  "cases": [
+    { "args": [["Widget", "Gadget", "Gizmo"], [1200, 950, 1830]], "expected": 3980 },
+    { "args": [["Widget"], [500]], "expected": 500 },
+    { "args": [[], []], "expected": 0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def total_revenue(products, revenues):
+    df = pd.DataFrame({"product": products, "revenue": revenues})
+    return int(df["revenue"].sum())</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">2</span> Filter High-Revenue Products <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>filter_high_revenue(products, revenues, threshold)</code> that builds a DataFrame, uses boolean filtering to keep only rows where <code>revenue</code> is strictly greater than <code>threshold</code>, and returns the matching <code>product</code> names as a plain Python list of strings, in their original order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>products</code> and <code>revenues</code> are same-length lists.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>filter_high_revenue(["Widget", "Gadget", "Gizmo"], [1200, 950, 1830], 1000)</code> &rarr; <code>["Widget", "Gizmo"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def filter_high_revenue(products, revenues, threshold):
+    # TODO: build a DataFrame, filter revenue > threshold, return the
+    # matching product names as a plain list of strings.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "filter_high_revenue",
+  "cases": [
+    { "args": [["Widget", "Gadget", "Gizmo"], [1200, 950, 1830], 1000], "expected": ["Widget", "Gizmo"] },
+    { "args": [["Widget"], [500], 1000], "expected": [] },
+    { "args": [["A", "B", "C"], [5, 5, 5], 5], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def filter_high_revenue(products, revenues, threshold):
+    df = pd.DataFrame({"product": products, "revenue": revenues})
+    return df[df["revenue"] > threshold]["product"].tolist()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> Average Revenue Per Product <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>average_revenue_per_product(products, revenues)</code> that builds a DataFrame, groups by <code>product</code>, and returns the average revenue per product as a plain Python dict mapping product name (str) to average revenue (float).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>products</code> may repeat; <code>revenues</code> is the same length.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>average_revenue_per_product(["Widget", "Gadget", "Widget"], [1000, 500, 2000])</code> &rarr; <code>{"Widget": 1500.0, "Gadget": 500.0}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def average_revenue_per_product(products, revenues):
+    # TODO: build a DataFrame, groupby("product")["revenue"].mean(),
+    # return as a plain dict of {product: float}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "average_revenue_per_product",
+  "cases": [
+    { "args": [["Widget", "Gadget", "Widget"], [1000, 500, 2000]], "expected": {"Widget": 1500.0, "Gadget": 500.0} },
+    { "args": [["A", "A", "A"], [10, 20, 30]], "expected": {"A": 20.0} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def average_revenue_per_product(products, revenues):
+    df = pd.DataFrame({"product": products, "revenue": revenues})
+    result = df.groupby("product")["revenue"].mean()
+    return {k: float(v) for k, v in result.items()}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Total by Region <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>total_by_region(regions, revenues)</code> that builds a DataFrame, groups by <code>region</code>, and returns total revenue per region as a plain Python dict mapping region name (str) to total revenue (int).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>regions</code> may repeat; <code>revenues</code> is the same length.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>total_by_region(["East", "West", "East"], [1200, 950, 1830])</code> &rarr; <code>{"East": 3030, "West": 950}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def total_by_region(regions, revenues):
+    # TODO: build a DataFrame, groupby("region")["revenue"].sum(),
+    # return as a plain dict of {region: int}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "total_by_region",
+  "cases": [
+    { "args": [["East", "West", "East"], [1200, 950, 1830]], "expected": {"East": 3030, "West": 950} },
+    { "args": [["North"], [100]], "expected": {"North": 100} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def total_by_region(regions, revenues):
+    df = pd.DataFrame({"region": regions, "revenue": revenues})
+    result = df.groupby("region")["revenue"].sum()
+    return {k: int(v) for k, v in result.items()}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Top N Products <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>top_n_products(products, revenues, n)</code> that builds a DataFrame, sorts by <code>revenue</code> descending, and returns the top <code>n</code> product names as a plain Python list of strings, highest revenue first.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is a positive int, no greater than the number of products.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>top_n_products(["Widget", "Gadget", "Gizmo"], [1200, 950, 1830], 2)</code> &rarr; <code>["Gizmo", "Widget"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def top_n_products(products, revenues, n):
+    # TODO: build a DataFrame, sort_values("revenue", ascending=False),
+    # return the top n product names as a plain list of strings.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "top_n_products",
+  "cases": [
+    { "args": [["Widget", "Gadget", "Gizmo"], [1200, 950, 1830], 2], "expected": ["Gizmo", "Widget"] },
+    { "args": [["A", "B"], [10, 20], 1], "expected": ["B"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def top_n_products(products, revenues, n):
+    df = pd.DataFrame({"product": products, "revenue": revenues})
+    return df.sort_values("revenue", ascending=False).head(n)["product"].tolist()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">6</span> Count Missing Revenue Values <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_missing_revenue(revenues)</code> that builds a one-column DataFrame from <code>revenues</code> (a list that may contain <code>None</code> values) and returns how many values are missing, as a plain Python <code>int</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>revenues</code> is a list of numbers and/or <code>None</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_missing_revenue([1200, None, 950, None])</code> &rarr; <code>2</code><br>
+        <code>count_missing_revenue([1, 2, 3])</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def count_missing_revenue(revenues):
+    # TODO: build a one-column DataFrame, return the count of missing
+    # values in "revenue" as a plain int.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_missing_revenue",
+  "cases": [
+    { "args": [[1200, null, 950, null]], "expected": 2 },
+    { "args": [[1, 2, 3]], "expected": 0 },
+    { "args": [[null]], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def count_missing_revenue(revenues):
+    df = pd.DataFrame({"revenue": revenues})
+    return int(df["revenue"].isna().sum())</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Fill Missing Revenue With Zero <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>fill_missing_with_zero(revenues)</code> that builds a one-column DataFrame, fills any missing <code>revenue</code> value with <code>0</code>, and returns the whole column as a plain Python list of floats.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>revenues</code> is a list of numbers and/or <code>None</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>fill_missing_with_zero([1200, None, 950])</code> &rarr; <code>[1200.0, 0.0, 950.0]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def fill_missing_with_zero(revenues):
+    # TODO: build a one-column DataFrame, fillna(0) the "revenue"
+    # column, return it as a plain list of floats.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "fill_missing_with_zero",
+  "cases": [
+    { "args": [[1200, null, 950]], "expected": [1200.0, 0.0, 950.0] },
+    { "args": [[null, null]], "expected": [0.0, 0.0] },
+    { "args": [[1, 2, 3]], "expected": [1.0, 2.0, 3.0] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def fill_missing_with_zero(revenues):
+    df = pd.DataFrame({"revenue": revenues})
+    df["revenue"] = df["revenue"].fillna(0)
+    return df["revenue"].tolist()</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">8</span> Row at a Position <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>row_at_position(products, revenues, position)</code> that builds a DataFrame and uses <code>.iloc[]</code> to return the row at integer position <code>position</code> as a plain Python dict with keys <code>"product"</code> (str) and <code>"revenue"</code> (int).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>position</code> is a valid row position.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>row_at_position(["Widget", "Gadget"], [1200, 950], 1)</code> &rarr; <code>{"product": "Gadget", "revenue": 950}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import pandas as pd
+
+def row_at_position(products, revenues, position):
+    # TODO: build a DataFrame, use .iloc[position], return
+    # {"product": ..., "revenue": ...} as a plain dict.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "row_at_position",
+  "cases": [
+    { "args": [["Widget", "Gadget"], [1200, 950], 1], "expected": {"product": "Gadget", "revenue": 950} },
+    { "args": [["Widget", "Gadget", "Gizmo"], [1200, 950, 1830], 0], "expected": {"product": "Widget", "revenue": 1200} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import pandas as pd
+
+def row_at_position(products, revenues, position):
+    df = pd.DataFrame({"product": products, "revenue": revenues})
+    row = df.iloc[position]
+    return {"product": row["product"], "revenue": int(row["revenue"])}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

@@ -33,10 +33,13 @@ def reverse_string(s):
   they don't read from stdin.
 
   Some chapters (from Chapter 23 onward) grade challenges that import
-  numpy, which Pyodide does not bundle by default. getPyodide() loads
-  numpy once, lazily, alongside the base interpreter — a no-op extra
-  download for chapters that never import it, and a one-time cost,
-  cached across every challenge card on the page, for chapters that do.
+  numpy and/or pandas, which Pyodide does not bundle by default.
+  getPyodide() loads numpy and pandas once, lazily, alongside the base
+  interpreter — a no-op extra download for chapters that never import
+  them, and a one-time cost, cached across every challenge card on the
+  page, for chapters that do. pandas depends on numpy, so both are
+  requested together in one loadPackage() call and Pyodide resolves the
+  load order correctly.
 */
 
 (function () {
@@ -50,7 +53,7 @@ def reverse_string(s):
         script.onload = () => {
           window
             .loadPyodide()
-            .then((pyodide) => pyodide.loadPackage("numpy").then(() => pyodide))
+            .then((pyodide) => pyodide.loadPackage(["numpy", "pandas"]).then(() => pyodide))
             .then(resolve)
             .catch(reject);
         };

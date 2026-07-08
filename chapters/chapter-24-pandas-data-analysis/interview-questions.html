@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 24: Pandas for Data Analysis — DataFrames vs. NumPy arrays, read_csv, selecting/filtering, .loc[] vs .iloc[], missing data, and groupby aggregation.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-24-interview" data-active-chapter="chapter-24">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 24 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: Pandas for Data Analysis</h1>
+  <p>pandas comes up in nearly every data analyst, data scientist, and backend-with-reporting interview. This set covers DataFrames vs. NumPy arrays, creating DataFrames, inspecting data, selecting/filtering, the <code>.loc[]</code>/<code>.iloc[]</code> distinction, missing data, and groupby aggregation.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the difference between a pandas DataFrame and a NumPy array?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A NumPy array is homogeneous — every element shares one fixed dtype, and it has no concept of column names. A DataFrame is a labeled 2D table where each column can hold a different dtype (text, numbers, dates), and every row and column has a label, not just a numeric position. Internally, each DataFrame column is backed by its own NumPy array, so pandas gets NumPy's speed while adding labeling and mixed column types on top.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing them as interchangeable, or not knowing that a DataFrame column is itself a NumPy array underneath.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When would you use a plain NumPy array instead of a DataFrame?" (When data is genuinely uniform and numeric with no meaningful column labels — a math-heavy grid or matrix — rather than tabular business data.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What is a Series, and how does it relate to a DataFrame?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A Series is one labeled 1D column of data. A DataFrame is a table made of one or more Series sharing the same row index. Pulling a single column out of a DataFrame with <code>df['col']</code> returns a Series; pulling multiple columns with <code>df[['col1','col2']]</code> returns a DataFrame, even for a single-item list.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that single vs. double brackets change the return type (Series vs. DataFrame) on the exact same underlying data.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What type does df[['revenue']] return, with just one column name in a list?" (A DataFrame with one column — the double-bracket list syntax always returns a DataFrame, regardless of how many names are in the list.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Why would you use <code>pd.read_csv()</code> instead of Python's built-in <code>csv</code> module?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>read_csv()</code> replaces the entire manual open-file/loop-rows/parse-values pattern with one function call, returning a full DataFrame with types already inferred. Follow-up analysis — sums, filters, grouping — then uses one-line column and DataFrame methods instead of hand-written accumulator loops. The <code>csv</code> module is still the right tool for line-by-line streaming or writing custom row formats; <code>read_csv()</code> is the right tool the moment the goal is analysis, not just reading.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming the csv module is now useless — it isn't, it's just solving a different problem (raw row access vs. tabular analysis).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does read_csv() do automatically that the csv module doesn't?" (Type inference per column — numbers become int64/float64 automatically, rather than every field arriving as a string that needs manual int()/float() conversion.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What do <code>.head()</code>, <code>.info()</code>, and <code>.describe()</code> each tell you about a DataFrame?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.head(n)</code> previews the first n rows — a fast sanity check that the data loaded correctly. <code>.info()</code> summarizes column names, non-null counts, and dtypes in one call, the fastest way to spot missing data or a column that loaded as the wrong type. <code>.describe()</code> computes count/mean/std/min/max/quartiles for every numeric column, giving a quick sense of the data's actual distribution.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing .info() with .describe() — one is structural (columns, types, nulls), the other is statistical (numeric summaries).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You load a CSV and revenue is showing up as text instead of numbers. Which method would reveal this fastest?" (.info() — it shows the dtype of every column in one summary, including a text/object dtype where a number was expected.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> How does boolean filtering work on a DataFrame?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A comparison like <code>df['revenue'] > 1000</code> produces a Series of True/False values, one per row. Using that boolean Series as an index — <code>df[df['revenue'] > 1000]</code> — keeps only the rows where it's True. It's the direct DataFrame equivalent of NumPy's array boolean masking, just filtering whole rows instead of individual array elements.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a manual for-loop with an if-check to filter rows, missing that this is a one-line, no-loop idiom.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you combine two conditions, like revenue over 1000 AND region equal to East?" (Use & with each condition parenthesized: df[(df['revenue'] > 1000) & (df['region'] == 'East')] — same & / | convention as NumPy, not Python's and/or keywords.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the difference between <code>.loc[]</code> and <code>.iloc[]</code>, and why does it matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.loc[]</code> selects by label — the actual row index value or column name, whatever it is. <code>.iloc[]</code> selects by integer position, counting from 0, regardless of what the labels actually are. They happen to agree on a freshly loaded DataFrame with the default 0,1,2,... index, which is exactly why the distinction is easy to overlook — until the index becomes something else (a product name, a date, or rows that have been filtered or sorted so their positions no longer match their original labels), at which point using the wrong one silently returns the wrong row instead of raising an error.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming .loc[] and .iloc[] are interchangeable, or not recognizing that mixing them up fails silently rather than with a clear error.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"After filtering a DataFrame with a boolean condition, why might .iloc[0] and .loc[0] now return different rows?" (Filtering keeps the original row labels but the positions shift — the first remaining row keeps its old label, e.g. 3, but is now at position 0, so .iloc[0] finds it while .loc[0] looks for a row still labeled 0, which may no longer exist or may be a completely different row.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> How does pandas represent missing data, and what tools handle it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Missing values show up as NaN ("Not a Number"). <code>.isna()</code> returns a same-shape True/False DataFrame showing exactly which cells are missing. <code>.dropna()</code> removes rows containing any missing value. <code>.fillna(value)</code> replaces missing values with a chosen default — a fixed value, or per-column via a dict, or something computed like a column's own mean.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Trying to check for missing data with == NaN directly — NaN == NaN is False, which is exactly why .isna() exists as a dedicated method.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why might dropping every row with any missing value be a bad default choice?" (It can discard otherwise-useful rows — a real sale record missing only its region field still has valid revenue data worth keeping; fillna() with a sensible default often preserves more of the dataset.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> Why does a numeric column sometimes display with decimals (like 1200.0) after loading data with missing values?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>NaN is technically a float value, and a single pandas column can only hold one dtype. If any value in an otherwise-integer column is missing, pandas can't keep the column as int64 (since int64 has no way to represent NaN), so it silently upgrades the entire column to float64 — even the values that were originally whole numbers.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming this is a bug or a display quirk rather than a direct consequence of NaN's type and the one-dtype-per-column rule.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you get that column back to whole-number display after filling in the missing values?" (Fill the missing values first with .fillna(), then convert with .astype(int) — once there's no NaN left, the column can safely hold an integer dtype again.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Walk through what <code>groupby()</code> actually does, conceptually.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>groupby()</code> follows a split-apply-combine pattern: split the DataFrame into groups based on unique values in the given column, apply an aggregate function (sum, mean, etc.) independently to each group, then combine the per-group results back into one output. Nothing is actually computed at the groupby() call itself — the split only becomes concrete once an aggregate method is called on the grouped object.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing groupby() as if it immediately returns a result on its own, without recognizing an aggregate call is required to actually produce output.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you group by two columns at once, like region and product?" (df.groupby(['region', 'product'])['revenue'].sum() — groups by every unique combination of the two columns, giving a more finely broken-down result than grouping by one column alone.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between <code>.sum()</code>/<code>.mean()</code> and <code>.agg()</code> after a <code>groupby()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.sum()</code>/<code>.mean()</code> apply one single aggregate function to every group. <code>.agg({'col': ['sum', 'mean']})</code> generalizes this to multiple statistics on the same column (or different statistics per column) in one call, returning a result with each requested statistic as its own column.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing .agg() can take a dict to apply different aggregate functions to different columns simultaneously.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you get both the sum and count of revenue per product in one call?" (df.groupby('product')['revenue'].agg(['sum', 'count']) — passing a list of function names when working with a single already-selected column.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> How would you build a "top N" report — e.g. the top 3 products by revenue?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Group by the category column, aggregate the metric (typically sum), sort the result descending with <code>.sort_values(ascending=False)</code>, then take the first N rows with <code>.head(n)</code>. For example: <code>df.groupby('product')['revenue'].sum().sort_values(ascending=False).head(3)</code>. This chains three ideas from the chapter — groupby, sort_values, and head — into the exact shape of a real business report.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a manual loop and manual max-tracking instead of the chained groupby/sort_values/head pipeline.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What would change if you wanted the 3 worst-performing products instead?" (Drop ascending=False, since sort_values() defaults to ascending order, then .head(3) — the smallest values now come first.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> When would you reach for pandas instead of plain NumPy, and vice versa?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Reach for pandas when data has meaningful column labels, mixed types across columns, or naturally comes from a spreadsheet/CSV/database table — which covers most real business and reporting data. Reach for plain NumPy when data is genuinely uniform and numeric, especially for heavier math (linear algebra, image arrays, simulations) where the extra labeling overhead of a DataFrame isn't needed.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating pandas as a strict, universal upgrade over NumPy rather than a specialized tool built on top of it for a specific (very common) kind of data.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is a DataFrame column ever passed directly into a function expecting a NumPy array?" (Yes — most NumPy functions accept a pandas Series directly since it's backed by a NumPy array internally, and .to_numpy()/.values converts explicitly when a pure array is required.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> How would you add a new computed column to a DataFrame?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Assign to a new column name directly: <code>df['revenue'] = df['units_sold'] * df['unit_price']</code>. This runs vectorized across every row at once, the same as any other pandas/NumPy arithmetic — no explicit loop needed, and the new column is added in place on the existing DataFrame.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a manual row-by-row loop with .loc[] assignments to build the new column, missing the direct vectorized assignment.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What if the new column depends on a condition, like a discount only for revenue over 1000?" (np.where(df['revenue'] > 1000, df['revenue'] * 0.9, df['revenue']) is the common vectorized pattern — conditional element-wise selection without a Python-level loop.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> Why does pandas remain fast even though it adds labels and mixed types on top of NumPy?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Each individual DataFrame column is still backed by its own contiguous, single-dtype NumPy array — the labeling and the "table of mixed-type columns" structure exist at the DataFrame level, wrapping several homogeneous NumPy arrays underneath. So operations within a single column (a sum, a filter, a groupby aggregate) still run as fast, vectorized NumPy operations; the label bookkeeping pandas adds on top is a comparatively small overhead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing pandas reimplements its own math engine from scratch, rather than delegating the actual numeric work to NumPy underneath.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does that mean a DataFrame with 10 columns is really 10 separate NumPy arrays?" (Conceptually yes, one homogeneous array per column, all sharing the same row index/labels — which is exactly why one column can be int64, the next str, and the next float64, unlike a single NumPy array.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> pandas' core table type is called the <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="DataFrame,dataframe" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> A single labeled column of data in pandas is called a <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="Series,series" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>pd.____()</code> builds a DataFrame directly from a CSV file.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="read_csv" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>.____()</code> summarizes column names, non-null counts, and dtypes in one call.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="info" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> <code>.____()</code> computes count/mean/std/min/max/quartiles for every numeric column.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="describe" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> <code>.____[]</code> selects rows/columns by label.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="loc" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>.____[]</code> selects rows/columns by integer position.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="iloc" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> A missing value in pandas is shown as ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="NaN,nan" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>.____()</code> removes rows containing any missing value.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="dropna" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>.____()</code> replaces missing values with a chosen default.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="fillna" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>df.____('col')</code> splits a DataFrame into groups by that column's unique values.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="groupby" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> <code>.____()</code> reorders rows by a column's values.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="sort_values" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Every pandas DataFrame column is backed by a ____ array underneath.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="NumPy,numpy" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

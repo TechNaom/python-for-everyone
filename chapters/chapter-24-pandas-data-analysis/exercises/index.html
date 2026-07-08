@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 24: Pandas for Data Analysis, covering DataFrame creation, filtering, .loc[]/.iloc[], missing data, groupby, sorting, and a Debug the Code task.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-24">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 24 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Pandas for Data Analysis</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. These exercises use real pandas &mdash; install it first with
+    <code>pip install pandas</code> if you haven't already.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Building a sales DataFrame</h3>
+    <p>Write <code>make_sales_df(products, revenues)</code> — build a DataFrame with columns <code>"product"</code> and <code>"revenue"</code> from two plain Python lists.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Summarizing a DataFrame</h3>
+    <p>Write <code>revenue_summary(df)</code> — return a dict with the revenue column's total, average, and max.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Filtering with a boolean condition</h3>
+    <p>Write <code>big_sales(df, threshold=1000)</code> — return only the rows with revenue above the threshold.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Adding a computed column</h3>
+    <p>Write <code>add_tax_column(df, tax_rate)</code> — add a <code>revenue_with_tax</code> column.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> .loc[] vs. .iloc[]</h3>
+    <p>Write <code>get_row_by_label(df, label)</code> and <code>get_row_by_position(df, position)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Handling missing data</h3>
+    <p>Write <code>clean_revenue(df)</code> — fill missing revenue values with 0.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Grouping and aggregating</h3>
+    <p>Write <code>total_by_region(df)</code> — one total revenue per region, using <code>groupby()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Sorting</h3>
+    <p>Write <code>top_products(df, n=3)</code> — the top n rows by revenue, highest first.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 9 — Debug the Code</h3>
+    <p>This is supposed to return each region's total revenue, but it groups by the wrong column. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_region_totals.py</span>
+      </div>
+      <pre><code>def region_totals(df):
+    return df.groupby("product")["revenue"].sum()
+
+
+demo_df = pd.DataFrame({
+    "region": ["East", "West", "East"],
+    "product": ["Widget", "Gadget", "Gizmo"],
+    "revenue": [1200, 950, 1830],
+})
+print(region_totals(demo_df))</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

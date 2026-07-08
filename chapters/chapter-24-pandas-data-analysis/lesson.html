@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24: Pandas for Data Analysis — Python for Everyone</title>
+<meta name="description" content="Labeled, heterogeneous DataFrames and Series with pandas: creating from dicts and CSVs, inspecting, selecting/filtering, .loc[] vs .iloc[], handling missing data, and groupby aggregation.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-24">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 24 of 28</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">80 min read</span>
+  </div>
+  <h1>Pandas for Data Analysis</h1>
+  <p><em>Chapter 23's NumPy arrays are fast and vectorized, but they're strictly homogeneous &mdash; every element shares one <code>dtype</code>, and there's no built-in idea of a "column name." Real-world data is rarely that tidy: a sales record has a product name (text), a region (text), and a revenue figure (a number), all in the same row. <strong>pandas</strong> is built directly on top of NumPy specifically to handle this &mdash; labeled, heterogeneous-column tables, with the same underlying speed. It's the single most-used data-analysis library in Python, and it's what turns "a CSV file" into "an answer to a real question" in a handful of lines.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> makes the case for pandas on top of what Chapter 23 already built &mdash; DataFrames and Series versus NumPy arrays, with a concrete motivating question over real data.</li>
+      <li><strong>Sub-topic 2</strong> covers building a DataFrame two ways: from a dict of lists, and from a real CSV with <code>pd.read_csv()</code> &mdash; including a direct, measured contrast against Chapter 13's <code>csv</code> module.</li>
+      <li><strong>Sub-topic 3</strong> covers reading a DataFrame back out: <code>.head()</code>, <code>.info()</code>, <code>.describe()</code>, <code>.shape</code>, <code>.columns</code>, <code>.dtypes</code>.</li>
+      <li><strong>Sub-topic 4</strong> covers selecting columns, boolean filtering, and the <code>.loc[]</code>-vs-<code>.iloc[]</code> distinction &mdash; the single most common beginner trip-up in pandas.</li>
+      <li><strong>Sub-topic 5</strong> covers adding/modifying columns and a real first encounter with messy, missing data.</li>
+      <li><strong>Sub-topic 6</strong> covers <code>.groupby()</code>, aggregation, and sorting &mdash; the exact toolkit this chapter's sales-dashboard project is built on.</li>
+      <li><strong>pandas must be installed to run these examples locally</strong> (<code>pip install pandas</code>) &mdash; every graded example in this course (quiz, exercises, practice, challenges) runs it for you already, in-browser via Pyodide.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-pandas">1. What pandas is, and why it exists</a>
+    <a href="#creating-dataframes">2. Creating a DataFrame</a>
+    <a href="#inspecting-data">3. Inspecting data</a>
+    <a href="#selecting-filtering">4. Selecting, filtering &amp; .loc[] vs .iloc[]</a>
+    <a href="#columns-missing-data">5. Adding columns &amp; handling missing data</a>
+    <a href="#grouping-aggregation">6. Grouping, aggregation &amp; sorting</a>
+  </nav>
+
+  <div class="hook">
+    Picture Chapter 13's <code>csv.DictReader</code>: open a sales file, loop over every row, and manually accumulate totals, one dictionary at a time. That approach works, but the moment the question changes &mdash; "now break it down by region," "now find the top 3 products," "now handle a blank cell" &mdash; you're writing a new loop every time. pandas exists to make exactly this kind of tabular, real-world data work fast, short, and far less error-prone.
+  </div>
+
+  <div class="subtopic" id="what-is-pandas">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. What pandas is, and why it exists</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>pandas</strong> provides two core types built on top of NumPy: the <strong>Series</strong> (a single labeled column of data) and the <strong>DataFrame</strong> (a labeled table made of multiple Series, one per column).</li>
+        <li>A NumPy array is <em>homogeneous</em> &mdash; every element shares one <code>dtype</code>. A DataFrame is <em>heterogeneous by column</em> &mdash; one column can hold text, the next numbers, the next dates, all in the same table.</li>
+        <li>Every row and column has a <strong>label</strong> (a row index, a column name), not just a numeric position &mdash; that labeling is the core difference from a raw NumPy array.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> nearly every real dataset &mdash; sales records, student rosters, sensor logs with timestamps &mdash; mixes text and numbers in the same table. NumPy alone can't represent that naturally; pandas exists specifically to close that gap while keeping NumPy's speed underneath.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... pandas?</span>
+      <strong>pandas</strong> is a Python library providing the <code>DataFrame</code> (a labeled, 2D table) and <code>Series</code> (a labeled, 1D column) types, plus a large set of methods for reading, cleaning, filtering, and summarizing tabular data. It's installed with <code>pip install pandas</code> and conventionally imported as <code>import pandas as pd</code>. Internally, each DataFrame column is backed by a NumPy array, so pandas inherits NumPy's speed while adding labels and mixed column types on top.
+    </div>
+
+    <p>
+      Here's the concrete motivating example this whole chapter builds on: a
+      small table of sales records, and a real question &mdash; "what's the
+      total revenue?" &mdash; asked the pandas way.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">first_dataframe.py</span>
+      </div>
+      <pre><code>import pandas as pd
+
+sales = pd.DataFrame({
+    "product": ["Widget", "Gadget", "Gizmo"],
+    "units_sold": [40, 25, 61],
+    "revenue": [1200, 950, 1830],
+})
+print(sales)
+print("Total revenue:", sales["revenue"].sum())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of first_dataframe.py</span>
+      <pre><code>  product  units_sold  revenue
+0  Widget          40     1200
+1  Gadget          25      950
+2   Gizmo          61     1830
+Total revenue: 3980</code></pre>
+    </div>
+
+    <p>
+      Notice the printed table: pandas shows a row index on the left
+      (<code>0</code>, <code>1</code>, <code>2</code>, auto-generated here)
+      and column names across the top (<code>product</code>,
+      <code>units_sold</code>, <code>revenue</code>) &mdash; both are
+      labels, and both can be used to look values back up, which
+      Sub-topic 4 covers in depth.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a Series vs. a DataFrame?</span>
+      A <strong>Series</strong> is one labeled column &mdash; <code>sales["revenue"]</code> is a Series. A <strong>DataFrame</strong> is a whole labeled table made of one or more Series sharing the same row index &mdash; <code>sales</code> itself is a DataFrame. Pulling a single column out of a DataFrame always gives back a Series.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A NumPy array from Chapter 23 needed every value to share one type; this same sales table couldn't exist as a single NumPy array, since <code>product</code> is text and <code>revenue</code> is numbers.</li>
+      <li><code>sales["revenue"].sum()</code> reads almost like English &mdash; "the revenue column, summed" &mdash; and it's exactly that.</li>
+      <li>Every pandas column is still a NumPy array underneath, so the vectorized instincts from Chapter 23 (no explicit loops for math) carry forward directly.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does pandas replace NumPy, then?</summary>
+      <p>
+        No &mdash; pandas is built <em>on top of</em> NumPy, not instead of
+        it. Reach for a plain NumPy array when data is genuinely uniform
+        and numeric (a grid of sensor readings, a matrix for math).
+        Reach for a pandas DataFrame the moment the data has meaningful
+        column names, mixed types across columns, or naturally comes from
+        a spreadsheet/CSV/database table &mdash; which describes most
+        real-world business and reporting data.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>pandas provides <code>Series</code> (one labeled column) and <code>DataFrame</code> (a labeled table of columns), both built on top of NumPy.</li>
+        <li>A DataFrame is heterogeneous by column (mixed types across columns); a NumPy array is homogeneous (one type for the whole array).</li>
+        <li>Every row and column has a label, not just a numeric position &mdash; the core new idea pandas adds over NumPy.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="creating-dataframes">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Creating a DataFrame</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>pd.DataFrame(a_dict_of_lists)</code> builds a table from Python data already in memory &mdash; each dict key becomes a column name.</li>
+        <li><code>pd.read_csv(path_or_buffer)</code> builds a table directly from a CSV file (or CSV-format text), inferring column names and types automatically.</li>
+        <li>Compared to Chapter 13's <code>csv</code> module, <code>read_csv()</code> replaces an entire open-loop-parse-accumulate pattern with one function call.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> almost every real dataset starts life as a CSV file (an export from a spreadsheet, a database, or another tool) &mdash; <code>read_csv()</code> is usually the very first line of a real pandas script.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">creating_from_dict.py</span>
+      </div>
+      <pre><code>import pandas as pd
+
+df1 = pd.DataFrame({
+    "product": ["Widget", "Gadget", "Gizmo"],
+    "region": ["East", "West", "East"],
+    "revenue": [1200, 950, 1830],
+})
+print("From a dict of lists:")
+print(df1)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of creating_from_dict.py</span>
+      <pre><code>From a dict of lists:
+  product region  revenue
+0  Widget   East     1200
+1  Gadget   West      950
+2   Gizmo   East     1830</code></pre>
+    </div>
+
+    <p>
+      That works fine for data you've already typed out by hand. The far
+      more common case is data that already exists as a CSV file &mdash;
+      and this is where pandas pays off against Chapter 13's approach
+      immediately:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">csv_module_vs_pandas.py</span>
+      </div>
+      <pre><code>import csv
+from io import StringIO
+import pandas as pd
+
+csv_text = """product,region,revenue
+Widget,East,1200
+Gadget,West,950
+Gizmo,East,1830
+Widget,West,700
+"""
+
+# The Chapter 13 way: open, loop, parse, accumulate by hand
+total_csv_module = 0
+for row in csv.DictReader(StringIO(csv_text)):
+    total_csv_module += int(row["revenue"])
+print("csv module total revenue:", total_csv_module)
+
+# The pandas way: one function call, one column call
+df = pd.read_csv(StringIO(csv_text))
+print("pandas total revenue:", df["revenue"].sum())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of csv_module_vs_pandas.py</span>
+      <pre><code>csv module total revenue: 4680
+pandas total revenue: 4680</code></pre>
+    </div>
+
+    <p>
+      Both approaches reach the identical answer &mdash; the payoff is in
+      what each one costs to write and extend. The <code>csv</code> module
+      needed a manual loop, a manual <code>int()</code> conversion, and a
+      manual running total, all written by hand. <code>read_csv()</code>
+      replaced the file-opening, the row-looping, and the type conversion
+      in one call, and <code>.sum()</code> replaced the accumulator entirely.
+      Reading a real file on disk looks the same, just with a filename
+      instead of <code>StringIO</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">read_real_csv.py</span>
+      </div>
+      <pre><code>import pandas as pd
+
+df = pd.read_csv("sales.csv")   # reads a real file from disk
+print(df.head())</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>StringIO</code>?</span>
+      <code>io.StringIO</code> wraps a plain Python string so it behaves like an open file &mdash; useful for testing <code>read_csv()</code> against CSV-format text without needing a real file on disk. In production code, <code>pd.read_csv("sales.csv")</code> reads directly from a real path, exactly like the <code>open()</code> calls Chapter 13 already taught.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,revenue
+Widget,East,1200
+Gadget,West,950
+Gizmo,East,1830
+"""
+df = pd.read_csv(StringIO(csv_text))
+print(df)
+print("Total revenue:", df["revenue"].sum())</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding a units_sold column and computing df['units_sold'].sum().</div>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>pd.DataFrame(dict_of_lists)</code> is the right tool for data already in Python memory.</li>
+      <li><code>pd.read_csv()</code> is the right tool for data living in a CSV file &mdash; it replaces an entire manual open/loop/parse pattern.</li>
+      <li>Both produce the exact same kind of object: a DataFrame, ready for every method the rest of this chapter covers.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what other formats can pandas read besides CSV?</summary>
+      <p>
+        pandas ships matching readers for most common tabular formats:
+        <code>pd.read_excel()</code>, <code>pd.read_json()</code>,
+        <code>pd.read_sql()</code> (working directly with the database
+        connections Chapter 21 covered), and more. They all follow the
+        same shape &mdash; call the reader, get back a DataFrame &mdash;
+        so everything this chapter teaches from here on works
+        identically no matter which reader produced the DataFrame.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>pd.DataFrame(dict_of_lists)</code> builds a table from Python data already in memory.</li>
+        <li><code>pd.read_csv()</code> builds a table directly from a CSV file or CSV-format text, inferring columns and types.</li>
+        <li>Against Chapter 13's <code>csv</code> module, <code>read_csv()</code> plus a column method like <code>.sum()</code> replaces an entire manual loop-and-accumulate pattern.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="inspecting-data">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Inspecting data</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>.head(n)</code>/<code>.tail(n)</code> show the first/last <code>n</code> rows (default 5) &mdash; the fastest sanity check after loading any dataset.</li>
+        <li><code>.info()</code> prints column names, non-null counts, and dtypes in one summary; <code>.describe()</code> prints count/mean/std/min/max/quartiles for every numeric column.</li>
+        <li><code>.shape</code>, <code>.columns</code>, and <code>.dtypes</code> give the row/column count, the column names, and each column's data type.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the very first thing to do with any DataFrame &mdash; before filtering, grouping, or reporting anything &mdash; is to actually look at it. Skipping this step is how "revenue" silently turns out to be text instead of numbers three steps later.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">inspecting_basics.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,units_sold,revenue
+Widget,East,40,1200
+Gadget,West,25,950
+Gizmo,East,61,1830
+Widget,West,18,700
+Gadget,East,33,1100
+Gizmo,West,9,310
+"""
+df = pd.read_csv(StringIO(csv_text))
+
+print("df.head(2):")
+print(df.head(2))
+print()
+print("df.shape:", df.shape)
+print("df.columns:", list(df.columns))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of inspecting_basics.py</span>
+      <pre><code>df.head(2):
+  product region  units_sold  revenue
+0  Widget   East          40     1200
+1  Gadget   West          25      950
+
+df.shape: (6, 4)
+df.columns: ['product', 'region', 'units_sold', 'revenue']</code></pre>
+    </div>
+
+    <p>
+      <code>.shape</code> reads exactly like a NumPy array's <code>.shape</code>
+      from Chapter 23 &mdash; <code>(6, 4)</code> is 6 rows, 4 columns &mdash;
+      since a DataFrame's shape follows the same convention. <code>.dtypes</code>
+      and <code>.info()</code> go one level deeper, per-column:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">dtypes_and_info.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,units_sold,revenue
+Widget,East,40,1200
+Gadget,West,25,950
+Gizmo,East,61,1830
+"""
+df = pd.read_csv(StringIO(csv_text))
+
+print("df.dtypes:")
+print(df.dtypes)
+print()
+df.info()</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of dtypes_and_info.py</span>
+      <pre><code>df.dtypes:
+product         str
+region          str
+units_sold    int64
+revenue       int64
+dtype: object
+
+&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 3 entries, 0 to 2
+Data columns (total 4 columns):
+ #   Column      Non-Null Count  Dtype
+---  ------      --------------  -----
+ 0   product     3 non-null      str
+ 1   region      3 non-null      str
+ 2   units_sold  3 non-null      int64
+ 3   revenue     3 non-null      int64
+dtypes: int64(2), str(2)
+memory usage: 228.0 bytes</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>.info()</code>'s "Non-Null Count"?</span>
+      A <strong>null</strong> value in pandas represents missing data (shown as <code>NaN</code>). "Non-Null Count" is how many rows in that column actually have a real value &mdash; if it's lower than the total row count, that column has missing data somewhere, which Sub-topic 5 covers in depth.
+    </div>
+
+    <p>
+      <code>.describe()</code> goes further still, computing real summary
+      statistics &mdash; the same <code>.mean()</code>/<code>.std()</code>/<code>.min()</code>/<code>.max()</code>
+      idioms from Chapter 23, run automatically over every numeric column
+      at once:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">describe_demo.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,units_sold,revenue
+Widget,East,40,1200
+Gadget,West,25,950
+Gizmo,East,61,1830
+Widget,West,18,700
+Gadget,East,33,1100
+Gizmo,West,9,310
+"""
+df = pd.read_csv(StringIO(csv_text))
+print(df.describe())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of describe_demo.py</span>
+      <pre><code>       units_sold      revenue
+count    6.000000     6.000000
+mean    31.000000  1015.000000
+std     18.297541   511.106642
+min      9.000000   310.000000
+25%     19.750000   762.500000
+50%     29.000000  1025.000000
+75%     38.250000  1175.000000
+max     61.000000  1830.000000</code></pre>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>.head()</code>/<code>.tail()</code> are the fastest first look at any newly loaded DataFrame.</li>
+      <li><code>.info()</code> answers "what columns exist, and are any missing values?" in one call.</li>
+      <li><code>.describe()</code> answers "what do the numbers actually look like?" &mdash; count, mean, spread, and range &mdash; for every numeric column at once.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does .describe() include text columns?</summary>
+      <p>
+        By default, <code>.describe()</code> only summarizes numeric
+        columns, since "mean" and "std" don't make sense for text.
+        Passing <code>include="all"</code> adds text columns too, showing
+        <code>count</code>, <code>unique</code>, <code>top</code> (the
+        most frequent value), and <code>freq</code> instead of numeric
+        statistics for those columns.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>.head()</code>/<code>.tail()</code> preview the first/last rows; <code>.shape</code>/<code>.columns</code>/<code>.dtypes</code> describe the table's structure.</li>
+        <li><code>.info()</code> summarizes columns, non-null counts, and dtypes in one call &mdash; the fastest way to spot missing data.</li>
+        <li><code>.describe()</code> computes count/mean/std/min/max/quartiles for every numeric column at once.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="selecting-filtering">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Selecting, filtering &amp; <code>.loc[]</code> vs. <code>.iloc[]</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>df['col']</code> selects one column (a Series); <code>df[['col1', 'col2']]</code> selects several columns at once (a DataFrame).</li>
+        <li><code>df[df['col'] > x]</code> is boolean filtering &mdash; the direct DataFrame equivalent of Chapter 23's NumPy boolean masking.</li>
+        <li><code>.loc[]</code> selects <strong>by label</strong> (row index value, column name); <code>.iloc[]</code> selects <strong>by integer position</strong>, regardless of what the labels actually are.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> mixing up <code>.loc[]</code> and <code>.iloc[]</code> is the single most common pandas beginner mistake &mdash; and it fails silently (wrong row, no error) far more often than it raises a clean exception, which makes it worth slowing down for.
+    </div>
+
+    <p>Column selection first, since it's the most immediately useful:</p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">selecting_columns.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,units_sold,revenue
+Widget,East,40,1200
+Gadget,West,25,950
+Gizmo,East,61,1830
+Widget,West,18,700
+"""
+df = pd.read_csv(StringIO(csv_text))
+
+print("df['product']:")
+print(df['product'])
+print()
+print("df[['product', 'revenue']]:")
+print(df[['product', 'revenue']])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of selecting_columns.py</span>
+      <pre><code>df['product']:
+0    Widget
+1    Gadget
+2     Gizmo
+3    Widget
+Name: product, dtype: str
+
+df[['product', 'revenue']]:
+  product  revenue
+0  Widget     1200
+1  Gadget      950
+2   Gizmo     1830
+3  Widget      700</code></pre>
+    </div>
+
+    <p>
+      Notice the shape difference: one pair of brackets with a single
+      column name returns a <strong>Series</strong>; double brackets with
+      a list of names returns a <strong>DataFrame</strong>, even if that
+      list only has one name in it.
+    </p>
+
+    <p>
+      Boolean filtering works exactly like Chapter 23's array masking,
+      just with a whole row kept or dropped instead of a single value:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">boolean_filtering.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,units_sold,revenue
+Widget,East,40,1200
+Gadget,West,25,950
+Gizmo,East,61,1830
+Widget,West,18,700
+"""
+df = pd.read_csv(StringIO(csv_text))
+print("df[df['revenue'] > 1000]:")
+print(df[df['revenue'] > 1000])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of boolean_filtering.py</span>
+      <pre><code>df[df['revenue'] > 1000]:
+  product region  units_sold  revenue
+0  Widget   East          40     1200
+2   Gizmo   East          61     1830</code></pre>
+    </div>
+
+    <p>
+      Before any explanation, here's the exact picture that separates
+      <code>.loc[]</code> from <code>.iloc[]</code> &mdash; the same
+      3-row table, with an explicit, non-numeric row index:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">.loc[] (by label) vs. .iloc[] (by position), on the same DataFrame</span>
+      <pre><code>     product  revenue
+r1    Widget     1200
+r2    Gadget      950
+r3     Gizmo     1830
+
+df.loc['r2']   -- find the row LABELED 'r2'        -> Gadget, 950
+df.iloc[1]     -- find the row at POSITION 1        -> Gadget, 950
+                  (position 1 happens to BE 'r2' here,
+                   but .loc['r2'] would still work even
+                   if the rows were reordered -- .iloc[1] would not)</code></pre>
+    </div>
+
+    <p>
+      With the picture in place: <code>.loc[]</code> always means "look
+      this label up," and <code>.iloc[]</code> always means "count to
+      this position," no matter what the labels actually are.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">loc_vs_iloc.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,revenue
+Widget,1200
+Gadget,950
+Gizmo,1830
+"""
+df = pd.read_csv(StringIO(csv_text))
+df.index = ["r1", "r2", "r3"]
+print(df)
+print()
+print("df.loc['r2']:")
+print(df.loc['r2'])
+print()
+print("df.iloc[1]:")
+print(df.iloc[1])
+print()
+print("df.loc['r2', 'revenue']:", df.loc['r2', 'revenue'])
+print("df.iloc[1, 1]:", df.iloc[1, 1])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of loc_vs_iloc.py</span>
+      <pre><code>   product  revenue
+r1  Widget     1200
+r2  Gadget      950
+r3   Gizmo     1830
+
+df.loc['r2']:
+product    Gadget
+revenue       950
+Name: r2, dtype: object
+
+df.iloc[1]:
+product    Gadget
+revenue       950
+Name: r2, dtype: object
+
+df.loc['r2', 'revenue']: 950
+df.iloc[1, 1]: 950</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the default row index?</span>
+      When a DataFrame is created without an explicit index (as every earlier example in this chapter did), pandas assigns a default <strong>RangeIndex</strong> &mdash; plain integers <code>0, 1, 2, ...</code>. In that specific, common case, <code>.loc[1]</code> and <code>.iloc[1]</code> happen to return the same row, since the label and the position are the same number &mdash; which is exactly why the distinction is easy to miss until the index becomes something else (a product name, a date, or rows that have been filtered/sorted so their positions no longer line up with their original labels).
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>df['col']</code> returns a Series; <code>df[['col1', 'col2']]</code> returns a DataFrame, even for a single-item list.</li>
+      <li><code>df[df['col'] > x]</code> filters rows with a boolean condition, no loop needed &mdash; the DataFrame version of Chapter 23's array masking.</li>
+      <li><code>.loc[label]</code> looks up by row/column label; <code>.iloc[position]</code> looks up by integer position &mdash; they only look interchangeable when the index happens to be plain <code>0, 1, 2, ...</code>.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does .loc[] with a slice behave differently from .iloc[] with a slice?</summary>
+      <p>
+        <code>df.iloc[0:2]</code> behaves like a normal Python slice &mdash;
+        it excludes the end position, returning rows at positions 0 and 1
+        only. <code>df.loc['r1':'r2']</code> is <em>inclusive</em> of the
+        end label &mdash; it returns every row from <code>'r1'</code>
+        through <code>'r2'</code>, including <code>'r2'</code> itself.
+        This is a deliberate, documented pandas design choice (label
+        slicing is inclusive; position slicing is not), not a bug &mdash;
+        but it's exactly the kind of detail that trips people up if
+        they've only ever tested with a default integer index.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Single brackets with one column name return a Series; double brackets with a list return a DataFrame.</li>
+        <li>Boolean filtering (<code>df[df['col'] > x]</code>) keeps only matching rows, with no explicit loop.</li>
+        <li><code>.loc[]</code> is label-based; <code>.iloc[]</code> is position-based &mdash; they agree only when the index is the default <code>0, 1, 2, ...</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="columns-missing-data">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Adding columns &amp; handling missing data</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Assigning to a new column name (<code>df['new_col'] = ...</code>) adds it, computed from existing columns with the same vectorized style as Chapter 23's arrays.</li>
+        <li>Missing values show up as <code>NaN</code> (Not a Number); <code>.isna()</code> finds them, <code>.dropna()</code> removes rows containing them, <code>.fillna()</code> replaces them with a chosen value.</li>
+        <li>Real-world CSVs almost always have at least some missing cells &mdash; a blank field, an unrecorded reading &mdash; so this is a genuine, common first encounter with messy data, not a hypothetical edge case.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a missing value silently breaks a sum or average if it isn't handled first &mdash; deciding whether to drop it or fill it in is a real judgment call this chapter's project has to make before computing any totals.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">adding_a_column.py</span>
+      </div>
+      <pre><code>import pandas as pd
+
+df = pd.DataFrame({
+    "product": ["Widget", "Gadget", "Gizmo"],
+    "units_sold": [40, 25, 61],
+    "unit_price": [30, 38, 30],
+})
+df["revenue"] = df["units_sold"] * df["unit_price"]
+print(df)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of adding_a_column.py</span>
+      <pre><code>  product  units_sold  unit_price  revenue
+0  Widget          40          30     1200
+1  Gadget          25          38      950
+2   Gizmo          61          30     1830</code></pre>
+    </div>
+
+    <p>
+      <code>df["units_sold"] * df["unit_price"]</code> multiplies the two
+      columns element-by-element &mdash; the exact same vectorized idea as
+      Chapter 23's <code>arr1 * arr2</code>, since each column is a NumPy
+      array underneath. Now the messier, more realistic case &mdash; a CSV
+      with a couple of blank cells:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">missing_data.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,revenue
+Widget,East,1200
+Gadget,,950
+Gizmo,East,
+Widget,West,700
+"""
+df = pd.read_csv(StringIO(csv_text))
+print(df)
+print()
+print("df.isna():")
+print(df.isna())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of missing_data.py</span>
+      <pre><code>  product region  revenue
+0  Widget   East   1200.0
+1  Gadget    NaN    950.0
+2   Gizmo   East      NaN
+3  Widget   West    700.0
+
+df.isna():
+   product  region  revenue
+0    False   False    False
+1    False    True    False
+2    False   False     True
+3    False   False    False</code></pre>
+    </div>
+
+    <p>
+      Notice <code>revenue</code> printed as <code>1200.0</code> instead
+      of <code>1200</code> &mdash; a column can't mix a real integer and
+      <code>NaN</code> (which is technically a float), so pandas silently
+      upgrades the whole column to <code>float64</code> the moment any
+      value is missing. From here, <code>.dropna()</code> and
+      <code>.fillna()</code> are the two ways to actually handle it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">dropna_fillna.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,revenue
+Widget,East,1200
+Gadget,,950
+Gizmo,East,
+Widget,West,700
+"""
+df = pd.read_csv(StringIO(csv_text))
+
+print("df.dropna():")
+print(df.dropna())
+print()
+print("df.fillna({'region': 'Unknown', 'revenue': 0}):")
+print(df.fillna({"region": "Unknown", "revenue": 0}))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of dropna_fillna.py</span>
+      <pre><code>df.dropna():
+  product region  revenue
+0  Widget   East   1200.0
+3  Widget   West    700.0
+
+df.fillna({'region': 'Unknown', 'revenue': 0}):
+  product   region  revenue
+0  Widget     East   1200.0
+1  Gadget  Unknown    950.0
+2   Gizmo     East      0.0
+3  Widget     West    700.0</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>NaN</code>?</span>
+      <strong>NaN</strong> ("Not a Number") is pandas/NumPy's placeholder for a missing value. It behaves unusually in comparisons &mdash; <code>NaN == NaN</code> is actually <code>False</code> &mdash; which is exactly why <code>.isna()</code> exists as a dedicated check instead of comparing to <code>NaN</code> directly.
+    </div>
+
+    <p>
+      Choosing between <code>.dropna()</code> and <code>.fillna()</code>
+      is a real decision, not a mechanical one: <code>.dropna()</code>
+      discards the whole row, which is safe when missing data is rare and
+      the row is otherwise unreliable; <code>.fillna()</code> keeps the
+      row with a sensible default, which is better when losing that row's
+      other columns (like a real sale that just has a blank region) would
+      throw away useful information.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>df['new_col'] = expression</code> adds a computed column, vectorized across every row.</li>
+      <li><code>.isna()</code> finds missing values; a column with any missing values gets silently upgraded to <code>float64</code>.</li>
+      <li><code>.dropna()</code> removes rows with any missing value; <code>.fillna(value_or_dict)</code> replaces missing values with a chosen default, per-column if given a dict.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can .fillna() use something smarter than a fixed value?</summary>
+      <p>
+        Yes &mdash; a very common real pattern is
+        <code>df['revenue'].fillna(df['revenue'].mean())</code>, filling
+        missing values with that column's own average rather than a flat
+        <code>0</code>. This avoids dragging the total down to zero for a
+        row that's simply missing a number, while still keeping the row
+        in the dataset for its other columns.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Assigning to a new column name adds it, computed vectorized from existing columns.</li>
+        <li>Missing values show up as <code>NaN</code>; <code>.isna()</code> finds them, and any missing value upgrades that column to <code>float64</code>.</li>
+        <li><code>.dropna()</code> removes incomplete rows; <code>.fillna()</code> replaces missing values with a chosen default instead.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="grouping-aggregation">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Grouping, aggregation &amp; sorting</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>df.groupby('col')</code> splits a DataFrame into one group per unique value in <code>col</code> &mdash; nothing is computed yet until an aggregate method is called on it.</li>
+        <li><code>.sum()</code>/<code>.mean()</code>/<code>.agg()</code> after a <code>groupby()</code> compute one result per group &mdash; the pandas equivalent of Chapter 23's <code>axis=</code> aggregates, but grouped by a label instead of a row/column position.</li>
+        <li><code>.sort_values('col')</code> reorders rows by a column's values, ascending by default.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> "total revenue by region," "top-selling products," "which items are underperforming" are all one-line <code>groupby()</code>+aggregate expressions &mdash; this is the exact toolkit behind this chapter's sales-dashboard project.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">groupby_basics.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,revenue
+Widget,East,1200
+Gadget,West,950
+Gizmo,East,1830
+Widget,West,700
+Gadget,East,1100
+Gizmo,West,310
+"""
+df = pd.read_csv(StringIO(csv_text))
+
+print("df.groupby('region')['revenue'].sum():")
+print(df.groupby('region')['revenue'].sum())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of groupby_basics.py</span>
+      <pre><code>df.groupby('region')['revenue'].sum():
+region
+East    4130
+West    1960
+Name: revenue, dtype: int64</code></pre>
+    </div>
+
+    <p>
+      That's "one total per region" in a single line &mdash; no manual
+      loop grouping rows by hand. <code>.agg()</code> generalizes this to
+      multiple statistics at once, per group:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">agg_and_sort.py</span>
+      </div>
+      <pre><code>import pandas as pd
+from io import StringIO
+
+csv_text = """product,region,revenue
+Widget,East,1200
+Gadget,West,950
+Gizmo,East,1830
+Widget,West,700
+Gadget,East,1100
+Gizmo,West,310
+"""
+df = pd.read_csv(StringIO(csv_text))
+
+print("df.groupby('product').agg({'revenue': ['sum', 'mean']}):")
+print(df.groupby('product').agg({'revenue': ['sum', 'mean']}))
+print()
+print("df.sort_values('revenue', ascending=False):")
+print(df.sort_values('revenue', ascending=False))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of agg_and_sort.py</span>
+      <pre><code>df.groupby('product').agg({'revenue': ['sum', 'mean']}):
+        revenue
+            sum    mean
+product
+Gadget     2050  1025.0
+Gizmo      2140  1070.0
+Widget     1900   950.0
+
+df.sort_values('revenue', ascending=False):
+  product region  revenue
+2   Gizmo   East     1830
+0  Widget   East     1200
+4  Gadget   East     1100
+1  Gadget   West      950
+3  Widget   West      700
+5   Gizmo   West      310</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a "split-apply-combine" operation?</span>
+      <code>groupby()</code> works in three conceptual steps: <strong>split</strong> the DataFrame into groups by the given column's values, <strong>apply</strong> an aggregate function to each group independently, then <strong>combine</strong> the per-group results back into one table. You never see the split step directly &mdash; it happens the moment you call <code>.sum()</code>, <code>.mean()</code>, or <code>.agg()</code> on the grouped object.
+    </div>
+
+    <p>
+      Chaining a <code>groupby()</code> aggregate straight into
+      <code>.sort_values()</code> is exactly how a "top N" report gets
+      built &mdash; group by product, sum the revenue, then sort
+      descending to see the best performers first, which is precisely
+      what this chapter's project does.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>df.groupby('col')</code> splits rows into groups by that column's unique values.</li>
+      <li>An aggregate call after <code>groupby()</code> &mdash; <code>.sum()</code>, <code>.mean()</code>, or <code>.agg({...})</code> for multiple statistics at once &mdash; computes one result per group.</li>
+      <li><code>.sort_values('col', ascending=False)</code> reorders rows, most useful right after an aggregate to surface the top or bottom performers.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can you group by more than one column at once?</summary>
+      <p>
+        Yes &mdash; <code>df.groupby(['region', 'product'])['revenue'].sum()</code>
+        groups by every unique <em>combination</em> of region and product,
+        giving a more finely broken-down total (e.g. Widget sales in East
+        vs. Widget sales in West, reported separately) instead of
+        collapsing across one dimension at a time.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>df.groupby('col')</code> splits rows into groups by that column's values; nothing computes until an aggregate is called.</li>
+        <li><code>.sum()</code>/<code>.mean()</code>/<code>.agg({...})</code> compute one (or several) results per group.</li>
+        <li><code>.sort_values('col', ascending=False)</code> reorders rows &mdash; commonly chained right after a groupby aggregate to build a "top N" report.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>pandas is the default tool for business reporting and analytics in Python &mdash; sales dashboards, financial summaries, and A/B test analysis are almost always built on DataFrames.</li>
+      <li>Data scientists and analysts spend a large share of real working time exactly in Sub-topic 5's territory &mdash; cleaning messy, real-world data with missing or malformed values before any actual analysis can happen.</li>
+      <li><code>groupby()</code> is the everyday tool behind "break this down by region/product/day" &mdash; the single most common shape of question a stakeholder asks about any dataset.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>pandas provides <code>Series</code> (one labeled column) and <code>DataFrame</code> (a labeled table of columns), built on top of NumPy, to represent heterogeneous, real-world tabular data.</li>
+      <li><code>pd.DataFrame(dict_of_lists)</code> builds a table from Python data in memory; <code>pd.read_csv()</code> builds one from a CSV file, replacing an entire manual <code>csv</code>-module loop with one call.</li>
+      <li><code>.head()</code>/<code>.info()</code>/<code>.describe()</code>/<code>.shape</code>/<code>.columns</code>/<code>.dtypes</code> are the standard first look at any newly loaded DataFrame.</li>
+      <li><code>df['col']</code>/<code>df[['col1','col2']]</code> select columns; <code>df[df['col'] > x]</code> filters rows; <code>.loc[]</code> selects by label while <code>.iloc[]</code> selects by position &mdash; they only agree when the index is the default <code>0, 1, 2, ...</code>.</li>
+      <li>Assigning to a new column name adds a computed column; <code>.isna()</code>/<code>.dropna()</code>/<code>.fillna()</code> find and handle missing (<code>NaN</code>) data.</li>
+      <li><code>.groupby('col')</code> plus an aggregate (<code>.sum()</code>/<code>.mean()</code>/<code>.agg()</code>) computes one result per group; <code>.sort_values()</code> reorders rows, commonly chained right after to build a "top N" report.</li>
+      <li>Every pandas column is a NumPy array underneath &mdash; the vectorized, no-explicit-loop instincts from Chapter 23 carry forward directly into every method this chapter covered.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

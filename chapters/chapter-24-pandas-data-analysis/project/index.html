@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24 Project: Sales-Data Dashboard — Python for Everyone</title>
+<meta name="description" content="Build a Sales-Data Dashboard using pandas — total revenue, top products/regions via groupby, underperforming line items via boolean filtering, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-24">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 24 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Sales-Data Dashboard (CSV In, Insights Out)</h1>
+
+  <p>A <strong>menu-driven mini-app</strong> that loads a sales dataset with pandas and turns it into a real business report: total revenue, top products and regions via <code>.groupby()</code>, and underperforming line items via boolean filtering &mdash; all built on top of one pandas DataFrame parsed from CSV-format text.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Sales-Data Dashboard ===
+
+=== Total Revenue ===
+$10,304
+
+=== Top Products by Revenue ===
+Widget: $4,110
+Gizmo: $3,420
+Gadget: $2,774
+
+=== Top Regions by Revenue ===
+East: $7,164
+West: $3,140
+
+=== Underperforming Line Items (revenue &lt; $600) ===
+2026-01-06 Widget West: $540
+2026-01-07 Gizmo West: $270
+2026-01-08 Gadget West: $570</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, install pandas if you haven't already (<code>pip install pandas</code>), then run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong><code>SALES_CSV</code>:</strong> a CSV-format string, parsed with <code>pd.read_csv()</code> on a <code>StringIO</code> wrapper.</li>
+    <li><strong><code>load_sales()</code>:</strong> parses <code>SALES_CSV</code> into a DataFrame and adds a computed <code>revenue</code> column (<code>units_sold * unit_price</code>).</li>
+    <li><strong><code>total_revenue()</code>:</strong> <code>.sum()</code> across the whole <code>revenue</code> column.</li>
+    <li><strong><code>top_products()</code> / <code>top_regions()</code>:</strong> <code>.groupby()</code> + <code>.sum()</code> + <code>.sort_values(ascending=False)</code>, returning ranked totals.</li>
+    <li><strong><code>underperforming_sales()</code>:</strong> boolean filtering (<code>df[df['revenue'] &lt; threshold]</code>) to find individual weak line items.</li>
+    <li><strong><code>format_report()</code>:</strong> combines every section into one readable report string.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "best single day" callout &mdash; the date with the highest total revenue across all products/regions.</li>
+    <li>Add a per-product-per-region breakdown using <code>df.groupby(['product', 'region'])['revenue'].sum()</code>.</li>
+    <li>Load <code>SALES_CSV</code> from a real <code>.csv</code> file on disk with <code>pd.read_csv("sales.csv")</code> instead of a hardcoded string.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Nearly every real "turn this spreadsheet into a report" task &mdash; sales, donations, survey responses, expenses &mdash; follows this exact shape: load tabular data, compute totals, break totals down by group, and flag outliers with a condition. This project builds that entire pattern once, on business data concrete enough to reason about intuitively.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Sales-Data Dashboard above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 24. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A Student-Grades Gradebook Analyzer</h3>
+    <p><strong>Problem:</strong> A teacher has a CSV of student names, subjects, and scores, and wants a per-student and per-subject breakdown.</p>
+    <p><strong>What it should do:</strong> Load the data into a DataFrame, report each student's average score (<code>groupby('student')</code>), each subject's class average (<code>groupby('subject')</code>), and flag students below a passing threshold using boolean filtering.</p>
+    <p><strong>Suggested approach:</strong> Almost a direct re-skin of Chapter 23's Grade &amp; Statistics Analyzer, but built on a DataFrame instead of a raw NumPy grid &mdash; a good chance to feel the difference directly.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A Simple Expense Tracker</h3>
+    <p><strong>Problem:</strong> Someone wants to track personal expenses by category (groceries, rent, entertainment) and see where their money is going.</p>
+    <p><strong>What it should do:</strong> Load a CSV of <code>date, category, amount</code> rows, report total spending per category (<code>groupby('category')</code>), the single largest expense, and total spending for the month.</p>
+    <p><strong>Suggested approach:</strong> Nearly identical structure to this project's <code>top_products()</code>/<code>top_regions()</code> pattern, just with "category" instead of "product."</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A Weather-Data Trend Summarizer</h3>
+    <p><strong>Problem:</strong> Someone has a CSV of daily temperature readings across several cities and wants a quick trend summary.</p>
+    <p><strong>What it should do:</strong> Load the data, report each city's average temperature (<code>groupby('city')</code>), the single hottest and coldest reading overall, and flag any reading above a heat-warning threshold using boolean filtering.</p>
+    <p><strong>Suggested approach:</strong> Directly reuses this project's groupby-then-filter structure &mdash; "city" instead of "product," "reading" instead of "sale."</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A Survey-Response Analyzer</h3>
+    <p><strong>Problem:</strong> A CSV of survey responses (respondent, question, rating 1-5) needs summarizing into an average rating per question.</p>
+    <p><strong>What it should do:</strong> Load the data, report the average rating per question (<code>groupby('question')</code>), the count of each rating value per question, and flag any question whose average rating is below a "needs attention" threshold.</p>
+    <p><strong>Suggested approach:</strong> <code>.groupby('question')['rating'].mean()</code> is the core operation; <code>.value_counts()</code> handles the per-rating counts.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 24 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 24: Pandas for Data Analysis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-24" data-active-chapter="chapter-24">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 24 Quiz</span>
+  <h1>Pandas for Data Analysis</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What's the key difference between a NumPy array and a pandas DataFrame?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">A DataFrame can't hold numbers, only text</button>
+        <button type="button" class="mcq-option" data-correct="true">A DataFrame is labeled and heterogeneous by column; a NumPy array is homogeneous (one dtype for the whole array)</button>
+        <button type="button" class="mcq-option" data-correct="false">There's no difference — they're the same type under two names</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> What is a pandas Series?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">A whole DataFrame with multiple columns</button>
+        <button type="button" class="mcq-option" data-correct="true">One single labeled column of data</button>
+        <button type="button" class="mcq-option" data-correct="false">A CSV file on disk</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does <code>pd.read_csv()</code> replace, compared to Chapter 13's <code>csv</code> module?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing — it works completely differently and isn't comparable</button>
+        <button type="button" class="mcq-option" data-correct="true">The manual open-loop-parse pattern needed to read a CSV file row by row</button>
+        <button type="button" class="mcq-option" data-correct="false">Python's built-in print() function</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What does <code>df[['product', 'revenue']]</code> return, compared to <code>df['product']</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">The exact same thing, just written differently</button>
+        <button type="button" class="mcq-option" data-correct="true">A DataFrame with both columns, versus a single Series for one column</button>
+        <button type="button" class="mcq-option" data-correct="false">An error, since double brackets aren't valid syntax</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What does <code>df[df['revenue'] &gt; 1000]</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Raises an error, since DataFrames can't be compared to a number</button>
+        <button type="button" class="mcq-option" data-correct="true">Returns only the rows where revenue is greater than 1000, using boolean filtering</button>
+        <button type="button" class="mcq-option" data-correct="false">Replaces every revenue value over 1000 with exactly 1000</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> What's the core difference between <code>.loc[]</code> and <code>.iloc[]</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">They are exactly identical in every situation</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>.loc[]</code> selects by label; <code>.iloc[]</code> selects by integer position</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>.loc[]</code> only works on columns; <code>.iloc[]</code> only works on rows</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> Why do <code>.loc[1]</code> and <code>.iloc[1]</code> often return the same row on a freshly loaded DataFrame?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Because .loc[] and .iloc[] are actually the same function</button>
+        <button type="button" class="mcq-option" data-correct="true">Because the default row index is 0, 1, 2, ... so the label and the position happen to be the same number</button>
+        <button type="button" class="mcq-option" data-correct="false">Because pandas always sorts rows by revenue first</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What does <code>.isna()</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">Deletes every row with a missing value</button>
+        <button type="button" class="mcq-option" data-correct="true">Returns a same-shape DataFrame of True/False showing which values are missing</button>
+        <button type="button" class="mcq-option" data-correct="false">Converts every column to text</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> What's the difference between <code>.dropna()</code> and <code>.fillna()</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">They do exactly the same thing</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>.dropna()</code> removes rows with missing values; <code>.fillna()</code> replaces missing values with a chosen default instead</button>
+        <button type="button" class="mcq-option" data-correct="false"><code>.dropna()</code> only works on numbers; <code>.fillna()</code> only works on text</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What does <code>df.groupby('region')['revenue'].sum()</code> compute?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">A single grand total across the whole DataFrame</button>
+        <button type="button" class="mcq-option" data-correct="true">One total revenue per unique region</button>
+        <button type="button" class="mcq-option" data-correct="false">The number of rows in each region</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What does <code>.sort_values('revenue', ascending=False)</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">Removes the revenue column entirely</button>
+        <button type="button" class="mcq-option" data-correct="true">Reorders the rows from highest revenue to lowest</button>
+        <button type="button" class="mcq-option" data-correct="false">Groups rows by their revenue value</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> Why does a numeric column sometimes print with decimals (like 1200.0) after loading a CSV with a blank cell?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">pandas always converts every number to a decimal by default</button>
+        <button type="button" class="mcq-option" data-correct="true">A column can't mix real integers with NaN, so pandas upgrades the whole column to float64 once any value is missing</button>
+        <button type="button" class="mcq-option" data-correct="false">It's a display bug with no real cause</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> What does <code>.describe()</code> report for numeric columns?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Just the column names and data types</button>
+        <button type="button" class="mcq-option" data-correct="true">Count, mean, standard deviation, min, max, and quartiles</button>
+        <button type="button" class="mcq-option" data-correct="false">A list of every unique value in the column</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What does <code>.info()</code> help you spot quickly?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">Which row has the highest value</button>
+        <button type="button" class="mcq-option" data-correct="true">Column names, dtypes, and whether any column has missing values</button>
+        <button type="button" class="mcq-option" data-correct="false">The exact file path the CSV was loaded from</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> Why is every pandas column still fast, despite adding labels on top of NumPy?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">pandas doesn't actually use NumPy at all</button>
+        <button type="button" class="mcq-option" data-correct="true">Each DataFrame column is backed by a NumPy array underneath, so vectorized operations still run in fast, compiled code</button>
+        <button type="button" class="mcq-option" data-correct="false">pandas only works on very small datasets, so speed doesn't matter</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>pd.____()</code> builds a DataFrame directly from a CSV file or CSV-format text.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="read_csv" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> <code>.____[]</code> selects rows/columns by label; <code>.iloc[]</code> selects by integer position.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="loc" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A missing value in pandas is shown as ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="NaN,nan" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>df.____('region')['revenue'].sum()</code> computes one total revenue per unique region.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="groupby" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> A single labeled column of data in pandas is called a ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="Series,series" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 24 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

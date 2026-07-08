@@ -21,10 +21,12 @@ print("Hello, world!")
   are intentionally left as download-and-run-locally code windows instead.
 
   Some chapters (from Chapter 23 onward) need third-party packages like
-  numpy, which Pyodide does not include by default. getPyodide() loads
-  numpy once, lazily, alongside the base interpreter — a no-op extra
-  download for pages that never import it, and a one-time cost for pages
-  that do, cached by the browser across every playground box on the page.
+  numpy and pandas, which Pyodide does not include by default. getPyodide()
+  loads numpy and pandas once, lazily, alongside the base interpreter — a
+  no-op extra download for pages that never import them, and a one-time
+  cost for pages that do, cached by the browser across every playground box
+  on the page. pandas depends on numpy, so both are requested in one
+  loadPackage() call and Pyodide resolves the load order correctly.
 */
 
 (function () {
@@ -38,7 +40,7 @@ print("Hello, world!")
         script.onload = () => {
           window
             .loadPyodide()
-            .then((pyodide) => pyodide.loadPackage("numpy").then(() => pyodide))
+            .then((pyodide) => pyodide.loadPackage(["numpy", "pandas"]).then(() => pyodide))
             .then(resolve)
             .catch(reject);
         };
