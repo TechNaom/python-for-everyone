@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 22 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 22: Building Web Apps & APIs — Flask routes and the request object, FastAPI path/query params and Pydantic models, automatic docs, and Flask vs. FastAPI tradeoffs.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-22-interview" data-active-chapter="chapter-22">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 22 Interview Prep</span>
+    <span class="reading-time">50 min read</span>
+  </div>
+  <h1>Interview Questions: Building Web Apps &amp; APIs</h1>
+  <p>Web frameworks sit behind nearly every job description mentioning "backend" or "full-stack," and Flask/FastAPI specifically come up constantly in Python interviews. This set covers Flask's route/render_template/request model, FastAPI's path/query params and Pydantic validation, automatic <code>/docs</code> generation, the Flask-vs-FastAPI tradeoff, and where a frontend fits relative to a JSON API.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What does a web framework actually do, and how is that different from what Chapter 19's <code>requests</code> library did?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A web framework (Flask, FastAPI) is the SERVER side of an HTTP exchange: it listens for incoming requests and lets your code decide what response to send back. Chapter 19's <code>requests</code> library was the CLIENT side: it sent requests out to some other server and read back the response. They're two ends of the exact same request/response cycle &mdash; this chapter builds the end that Chapter 19 was always talking to.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing "a web framework" with "a library for making HTTP requests" &mdash; they solve opposite sides of the same problem.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could the same program both serve requests with Flask/FastAPI AND make outgoing requests with the requests library?" (Yes &mdash; a real backend commonly does both: it serves its own API to clients, while also calling OTHER services' APIs internally, e.g. a payment processor or a third-party data source.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Walk through what happens when a request hits a Flask route decorated with <code>@app.route("/tasks")</code>.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Flask matches the incoming request's path (<code>/tasks</code>) against every registered route, finds the view function <code>@app.route("/tasks")</code> was placed above, and calls that function. Whatever the function returns becomes the response: a string becomes a plain response body, a dict is automatically converted to JSON, and <code>render_template(...)</code>'s return value is the rendered HTML page. If no route matches the path at all, Flask automatically responds with a <code>404</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking <code>@app.route()</code> "runs" the function immediately at startup, rather than registering it to run later when a matching request actually arrives.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What HTTP method does a route respond to by default, if <code>methods=</code> isn't specified?" (GET only &mdash; a route needs <code>methods=["POST"]</code> (or others) explicitly to accept anything besides GET requests.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What does <code>render_template()</code> do, and what problem is it solving?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>render_template(file, **context)</code> loads an HTML file from a <code>templates/</code> folder and fills in placeholders (Jinja2 syntax like <code>{{ variable }}</code> and <code>{% for x in y %}</code>) using the keyword arguments passed as context. It solves the same problem an f-string solves &mdash; combining a static structure with dynamic values &mdash; but for a whole HTML file loaded from disk instead of one string built in memory, which keeps HTML markup out of Python source code entirely.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing <code>render_template()</code> as executing arbitrary Python inside the HTML file, rather than filling in a template's placeholders with already-computed Python values.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does a Flask route always have to return HTML from render_template()?" (No &mdash; a route can return a plain string, a dict (auto-converted to JSON), or a tuple with a status code; <code>render_template()</code> is simply the common choice when the response genuinely is a full displayable page.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What's the difference between <code>request.args</code>, <code>request.form</code>, and <code>request.json</code> in Flask?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>All three read incoming request data and behave like a dict with <code>.get(key, default)</code>, but from different sources: <code>request.args</code> reads the URL's query string (<code>?key=value</code>); <code>request.form</code> reads data submitted from an HTML <code>&lt;form&gt;</code> (a POST body, form-encoded); <code>request.json</code> reads a POST body when the client sent JSON specifically (the shape an API client, not a browser form, typically sends). Using the wrong one for a given request results in reading <code>None</code>/empty data even though the client genuinely sent something.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating all three as interchangeable, or not knowing which one a plain HTML form submission actually populates (it's <code>request.form</code>, not <code>request.json</code>).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a JavaScript frontend sends a POST request with a JSON body, which of the three would read it correctly?" (<code>request.json</code> &mdash; <code>request.form</code> is specifically for form-encoded data, which a JSON-sending client isn't using.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What is a path parameter in FastAPI, and how does the type hint on it actually get used?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A path parameter is a placeholder written in curly braces inside a route's path string, like <code>{task_id}</code> in <code>@app.get("/tasks/{task_id}")</code>. Its matching function argument's type hint (<code>task_id: int</code>) isn't just documentation &mdash; FastAPI actually converts the raw URL string to that type before the function runs, and if the conversion fails, responds with a <code>422</code> error automatically, without the route function ever executing.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing the type hint as "just a comment for readability," missing that it drives real, enforced behavior in FastAPI specifically.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What arrives at <code>/tasks/{task_id}</code> in the raw URL &mdash; a string or an int?" (Always a string &mdash; URLs are text. FastAPI's type hint is what converts that string to the actual Python type the function expects.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> How does FastAPI distinguish a path parameter from a query parameter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A path parameter is explicitly written inside the route's path string in curly braces; anything else in the function's signature that isn't part of the path is treated as a query parameter automatically &mdash; and if it has a default value, it becomes optional. So <code>def list_tasks(done: bool | None = None)</code> on a route <code>@app.get("/tasks")</code> (no <code>{done}</code> in the path) makes <code>done</code> a query parameter, read from <code>?done=true</code> in the URL, defaulting to <code>None</code> if the client doesn't include it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking query parameters need a special decorator or explicit marker in FastAPI &mdash; the distinction is inferred from the function signature and the route's path string, not a separate syntax.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What happens to a query parameter with no default value at all?" (It becomes required &mdash; the client must include it in the query string, or FastAPI responds with a 422 error, similar to a missing required field on a Pydantic model.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What is a Pydantic <code>BaseModel</code>, and what two things does it drive automatically in FastAPI?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A Pydantic <code>BaseModel</code> is a class describing expected data shape as type-hinted fields (e.g. <code>title: str</code>, <code>done: bool = False</code>). Passing one as a route function's argument makes FastAPI do two things automatically from that single class definition: (1) validate the incoming JSON body against it, rejecting anything that doesn't match with a <code>422</code> error before the function runs, and (2) include that model's shape in the automatically generated <code>/docs</code> page, so API consumers can see exactly what a request should look like.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a Pydantic model as "just a nicer dict" without recognizing it's the single source both validation and documentation are generated from.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a required field is missing from a POST request's JSON body, does the route function's code ever run?" (No &mdash; FastAPI validates against the Pydantic model BEFORE calling the route function; a failed validation returns a 422 error and the function body never executes at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What is FastAPI's <code>/docs</code> page, and where does its content come from?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>/docs</code> is an automatically generated, interactive Swagger UI page listing every route, its parameters, and any Pydantic models involved, with a "Try it out" button that sends real requests from inside the browser. Nothing about it is hand-written: it's built directly from the route decorators, function signatures, type hints, and Pydantic models already present in the code, which is why it can never silently drift out of sync with the actual API the way separately maintained documentation can.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing <code>/docs</code> requires a separate documentation-writing step, or not knowing it's interactive (can actually send test requests), not just a static reference page.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a route's Pydantic model changes, does /docs need to be updated separately?" (No &mdash; /docs is generated fresh from the current code every time the app runs, so it automatically reflects whatever the model and route signatures currently say, with zero manual synchronization needed.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why do type hints "matter specifically" in FastAPI, compared to how they're typically used elsewhere in Python?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>In most Python code (and in Flask), a type hint is optional documentation for humans and tools like linters &mdash; it doesn't change what the code actually does at runtime. In FastAPI, type hints are load-bearing: they drive real request-time validation (converting/rejecting path and query parameters, validating Pydantic model bodies) and the content of the automatically generated <code>/docs</code> page. The exact same syntax that's "just a hint" in one context is the actual validation mechanism in the other.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming type hints "do the same thing" in every Python context &mdash; the syntax is identical, but FastAPI is specifically built to read and act on it, unlike plain Python or Flask.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would writing `def get_task(task_id)` without a type hint still work in FastAPI?" (Yes, it would run &mdash; but task_id would arrive as a plain string with no automatic conversion or validation, and FastAPI's /docs page would show it as an untyped parameter, losing the exact benefit type hints provide here.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> When would a team choose Flask over FastAPI, or vice versa?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Flask fits a project that's mainly a server-rendered website &mdash; full HTML pages a browser displays directly, with a simpler mental model and Flask's large, mature ecosystem of extensions. FastAPI fits a project that's mainly a JSON API meant to be consumed by something else (a separate frontend, a mobile app, another service) &mdash; especially when automatic request validation and always-current interactive docs matter, or when async support is a priority. Many real systems even use both: an internal Flask-rendered admin tool alongside a FastAPI-served public API.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming one framework is universally superior rather than recognizing they're built around genuinely different default outputs.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could a Flask app be gradually migrated to also expose a JSON API, without rewriting everything in FastAPI?" (Yes &mdash; Flask routes can return dicts directly, which are auto-converted to JSON, so a Flask app can serve JSON endpoints alongside its HTML-rendering routes; teams sometimes do this incrementally rather than adopting FastAPI outright.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Why is a FastAPI JSON API described as "deliberately incomplete" as something a person looks at?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A FastAPI route typically returns raw JSON data, with no visual layout, styling, or interactivity attached at all &mdash; it's designed to be consumed programmatically by something else that turns that data into an actual screen: a web frontend (like a React application), a native mobile app, or another script. This isn't a limitation to work around; it's the intentional design, since the same JSON API can then serve multiple different consumers (web, mobile, internal tooling) from one backend, rather than being tied to one specific way of being displayed.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "the API doesn't render a page" as a bug or an oversight, rather than the deliberate architectural choice that makes multi-client reuse possible.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a company's JSON API needs to serve both a website and a mobile app, does it need two separate backends?" (No &mdash; that's exactly the point: one JSON API can serve both, since each client (web frontend, mobile app) independently turns the same JSON response into whatever screen makes sense on that platform.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Where would something like React fit relative to the Flask and FastAPI apps built in this chapter? (Conceptual only.)</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>React is a JavaScript library that runs in the user's browser and renders what a user actually sees and interacts with. It would make HTTP requests to a JSON API like the FastAPI app built in this chapter &mdash; the exact same kind of request Chapter 19's <code>requests.get()</code> made from Python &mdash; and use the JSON response to decide what to display on the screen. It would NOT typically sit in front of a Flask app rendering full HTML pages directly, since Flask's server-rendered approach already produces the complete page a browser displays, with no separate rendering step needed.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing React with a backend technology, or believing this course teaches React syntax (it doesn't &mdash; this is explicitly conceptual, to show where a JSON API fits into a bigger picture).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could a single project use BOTH Flask (for one part) and a React+FastAPI pair (for another)?" (Yes &mdash; real systems sometimes do exactly this, e.g. Flask for an internal admin tool rendered as plain HTML, and a separate FastAPI-backed React application for the customer-facing product, chosen per use case rather than picking one architecture company-wide.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>@app.____("/path")</code> maps a URL path to a Flask view function.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="route" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Flask's <code>render_____()</code> fills an HTML template file with Python values.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="template" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>request.____</code> reads query-string parameters from the URL in Flask.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="args" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> FastAPI's <code>@app.____()</code> and <code>@app.post()</code> register routes per HTTP method.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="get" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A ____ parameter is written in curly braces inside a FastAPI route's path string.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="path" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A FastAPI function argument becomes a query parameter when it has a ____ value and isn't in the path string.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="default" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> A Pydantic model class inherits from ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="BaseModel" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> A failed Pydantic validation makes FastAPI respond with a ____ error automatically.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="422" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> FastAPI's automatic interactive documentation page lives at ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="/docs" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Flask typically serves server-rendered ____; FastAPI typically serves JSON.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="HTML,html" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> In FastAPI, type hints are ____ &mdash; they drive real validation and docs, not just documentation for humans.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="load-bearing" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> A frontend like ____ (not taught in this course) would consume a JSON API from the browser.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="React,react" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A JSON API is deliberately ____ as something a person looks at directly &mdash; it needs a separate consumer to render a screen.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="incomplete" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -211,12 +211,21 @@ window.PFE_MODULES = [
     title: "Module 5 — Data Analysis, Testing & Career",
     examPath: null,
     chapters: [
-      { id: "chapter-22", num: 22, title: "NumPy for Data Analysis", path: null },
-      { id: "chapter-23", num: 23, title: "Pandas for Data Analysis", path: null },
-      { id: "chapter-24", num: 24, title: "Testing Your Code", path: null },
-      { id: "chapter-25", num: 25, title: "Professional Python", path: null },
-      { id: "chapter-26", num: 26, title: "Capstone Projects", path: null },
-      { id: "chapter-27", num: 27, title: "Interview & Career Prep", path: null }
+      { id: "chapter-22", num: 22, title: "Building Web Apps & APIs (Flask & FastAPI)", path: "chapters/chapter-22-web-apis-flask-fastapi/lesson.html", subtopics: [
+        { id: "what-is-a-web-framework", title: "What a web framework is" },
+        { id: "flask-routes", title: "Flask routes & render_template" },
+        { id: "flask-request", title: "The Flask request object" },
+        { id: "fastapi-params", title: "FastAPI path & query params" },
+        { id: "fastapi-pydantic", title: "Pydantic models & automatic docs" },
+        { id: "flask-vs-fastapi", title: "Flask vs. FastAPI, side by side" },
+        { id: "whats-next", title: "What's next: HTML, JSON, and where React fits" }
+      ] },
+      { id: "chapter-23", num: 23, title: "NumPy for Data Analysis", path: null },
+      { id: "chapter-24", num: 24, title: "Pandas for Data Analysis", path: null },
+      { id: "chapter-25", num: 25, title: "Testing Your Code", path: null },
+      { id: "chapter-26", num: 26, title: "Professional Python", path: null },
+      { id: "chapter-27", num: 27, title: "Capstone Projects", path: null },
+      { id: "chapter-28", num: 28, title: "Interview & Career Prep", path: null }
     ]
   }
 ];

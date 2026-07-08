@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 22 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 22: Building Web Apps & APIs, including interview-style scenario problems on Flask routes, the request object, FastAPI params, Pydantic models, and where React fits.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-22">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 22 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Building Web Apps &amp; APIs — Flask &amp; FastAPI</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Every task
+    here is a plain Python function or class modeling exactly what a real
+    Flask or FastAPI route function does with its inputs &mdash; no live
+    server or installed framework is needed anywhere in this bank. No
+    import beyond
+    <code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>/<code>threading</code>/<code>concurrent.futures</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-web-framework">1. Web Framework &amp; Request/Response Cycle</a>
+    <a href="#flask-routes">2. Flask Routes &amp; render_template</a>
+    <a href="#flask-request">3. The Flask Request Object</a>
+    <a href="#fastapi-params">4. FastAPI Path &amp; Query Params</a>
+    <a href="#fastapi-pydantic">5. Pydantic Models &amp; Automatic Docs</a>
+    <a href="#flask-vs-fastapi">6. Flask vs. FastAPI, Side by Side</a>
+    <a href="#whats-next">7. What's Next: HTML, JSON &amp; React</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="what-is-a-web-framework">Topic 1: What a Web Framework Is &amp; the Request/Response Cycle</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Identify a request's method and path</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>identify_method_and_path(request_line)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> The shared cycle steps</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>request_response_cycle_steps()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This claims a web framework compiles Python to machine code. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Choosing a status code</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>choose_status_code(outcome)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why "localhost" still involves a network connection</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_localhost_still_networked()</code>.</p>
+  </div>
+
+  <h2 id="flask-routes">Topic 2: Flask Routes and render_template</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A route-to-function map</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>build_route_map()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A render_context helper</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>render_context(template_name, **context)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. This view function never returns its result. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Building a dashboard context</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>build_dashboard_context(users, tasks)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What a view function's return value becomes</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_view_function_return_value()</code>.</p>
+  </div>
+
+  <h2 id="flask-request">Topic 3: The Flask Request Object</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reading a query parameter</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>read_query_param(simulated_args, key, default="")</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reading a JSON field</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>read_json_field(simulated_json_body, key, default=None)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This calls a form-only method on a plain dict standing in for a JSON body. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Handling a search form</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>handle_search_form(simulated_args)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>request.args</code> vs. <code>request.form</code></h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_args_vs_form()</code>.</p>
+  </div>
+
+  <h2 id="fastapi-params">Topic 4: FastAPI Path and Query Params</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Converting a path parameter</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>convert_path_param(raw_value, target_type)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Path vs. query classification</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>classify_param(has_default, in_path_string)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This treats an optional query parameter as required. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Building a filtering endpoint</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>filter_by_status(orders, status=None)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What happens on a failed path param conversion</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_path_param_conversion_failure()</code>.</p>
+  </div>
+
+  <h2 id="fastapi-pydantic">Topic 5: Pydantic Models and Automatic Docs</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Checking required fields</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>has_required_fields(body, required_fields)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Applying a default</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>apply_default(body, field, default_value)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This accepts any truthy value as a boolean field. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Designing a signup model</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>validate_signup_data(body)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What generates <code>/docs</code></h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_docs_generation()</code>.</p>
+  </div>
+
+  <h2 id="flask-vs-fastapi">Topic 6: Flask vs. FastAPI, Side by Side</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Recommending a framework</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>recommend_framework_for(project_description)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Describing validation style</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>describe_validation_style(framework_name)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This overstates that Flask cannot return JSON. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Picking a framework for a new feature</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>recommend_framework(needs_html_page, needs_automatic_docs)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The 30-second comparison</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>elevator_pitch_flask_vs_fastapi()</code>.</p>
+  </div>
+
+  <h2 id="whats-next">Topic 7: What's Next — HTML, JSON, and Where React Fits</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Classifying a response body</h3>
+    <p>Find <code>&#35; TODO 7.1</code>. Write <code>classify_response_body(response_body)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Does this need a separate renderer?</h3>
+    <p>Find <code>&#35; TODO 7.2</code>. Write <code>needs_something_else_to_render(response_body)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 7.3</code>. This claims a JSON API is a complete website by itself. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Planning a new product's architecture</h3>
+    <p>Find <code>&#35; TODO 7.A</code>. Write <code>recommend_architecture(needs_mobile_app, needs_multiple_frontends)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What a frontend does with a JSON API (conceptual only)</h3>
+    <p>Find <code>&#35; TODO 7.B</code>. Write <code>explain_frontend_role_conceptually()</code> &mdash; without teaching any React/JavaScript syntax.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. One exception:
+    Topic 3's debug task intentionally demonstrates a real
+    <code>AttributeError</code> before it's fixed &mdash; that's the
+    whole point of that task.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

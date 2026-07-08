@@ -34,35 +34,18 @@ moving to the next. The rendered, always-current version lives at
 | 20 | Multithreading | What a thread is and why it helps (I/O-bound vs. CPU-bound work), creating and starting threads (`threading.Thread`, `.start()`, `.join()`), the GIL (why it helps I/O-bound work but not CPU-bound work), race conditions (a concrete shared-counter demonstration), `threading.Lock` (the `with lock:` pattern), thread safety patterns (avoiding shared mutable state, `threading.local()`), and `concurrent.futures.ThreadPoolExecutor` (`.map()`, `.submit()`, `as_completed()`) as the modern higher-level alternative to raw `Thread` objects — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Every timing example uses `time.sleep()` to simulate I/O-bound waits, so nothing here requires a real network call or file write, and every graded example is designed so its final result is deterministic even though thread interleaving isn't. Project: Concurrent File-Download Simulator |
 | 21 | Working with Databases | What a database connection is and why Python needs a driver library, connecting to MySQL with `mysql-connector-python` (`connect()`, `.cursor()`, `cursor.execute(sql, params)` with `%s` parameterized queries, `.fetchall()`/`.fetchone()`, `connection.commit()`), SQL injection (a concrete attack demonstration) and why parameterized queries close it structurally, MongoDB with `pymongo` (`MongoClient`, collections, documents as Python dicts) and CRUD (`insert_one`/`find`/`update_one`/`delete_one`), the relational-rows-vs-document-records tradeoff side by side, and cloud-hosted connections (the same driver code pointed at a remote host via a connection string, credentials read from `os.environ` instead of hardcoded, a TLS mention) — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. No real MySQL/MongoDB server is available or required: every executed example runs against a small `FakeConnection`/`FakeCursor`/`FakeCollection` class matching the real drivers' method names and call shapes, so nothing here needs a live database or an installed driver. Project: Student Record Management System |
 | — | Module 4 Written Exam | covers Chapters 17-21 |
+| 22 | Building Web Apps & APIs (Flask & FastAPI) | The request/response cycle and what a web framework is; Flask (`@app.route()`, `render_template()`, `request.args`/`request.form`/`request.json`) for server-rendered HTML; FastAPI (`@app.get()`/`@app.post()`, path/query params, Pydantic `BaseModel` request/response validation, automatic interactive docs at `/docs`) for typed JSON APIs, and why type hints are load-bearing there specifically (contrast with Flask's untyped-by-default style); a side-by-side Flask-vs-FastAPI comparison; and a conceptual "what's next" callout on server-rendered HTML vs. a JSON API meant for a separate frontend vs. where something like React would consume that JSON API — conceptual only, no React/JavaScript taught. No live server is available or required: every graded example is a plain Python function pulled out of its route decorator, testable without `app.run()`/`uvicorn.run()`, while complete, real, runnable Flask and FastAPI apps are shown too (verified against real Flask/FastAPI test clients) — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Project: Task Manager REST API, built once in Flask and once in FastAPI so the contrast is concrete. |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 22 | Building Web Apps & APIs (Flask & FastAPI) | Task-manager web app with a REST API |
 | 23 | NumPy for Data Analysis | Grade/statistics analyzer |
 | 24 | Pandas for Data Analysis | Sales-data dashboard (CSV in, insights out) |
 | 25 | Testing Your Code (unittest/pytest) | Test suite for an earlier project |
 | 26 | Professional Python (git, venv, logging, argparse) | CLI tool with proper packaging |
 | 27 | Capstone Projects | Combine 2-3 earlier projects into one portfolio piece |
 | 28 | Interview & Career Prep | Mock interview + portfolio checklist |
-
-**Chapter 22 scope note:** Python-only web framework chapter — no
-JavaScript/React is taught step-by-step (out of scope for a Python
-course), but the lesson should explicitly acknowledge where a real
-frontend (e.g. React) would plug into the API being built, so learners
-know what's next. Covers (1) **Flask**: routes, `render_template`,
-request/response basics, serving a simple server-rendered HTML page
-(ties back to templating concepts, reuses Ch13 file-handling instincts);
-(2) **FastAPI**: path/query params, Pydantic request/response models,
-automatic interactive docs (`/docs`), and why type hints matter here
-specifically (contrast with Flask's untyped-by-default style); (3) a
-short "what's next" callout comparing server-rendered HTML (Flask) vs.
-a JSON API meant for a separate frontend (FastAPI) vs. where something
-like React would consume that JSON API — conceptual only, no React code.
-Project: a task-manager web app exposing a REST API (CRUD on tasks),
-built once in Flask and once in FastAPI so the contrast is concrete,
-optionally persisting to the DB layer from Ch21.
 
 ## Format every chapter follows
 

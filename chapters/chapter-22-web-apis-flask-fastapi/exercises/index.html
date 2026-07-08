@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 22 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 22: Building Web Apps & APIs, covering Flask-style route logic, FastAPI-style path/query params, Pydantic-style validation, and a Debug the Code task.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-22">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 22 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Building Web Apps &amp; APIs — Flask &amp; FastAPI</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. Every task here is a plain Python function modeling exactly what
+    a real Flask or FastAPI route function does with its inputs — no live
+    server starts, and no real HTTP request is ever made.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Building a Flask template's context</h3>
+    <p>Write <code>build_task_lines(tasks)</code> — return a list of "TITLE -- Pending/Done" strings, the same content a <code>render_template()</code> call would receive.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reading a Flask query parameter</h3>
+    <p>Write <code>handle_search(simulated_args)</code> — return a search message from a dict standing in for <code>request.args</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Reading a Flask JSON body</h3>
+    <p>Write <code>handle_create_task(simulated_json_body)</code> — return a created/error response from a dict standing in for <code>request.json</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A FastAPI-style path parameter lookup</h3>
+    <p>Write <code>get_task(tasks, task_id)</code> — look up a task by ID, the same job a type-hinted path parameter does.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> A FastAPI-style query parameter filter</h3>
+    <p>Write <code>list_tasks(tasks, done=None)</code> — filter tasks by a default-valued query parameter.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Pydantic-style validation</h3>
+    <p>Write <code>validate_task_shape(body)</code> — check a dict's shape the way a Pydantic <code>BaseModel</code> would.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Comparing Flask vs. FastAPI defaults</h3>
+    <p>Write <code>default_response_shape(framework_name)</code> — return each framework's typical response format.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Recognizing what React would need</h3>
+    <p>Write <code>is_consumable_by_a_frontend(response_body)</code> — decide whether a response is JSON-shaped data or already-rendered HTML.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 9 — Debug the Code</h3>
+    <p>This is supposed to look up a query parameter the way FastAPI would, returning a default value if the key is missing — but it crashes with a <code>KeyError</code> instead. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_get_query_param.py</span>
+      </div>
+      <pre><code>def get_query_param(simulated_query_params, key, default=None):
+    return simulated_query_params[key]
+
+
+debug_params = {"limit": "10"}
+print(get_query_param(debug_params, "limit"))
+print(get_query_param(debug_params, "offset", default="0"))</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

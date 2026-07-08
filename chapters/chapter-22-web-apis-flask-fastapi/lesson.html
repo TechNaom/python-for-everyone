@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 22: Building Web Apps &amp; APIs — Flask &amp; FastAPI — Python for Everyone</title>
+<meta name="description" content="Flask routes, render_template, and the request object; FastAPI path/query params, Pydantic models, and automatic /docs; server-rendered HTML vs. a JSON API, and where a frontend like React would plug in — every graded example runs without a live server.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-22">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 22 of 28</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">80 min read</span>
+  </div>
+  <h1>Building Web Apps &amp; APIs — Flask &amp; FastAPI</h1>
+  <p><em>Every chapter so far has run start to finish inside one Python process, printing to a terminal or writing a file. A <strong>web framework</strong> flips that around: a program keeps running, waits for requests to arrive over the network, and sends a response back for each one &mdash; the same basic loop behind every website and mobile-app backend in existence. This chapter covers <strong>Flask</strong>, the classic way to serve server-rendered HTML pages from Python, and <strong>FastAPI</strong>, a newer, typed framework built specifically for JSON APIs &mdash; the two dominant, genuinely different answers to "how does Python talk to the web."</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> is the entry point: what a web framework is, and the request/response cycle every one of them is built around.</li>
+      <li><strong>Sub-topics 2-3</strong> cover Flask: routes, <code>render_template()</code>, and the <code>request</code> object.</li>
+      <li><strong>Sub-topics 4-5</strong> cover FastAPI: path/query params and Pydantic models, plus the automatic <code>/docs</code> page.</li>
+      <li><strong>Sub-topic 6</strong> puts Flask and FastAPI side by side, and explains why type hints matter specifically for FastAPI.</li>
+      <li><strong>Sub-topic 7</strong> is a conceptual "what's next" callout &mdash; server-rendered HTML vs. a JSON API vs. where a frontend like React would plug in. No React or JavaScript is taught here; it's mentioned only so you know what exists past this course's Python-only scope.</li>
+      <li><strong>This environment cannot run a live Flask or FastAPI server</strong> &mdash; there's no backend behind this course, and Pyodide's in-browser sandbox has no real network stack. Every runnable example in this chapter is a plain Python function or class taken out of its <code>@app.route</code>/<code>@app.get</code> wrapper, testable without <code>app.run()</code> or <code>uvicorn.run()</code> ever executing. Complete, real, runnable Flask and FastAPI apps are shown too &mdash; clearly labeled "run this locally" &mdash; using the exact decorators and calls a real project uses, just never executed inside this course.</li>
+      <li><strong>Every decorator, class, and call shown here is the real API</strong> from Flask and FastAPI, installable with <code>pip install flask</code> / <code>pip install fastapi uvicorn</code> &mdash; nothing here is simplified or invented.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-web-framework">1. What a web framework is</a>
+    <a href="#flask-routes">2. Flask routes &amp; render_template</a>
+    <a href="#flask-request">3. The Flask request object</a>
+    <a href="#fastapi-params">4. FastAPI path &amp; query params</a>
+    <a href="#fastapi-pydantic">5. Pydantic models &amp; automatic docs</a>
+    <a href="#flask-vs-fastapi">6. Flask vs. FastAPI, side by side</a>
+    <a href="#whats-next">7. What's next: HTML, JSON, and where React fits</a>
+  </nav>
+
+  <div class="hook">
+    Picture Chapter 19's <code>requests.get(...)</code> calls, hitting some public weather API out there on the internet. Something on the other end of that call had to be running: a program listening for incoming requests, reading what was asked for, and sending back a JSON response. That "something" is a web framework doing its job. This chapter builds that other end &mdash; first as an HTML page a browser renders directly (Flask), then as a JSON API exactly like the ones Chapter 19 consumed (FastAPI).
+  </div>
+
+  <div class="subtopic" id="what-is-a-web-framework">
+    <span class="subtopic-label">Sub-topic 1 of 7</span>
+    <h2>1. What a web framework is, and the request/response cycle</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>web framework</strong> is a library that keeps a Python program running, listens for incoming HTTP requests, and lets you write code that decides what response to send back.</li>
+        <li>Every request has a <strong>method</strong> (GET to fetch something, POST to send new data) and a <strong>path</strong> (like <code>/tasks</code> or <code>/tasks/3</code>); every response has a status code and a body.</li>
+        <li>Flask and FastAPI both exist because "serve a request, send a response" has two very different natural shapes: a full HTML page for a browser to render, or a JSON payload for another program to parse.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Flask and FastAPI look like two unrelated libraries to learn from scratch, until you see they're both just different answers to this one shared question &mdash; seeing the request/response cycle first makes everything after it click into place as "the same idea, two flavors" instead of two disconnected skills.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a web framework?</span>
+      A <strong>web framework</strong> is a library that handles the low-level networking of receiving HTTP requests and sending back HTTP responses, so your code only has to say "when a request for this path arrives, run this function and return this." Flask and FastAPI are both Python web frameworks &mdash; they differ in what shape of response they're built around, not in what job they do.
+    </div>
+
+    <p>
+      Every request/response exchange follows the same basic shape, whether
+      it's a browser loading a page or Chapter 19's <code>requests</code>
+      library calling a weather API:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the request/response cycle</span>
+      <pre><code>CLIENT (browser, phone app, or requests.get())
+   |
+   |  HTTP request: method (GET/POST/...) + path (/tasks) + optional body
+   v
+YOUR PYTHON PROGRAM (Flask or FastAPI, listening on a port)
+   |
+   |  your code runs, decides what to send back
+   v
+   HTTP response: status code (200, 404, ...) + a body (HTML or JSON)
+   |
+   v
+CLIENT receives the response</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a status code?</span>
+      A <strong>status code</strong> is a three-digit number every HTTP
+      response carries, summarizing what happened: <code>200</code> means
+      "OK, here's your data," <code>404</code> means "nothing exists at
+      that path," <code>500</code> means "the server itself hit an error."
+      Chapter 19's <code>response.status_code</code> was reading exactly
+      this value from the other side of a request &mdash; this chapter is
+      about being the program that sets it.
+    </div>
+
+    <p>
+      Flask was built first, in an era when a Python program's job was
+      almost always to render a full HTML page &mdash; the response a
+      browser could display directly. FastAPI came later, built for a
+      different reality: many modern applications separate a JSON-serving
+      "backend" from whatever renders the actual screen (a mobile app, or a
+      separate frontend written in something like React). Neither approach
+      is obsolete; they solve genuinely different problems, which is why
+      this chapter teaches both side by side rather than picking one.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A web framework keeps a program running, listens for requests, and lets your code decide what to send back.</li>
+      <li>Every request has a method and a path; every response has a status code and a body.</li>
+      <li>Flask (HTML pages) and FastAPI (JSON APIs) are two answers to the same request/response cycle, not competing solutions to different problems.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what does "listening on a port" actually mean?</summary>
+      <p>
+        A running web server binds to a numbered "port" on the machine
+        (commonly <code>5000</code> for Flask's development server,
+        <code>8000</code> for a typical FastAPI/uvicorn setup) and waits
+        there for incoming network connections addressed to that port.
+        Visiting <code>http://localhost:5000</code> in a browser is
+        literally addressing a request to port <code>5000</code> on your
+        own machine (<code>localhost</code>) &mdash; the same mechanism a
+        real deployment uses, just pointed at a public address instead of
+        your own computer.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A web framework listens for HTTP requests and lets your code decide what response to send back.</li>
+        <li>Requests have a method and path; responses have a status code and a body.</li>
+        <li>Flask serves HTML pages; FastAPI serves JSON APIs &mdash; both are legitimate answers to the same request/response cycle.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="flask-routes">
+    <span class="subtopic-label">Sub-topic 2 of 7</span>
+    <h2>2. Flask: <code>@app.route()</code> and <code>render_template()</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>@app.route("/path")</code> connects a URL path to a Python function &mdash; that function's return value becomes the response.</li>
+        <li><code>render_template("file.html", **context)</code> fills in an HTML template file with Python values, the same way Chapter 6's f-strings filled values into a string.</li>
+        <li>A route function can just <code>return</code> a plain string too &mdash; <code>render_template()</code> is for when the response is a whole HTML page.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> <code>@app.route()</code> is the single most-used piece of Flask &mdash; nearly every Flask app is, underneath everything else, a collection of route functions mapped to paths, exactly like the one shown here.
+    </div>
+
+    <p>
+      Here's a complete, real, runnable Flask app &mdash; shown for
+      reference, following the real API exactly, but never executed in
+      this course (there's no live server here to run it against):
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">app.py (run this locally: pip install flask, then python3 app.py)</span>
+      </div>
+      <pre><code>from flask import Flask, render_template
+
+app = Flask(__name__)
+
+TASKS = [
+    {"id": 1, "title": "Write the report", "done": False},
+    {"id": 2, "title": "Review pull request", "done": True},
+]
+
+
+@app.route("/")
+def home():
+    return render_template("tasks.html", tasks=TASKS)
+
+
+@app.route("/about")
+def about():
+    return "A simple task manager, built with Flask."
+
+
+if __name__ == "__main__":
+    app.run(debug=True)  # visit http://localhost:5000</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a route?</span>
+      A <strong>route</strong> is the pairing of a URL path (like
+      <code>"/"</code> or <code>"/about"</code>) with the Python function
+      that should run whenever a request for that path arrives.
+      <code>@app.route("/path")</code> is a decorator (Chapter 10) that
+      registers this pairing with Flask &mdash; the function underneath it
+      is called the <strong>view function</strong>, and its return value
+      becomes the response's body.
+    </div>
+
+    <p>
+      <code>render_template()</code> looks for an HTML file inside a
+      <code>templates/</code> folder next to <code>app.py</code>, and fills
+      in placeholders using Jinja2 template syntax (<code>{{ variable }}</code>,
+      <code>{% for x in y %}</code>) &mdash; conceptually the same job
+      Chapter 6's f-strings did, just applied to a whole HTML file loaded
+      from disk (Chapter 13's <code>open()</code> territory) instead of one
+      Python string built in memory:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">templates/tasks.html (reference only -- not run here)</span>
+      </div>
+      <pre><code>&lt;!doctype html&gt;
+&lt;title&gt;Tasks&lt;/title&gt;
+&lt;ul&gt;
+{% for task in tasks %}
+  &lt;li&gt;{{ task.title }} -- {{ "Done" if task.done else "Pending" }}&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;</code></pre>
+    </div>
+
+    <p>
+      Since no live server or template folder exists in this course, this
+      chapter's runnable examples pull the "decide what the page should
+      contain" logic out into a plain function &mdash; the exact same logic
+      a real route function would run, just callable and testable directly
+      without <code>render_template()</code>'s file-loading step:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">route_logic.py</span>
+      </div>
+      <pre><code># This is the same decision-making a Flask view function does, pulled out
+# as a plain function so it runs here without a template file or a live
+# server -- render_template("tasks.html", tasks=tasks) would use this
+# exact list of dicts as its context in a real app.
+
+def build_task_summary(tasks):
+    lines = []
+    for task in tasks:
+        status = "Done" if task["done"] else "Pending"
+        lines.append(f"{task['title']} -- {status}")
+    return lines
+
+
+tasks = [
+    {"id": 1, "title": "Write the report", "done": False},
+    {"id": 2, "title": "Review pull request", "done": True},
+]
+for line in build_task_summary(tasks):
+    print(line)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of route_logic.py</span>
+      <pre><code>Write the report -- Pending
+Review pull request -- Done</code></pre>
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">def build_task_summary(tasks):
+    lines = []
+    for task in tasks:
+        status = "Done" if task["done"] else "Pending"
+        lines.append(f"{task['title']} -- {status}")
+    return lines
+
+
+tasks = [
+    {"id": 1, "title": "Write the report", "done": False},
+    {"id": 2, "title": "Review pull request", "done": True},
+    {"id": 3, "title": "Deploy to production", "done": False},
+]
+for line in build_task_summary(tasks):
+    print(line)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try adding another task dict to the list.</div>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>@app.route("/path")</code> maps a URL path to a view function; its return value becomes the response.</li>
+      <li><code>render_template(file, **context)</code> fills an HTML template file with Python values (Jinja2 syntax), the templated equivalent of an f-string.</li>
+      <li>This chapter's runnable examples pull a route's "what should the page contain" logic into a plain function, testable without a live server or template file.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can a route function return something other than a full HTML page?</summary>
+      <p>
+        Yes &mdash; a Flask view function can return a plain string (Flask
+        wraps it in a minimal HTML response automatically), a dict (Flask
+        automatically converts it to a JSON response, which is how Flask
+        can also serve small JSON endpoints when a full HTML page isn't
+        needed), or a tuple like <code>(body, status_code)</code> to set a
+        specific status code. <code>render_template()</code> is simply the
+        most common choice when the response genuinely is a full page a
+        browser should render.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>@app.route("/path")</code> connects a URL path to a view function; its return value is the response.</li>
+        <li><code>render_template()</code> fills an HTML template file with Python values using Jinja2 syntax.</li>
+        <li>A route function can also just return a plain string, dict, or tuple with a status code.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="flask-request">
+    <span class="subtopic-label">Sub-topic 3 of 7</span>
+    <h2>3. The Flask <code>request</code> object</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>request.args</code> holds query-string parameters (<code>?key=value</code> in the URL) as a dict-like object.</li>
+        <li><code>request.form</code> holds data submitted from an HTML <code>&lt;form&gt;</code> (a POST request's body, form-encoded).</li>
+        <li><code>request.json</code> holds a POST request's body when it's JSON &mdash; the shape an API client (like Chapter 19's <code>requests</code>) would send.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a route function needs to read what the client actually sent before it can decide what to send back &mdash; <code>request</code> is Flask's single object for reading every part of an incoming request, regardless of where the data came from.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>request</code> object?</span>
+      Flask's <code>request</code> is a global object, imported with
+      <code>from flask import request</code>, that always refers to
+      whatever request is currently being handled &mdash; reading
+      <code>request.args</code>, <code>request.form</code>, or
+      <code>request.json</code> inside a view function gets you the data
+      the client actually sent for that specific request, without your
+      code ever having to parse raw HTTP text itself.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">app_with_request.py (reference only -- not run)</span>
+      </div>
+      <pre><code>from flask import Flask, request
+
+app = Flask(__name__)
+
+
+@app.route("/search")
+def search():
+    # A request to /search?q=python reads "python" from request.args
+    query = request.args.get("q", "")
+    return f"Searching for: {query}"
+
+
+@app.route("/tasks", methods=["POST"])
+def create_task():
+    # A JSON POST body like {"title": "Water the plants"}
+    data = request.json
+    title = data.get("title", "")
+    return {"created": title}, 201
+
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+    </div>
+
+    <p>
+      Since there's no live server here to actually send a request against,
+      this chapter's runnable version pulls the same
+      <code>.get(key, default)</code> reading pattern out into plain
+      functions operating on ordinary Python dicts &mdash; standing in for
+      what <code>request.args</code> and <code>request.json</code> would
+      already look like by the time a view function reads them:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">request_reading_demo.py</span>
+      </div>
+      <pre><code># simulated_args/simulated_json_body stand in for what request.args /
+# request.json would already contain by the time a view function reads
+# them -- both behave like plain dicts with a .get(key, default) method.
+
+def handle_search(simulated_args):
+    query = simulated_args.get("q", "")
+    return f"Searching for: {query}" if query else "No search term provided."
+
+
+def handle_create_task(simulated_json_body):
+    title = simulated_json_body.get("title", "")
+    if not title:
+        return {"error": "title is required"}, 400
+    return {"created": title}, 201
+
+
+print(handle_search({"q": "python"}))
+print(handle_search({}))
+print(handle_create_task({"title": "Water the plants"}))
+print(handle_create_task({}))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of request_reading_demo.py</span>
+      <pre><code>Searching for: python
+No search term provided.
+({'created': 'Water the plants'}, 201)
+({'error': 'title is required'}, 400)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a query string?</span>
+      A <strong>query string</strong> is the part of a URL after
+      <code>?</code>, made of <code>key=value</code> pairs joined by
+      <code>&amp;</code> &mdash; <code>/search?q=python&amp;limit=10</code>
+      has a query string of <code>q=python&amp;limit=10</code>, readable in
+      Flask as <code>request.args.get("q")</code> and
+      <code>request.args.get("limit")</code>.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>request.args</code> reads query-string parameters from the URL.</li>
+      <li><code>request.form</code> reads HTML form-submitted data; <code>request.json</code> reads a JSON request body.</li>
+      <li>Every one of these behaves like a dict with <code>.get(key, default)</code> &mdash; the same safe-lookup habit Chapter 8 taught for plain dicts.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does <code>/tasks</code> need <code>methods=["POST"]</code> in the decorator?</summary>
+      <p>
+        By default, <code>@app.route()</code> only responds to GET requests
+        &mdash; the method used for simply fetching a page or resource.
+        Creating something new is conventionally done with a POST request
+        instead (the same distinction Chapter 19 covered from the client
+        side), so a route meant to handle creation needs to explicitly opt
+        in with <code>methods=["POST"]</code>, or Flask will reject a POST
+        request to that path with a <code>405 Method Not Allowed</code>
+        response.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>request.args</code> reads query-string parameters; <code>request.form</code> reads form data; <code>request.json</code> reads a JSON body.</li>
+        <li>Each supports <code>.get(key, default)</code>, the same safe-lookup pattern as a plain dict.</li>
+        <li>A route needs <code>methods=["POST"]</code> to accept anything other than GET requests.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="fastapi-params">
+    <span class="subtopic-label">Sub-topic 4 of 7</span>
+    <h2>4. FastAPI: path params, query params, and <code>@app.get</code>/<code>@app.post</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>@app.get("/path")</code> and <code>@app.post("/path")</code> are FastAPI's equivalent of Flask's <code>@app.route()</code>, one decorator per HTTP method.</li>
+        <li>A <strong>path parameter</strong> like <code>{item_id}</code> in <code>@app.get("/items/{item_id}")</code> becomes a function argument, automatically converted to the type hint given.</li>
+        <li>A <strong>query parameter</strong> is just a regular function argument with a default value &mdash; FastAPI infers it belongs in the query string rather than the path.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> FastAPI's path/query param handling is where type hints stop being optional documentation and start doing real work &mdash; this sub-topic is the concrete mechanism; Sub-topic 6 explains why that design choice matters so much.
+    </div>
+
+    <p>
+      Here's a complete, real, runnable FastAPI app &mdash; shown for
+      reference, following the real API exactly, never executed here:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">main.py (run this locally: pip install fastapi uvicorn, then uvicorn main:app --reload)</span>
+      </div>
+      <pre><code>from fastapi import FastAPI
+
+app = FastAPI()
+
+TASKS = {
+    1: {"title": "Write the report", "done": False},
+    2: {"title": "Review pull request", "done": True},
+}
+
+
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
+    # task_id arrives as a STRING in the URL; the : int type hint tells
+    # FastAPI to convert it to an int automatically before this function
+    # even runs, and to reject the request with a clear error if it can't.
+    return TASKS.get(task_id, {"error": "not found"})
+
+
+@app.get("/tasks")
+def list_tasks(done: bool | None = None):
+    # done is a QUERY parameter (/tasks?done=true) because it has a
+    # default value, rather than appearing inside the path itself.
+    if done is None:
+        return TASKS
+    return {tid: t for tid, t in TASKS.items() if t["done"] == done}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)  # visit http://localhost:8000/docs</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a path parameter?</span>
+      A <strong>path parameter</strong> is a placeholder inside a route's
+      URL path itself, written in curly braces (<code>{task_id}</code>),
+      that becomes a required function argument. It identifies <em>which</em>
+      specific resource a request is about &mdash;
+      <code>/tasks/1</code> and <code>/tasks/2</code> are two different
+      URLs hitting the same route, with <code>task_id</code> bound to
+      <code>1</code> or <code>2</code> respectively.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a query parameter?</span>
+      A <strong>query parameter</strong> is extra, often optional
+      information passed after <code>?</code> in the URL
+      (<code>/tasks?done=true</code>). In FastAPI, any function argument
+      that isn't part of the path and has a default value is automatically
+      treated as a query parameter &mdash; no special decorator syntax
+      needed, unlike the path parameter's curly-brace placeholder.
+    </div>
+
+    <p>
+      Since a live server isn't available here, this chapter's runnable
+      version pulls the exact same type-conversion and lookup logic these
+      route functions run into plain functions &mdash; the type hints stay
+      real Python type hints throughout, even without FastAPI installed to
+      act on them automatically:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">path_and_query_demo.py</span>
+      </div>
+      <pre><code># The same logic get_task()/list_tasks() run, as plain functions. A real
+# FastAPI route converts the URL's task_id string to int automatically
+# because of the `task_id: int` type hint -- here that conversion is
+# simulated explicitly with int(), the way FastAPI would do it internally.
+
+TASKS = {
+    1: {"title": "Write the report", "done": False},
+    2: {"title": "Review pull request", "done": True},
+}
+
+
+def get_task(task_id: int):
+    return TASKS.get(task_id, {"error": "not found"})
+
+
+def list_tasks(done=None):
+    if done is None:
+        return TASKS
+    return {tid: t for tid, t in TASKS.items() if t["done"] == done}
+
+
+# Simulating a request to /tasks/2 -- FastAPI would have already
+# converted the URL string "2" to the int 2 before calling get_task.
+print(get_task(int("2")))
+print(get_task(99))
+
+# Simulating /tasks (no query string) and /tasks?done=true
+print(list_tasks())
+print(list_tasks(done=True))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of path_and_query_demo.py</span>
+      <pre><code>{'title': 'Review pull request', 'done': True}
+{'error': 'not found'}
+{1: {'title': 'Write the report', 'done': False}, 2: {'title': 'Review pull request', 'done': True}}
+{2: {'title': 'Review pull request', 'done': True}}</code></pre>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>@app.get()</code>/<code>@app.post()</code> are FastAPI's per-method equivalents of Flask's single <code>@app.route()</code>.</li>
+      <li>A path parameter (<code>{item_id}</code>) is part of the URL itself and becomes a required argument, auto-converted by its type hint.</li>
+      <li>A query parameter is just a function argument with a default value &mdash; FastAPI places it in the query string automatically.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what happens if a URL's path parameter can't convert to the type hint?</summary>
+      <p>
+        If a request hits <code>/tasks/abc</code> against
+        <code>def get_task(task_id: int)</code>, FastAPI tries to convert
+        the string <code>"abc"</code> to an <code>int</code>, fails, and
+        automatically responds with a <code>422 Unprocessable Entity</code>
+        error describing exactly what went wrong &mdash; without a single
+        line of validation code written by hand. This automatic rejection
+        is a direct product of the type hint being real, checked
+        information rather than just a comment for humans to read.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>@app.get("/path")</code>/<code>@app.post("/path")</code> register route functions per HTTP method.</li>
+        <li>A path parameter (<code>{name}</code> in the URL) becomes a required, type-hint-converted function argument.</li>
+        <li>A query parameter is a function argument with a default value, read from the URL's query string automatically.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="fastapi-pydantic">
+    <span class="subtopic-label">Sub-topic 5 of 7</span>
+    <h2>5. Pydantic models and automatic <code>/docs</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>Pydantic <code>BaseModel</code></strong> describes the exact shape of expected request/response data as a class, using type hints for every field.</li>
+        <li>Passing a Pydantic model as a route function's argument makes FastAPI validate the incoming JSON body against it automatically, before the function body even runs.</li>
+        <li>FastAPI generates an interactive <strong>Swagger UI</strong> page at <code>/docs</code> automatically, built directly from your route signatures and Pydantic models &mdash; no separate documentation to write or maintain.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the sub-topic that makes FastAPI's whole "typed" pitch concrete &mdash; a Pydantic model isn't just a nicer way to write a dict shape, it's what both the automatic validation and the automatic <code>/docs</code> page are generated from.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... Pydantic?</span>
+      <strong>Pydantic</strong> is the data-validation library FastAPI is
+      built on top of. A Pydantic model is a class inheriting from
+      <code>BaseModel</code>, with each field written as a class attribute
+      with a type hint &mdash; similar in spirit to Chapter 14/15's
+      classes, except Pydantic uses the type hints to actually validate
+      incoming data against them, not just document intent.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">main_with_pydantic.py (reference only -- not run)</span>
+      </div>
+      <pre><code>from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+
+class Task(BaseModel):
+    title: str
+    done: bool = False   # a default value makes this field optional
+
+
+TASKS: dict[int, Task] = {}
+next_id = 1
+
+
+@app.post("/tasks")
+def create_task(task: Task):
+    # FastAPI has ALREADY validated the incoming JSON body against Task
+    # by the time this function runs -- a body missing "title", or with
+    # "done" set to a non-boolean value, never reaches this line at all;
+    # FastAPI responds with a 422 error automatically instead.
+    global next_id
+    TASKS[next_id] = task
+    created_id = next_id
+    next_id += 1
+    return {"id": created_id, **task.model_dump()}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)  # /docs shows this live</code></pre>
+    </div>
+
+    <p>
+      Since Pydantic validation needs the actual library installed and a
+      real request body to run against, this chapter's runnable version
+      demonstrates the same validation idea with a small, plain function
+      &mdash; standing in for what a Pydantic model's automatic checking
+      would do before a route function ever runs:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">validation_demo.py</span>
+      </div>
+      <pre><code># validate_task_shape simulates what a Pydantic BaseModel checks
+# automatically: "title" must be present and a str; "done" is optional
+# and defaults to False, but must be a bool if given at all. A real
+# Pydantic model does exactly this, generated from type hints, before
+# create_task() in main_with_pydantic.py ever runs.
+
+def validate_task_shape(body):
+    if "title" not in body or not isinstance(body["title"], str):
+        return False, "title is required and must be a string"
+    if "done" in body and not isinstance(body["done"], bool):
+        return False, "done must be a boolean"
+    return True, None
+
+
+print(validate_task_shape({"title": "Water the plants"}))
+print(validate_task_shape({"title": "Water the plants", "done": True}))
+print(validate_task_shape({"done": True}))
+print(validate_task_shape({"title": "Water the plants", "done": "yes"}))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of validation_demo.py</span>
+      <pre><code>(True, None)
+(True, None)
+(False, 'title is required and must be a string')
+(False, 'done must be a boolean')</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>/docs</code>?</span>
+      FastAPI automatically serves an interactive documentation page at
+      <code>/docs</code> (a <strong>Swagger UI</strong> page) for every
+      running app, listing every route, its parameters, and the shape of
+      any Pydantic model involved &mdash; generated directly from your
+      code's type hints and models, with a "Try it out" button that sends
+      real requests from right inside the browser. Nothing is written by
+      hand to produce it; it exists purely because the route signatures
+      and models already contain enough real, typed information to build
+      it automatically.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A Pydantic <code>BaseModel</code> describes expected data shape as a class with type-hinted fields.</li>
+      <li>Passing a model as a route argument makes FastAPI validate the request body against it automatically, rejecting bad data with a 422 before your function runs.</li>
+      <li><code>/docs</code> is generated automatically from route signatures and Pydantic models &mdash; no hand-written documentation needed.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can a Pydantic model also shape the RESPONSE, not just the request?</summary>
+      <p>
+        Yes &mdash; a route can declare
+        <code>@app.get("/tasks/{id}", response_model=Task)</code>, and
+        FastAPI will filter and validate whatever the function returns
+        down to exactly that model's fields before sending the response.
+        This is useful for making sure a route never accidentally leaks an
+        internal field (like a password hash on a User model) that
+        happens to exist on the underlying Python object but was never
+        meant to reach a client.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A Pydantic <code>BaseModel</code> uses type-hinted class fields to describe and validate expected data shape.</li>
+        <li>A route argument typed as a Pydantic model gets its request body validated automatically before the function runs.</li>
+        <li><code>/docs</code> is FastAPI's automatic, interactive Swagger UI page, generated from route signatures and models.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="flask-vs-fastapi">
+    <span class="subtopic-label">Sub-topic 6 of 7</span>
+    <h2>6. Flask vs. FastAPI, side by side</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Flask: untyped by default, server-rendered HTML, a simpler mental model, huge ecosystem, synchronous by default.</li>
+        <li>FastAPI: type hints are load-bearing (validation + docs generation), JSON-first, automatic <code>/docs</code>, async-friendly out of the box.</li>
+        <li>Neither is "better" &mdash; they're built around different default outputs (an HTML page vs. a JSON payload).</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the conceptual payoff of covering both frameworks in one chapter &mdash; every difference in Sub-topics 2-5 traces back to one root design choice each framework made about what a typical response looks like.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">Flask vs. FastAPI, side by side</span>
+      <pre><code>                    FLASK                       FASTAPI
+                    ----------------------      ----------------------
+Typical response    Full HTML page              JSON payload
+Type hints          Optional, not enforced      Load-bearing: drive validation + docs
+Route decorator     @app.route("/x")             @app.get("/x") / @app.post("/x")
+Data validation     Manual (if statements)       Automatic, via Pydantic models
+API docs            Not built in                 Automatic, at /docs
+Best fit            Server-rendered websites     JSON APIs for another app/frontend to consume
+Concurrency style   Synchronous by default       async-friendly by default</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... "untyped by default," for Flask?</span>
+      Flask's <code>request.args.get("q")</code> always returns a plain
+      string (or <code>None</code>) &mdash; converting it to an
+      <code>int</code> or validating its shape is something your code has
+      to do explicitly, with ordinary <code>if</code> statements and
+      <code>try</code>/<code>except</code> (Chapter 12). FastAPI's type
+      hints do this same job automatically, which is the single biggest
+      practical difference between the two frameworks' day-to-day feel.
+    </div>
+
+    <p>
+      Why does this contrast matter specifically? Because it's not a
+      cosmetic style choice &mdash; it changes where validation logic
+      lives:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>In Flask</strong>, a route handling a POST request typically checks required fields, types, and ranges by hand, the same defensive style Chapter 12's exception handling and Chapter 8's <code>dict.get()</code> patterns already cover.</li>
+      <li><strong>In FastAPI</strong>, that same checking is expressed once, declaratively, as a Pydantic model's type hints &mdash; and then reused automatically for both validation and the <code>/docs</code> page, instead of being written (and kept in sync) twice.</li>
+      <li>This is exactly why type hints "matter specifically" here: in most of this course, a type hint has been optional documentation for humans; in FastAPI, it's the actual mechanism doing real work at request time.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: could Flask serve JSON, or FastAPI serve HTML?</summary>
+      <p>
+        Yes, technically &mdash; Flask can return a dict (auto-converted to
+        JSON) from any route, and FastAPI can return an
+        <code>HTMLResponse</code> with a raw HTML string. Neither framework
+        is <em>restricted</em> to one output format. But each framework's
+        defaults, ecosystem, and idiomatic patterns are built around one
+        primary use case (Flask around HTML pages with
+        <code>render_template()</code>, FastAPI around typed JSON with
+        Pydantic), which is why real projects pick the framework matching
+        what they're mostly building, rather than fighting either
+        framework's natural grain.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Flask defaults to server-rendered HTML and untyped request data; FastAPI defaults to typed JSON with automatic validation and docs.</li>
+        <li>Type hints are optional documentation in Flask, but load-bearing validation logic in FastAPI.</li>
+        <li>Both frameworks can technically do the other's job, but each has a natural, idiomatic use case it's built around.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="whats-next">
+    <span class="subtopic-label">Sub-topic 7 of 7</span>
+    <h2>7. What's next: server-rendered HTML, a JSON API, and where React fits</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A Flask app rendering full HTML pages is a complete, working website all by itself &mdash; nothing else is required.</li>
+        <li>A FastAPI JSON API is deliberately <em>not</em> a complete website by itself &mdash; it's meant to be consumed by something else that renders an actual screen.</li>
+        <li>A frontend framework like <strong>React</strong> is exactly that "something else" &mdash; it's JavaScript, runs in the browser, and would call a JSON API like the ones this chapter built, the same way Chapter 19's <code>requests</code> library called a public API from Python.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is a conceptual "what's next" callout, not a new skill to build &mdash; it exists so you know exactly what a JSON API is FOR and what would typically sit on the other end of it, without this Python course teaching JavaScript or React itself.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... React (conceptually only &mdash; not taught here)?</span>
+      <strong>React</strong> is a popular JavaScript library for building
+      what a user actually sees and clicks in a browser (a "frontend").
+      It's mentioned here only so the picture is complete: a React
+      application would run in the user's browser and make HTTP requests
+      &mdash; the exact same kind of request Chapter 19's
+      <code>requests.get()</code> made from Python &mdash; to a JSON API
+      like the FastAPI app this chapter built, then use the JSON response
+      to decide what to display. No React or JavaScript syntax is taught
+      in this course; it's out of scope for a Python-focused curriculum.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">three shapes of "what serves the user," side by side</span>
+      <pre><code>1. SERVER-RENDERED HTML (this chapter's Flask approach)
+   Browser  <----HTML page, ready to display---->  Flask app
+   One request gets a complete, displayable page. Simplest mental model.
+
+2. JSON API, no separate frontend built in this course
+   Program  <----JSON data only, no visuals---->  FastAPI app
+   Something else has to turn this JSON into an actual screen.
+
+3. JSON API + a separate frontend (the real-world "next step")
+   React (in the browser)  <--JSON-->  FastAPI app  <--DB-->  Database
+   React renders the screen; FastAPI only ever serves data, never HTML.</code></pre>
+    </div>
+
+    <p>
+      This is exactly why the same task-manager idea gets built twice in
+      this chapter's project, once each way: a Flask version that's a
+      complete, working mini-website entirely on its own, and a FastAPI
+      version that's deliberately "just" a JSON API &mdash; complete and
+      correct on its own terms, but built with the explicit expectation
+      that something else (a real frontend, a mobile app, another script)
+      would be the thing a person actually looks at.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Flask, rendering HTML, is a complete website by itself.</li>
+      <li>FastAPI, serving JSON, is deliberately incomplete as a "thing a person looks at" &mdash; it's meant to be consumed by something else.</li>
+      <li>A frontend framework like React is exactly that "something else," calling a JSON API the same way Chapter 19's Python code called one &mdash; conceptual only, not taught in this course.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: if a JSON API "isn't a website," why build one at all?</summary>
+      <p>
+        Because a single JSON API can serve <em>multiple</em> different
+        "somethings else" at once &mdash; a React web frontend, a native
+        mobile app, another company's integration, and an internal script
+        can all call the exact same FastAPI endpoints, each getting the
+        same JSON back and rendering it however makes sense for that
+        platform. A Flask app rendering HTML directly, by contrast, is
+        tied to being displayed as a webpage specifically &mdash; which is
+        exactly the tradeoff Sub-topic 6's comparison was pointing at.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Flask's server-rendered HTML is a complete website on its own.</li>
+        <li>FastAPI's JSON API is deliberately meant to be consumed by something else that renders the actual screen.</li>
+        <li>React (not taught here) is a common example of that "something else" &mdash; a browser-side consumer of the same kind of JSON API this chapter built.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Flask remains extremely common for internal tools, admin dashboards, and small-to-medium websites where server-rendered HTML is simpler to build and deploy than a separate frontend.</li>
+      <li>FastAPI has become a default choice for new Python-backed JSON APIs specifically because of its automatic validation and docs &mdash; teams spend far less time hand-writing request-checking code and API documentation that inevitably drifts out of date.</li>
+      <li>Nearly every mobile app and modern web app you use daily is a frontend (native or React-like) talking to a JSON API very similar in shape to the FastAPI app built in this chapter's project.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A web framework listens for HTTP requests and lets your code decide what response to send back; every request has a method and path, every response a status code and body.</li>
+      <li>Flask: <code>@app.route("/path")</code> maps a URL to a view function; <code>render_template()</code> fills an HTML template with Python values; <code>request.args</code>/<code>request.form</code>/<code>request.json</code> read incoming data.</li>
+      <li>FastAPI: <code>@app.get()</code>/<code>@app.post()</code> register routes per HTTP method; path parameters (<code>{name}</code>) and query parameters (default-valued arguments) are auto-converted by type hints; Pydantic <code>BaseModel</code> classes validate request/response shape automatically.</li>
+      <li>FastAPI's <code>/docs</code> is an automatic, interactive Swagger UI page generated directly from route signatures and Pydantic models.</li>
+      <li>Type hints are optional documentation in Flask, but the actual mechanism driving validation and docs generation in FastAPI &mdash; the single biggest practical difference between the two.</li>
+      <li>Server-rendered HTML (Flask) is a complete website by itself; a JSON API (FastAPI) is meant to be consumed by something else &mdash; a real frontend like React, a mobile app, or another script &mdash; conceptual only, no React taught here.</li>
+      <li>Every runnable example in this chapter used a plain function or class standing in for a real route, since no live Flask/FastAPI server can run inside this course &mdash; the decorators, classes, and calls shown are the genuine APIs, installable with <code>pip install flask</code> / <code>pip install fastapi uvicorn</code>.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 22 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 22: Building Web Apps & APIs — Flask & FastAPI.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-22" data-active-chapter="chapter-22">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 22 Quiz</span>
+  <h1>Building Web Apps &amp; APIs — Flask &amp; FastAPI</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What does a web framework do, at its core?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">Compiles Python into machine code for speed</button>
+        <button type="button" class="mcq-option" data-correct="true">Listens for HTTP requests and lets your code decide what response to send back</button>
+        <button type="button" class="mcq-option" data-correct="false">Automatically writes HTML for you with no Python code at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> What does every HTTP response carry, summarizing what happened?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">A randomly generated session ID</button>
+        <button type="button" class="mcq-option" data-correct="true">A status code, like 200 or 404</button>
+        <button type="button" class="mcq-option" data-correct="false">The client's IP address</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does <code>@app.route("/tasks")</code> do in Flask?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">Creates a new database table named "tasks"</button>
+        <button type="button" class="mcq-option" data-correct="true">Maps the URL path /tasks to the view function defined underneath it</button>
+        <button type="button" class="mcq-option" data-correct="false">Imports the tasks module</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What does Flask's <code>render_template()</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">Sends a request to another server</button>
+        <button type="button" class="mcq-option" data-correct="true">Fills in an HTML template file with Python values and returns it as the response</button>
+        <button type="button" class="mcq-option" data-correct="false">Converts JSON into a Python dict</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> In Flask, where would a request to <code>/search?q=python</code>'s query term be read from?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>request.form</code></button>
+        <button type="button" class="mcq-option" data-correct="true"><code>request.args</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>request.json</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> What does <code>request.json</code> hold in a Flask route?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">The URL's query string, parsed as JSON</button>
+        <button type="button" class="mcq-option" data-correct="true">A POST request's body, when the client sent JSON</button>
+        <button type="button" class="mcq-option" data-correct="false">A cached copy of the last response sent</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> In FastAPI's <code>@app.get("/tasks/{task_id}")</code> with <code>def get_task(task_id: int)</code>, what is <code>task_id</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">A query parameter</button>
+        <button type="button" class="mcq-option" data-correct="true">A path parameter, auto-converted to int by its type hint</button>
+        <button type="button" class="mcq-option" data-correct="false">A Pydantic model</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> In FastAPI, how does a function argument become a query parameter instead of a path parameter?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">By writing it in curly braces inside the route's path string</button>
+        <button type="button" class="mcq-option" data-correct="true">By giving it a default value and not including it in the path string</button>
+        <button type="button" class="mcq-option" data-correct="false">By decorating it with <code>@query</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> What is a Pydantic <code>BaseModel</code> used for in FastAPI?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">Connecting to a database</button>
+        <button type="button" class="mcq-option" data-correct="true">Describing and automatically validating the shape of request/response data</button>
+        <button type="button" class="mcq-option" data-correct="false">Rendering an HTML template</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What happens if a request body fails a Pydantic model's validation in FastAPI?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">The route function runs anyway with default values substituted</button>
+        <button type="button" class="mcq-option" data-correct="true">FastAPI responds with a 422 error automatically, before the route function runs</button>
+        <button type="button" class="mcq-option" data-correct="false">The server crashes and must be restarted</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What is FastAPI's automatic <code>/docs</code> page?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">A hand-written markdown file bundled with the app</button>
+        <button type="button" class="mcq-option" data-correct="true">An interactive Swagger UI page generated automatically from route signatures and Pydantic models</button>
+        <button type="button" class="mcq-option" data-correct="false">A log of every past request the server has received</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> Why do type hints "matter specifically" in FastAPI, compared to most of this course?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">They make the code run measurably faster</button>
+        <button type="button" class="mcq-option" data-correct="true">They actively drive request validation and automatic docs generation, not just document intent for humans</button>
+        <button type="button" class="mcq-option" data-correct="false">They are required by Python's syntax to run any function</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> What is Flask's typical response shape, contrasted with FastAPI's?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Flask serves only JSON; FastAPI serves only HTML</button>
+        <button type="button" class="mcq-option" data-correct="true">Flask typically serves server-rendered HTML; FastAPI typically serves JSON</button>
+        <button type="button" class="mcq-option" data-correct="false">Both are restricted to the exact same response type</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> Why is a FastAPI JSON API "deliberately incomplete" as something a person looks at?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">Because it's missing required error handling</button>
+        <button type="button" class="mcq-option" data-correct="true">Because it's meant to be consumed by something else (a frontend, mobile app, or script) that renders the actual screen</button>
+        <button type="button" class="mcq-option" data-correct="false">Because FastAPI apps cannot run in production</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> Where would something like React fit relative to a FastAPI JSON API?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">React would replace FastAPI entirely, running the same Python code</button>
+        <button type="button" class="mcq-option" data-correct="true">React would run in the browser and call the JSON API, similar to how Chapter 19's requests library called an API from Python</button>
+        <button type="button" class="mcq-option" data-correct="false">React is a database that FastAPI would connect to</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>@app.____("/tasks")</code> maps a URL path to a Flask view function.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="route" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> A ____ parameter is written in curly braces inside a FastAPI route's path string.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="path" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A Pydantic model class inherits from ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="BaseModel" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> FastAPI's automatic interactive documentation page lives at ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="/docs" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> Flask's request object reads query-string parameters from <code>request.____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="args" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 22 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

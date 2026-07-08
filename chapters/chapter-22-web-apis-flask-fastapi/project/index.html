@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 22 Project: Task Manager REST API — Python for Everyone</title>
+<meta name="description" content="Build a Task Manager REST API twice — once in Flask, once in FastAPI — with CRUD on an in-memory list of tasks, demonstrating both frameworks' idioms side by side, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-22">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 22 Project</span>
+    <span class="reading-time">65 min build</span>
+  </div>
+  <h1>Task Manager REST API — Flask &amp; FastAPI</h1>
+
+  <div class="what-is">
+    <span class="label">A note on this project's file structure</span>
+    This chapter explicitly teaches two frameworks side by side, so this
+    project deviates from the usual single-<code>starter.py</code>/<code>solution.py</code>
+    convention on purpose: there are <strong>two parallel pairs</strong>
+    of files &mdash; <code>starter_flask.py</code>/<code>solution_flask.py</code>
+    and <code>starter_fastapi.py</code>/<code>solution_fastapi.py</code>.
+    Both build the exact same task manager, so the contrast between the
+    two frameworks stays concrete and side by side.
+  </div>
+
+  <p>A <strong>Task Manager REST API</strong> &mdash; CRUD on an in-memory list of tasks &mdash; built once in Flask, once in FastAPI. The Flask version is a small JSON API plus one server-rendered HTML page at <code>/</code>, showing Flask's classic idiom clearly. The FastAPI version is a pure, typed JSON API using Pydantic models for validation, with no HTML page at all &mdash; matching FastAPI's idiom and this chapter's point that a JSON API is meant to be consumed by something else.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output (Flask version)</span>
+    <pre><code>=== Task Manager REST API -- Flask version ===
+Demonstration (no live server, calling the same logic the routes use):
+GET /api/tasks       -> [{'id': 1, 'title': 'Write the report', 'done': False}, {'id': 2, 'title': 'Review pull request', 'done': True}]
+GET /api/tasks/1     -> {'id': 1, 'title': 'Write the report', 'done': False}
+POST /api/tasks      -> {'id': 3, 'title': 'Water the plants', 'done': False}
+PATCH /api/tasks/1   -> {'id': 1, 'title': 'Write the report', 'done': True}
+DELETE /api/tasks/2  -> True
+GET /api/tasks (after changes) -> [{'id': 1, 'title': 'Write the report', 'done': True}, {'id': 3, 'title': 'Water the plants', 'done': False}]</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why this project can't start a live server</span>
+    This course has no backend of its own and Pyodide's sandbox can't run
+    a real Flask/FastAPI server. Every route below is written as real,
+    complete Flask/FastAPI code (real decorators, a real Pydantic
+    <code>BaseModel</code>, a commented-out <code>app.run()</code>/<code>uvicorn.run()</code>
+    call), but each route is a thin wrapper around a plain Python function
+    holding the actual logic &mdash; those functions are what run directly
+    in this course, with the server call left for you to uncomment and
+    run for real, locally, once Flask or FastAPI+uvicorn is installed.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter_flask.py</code> and/or <code>starter_fastapi.py</code>
+    below into an empty folder, then run <code>python3 starter_flask.py</code>
+    (or <code>starter_fastapi.py</code>).
+  </div>
+
+  <div class="download-links">
+    <a href="starter_flask.py">starter_flask.py</a>
+    <a href="solution_flask.py">solution_flask.py (reference)</a>
+    <a href="starter_fastapi.py">starter_fastapi.py</a>
+    <a href="solution_fastapi.py">solution_fastapi.py (reference)</a>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong>Flask version:</strong> <code>@app.route("/")</code> serves a server-rendered HTML page via <code>render_template_string()</code>; <code>@app.route("/api/tasks", ...)</code> routes serve JSON (Flask auto-converts a returned dict); <code>request.args</code>/<code>request.json</code> read query and body data.</li>
+    <li><strong>FastAPI version:</strong> <code>TaskCreate</code>/<code>TaskUpdate</code>/<code>Task</code> Pydantic models describe and validate every request/response shape; <code>@app.get("/tasks/{task_id}")</code> uses a path parameter; <code>@app.get("/tasks")</code>'s <code>done: bool | None = None</code> argument is a query parameter.</li>
+    <li><strong>Both versions:</strong> five CRUD operations (list, get one, create, update, delete) built as thin route wrappers around plain <code>_list_tasks_data()</code>/<code>_add_task_data()</code>/etc. functions, testable without any live server.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Persist tasks to Chapter 21's mock DB layer instead of a plain in-memory dict.</li>
+    <li>Add a <code>PUT /tasks/{id}</code> route replacing a task's title AND done status together, contrasted with <code>PATCH</code>'s partial update.</li>
+    <li>Add validation rejecting an empty or whitespace-only title.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Nearly every mobile app backend and modern web application is, at its core, exactly this pattern: CRUD operations exposed over HTTP as a small set of routes. Building the same feature twice &mdash; once in Flask's simpler, HTML-first style and once in FastAPI's typed, JSON-first, auto-documented style &mdash; makes the Flask-vs-FastAPI tradeoff concrete instead of abstract.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Task Manager REST API above is fully built out with starter and reference solution files for both frameworks &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 22. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A Simple Blog API</h3>
+    <p><strong>Problem:</strong> A blogging platform needs a backend API for creating, listing, and reading blog posts.</p>
+    <p><strong>What it should do:</strong> Build routes for listing posts, getting one post by ID, and creating a new post (title + body), using a Pydantic model (or Flask's <code>request.json</code>) for the create route. Store posts in an in-memory list.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's exact CRUD-route structure, swapping "task" for "post" and adding a <code>body</code> field.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A URL Shortener API</h3>
+    <p><strong>Problem:</strong> A URL shortener needs an API that accepts a long URL and returns a short code, then looks that code back up to the original URL.</p>
+    <p><strong>What it should do:</strong> Build a POST route generating a random short code (Chapter 11's <code>random</code> module) for a submitted URL, and a GET route <code>/{short_code}</code> looking it back up.</p>
+    <p><strong>Suggested approach:</strong> A great fit for FastAPI's path parameters &mdash; <code>/{short_code}</code> is exactly Sub-topic 4's pattern.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A Bookmark Manager with Tags</h3>
+    <p><strong>Problem:</strong> A bookmark manager needs to store URLs tagged with categories, and support filtering by tag.</p>
+    <p><strong>What it should do:</strong> Build CRUD routes for bookmarks (<code>url</code>, <code>title</code>, <code>tags: list[str]</code>), plus a filtering query parameter <code>GET /bookmarks?tag=python</code>.</p>
+    <p><strong>Suggested approach:</strong> A Pydantic field can be typed <code>tags: list[str]</code> directly &mdash; FastAPI validates it the same way it validates any other typed field.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A Personal Expense Tracker API</h3>
+    <p><strong>Problem:</strong> Someone wants a small API to log personal expenses and see a running total.</p>
+    <p><strong>What it should do:</strong> Build routes to add an expense (<code>amount</code>, <code>category</code>, optional <code>note</code>), list expenses (optionally filtered by <code>category</code>), and a <code>GET /expenses/total</code> route summing all amounts.</p>
+    <p><strong>Suggested approach:</strong> Build this one in whichever framework you found more comfortable, going deeper in just one instead of splitting effort across both again.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
