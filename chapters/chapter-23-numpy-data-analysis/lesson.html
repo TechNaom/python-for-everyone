@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 23: NumPy for Data Analysis — Python for Everyone</title>
+<meta name="description" content="Vectorized array operations with NumPy: creating arrays, indexing/slicing and boolean masking, broadcasting, aggregate functions with axis=, and reshaping — the first data-science-flavored chapter in the course.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-23">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 23 of 28</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">75 min read</span>
+  </div>
+  <h1>NumPy for Data Analysis</h1>
+  <p><em>Every chapter so far has processed data one Python value at a time &mdash; a <code>for</code> loop touching one list item per iteration. <strong>NumPy</strong> introduces a genuinely different way of thinking: instead of writing a loop that says "do this to each item," you write one expression that says "do this to the whole array at once," and a highly optimized C library underneath handles the looping for you, dramatically faster and in far less code. This is the first data-science-flavored chapter in the course &mdash; NumPy is the foundation nearly every other Python data tool (pandas, scikit-learn, TensorFlow, PyTorch) is built on top of.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> makes the case for arrays over lists with a concrete before/after &mdash; read it even if you're impatient to get to the syntax, since everything after it assumes you've seen why this trade is worth making.</li>
+      <li><strong>Sub-topics 2-3</strong> cover the mechanics: creating arrays and reading them back out with indexing, slicing, and boolean masking &mdash; sub-topic 3's masking idiom is the single most important habit to walk away with.</li>
+      <li><strong>Sub-topics 4-5</strong> cover vectorized math, broadcasting, and the aggregate functions (<code>.sum()</code>, <code>.mean()</code>, etc.) with the <code>axis=</code> parameter, which trips up nearly everyone the first time.</li>
+      <li><strong>Sub-topic 6</strong> covers reshaping arrays and stacking them together.</li>
+      <li><strong>NumPy must be installed to run these examples locally</strong> (<code>pip install numpy</code>) &mdash; every graded example in this course (quiz, exercises, practice, challenges) runs it for you already, in-browser via Pyodide.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-numpy">1. What NumPy is, and why it exists</a>
+    <a href="#creating-arrays">2. Creating arrays</a>
+    <a href="#indexing-masking">3. Indexing, slicing &amp; boolean masking</a>
+    <a href="#vectorized-broadcasting">4. Vectorized math &amp; broadcasting</a>
+    <a href="#aggregates-axis">5. Aggregate functions &amp; axis=</a>
+    <a href="#reshaping-stacking">6. Reshaping &amp; stacking</a>
+  </nav>
+
+  <div class="hook">
+    Picture Chapter 9's accumulator pattern: a <code>for</code> loop adding up every grade in a list, one at a time, to compute a class average. That pattern works fine for a handful of numbers. Now picture a sensor logging a measurement every second for a full day (86,400 readings), or a spreadsheet of exam scores across 40 students and 6 subjects. The loop still "works" &mdash; it's just slow, verbose, and gets harder to read the moment you need a 2D grid instead of a flat list. NumPy exists to make exactly this kind of numeric work fast and short.
+  </div>
+
+  <div class="subtopic" id="what-is-numpy">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. What NumPy is, and why it exists</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>NumPy</strong> ("Numerical Python") provides the <code>ndarray</code> &mdash; a fixed-type, fixed-size array &mdash; plus fast, vectorized operations on it.</li>
+        <li>A Python <code>list</code> is flexible (mixed types, easy to grow) but slow for numeric math, since every arithmetic operation on it runs as a Python-level loop under the hood.</li>
+        <li>A NumPy array stores numbers in one contiguous, single-type block of memory and runs operations on the whole array in optimized C code &mdash; often 10-100x faster than the equivalent Python loop.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> nearly every other data tool in Python's ecosystem &mdash; pandas, scikit-learn, matplotlib, even parts of TensorFlow and PyTorch &mdash; is built directly on top of NumPy arrays. Understanding "why an array, not a list" here pays off in every chapter of data work that follows this one.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... NumPy?</span>
+      <strong>NumPy</strong> is a Python library providing the <code>ndarray</code> ("n-dimensional array") type and a large set of fast, vectorized math functions that operate on whole arrays at once, instead of one value at a time. It's installed with <code>pip install numpy</code> and conventionally imported as <code>import numpy as np</code>.
+    </div>
+
+    <p>
+      The clearest way to see the difference is the same task, written both
+      ways: computing the sum and average of a list of exam scores.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">loop_vs_vectorized.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+scores = [88, 92, 79, 95, 84]
+
+# The loop way (Chapter 9's accumulator pattern)
+total = 0
+for s in scores:
+    total += s
+average = total / len(scores)
+print("loop average:", average)
+
+# The NumPy way
+arr = np.array(scores)
+print("arr.sum():", arr.sum(), "arr.mean():", arr.mean())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of loop_vs_vectorized.py</span>
+      <pre><code>loop average: 87.6
+arr.sum(): 438 arr.mean(): 87.6</code></pre>
+    </div>
+
+    <p>
+      Both approaches give the same answer here &mdash; the real payoff isn't
+      this one line, it's what happens as the code grows:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A loop-based version needs a new loop (or a new line inside the existing one) for every additional statistic &mdash; sum, then average, then standard deviation, then min and max each add more manual bookkeeping.</li>
+      <li><code>arr.sum()</code>, <code>arr.mean()</code>, <code>arr.std()</code>, <code>arr.min()</code>, and <code>arr.max()</code> are each one call, already optimized, with no loop written by hand at all.</li>
+      <li>The same one-line pattern scales to a 2D grid of 40 students &times; 6 subjects without changing shape &mdash; Sub-topic 5 covers exactly this with the <code>axis=</code> parameter.</li>
+    </ul>
+
+    <div class="what-is">
+      <span class="label">What is... vectorization?</span>
+      <strong>Vectorization</strong> is writing one operation that applies to an entire array at once (<code>arr.sum()</code>, <code>arr * 2</code>) instead of writing an explicit loop that repeats the operation for every element. NumPy's speed advantage comes almost entirely from vectorization &mdash; the looping still happens, just inside fast, compiled C code instead of the slower Python interpreter.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why is a Python loop actually slower here?</summary>
+      <p>
+        Every iteration of a plain Python <code>for</code> loop over a list
+        re-checks each element's type at runtime (since a list can mix
+        <code>int</code>, <code>float</code>, even <code>str</code>, in the
+        same list) and re-does Python's normal function-call overhead for
+        every <code>+</code>. A NumPy array locks in one fixed data type for
+        every element up front (see <code>.dtype</code> in Sub-topic 2), so
+        its vectorized operations skip that repeated type-checking entirely
+        and run as a tight, compiled loop instead &mdash; the core reason
+        for the large speed difference on anything beyond a handful of
+        values.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>NumPy provides the <code>ndarray</code> type: fixed-type, fixed-size arrays with fast, vectorized math built in.</li>
+        <li>A Python list is flexible but slow for numeric work; a NumPy array is faster because it skips per-element type-checking.</li>
+        <li><code>arr.sum()</code>/<code>arr.mean()</code> replace a manual accumulator loop with one call each.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="creating-arrays">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Creating arrays</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>np.array(a_list)</code> builds an array from existing Python data; <code>np.zeros(n)</code>/<code>np.ones(n)</code> build arrays pre-filled with 0s or 1s.</li>
+        <li><code>np.arange(start, stop, step)</code> is <code>range()</code>'s array equivalent; <code>np.linspace(start, stop, count)</code> generates <code>count</code> evenly spaced values between <code>start</code> and <code>stop</code>, inclusive.</li>
+        <li>Every array has a <code>.shape</code> (dimensions), a <code>.dtype</code> (element type), and an <code>.ndim</code> (number of dimensions) &mdash; check these whenever an array isn't behaving as expected.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> almost every NumPy bug traces back to an array having the wrong shape or dtype without you noticing &mdash; getting comfortable checking <code>.shape</code>/<code>.dtype</code>/<code>.ndim</code> early saves real debugging time later.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>.shape</code>, <code>.dtype</code>, and <code>.ndim</code>?</span>
+      <code>.shape</code> is a tuple giving the size of each dimension (a flat list of 5 numbers has shape <code>(5,)</code>; a 3-row, 2-column grid has shape <code>(3, 2)</code>). <code>.dtype</code> is the single data type every element shares (<code>int64</code>, <code>float64</code>, etc.). <code>.ndim</code> is how many dimensions the array has (1 for a flat list of numbers, 2 for a grid).
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">creating_arrays.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+a = np.array([1, 2, 3, 4, 5])
+print("np.array([1,2,3,4,5]) ->", a)
+print("np.zeros(4) ->", np.zeros(4))
+print("np.ones(3) ->", np.ones(3))
+print("np.arange(0, 10, 2) ->", np.arange(0, 10, 2))
+print("np.linspace(0, 1, 5) ->", np.linspace(0, 1, 5))
+print("a.shape:", a.shape, "a.dtype:", a.dtype, "a.ndim:", a.ndim)
+
+grid = np.array([[1, 2, 3], [4, 5, 6]])
+print("grid.shape:", grid.shape, "grid.dtype:", grid.dtype, "grid.ndim:", grid.ndim)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of creating_arrays.py</span>
+      <pre><code>np.array([1,2,3,4,5]) -> [1 2 3 4 5]
+np.zeros(4) -> [0. 0. 0. 0.]
+np.ones(3) -> [1. 1. 1.]
+np.arange(0, 10, 2) -> [0 2 4 6 8]
+np.linspace(0, 1, 5) -> [0.   0.25 0.5  0.75 1.  ]
+a.shape: (5,) a.dtype: int64 a.ndim: 1
+grid.shape: (2, 3) grid.dtype: int64 grid.ndim: 2</code></pre>
+    </div>
+
+    <p>
+      Notice <code>np.zeros()</code>/<code>np.ones()</code> print with decimal
+      points (<code>0.</code>, <code>1.</code>) &mdash; they default to
+      <code>float64</code>, even though the values look whole. Passing a 2D
+      shape works exactly the same way, and this chapter's project builds a
+      2D grid the same way <code>grid</code> is built above &mdash; one row
+      per student, one column per subject.
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="14">import numpy as np
+
+a = np.array([1, 2, 3, 4, 5])
+print("np.array([1,2,3,4,5]) ->", a)
+print("np.zeros(4) ->", np.zeros(4))
+print("np.arange(0, 10, 2) ->", np.arange(0, 10, 2))
+print("np.linspace(0, 1, 5) ->", np.linspace(0, 1, 5))
+print("a.shape:", a.shape, "a.dtype:", a.dtype, "a.ndim:", a.ndim)</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try building a 2D grid with np.array([[1,2],[3,4]]) and checking its .shape.</div>
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's the difference between <code>np.arange()</code> and <code>np.linspace()</code>?</summary>
+      <p>
+        <code>np.arange(start, stop, step)</code> is defined by its
+        <em>step size</em> &mdash; you control the gap between values, and
+        the count of resulting values is whatever that produces.
+        <code>np.linspace(start, stop, count)</code> is defined by its
+        <em>count</em> &mdash; you control exactly how many evenly spaced
+        values you want (including both endpoints), and NumPy works out the
+        step size for you. Use <code>arange()</code> when you know the
+        step; use <code>linspace()</code> when you know how many points you
+        want.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>np.array()</code>, <code>np.zeros()</code>, <code>np.ones()</code>, <code>np.arange()</code>, and <code>np.linspace()</code> are the core ways to build an array.</li>
+        <li><code>.shape</code>/<code>.dtype</code>/<code>.ndim</code> describe an array's dimensions, element type, and number of dimensions.</li>
+        <li><code>np.zeros()</code>/<code>np.ones()</code> default to <code>float64</code>, even for whole-number values.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="indexing-masking">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Indexing, slicing &amp; boolean masking</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>1D indexing/slicing (<code>arr[1]</code>, <code>arr[1:4]</code>) works exactly like a Python list.</li>
+        <li>2D indexing uses one comma-separated index, <code>grid[row, col]</code>, instead of Python's chained <code>grid[row][col]</code>.</li>
+        <li><strong>Boolean masking</strong> &mdash; <code>arr[arr &gt; 5]</code> &mdash; is NumPy's single most important idiom: it filters an array using a condition, with no loop or <code>if</code> statement written by hand.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> boolean masking is the idiom you'll reach for constantly in real data work &mdash; "give me every reading above a threshold," "give me every student who failed" &mdash; and it's the exact technique this chapter's project uses to separate above-average students from below-average ones.
+    </div>
+
+    <p>1D indexing and slicing first, since they're already familiar from Chapter 7's lists:</p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">indexing_1d.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+arr = np.array([10, 20, 30, 40, 50])
+print("arr[1]:", arr[1])
+print("arr[1:4]:", arr[1:4])
+print("arr[-1]:", arr[-1])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of indexing_1d.py</span>
+      <pre><code>arr[1]: 20
+arr[1:4]: [20 30 40]
+arr[-1]: 50</code></pre>
+    </div>
+
+    <p>
+      2D indexing looks visually different, even though the idea is the
+      same &mdash; "which row, which column":
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">a 2D grid, by position</span>
+      <pre><code>grid2 = [[1, 2, 3],
+         [4, 5, 6],
+         [7, 8, 9]]
+
+grid2[1, 2] -- row 1, column 2 -> 6
+grid2[0]    -- entire row 0    -> [1 2 3]
+grid2[:, 1] -- entire column 1 -> [2 5 8]</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">indexing_2d.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+grid2 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+print("grid2[1, 2]:", grid2[1, 2])
+print("grid2[0]:", grid2[0])
+print("grid2[:, 1]:", grid2[:, 1])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of indexing_2d.py</span>
+      <pre><code>grid2[1, 2]: 6
+grid2[0]: [1 2 3]
+grid2[:, 1]: [2 5 8]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>grid[:, 1]</code>'s <code>:</code>?</span>
+      A bare <code>:</code> in any position of a NumPy index means "every element along this dimension." <code>grid[:, 1]</code> reads as "every row, column 1" &mdash; the whole second column. <code>grid[1, :]</code> (or just <code>grid[1]</code>) reads as "row 1, every column" &mdash; the whole second row.
+    </div>
+
+    <p>
+      Now the most important idiom in this chapter: <strong>boolean
+      masking</strong>. Comparing an array to a value doesn't return one
+      <code>True</code>/<code>False</code> &mdash; it returns a whole new
+      array of <code>True</code>/<code>False</code>, one per element, called
+      a <strong>boolean mask</strong>. Using that mask as an index keeps
+      only the elements where it's <code>True</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">boolean_masking.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+arr = np.array([3, 8, 1, 9, 4, 7])
+mask = arr > 5
+print("mask:", mask)
+print("arr[arr > 5]:", arr[arr > 5])</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of boolean_masking.py</span>
+      <pre><code>mask: [False  True False  True False  True]
+arr[arr > 5]: [8 9 7]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a boolean mask?</span>
+      A <strong>boolean mask</strong> is an array of <code>True</code>/<code>False</code> values, the same shape as the array it was compared from, produced by a comparison like <code>arr &gt; 5</code>. Using a boolean mask as an index &mdash; <code>arr[mask]</code>, or directly <code>arr[arr &gt; 5]</code> &mdash; returns only the elements where the mask is <code>True</code>, with zero explicit looping.
+    </div>
+
+    <p>
+      This one line, <code>arr[arr &gt; 5]</code>, replaces what would
+      otherwise be a full loop with an <code>if</code> check and a manually
+      built result list &mdash; and it reads directly as "give me the
+      elements greater than 5," which is exactly what it does.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>1D indexing/slicing (<code>arr[i]</code>, <code>arr[i:j]</code>) works exactly like a Python list.</li>
+      <li>2D indexing uses one comma, <code>grid[row, col]</code>, with <code>:</code> meaning "every element on this dimension."</li>
+      <li>A comparison like <code>arr &gt; 5</code> produces a boolean mask; <code>arr[mask]</code> filters using it, with no loop needed.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can you combine multiple conditions in a mask?</summary>
+      <p>
+        Yes, using <code>&amp;</code> (and) / <code>|</code> (or) instead of
+        Python's <code>and</code>/<code>or</code> keywords, with each
+        condition wrapped in parentheses:
+        <code>arr[(arr &gt; 5) &amp; (arr &lt; 9)]</code> keeps only
+        elements greater than 5 AND less than 9. The parentheses are
+        required &mdash; without them, Python tries to evaluate
+        <code>5 &amp; arr</code> first, which raises an error, since
+        <code>&amp;</code> binds more tightly than the comparison operators
+        here.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>1D indexing/slicing matches Python list syntax; 2D indexing uses one comma, <code>grid[row, col]</code>.</li>
+        <li>A bare <code>:</code> means "every element on this dimension."</li>
+        <li>Boolean masking (<code>arr[arr &gt; 5]</code>) filters an array by condition with no explicit loop &mdash; NumPy's single most-used idiom.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="vectorized-broadcasting">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Vectorized math &amp; broadcasting</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Arithmetic between an array and a single number (<code>arr + 5</code>) applies to every element &mdash; no loop needed.</li>
+        <li>Arithmetic between two same-shaped arrays (<code>arr1 * arr2</code>) operates element-by-element (position 0 with position 0, position 1 with position 1, and so on).</li>
+        <li><strong>Broadcasting</strong> lets NumPy combine arrays of <em>different but compatible</em> shapes without you reshaping anything by hand &mdash; and raises a clear error when the shapes genuinely don't fit together.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> vectorized math is where NumPy's speed and readability advantage becomes obvious in everyday code &mdash; a whole grid of measurements adjusted, scaled, or combined in a single line, instead of a nested loop over rows and columns.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">vectorized_math.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+prices = np.array([10, 20, 30])
+print("prices + 5:", prices + 5)
+
+qty = np.array([2, 1, 3])
+print("prices * qty:", prices * qty)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of vectorized_math.py</span>
+      <pre><code>prices + 5: [15 25 35]
+prices * qty: [20 20 90]</code></pre>
+    </div>
+
+    <p>
+      <code>prices + 5</code> adds 5 to every element &mdash; the single
+      number <code>5</code> is "stretched" across the whole array. This
+      stretching is <strong>broadcasting</strong>, and it also works between
+      a 2D grid and a 1D array, as long as the 1D array's length matches the
+      grid's number of columns:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... broadcasting?</span>
+      <strong>Broadcasting</strong> is NumPy's rule for combining arrays of different shapes in an arithmetic operation, by conceptually "stretching" the smaller array across the larger one's shape, without actually copying any data. A single number broadcasts across an entire array; a 1D array broadcasts across each row of a 2D grid, as long as its length matches the grid's row length (number of columns).
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">broadcasting.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+grades = np.array([[70, 80], [90, 100]])
+curve = np.array([5, 10])
+print("grades + curve:", grades + curve)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of broadcasting.py -- curve stretched across every row</span>
+      <pre><code>grades + curve: [[ 75  90]
+ [ 95 110]]</code></pre>
+    </div>
+
+    <p>
+      Every row of <code>grades</code> got <code>curve</code> added to it:
+      <code>curve[0]</code> (5) added to each row's first column,
+      <code>curve[1]</code> (10) added to each row's second column. This only
+      works because <code>curve</code>'s length (2) matches <code>grades</code>'s
+      number of columns (2). When the shapes genuinely don't fit, NumPy
+      raises a clear error instead of guessing:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">broadcasting_error.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+try:
+    bad = np.array([1, 2, 3]) + np.array([1, 2])
+except ValueError as e:
+    print("broadcast error:", e)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of broadcasting_error.py</span>
+      <pre><code>broadcast error: operands could not be broadcast together with shapes (3,) (2,) </code></pre>
+    </div>
+
+    <p>
+      A length-3 array and a length-2 array have no sensible way to line up
+      element-by-element, so NumPy raises a <code>ValueError</code> rather
+      than silently producing a wrong answer &mdash; the same
+      fail-loudly-not-silently instinct Chapter 12's exception handling
+      already taught.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Array + number applies to every element; array + same-shaped array works element-by-element.</li>
+      <li>Broadcasting stretches a smaller, compatible-shaped array across a larger one, with no manual copying.</li>
+      <li>A genuine shape mismatch raises a <code>ValueError</code> naming both shapes, rather than guessing at an answer.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's the general rule broadcasting follows?</summary>
+      <p>
+        NumPy compares two arrays' shapes from the <em>rightmost</em>
+        dimension inward. Two dimensions are compatible if they're equal, or
+        if one of them is 1 (a size-1 dimension gets stretched to match).
+        <code>grades</code>'s shape is <code>(2, 2)</code> and
+        <code>curve</code>'s shape is <code>(2,)</code> &mdash; NumPy treats
+        the missing leading dimension as size 1, so it compares
+        <code>(2, 2)</code> against <code>(1, 2)</code>: the rightmost
+        dimensions match (2 and 2), and the size-1 dimension stretches to
+        cover both rows. This is the same rule behind every broadcasting
+        example in this chapter, just applied consistently.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Array-and-number and same-shape array-and-array operations both apply element-by-element, with no loop written by hand.</li>
+        <li>Broadcasting lets compatible different-shaped arrays combine, stretching the smaller one across the larger one.</li>
+        <li>An incompatible shape mismatch raises a <code>ValueError</code> describing both shapes involved.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="aggregates-axis">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Aggregate functions &amp; the <code>axis=</code> parameter</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>.sum()</code>, <code>.mean()</code>, <code>.min()</code>, <code>.max()</code>, and <code>.std()</code> each collapse an array down to one summary number by default.</li>
+        <li>On a 2D grid, <code>axis=</code> controls <em>which</em> dimension gets collapsed &mdash; <code>axis=0</code> collapses down the rows (one result per column); <code>axis=1</code> collapses across the columns (one result per row).</li>
+        <li>Getting <code>axis=0</code> vs. <code>axis=1</code> backwards is the single most common NumPy mistake beginners make &mdash; the diagram below is worth studying before the explanation.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this chapter's project reports per-subject AND per-student statistics from the same 2D grid of grades &mdash; that's only possible because <code>axis=</code> lets one function call target either direction.
+    </div>
+
+    <p>
+      Before any explanation, here's the grid this section works with, and
+      what each axis actually collapses:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">axis=0 vs. axis=1, on a 3-student x 3-subject grid</span>
+      <pre><code>           col0  col1  col2
+row0         90    85    92
+row1         70    75    80
+row2         88    91    95
+
+axis=0 -- collapse DOWN the rows -- one result per COLUMN
+axis=1 -- collapse ACROSS the columns -- one result per ROW
+
+m.sum(axis=0) -> [248, 251, 267]  (3 values: one per subject/column)
+m.sum(axis=1) -> [267, 225, 274]  (3 values: one per student/row)</code></pre>
+    </div>
+
+    <p>
+      With the picture in place, the rule in words: <code>axis=0</code>
+      walks down each column, adding up one value from every row &mdash; so
+      the result has one number per column (per subject, if columns are
+      subjects). <code>axis=1</code> walks across each row, adding up one
+      value from every column &mdash; so the result has one number per row
+      (per student, if rows are students).
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">aggregates_and_axis.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+m = np.array([[90, 85, 92], [70, 75, 80], [88, 91, 95]])
+
+print("m.sum():", m.sum())
+print("m.mean():", m.mean())
+print("m.min():", m.min(), "m.max():", m.max())
+print("m.std():", round(float(m.std()), 4))
+
+print("m.sum(axis=0):", m.sum(axis=0))
+print("m.sum(axis=1):", m.sum(axis=1))
+print("m.mean(axis=0):", m.mean(axis=0))
+print("m.mean(axis=1):", m.mean(axis=1))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of aggregates_and_axis.py</span>
+      <pre><code>m.sum(): 766
+m.mean(): 85.11111111111111
+m.min(): 70 m.max(): 95
+m.std(): 7.9505
+m.sum(axis=0): [248 251 267]
+m.sum(axis=1): [267 225 274]
+m.mean(axis=0): [82.66666667 83.66666667 89.        ]
+m.mean(axis=1): [89.         75.         91.33333333]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>.std()</code>?</span>
+      <strong>Standard deviation</strong> (<code>.std()</code>) measures how spread out a set of values is around its mean &mdash; a small <code>.std()</code> means most values sit close to the average; a large one means they're spread widely. This chapter's project reports it alongside mean/min/max as a quick sense of how consistent a set of grades is, without needing to explain the underlying formula in depth.
+    </div>
+
+    <p>
+      Calling <code>.sum()</code>/<code>.mean()</code> with no
+      <code>axis=</code> at all collapses <em>everything</em> down to one
+      single number, across the whole grid &mdash; that's what <code>m.sum()</code>
+      and <code>m.mean()</code> did above, before <code>axis=</code> entered
+      the picture.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>No <code>axis=</code> given: the aggregate collapses the entire array to one number.</li>
+      <li><code>axis=0</code>: collapses down the rows, one result per column.</li>
+      <li><code>axis=1</code>: collapses across the columns, one result per row.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is there a memory trick for axis=0 vs. axis=1?</summary>
+      <p>
+        One that helps many people: <code>axis=0</code> is the axis
+        <em>named</em> by the first number in <code>.shape</code> (the
+        row count) &mdash; and that's the dimension that <em>disappears</em>
+        from the result. A <code>(3, 3)</code> grid's <code>axis=0</code>
+        aggregate has shape <code>(3,)</code> (rows collapsed away, columns
+        remain); its <code>axis=1</code> aggregate also has shape
+        <code>(3,)</code> here since the grid is square, but conceptually
+        it's "columns collapsed away, rows remain." The safest habit isn't
+        memorizing a trick at all, though &mdash; it's checking
+        <code>result.shape</code> after any <code>axis=</code> call the
+        first few times, until the pattern feels automatic.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>.sum()</code>/<code>.mean()</code>/<code>.min()</code>/<code>.max()</code>/<code>.std()</code> collapse an array to a single summary number by default.</li>
+        <li><code>axis=0</code> collapses down the rows (one result per column); <code>axis=1</code> collapses across the columns (one result per row).</li>
+        <li>Checking <code>result.shape</code> after an <code>axis=</code> call confirms which direction actually collapsed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="reshaping-stacking">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Reshaping &amp; stacking arrays</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>.reshape(rows, cols)</code> reinterprets the same data as a different shape, as long as the total element count matches.</li>
+        <li><code>.flatten()</code> collapses any array back down to 1D.</li>
+        <li><code>np.concatenate()</code> joins arrays end-to-end; <code>np.vstack()</code> stacks arrays as new rows; <code>np.hstack()</code> stacks arrays as new columns (side by side).</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> real data rarely arrives already shaped the way you need it &mdash; a flat list of sensor readings might need reshaping into a grid of one row per day, or several separate readings might need combining into one array before running aggregate functions on the whole set.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>.reshape()</code>?</span>
+      <code>.reshape(rows, cols)</code> returns the same underlying data, reinterpreted with a new shape &mdash; it doesn't reorder or recompute anything, it just changes how the same sequence of values is grouped into rows and columns. The total element count must stay the same: reshaping a 6-element array into <code>(2, 3)</code> works; reshaping it into <code>(2, 4)</code> raises an error, since 8 &ne; 6.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">reshape_flatten.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+flat = np.arange(6)
+print("flat:", flat)
+print("flat.reshape(2, 3):")
+print(flat.reshape(2, 3))
+print("flat.reshape(2,3).flatten():", flat.reshape(2, 3).flatten())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of reshape_flatten.py</span>
+      <pre><code>flat: [0 1 2 3 4 5]
+flat.reshape(2, 3):
+[[0 1 2]
+ [3 4 5]]
+flat.reshape(2,3).flatten(): [0 1 2 3 4 5]</code></pre>
+    </div>
+
+    <p>
+      Stacking combines two or more separate arrays into one, and the three
+      functions differ in exactly how they combine:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">stacking.py</span>
+      </div>
+      <pre><code>import numpy as np
+
+a1 = np.array([1, 2])
+a2 = np.array([3, 4])
+
+print("np.concatenate([a1, a2]):", np.concatenate([a1, a2]))
+print("np.vstack([a1, a2]):")
+print(np.vstack([a1, a2]))
+print("np.hstack([a1, a2]):", np.hstack([a1, a2]))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of stacking.py</span>
+      <pre><code>np.concatenate([a1, a2]): [1 2 3 4]
+np.vstack([a1, a2]):
+[[1 2]
+ [3 4]]
+np.hstack([a1, a2]): [1 2 3 4]</code></pre>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>np.concatenate([a1, a2])</code> joins two 1D arrays end-to-end into one longer 1D array.</li>
+      <li><code>np.vstack([a1, a2])</code> stacks them as two separate rows of a new 2D grid.</li>
+      <li><code>np.hstack([a1, a2])</code> joins them side by side &mdash; for two 1D arrays, this looks identical to <code>concatenate</code>, but the difference becomes visible once the inputs are already 2D.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: when would reshaping actually come up with real sensor data?</summary>
+      <p>
+        Imagine a sensor logging one temperature reading every hour, stored
+        as one flat array of 168 values (a full week, 24 &times; 7).
+        <code>readings.reshape(7, 24)</code> reinterprets that same flat
+        array as a grid &mdash; 7 rows (one per day), 24 columns (one per
+        hour) &mdash; with no data recomputed or moved, just regrouped. From
+        there, <code>readings.reshape(7, 24).mean(axis=1)</code> gives one
+        average temperature per day in a single line, using exactly the
+        <code>axis=</code> pattern from Sub-topic 5.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>.reshape(rows, cols)</code> reinterprets the same data with a new shape, as long as the element count matches; <code>.flatten()</code> collapses back to 1D.</li>
+        <li><code>np.concatenate()</code> joins end-to-end; <code>np.vstack()</code> stacks as new rows; <code>np.hstack()</code> joins side by side.</li>
+        <li>Reshaping is common when raw data arrives flat but needs to be grouped into a grid for per-group aggregate functions.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Nearly every Python data-science and machine-learning library &mdash; pandas, scikit-learn, matplotlib, TensorFlow, PyTorch &mdash; either wraps NumPy arrays directly or uses the exact same array-shape and broadcasting conventions this chapter taught.</li>
+      <li>Boolean masking is the everyday tool behind filtering real datasets: "every sensor reading above a safety threshold," "every transaction over $10,000," "every student who scored below passing" are all one-line <code>arr[condition]</code> expressions.</li>
+      <li>The <code>axis=</code> parameter is exactly how a real spreadsheet-style dataset (rows of records, columns of fields) gets summarized both "per record" and "per field" from the same underlying 2D array, without loading a separate library.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>NumPy's <code>ndarray</code> stores fixed-type data and runs vectorized operations in optimized C code, replacing manual Python loops for numeric work with single, fast calls like <code>arr.sum()</code>/<code>arr.mean()</code>.</li>
+      <li><code>np.array()</code>, <code>np.zeros()</code>, <code>np.ones()</code>, <code>np.arange()</code>, and <code>np.linspace()</code> create arrays; <code>.shape</code>/<code>.dtype</code>/<code>.ndim</code> describe them.</li>
+      <li>1D indexing/slicing matches list syntax; 2D indexing uses one comma (<code>grid[row, col]</code>); boolean masking (<code>arr[arr &gt; 5]</code>) filters by condition with no explicit loop &mdash; the single most important NumPy idiom.</li>
+      <li>Vectorized math applies element-by-element; broadcasting lets compatible different-shaped arrays combine automatically, and raises a clear <code>ValueError</code> when shapes genuinely don't fit.</li>
+      <li><code>.sum()</code>/<code>.mean()</code>/<code>.min()</code>/<code>.max()</code>/<code>.std()</code> collapse an array to a summary number; <code>axis=0</code> collapses down the rows (one result per column), <code>axis=1</code> collapses across the columns (one result per row).</li>
+      <li><code>.reshape()</code> reinterprets the same data with a new shape; <code>.flatten()</code> collapses back to 1D; <code>np.concatenate()</code>/<code>np.vstack()</code>/<code>np.hstack()</code> combine separate arrays together.</li>
+      <li>NumPy underlies nearly every other Python data tool &mdash; the array-shape and broadcasting habits from this chapter carry forward directly into pandas (Chapter 24) and beyond.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

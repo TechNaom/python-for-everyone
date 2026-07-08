@@ -220,7 +220,14 @@ window.PFE_MODULES = [
         { id: "flask-vs-fastapi", title: "Flask vs. FastAPI, side by side" },
         { id: "whats-next", title: "What's next: HTML, JSON, and where React fits" }
       ] },
-      { id: "chapter-23", num: 23, title: "NumPy for Data Analysis", path: null },
+      { id: "chapter-23", num: 23, title: "NumPy for Data Analysis", path: "chapters/chapter-23-numpy-data-analysis/lesson.html", subtopics: [
+        { id: "what-is-numpy", title: "What NumPy is, and why it exists" },
+        { id: "creating-arrays", title: "Creating arrays" },
+        { id: "indexing-masking", title: "Indexing, slicing & boolean masking" },
+        { id: "vectorized-broadcasting", title: "Vectorized math & broadcasting" },
+        { id: "aggregates-axis", title: "Aggregate functions & axis=" },
+        { id: "reshaping-stacking", title: "Reshaping & stacking" }
+      ] },
       { id: "chapter-24", num: 24, title: "Pandas for Data Analysis", path: null },
       { id: "chapter-25", num: 25, title: "Testing Your Code", path: null },
       { id: "chapter-26", num: 26, title: "Professional Python", path: null },

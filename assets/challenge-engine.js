@@ -31,6 +31,12 @@ def reverse_string(s):
   input() is not supported in this sandbox, same constraint as the
   playground — challenge functions take arguments and return a value,
   they don't read from stdin.
+
+  Some chapters (from Chapter 23 onward) grade challenges that import
+  numpy, which Pyodide does not bundle by default. getPyodide() loads
+  numpy once, lazily, alongside the base interpreter — a no-op extra
+  download for chapters that never import it, and a one-time cost,
+  cached across every challenge card on the page, for chapters that do.
 */
 
 (function () {
@@ -44,6 +50,7 @@ def reverse_string(s):
         script.onload = () => {
           window
             .loadPyodide()
+            .then((pyodide) => pyodide.loadPackage("numpy").then(() => pyodide))
             .then(resolve)
             .catch(reject);
         };

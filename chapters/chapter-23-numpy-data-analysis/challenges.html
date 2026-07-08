@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 23 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on NumPy array sums, boolean masking, vectorized scaling, column/row aggregates, flattening, and concatenation, for Chapter 23: NumPy for Data Analysis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-23">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 23 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: NumPy for Data Analysis</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    using real NumPy &mdash; no local install needed. Write your
+    function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-23 have covered so far. No import
+    beyond
+    <code>numpy</code>/<code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>/<code>threading</code>/<code>concurrent.futures</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly), with NumPy loaded automatically alongside it &mdash;
+    nothing is uploaded anywhere. Keep the function name in the stub
+    exactly as given, since the grader calls it by name. Return plain
+    Python lists/numbers from your function (e.g. wrap results in
+    <code>list(...)</code>/<code>int(...)</code>/<code>float(...)</code>)
+    so the grader can compare them reliably.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Sum a List as a NumPy Array <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>array_from_list_sum(values)</code> that converts <code>values</code> (a plain Python list of numbers) to a NumPy array and returns its sum as a plain Python <code>int</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> is a list of ints (possibly empty).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>array_from_list_sum([1, 2, 3, 4, 5])</code> &rarr; <code>15</code><br>
+        <code>array_from_list_sum([])</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def array_from_list_sum(values):
+    # TODO: convert values to a NumPy array, return its sum as a plain int.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "array_from_list_sum",
+  "cases": [
+    { "args": [[1, 2, 3, 4, 5]], "expected": 15 },
+    { "args": [[10, 20, 30]], "expected": 60 },
+    { "args": [[]], "expected": 0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def array_from_list_sum(values):
+    return int(np.array(values).sum())</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Build a Zeros List <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>make_zeros_list(n)</code> that returns <code>np.zeros(n)</code> converted to a plain Python list of floats.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is a non-negative int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>make_zeros_list(3)</code> &rarr; <code>[0.0, 0.0, 0.0]</code><br>
+        <code>make_zeros_list(0)</code> &rarr; <code>[]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def make_zeros_list(n):
+    # TODO: return np.zeros(n) as a plain list of floats.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "make_zeros_list",
+  "cases": [
+    { "args": [3], "expected": [0.0, 0.0, 0.0] },
+    { "args": [0], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def make_zeros_list(n):
+    return [float(x) for x in np.zeros(n)]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> Filter Above a Threshold <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>filter_above(values, threshold)</code> that converts <code>values</code> to a NumPy array, uses boolean masking to keep only elements strictly greater than <code>threshold</code>, and returns them as a plain Python list of ints.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> is a list of ints.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>filter_above([3, 8, 1, 9, 4], 5)</code> &rarr; <code>[8, 9]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def filter_above(values, threshold):
+    # TODO: use boolean masking to keep only values > threshold,
+    # return as a plain list of ints.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "filter_above",
+  "cases": [
+    { "args": [[3, 8, 1, 9, 4], 5], "expected": [8, 9] },
+    { "args": [[1, 2, 3], 10], "expected": [] },
+    { "args": [[5, 5, 5], 5], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def filter_above(values, threshold):
+    arr = np.array(values)
+    return [int(x) for x in arr[arr > threshold]]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Scale a List of Values <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>scale_list(values, factor)</code> that converts <code>values</code> to a NumPy array, multiplies every element by <code>factor</code> (vectorized, no loop), and returns the result as a plain Python list of floats.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> is a list of numbers; <code>factor</code> is a number.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>scale_list([1, 2, 3], 10)</code> &rarr; <code>[10.0, 20.0, 30.0]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def scale_list(values, factor):
+    # TODO: convert to a float array, multiply by factor, return as a
+    # plain list of floats.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "scale_list",
+  "cases": [
+    { "args": [[1, 2, 3], 10], "expected": [10.0, 20.0, 30.0] },
+    { "args": [[2, 4], 0.5], "expected": [1.0, 2.0] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def scale_list(values, factor):
+    arr = np.array(values, dtype=float)
+    return [float(x) for x in arr * factor]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Sum a Column of a Grid <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>column_sum(grid, col_index)</code> that converts <code>grid</code> (a list of lists) to a 2D NumPy array and returns the sum of column <code>col_index</code> as a plain <code>int</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>grid</code> is a rectangular list of lists of ints; <code>col_index</code> is a valid column index.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>column_sum([[1, 2], [3, 4], [5, 6]], 0)</code> &rarr; <code>9</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def column_sum(grid, col_index):
+    # TODO: convert grid to a 2D array, return the sum of column
+    # col_index as a plain int.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "column_sum",
+  "cases": [
+    { "args": [[[1, 2], [3, 4], [5, 6]], 0], "expected": 9 },
+    { "args": [[[1, 2], [3, 4], [5, 6]], 1], "expected": 12 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def column_sum(grid, col_index):
+    arr = np.array(grid)
+    return int(arr[:, col_index].sum())</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Average of a Row <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>row_average(grid, row_index)</code> that converts <code>grid</code> to a 2D NumPy array and returns the average of row <code>row_index</code> as a plain <code>float</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>grid</code> is a rectangular list of lists of ints; <code>row_index</code> is a valid row index.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>row_average([[1, 2, 3], [4, 5, 6]], 0)</code> &rarr; <code>2.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def row_average(grid, row_index):
+    # TODO: convert grid to a 2D array, return the average of row
+    # row_index as a plain float.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "row_average",
+  "cases": [
+    { "args": [[[1, 2, 3], [4, 5, 6]], 0], "expected": 2.0 },
+    { "args": [[[1, 2, 3], [4, 5, 6]], 1], "expected": 5.0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def row_average(grid, row_index):
+    arr = np.array(grid)
+    return float(arr[row_index].mean())</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">7</span> Flatten a Grid <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>flatten_grid(grid)</code> that converts <code>grid</code> to a 2D NumPy array, flattens it, and returns the result as a plain Python list of ints.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>grid</code> is a rectangular list of lists of ints.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>flatten_grid([[1, 2], [3, 4]])</code> &rarr; <code>[1, 2, 3, 4]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def flatten_grid(grid):
+    # TODO: convert grid to a 2D array, flatten it, return as a plain
+    # list of ints.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "flatten_grid",
+  "cases": [
+    { "args": [[[1, 2], [3, 4]]], "expected": [1, 2, 3, 4] },
+    { "args": [[[1]]], "expected": [1] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def flatten_grid(grid):
+    return [int(x) for x in np.array(grid).flatten()]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">8</span> Combine Two Lists into One Array <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>combine_lists(list1, list2)</code> that converts both lists to NumPy arrays, joins them end-to-end with <code>np.concatenate()</code>, and returns the result as a plain Python list of ints.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>list1</code> and <code>list2</code> are lists of ints (either may be empty).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>combine_lists([1, 2], [3, 4])</code> &rarr; <code>[1, 2, 3, 4]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import numpy as np
+
+def combine_lists(list1, list2):
+    # TODO: convert both to arrays, np.concatenate() them, return as a
+    # plain list of ints.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "combine_lists",
+  "cases": [
+    { "args": [[1, 2], [3, 4]], "expected": [1, 2, 3, 4] },
+    { "args": [[], [1]], "expected": [1] },
+    { "args": [[1], []], "expected": [1] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import numpy as np
+
+def combine_lists(list1, list2):
+    a = np.array(list1, dtype=int)
+    b = np.array(list2, dtype=int)
+    return [int(x) for x in np.concatenate([a, b])]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

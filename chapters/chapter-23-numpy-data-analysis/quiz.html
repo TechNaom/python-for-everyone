@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 23 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 23: NumPy for Data Analysis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-23" data-active-chapter="chapter-23">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 23 Quiz</span>
+  <h1>NumPy for Data Analysis</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> Why is a NumPy array typically faster than a Python list for numeric math?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">It stores fewer elements than a list</button>
+        <button type="button" class="mcq-option" data-correct="true">It stores one fixed data type and runs vectorized operations in optimized compiled code</button>
+        <button type="button" class="mcq-option" data-correct="false">Python automatically deletes lists after one use, but not arrays</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> What does <code>arr.sum()</code> replace, compared to Chapter 9's accumulator pattern?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing — it does something entirely different</button>
+        <button type="button" class="mcq-option" data-correct="true">A manual for-loop that adds up every element into a running total</button>
+        <button type="button" class="mcq-option" data-correct="false">A file-reading loop</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does <code>np.zeros(4)</code> return?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">An empty array with no elements</button>
+        <button type="button" class="mcq-option" data-correct="true">A length-4 array of float zeros: <code>[0. 0. 0. 0.]</code></button>
+        <button type="button" class="mcq-option" data-correct="false">The integer 0, repeated 4 times as a Python list</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What's the key difference between <code>np.arange()</code> and <code>np.linspace()</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">arange() only works with floats; linspace() only works with ints</button>
+        <button type="button" class="mcq-option" data-correct="true">arange() is defined by step size; linspace() is defined by how many evenly spaced values you want</button>
+        <button type="button" class="mcq-option" data-correct="false">They are identical in every way</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What does <code>arr[arr > 5]</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Raises an error, since arrays can't be compared to a number</button>
+        <button type="button" class="mcq-option" data-correct="true">Returns only the elements of arr that are greater than 5, using a boolean mask</button>
+        <button type="button" class="mcq-option" data-correct="false">Replaces every element greater than 5 with the number 5</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> How do you index a single element at row 1, column 2 of a 2D NumPy array <code>grid</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false"><code>grid[1][2]</code> only — the comma form doesn't exist</button>
+        <button type="button" class="mcq-option" data-correct="true"><code>grid[1, 2]</code></button>
+        <button type="button" class="mcq-option" data-correct="false"><code>grid.get(1, 2)</code></button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What is broadcasting?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Sending an array over a network connection</button>
+        <button type="button" class="mcq-option" data-correct="true">NumPy's rule for combining arrays of different but compatible shapes by stretching the smaller one</button>
+        <button type="button" class="mcq-option" data-correct="false">Converting an array's dtype from int to float automatically</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What happens when you add two arrays whose shapes truly can't broadcast together, like shape (3,) and shape (2,)?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">NumPy silently pads the shorter array with zeros</button>
+        <button type="button" class="mcq-option" data-correct="true">NumPy raises a ValueError naming the mismatched shapes</button>
+        <button type="button" class="mcq-option" data-correct="false">NumPy truncates the longer array to match</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> On a 2D grid, what does <code>m.sum(axis=0)</code> compute?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">One total per row, by collapsing across the columns</button>
+        <button type="button" class="mcq-option" data-correct="true">One total per column, by collapsing down the rows</button>
+        <button type="button" class="mcq-option" data-correct="false">A single number, the grand total of the whole grid</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> On the same grid, what does <code>m.sum(axis=1)</code> compute?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="true">One total per row, by collapsing across the columns</button>
+        <button type="button" class="mcq-option" data-correct="false">One total per column, by collapsing down the rows</button>
+        <button type="button" class="mcq-option" data-correct="false">Exactly the same result as axis=0, always</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What does <code>.std()</code> measure?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">The number of elements in the array</button>
+        <button type="button" class="mcq-option" data-correct="true">How spread out the values are around the mean</button>
+        <button type="button" class="mcq-option" data-correct="false">The largest value in the array</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> What does <code>.reshape(rows, cols)</code> require?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">The array must already be 2D</button>
+        <button type="button" class="mcq-option" data-correct="true">The total element count (rows &times; cols) must match the array's current size</button>
+        <button type="button" class="mcq-option" data-correct="false">Every element must be the same value</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> What does <code>.flatten()</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Sorts an array's elements in ascending order</button>
+        <button type="button" class="mcq-option" data-correct="true">Collapses any array back down to a single 1D array</button>
+        <button type="button" class="mcq-option" data-correct="false">Removes duplicate elements</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What's the difference between <code>np.vstack()</code> and <code>np.hstack()</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">vstack only works on strings; hstack only works on numbers</button>
+        <button type="button" class="mcq-option" data-correct="true">vstack stacks arrays as new rows; hstack joins them side by side</button>
+        <button type="button" class="mcq-option" data-correct="false">They are exactly the same function under two names</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> Why does NumPy underlie nearly every other Python data tool?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">Because it's the only library allowed to use the word "array"</button>
+        <button type="button" class="mcq-option" data-correct="true">Because its array-shape and broadcasting conventions are reused directly by pandas, scikit-learn, and other libraries built on top of it</button>
+        <button type="button" class="mcq-option" data-correct="false">Because it requires no installation, unlike every other library</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>arr.____()</code> computes an array's average (its mean) in one call, with no loop written by hand.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="mean" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> A comparison like <code>arr &gt; 5</code> produces a boolean ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="mask" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> <code>axis=____</code> collapses down the rows, giving one result per column.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="0" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>axis=____</code> collapses across the columns, giving one result per row.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="1" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> NumPy's rule for combining different-but-compatible-shaped arrays in arithmetic is called ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="broadcasting" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 23 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

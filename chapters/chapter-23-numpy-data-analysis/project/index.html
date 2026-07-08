@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 23 Project: Grade &amp; Statistics Analyzer — Python for Everyone</title>
+<meta name="description" content="Build a Grade & Statistics Analyzer using NumPy — overall/per-subject/per-student statistics via axis=, boolean-masking to flag above/below-average students, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-23">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 23 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Grade &amp; Statistics Analyzer</h1>
+
+  <p>A <strong>menu-driven mini-app</strong> that analyzes a class's grades using NumPy: overall statistics, per-subject and per-student breakdowns via the <code>axis=</code> parameter, and boolean masking to identify above/below-average students &mdash; all built on top of one 2D NumPy array (rows = students, columns = subjects).</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Grade &amp; Statistics Analyzer ===
+
+=== Overall Statistics ===
+Mean: 80.27  Median: 84.0  Std: 11.92  Min: 58.0  Max: 95.0
+
+=== Per-Subject Statistics ===
+Math: mean=79.8  min=60  max=95
+Science: mean=78.8  min=58  max=92
+English: mean=82.2  min=70  max=92
+
+=== Per-Student Statistics ===
+Ana: mean=86.33  min=79  max=92
+Ben: mean=72.67  min=65  max=81
+Chidi: mean=91.67  min=89  max=95
+Dana: mean=62.67  min=58  max=70
+Eli: mean=88.0  min=84  max=92
+
+=== Above-Average Students ===
+Ana, Chidi, Eli
+
+=== Below-Average Students ===
+Ben, Dana</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, install NumPy if you haven't already (<code>pip install numpy</code>), then run <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong><code>GRADES</code>:</strong> a 2D NumPy array, one row per student, one column per subject.</li>
+    <li><strong><code>overall_stats()</code>:</strong> <code>.mean()</code>/<code>.std()</code>/<code>.min()</code>/<code>.max()</code> with no <code>axis=</code>, plus <code>np.median()</code> &mdash; collapsing the whole grid to single numbers.</li>
+    <li><strong><code>per_subject_stats()</code> / <code>per_student_stats()</code>:</strong> the same aggregate functions with <code>axis=0</code> (per subject/column) and <code>axis=1</code> (per student/row).</li>
+    <li><strong><code>above_average_students()</code> / <code>below_average_students()</code>:</strong> boolean masking, comparing each student's per-row average against the class-wide average of those averages.</li>
+    <li><strong><code>format_report()</code>:</strong> combines every section into one readable report string.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "most consistent student" callout using the lowest per-student <code>.std()</code> across subjects.</li>
+    <li>Add a "hardest subject" callout &mdash; the subject with the lowest overall mean.</li>
+    <li>Load grades from a hardcoded multi-line string, parsed with <code>.split()</code>, instead of a literal array.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Nearly every real "analyze this dataset" task &mdash; grades, sensor readings, sales figures &mdash; follows this exact shape: load numeric data into an array, compute summary statistics, break those statistics down by group, and flag outliers with a condition. This project builds that entire pattern once, on data concrete enough to reason about intuitively.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Grade &amp; Statistics Analyzer above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 23. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A Weather-Data Averager</h3>
+    <p><strong>Problem:</strong> Someone has a week of daily temperature readings for several cities and wants quick summary statistics per city and per day.</p>
+    <p><strong>What it should do:</strong> Store readings as a 2D array (rows = cities, columns = days), and report each city's weekly average (<code>axis=1</code>) and each day's average across all cities (<code>axis=0</code>), plus the single hottest and coldest reading overall.</p>
+    <p><strong>Suggested approach:</strong> This is almost a direct re-skin of this project's grid &mdash; swap "student" for "city" and "subject" for "day."</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A Basic Image-Brightness Adjuster (conceptual)</h3>
+    <p><strong>Problem:</strong> A very simple stand-in for image processing &mdash; a small 2D array of numbers represents pixel brightness values (0-255), and a program should brighten or darken the whole "image" uniformly.</p>
+    <p><strong>What it should do:</strong> Build a small 2D NumPy array standing in for pixel brightness, then add or subtract a fixed amount from every value (using broadcasting), clipping results to 0-255 with <code>np.clip()</code>. No real image file I/O needed.</p>
+    <p><strong>Suggested approach:</strong> <code>np.clip(arr + amount, 0, 255)</code> is the whole core operation; the rest is printing the before/after grids clearly.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A Sports Statistics Tracker</h3>
+    <p><strong>Problem:</strong> A coach wants to track several players' stats (points, rebounds, assists) across a season and see who's over/under-performing the team average.</p>
+    <p><strong>What it should do:</strong> Store stats as a 2D array (rows = players, columns = stat categories), report each player's average and each category's team-wide average, and use boolean masking to flag players above the team's average total.</p>
+    <p><strong>Suggested approach:</strong> Directly reuses this chapter's project structure &mdash; "player" instead of "student," "stat category" instead of "subject."</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A Simple Data Normalizer/Scaler</h3>
+    <p><strong>Problem:</strong> Raw numeric data (grades on different scales, prices in different currencies) often needs rescaling to a common 0-1 range before further analysis.</p>
+    <p><strong>What it should do:</strong> Given a 1D or 2D array, write <code>normalize(arr)</code> returning <code>(arr - arr.min()) / (arr.max() - arr.min())</code>, mapping the lowest value to 0.0 and the highest to 1.0. Handle the edge case where every value is identical (avoiding a divide-by-zero).</p>
+    <p><strong>Suggested approach:</strong> One vectorized expression using broadcasting throughout &mdash; the interesting part is handling the all-identical-values edge case cleanly.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

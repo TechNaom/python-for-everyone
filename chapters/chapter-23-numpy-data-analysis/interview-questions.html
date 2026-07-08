@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 23 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 23: NumPy for Data Analysis — arrays vs. lists, boolean masking, broadcasting, the axis= parameter, and reshaping/stacking.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-23-interview" data-active-chapter="chapter-23">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 23 Interview Prep</span>
+    <span class="reading-time">50 min read</span>
+  </div>
+  <h1>Interview Questions: NumPy for Data Analysis</h1>
+  <p>NumPy comes up in nearly every data-adjacent Python interview, whether the role is data analysis, ML, or backend engineering with numeric workloads. This set covers arrays vs. lists, array creation, indexing/slicing, boolean masking, vectorized math and broadcasting, aggregate functions and the <code>axis=</code> parameter, and reshaping/stacking.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why is a NumPy array typically faster than an equivalent Python list for numeric operations?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A Python list can hold mixed types, so every arithmetic operation on it re-checks each element's type at runtime and pays normal Python function-call overhead. A NumPy array locks in one fixed <code>dtype</code> for every element up front, so vectorized operations (<code>arr.sum()</code>, <code>arr * 2</code>) skip that repeated type-checking and run as a tight, compiled loop instead of an interpreted Python loop &mdash; often 10-100x faster on anything beyond a handful of values.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Vague answers like "arrays are just faster" with no mechanism given &mdash; interviewers want to hear "fixed dtype" and "vectorized/compiled operations," not just a speed claim.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does NumPy make EVERY operation faster, even a single addition on two numbers?" (No &mdash; for a tiny amount of data, the overhead of creating a NumPy array can outweigh the benefit; the speed advantage shows up at scale, not on trivial inputs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What's the difference between <code>np.arange()</code> and <code>np.linspace()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>np.arange(start, stop, step)</code> is defined by a step size &mdash; you specify the gap between consecutive values, and the resulting count is whatever that produces (similar to Python's <code>range()</code>). <code>np.linspace(start, stop, count)</code> is defined by count &mdash; you specify exactly how many evenly spaced values you want, including both endpoints, and NumPy computes the step size automatically.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming the two are interchangeable, or not knowing that <code>linspace()</code> includes the stop value by default while <code>arange()</code> excludes it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you need exactly 100 evenly spaced points between 0 and 1, which would you use?" (<code>np.linspace(0, 1, 100)</code> &mdash; you know the desired COUNT, not a convenient step size.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What do <code>.shape</code>, <code>.dtype</code>, and <code>.ndim</code> each tell you about an array?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.shape</code> is a tuple giving the size along each dimension (e.g. <code>(3, 4)</code> for 3 rows and 4 columns). <code>.dtype</code> is the single data type every element shares (<code>int64</code>, <code>float64</code>, etc.). <code>.ndim</code> is the number of dimensions (1 for a flat array, 2 for a grid, etc.) &mdash; and is always equal to the length of <code>.shape</code>.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing <code>.shape</code> with the total element count (it's per-dimension sizes, not one number) or not knowing <code>.ndim</code> is derivable from <code>len(.shape)</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"A bug is producing unexpected results from an array operation. Which of these three would you check first?" (Usually <code>.shape</code> &mdash; the vast majority of confusing NumPy bugs trace back to an array having a different shape than expected, especially after slicing, indexing, or an <code>axis=</code> aggregate.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How does 2D indexing differ syntactically from Python's nested-list indexing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A nested Python list uses chained indexing, <code>grid[1][2]</code> &mdash; each bracket indexes one level deeper. A NumPy 2D array supports one comma-separated index instead, <code>grid[1, 2]</code>, reading as "row 1, column 2" in a single lookup. A bare <code>:</code> in either position means "every element on this dimension" &mdash; <code>grid[:, 1]</code> is the whole second column, <code>grid[1, :]</code> (or just <code>grid[1]</code>) is the whole second row.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming <code>grid[1][2]</code> doesn't work on a NumPy array at all (it does, but it's slower and less idiomatic than the comma form, since it creates an intermediate array first).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does grid[:, 1] return if grid has shape (3, 4)?" (A 1D array of shape (3,) &mdash; the entire second column, one value from each of the 3 rows.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What is boolean masking, and why is it considered NumPy's single most important idiom?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A comparison like <code>arr &gt; 5</code> produces a new array of <code>True</code>/<code>False</code> values, the same shape as <code>arr</code>, called a boolean mask. Indexing with that mask (<code>arr[arr &gt; 5]</code>, or <code>arr[mask]</code>) returns only the elements where it's <code>True</code>. It's the most important idiom because it replaces an entire loop-plus-<code>if</code>-plus-manual-list-building pattern with one expression, and it's exactly how real-world filtering ("every sensor reading above a threshold," "every failing grade") gets expressed in NumPy-based code.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing masking as "just like a Python list comprehension with an if" without recognizing it runs vectorized, with no explicit loop at all, and returns a NumPy array, not a Python list.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you combine two conditions in a single mask, like values between 5 and 10?" (Use <code>&amp;</code>/<code>|</code> instead of <code>and</code>/<code>or</code>, with each condition parenthesized: <code>arr[(arr &gt; 5) &amp; (arr &lt; 10)]</code>.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What is broadcasting, and what's the general rule for when it applies?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Broadcasting is NumPy's rule for combining arrays of different but compatible shapes in an arithmetic operation, by conceptually "stretching" the smaller array across the larger one's shape without actually copying data. Comparing shapes from the rightmost dimension inward, two dimensions are compatible if they're equal or if one of them is 1 (which gets stretched). A single number broadcasts across an entire array; a 1D array broadcasts across each row of a 2D grid if its length matches the number of columns.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing broadcasting as "NumPy just figures it out somehow" without being able to state the actual rule (equal, or one of them is 1).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would a shape-(3,) array and a shape-(4,3) array broadcast together?" (Yes &mdash; the (3,) array's missing leading dimension is treated as size 1, so it's compared as (1,3) against (4,3): the rightmost dimensions match (3 and 3), and the size-1 dimension stretches across all 4 rows.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What happens when two arrays' shapes genuinely can't broadcast together?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>NumPy raises a <code>ValueError</code> that names both mismatched shapes (e.g. "operands could not be broadcast together with shapes (3,) (2,)"), rather than silently truncating, padding, or guessing at an answer. This fail-loudly behavior is deliberate &mdash; a silent wrong answer on numeric data is far more dangerous than a clear, immediate error.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming NumPy will pad the shorter array with zeros or truncate the longer one to "make it work" &mdash; it does neither; a genuine mismatch is always an error.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you fix a shape (3,) + (2,) mismatch if the intent was actually valid?" (Depends on the real intent — reshape one array so its shape genuinely aligns with the other, e.g. to (3,1) or (1,2), rather than trying to force incompatible data together.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> Walk through what <code>axis=0</code> and <code>axis=1</code> each do on a 2D array's aggregate functions.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>axis=0</code> collapses DOWN the rows, producing one result per COLUMN &mdash; if rows are students and columns are subjects, <code>grades.mean(axis=0)</code> gives one average per subject. <code>axis=1</code> collapses ACROSS the columns, producing one result per ROW &mdash; <code>grades.mean(axis=1)</code> gives one average per student. With no <code>axis=</code> given at all, the aggregate collapses the entire array to a single number.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Getting axis=0 and axis=1 backwards &mdash; extremely common, and worth catching in an interview by explicitly checking <code>result.shape</code> rather than guessing from memory.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"For a (3, 5) grid, what shape does .sum(axis=0) return? What about .sum(axis=1)?" (axis=0 -> shape (5,), one value per column; axis=1 -> shape (3,), one value per row — the axis you specify is the dimension that disappears from the result.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What does <code>.std()</code> measure, and why would a report include it alongside mean/min/max?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Standard deviation measures how spread out values are around the mean &mdash; a small <code>.std()</code> means most values sit close to the average, a large one means they're spread widely. Alongside mean/min/max, it gives a quick sense of consistency: two datasets can share the same mean but have very different spreads, and <code>.std()</code> is what distinguishes "everyone scored close to 85" from "scores ranged wildly but averaged to 85."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing standard deviation with range (max - min) &mdash; they're related but not the same measure, and a candidate should know std specifically reflects spread AROUND the mean, not just the total spread.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If two classes both average 80 on a test but one has std=2 and the other std=15, what does that tell you?" (The std=2 class scored very consistently near 80; the std=15 class had much more variation — some students far above or below 80 — even though both averages are identical.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What does <code>.reshape(rows, cols)</code> actually do to the underlying data?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>.reshape()</code> reinterprets the same sequence of values with a new shape &mdash; it does not reorder, recompute, or copy the underlying data, it just changes how that same sequence is grouped into rows and columns. The one hard requirement is that the total element count must stay the same: reshaping a 6-element array works into (2,3) or (3,2) or (6,1), but not into (2,4), since 8 &ne; 6.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing reshape can "add" or "remove" data to make a shape fit &mdash; it can't; a mismatched element count always raises an error.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You have 168 hourly sensor readings as a flat array and want a daily average. What reshape would you use?" (.reshape(7, 24) — 7 days of 24 hours each — then .mean(axis=1) to average across each day's 24 hourly readings.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What's the difference between <code>np.concatenate()</code>, <code>np.vstack()</code>, and <code>np.hstack()</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>All three combine separate arrays into one, but differently: <code>np.concatenate()</code> joins arrays end-to-end along an existing dimension (for two 1D arrays, this produces one longer 1D array). <code>np.vstack()</code> stacks arrays as new rows of a 2D result. <code>np.hstack()</code> joins arrays side by side &mdash; for two 1D arrays this looks identical to concatenate, but the difference becomes visible once the inputs are already 2D, where hstack joins along columns rather than adding new rows.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating all three as fully interchangeable in every case &mdash; they agree on flat 1D inputs but diverge on 2D inputs, and a candidate should know that distinction exists even if the exact 2D behavior isn't memorized.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you have two 1D arrays of readings from two different sensors and want them as two separate rows of one grid, which function?" (np.vstack() — it explicitly creates a new row per input array, which concatenate() alone would not do for 1D inputs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Why does NumPy underlie so many other Python data-science libraries?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>NumPy's <code>ndarray</code>, its shape conventions, and its broadcasting rules became the shared, de facto standard representation for numeric data in Python. Rather than each library (pandas, scikit-learn, matplotlib, and parts of TensorFlow/PyTorch) inventing its own array type and conversion rules, they build directly on NumPy arrays or expose NumPy-compatible interfaces &mdash; meaning skills learned here (shapes, broadcasting, axis=) transfer directly instead of needing to be relearned per library.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing NumPy as "just one option among many" for numeric Python work, missing that its conventions are effectively the industry-standard foundation other tools are built on top of.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you already understand NumPy's axis= parameter well, does that help with pandas?" (Yes — pandas' axis= parameter on its own aggregate methods follows the same axis=0/axis=1 convention NumPy established, so the mental model transfers directly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> When would you choose a plain Python list over a NumPy array?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>When the data is genuinely mixed-type (strings, dicts, and numbers together), when the collection needs to grow/shrink frequently and unpredictably (NumPy arrays are fixed-size; growing one means creating a new array), or when the dataset is small enough that vectorization's performance benefit doesn't matter and a list's simplicity and flexibility are more valuable. NumPy is specifically the right tool for large, uniform, numeric data that needs fast bulk operations &mdash; not a universal list replacement.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming NumPy arrays are strictly "better" in every situation, missing that lists remain the right default for general-purpose, mixed-type, or frequently-resized Python data.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would you use a NumPy array to store a list of student names alongside their grades?" (Not directly as one array — names are strings and grades are numbers; you'd typically keep them as a list of dicts/tuples, or two parallel arrays/lists, one per data type, rather than forcing mixed data into one array.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> What's the practical difference between <code>arr.sum()</code> with no axis and <code>arr.sum(axis=0)</code> on a 1D array specifically?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>On a 1D array, they're identical &mdash; there's only one axis (axis 0), so specifying it explicitly changes nothing. The distinction only becomes meaningful on 2D-or-higher arrays, where axis=0 and axis=1 collapse different dimensions and no-axis-at-all collapses everything to one number. This is a good check for whether someone actually understands axis= as "which dimension to collapse" rather than having memorized it as some other kind of flag.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming axis= behaves differently even on 1D data, or being unable to explain why it "does nothing extra" there.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does the same equivalence hold on a 2D array?" (No — on a 2D array, arr.sum() (no axis) collapses to one grand total, while arr.sum(axis=0) collapses only the rows, leaving one result per column; they genuinely differ once there's more than one dimension.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> NumPy's core array type is called the <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="ndarray" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> An array's <code>.____</code> attribute is a tuple giving its size along each dimension.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="shape" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>np.____(start, stop, count)</code> generates count evenly spaced values including both endpoints.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="linspace" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> A comparison like <code>arr &gt; 5</code> produces a boolean ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="mask" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> NumPy's rule for combining differently-shaped-but-compatible arrays is called ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="broadcasting" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A genuine shape mismatch in an arithmetic operation raises a ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="ValueError,valueerror" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>axis=____</code> collapses down the rows, giving one result per column.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="0" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>axis=____</code> collapses across the columns, giving one result per row.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="1" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>.____()</code> measures how spread out values are around the mean.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="std" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>.____()</code> reinterprets the same array data with a new shape (element count must match).</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="reshape" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>np.____()</code> stacks arrays as new rows of a 2D result.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="vstack" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Every element in a NumPy array shares one fixed ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="dtype" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Filtering an array with a condition using no explicit loop is called boolean ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="masking" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
