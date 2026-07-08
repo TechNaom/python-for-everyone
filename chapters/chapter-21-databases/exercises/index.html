@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 21: Working with Databases, including parameterized queries, SQL injection, pymongo CRUD, cloud credentials via environment variables, and a Debug the Code task.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-21">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 21 Exercises</span>
+    <span class="reading-time">40 min, hands-on</span>
+  </div>
+  <h1>Exercises: Working with Databases</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. Every "database" here is a <code>FakeConnection</code>/<code>FakeCursor</code>
+    or <code>FakeCollection</code> class standing in for a real
+    <code>mysql-connector-python</code>/<code>pymongo</code> object — no
+    live database or installed driver is needed.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Querying with a parameterized <code>WHERE</code> clause</h3>
+    <p>Get a connection and cursor from <code>FakeConnection(STUDENTS_TABLE)</code>, run a parameterized query for students with <code>grade &gt; 80</code>, and print each matching name.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> <code>fetchone()</code></h3>
+    <p>Run a parameterized query matching one student by name and print <code>cursor.fetchone()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Building an unsafe query</h3>
+    <p>Write <code>build_unsafe_query(name)</code> and call it with a malicious input to see how SQL injection changes a query's meaning — this only builds and prints the string, it's never executed against anything.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> The parameterized fix</h3>
+    <p>Write <code>build_safe_query_and_params(name)</code> — the same malicious input, now harmless, kept as data instead of glued into the SQL string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> MongoDB <code>insert_one</code> and <code>find</code></h3>
+    <p>Insert two documents into a <code>FakeCollection()</code> and print everything currently stored.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> MongoDB <code>update_one</code></h3>
+    <p>Update one document's <code>grade</code> field using <code>{"$set": ...}</code> and confirm the change.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> MongoDB <code>delete_one</code></h3>
+    <p>Delete one document and confirm only the other one remains.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Cloud credentials via environment variables</h3>
+    <p>Write <code>build_connection_info()</code> that reads connection details from <code>os.environ</code> instead of hardcoding them.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 9 — Debug the Code</h3>
+    <p>This is supposed to look up "Ben Osei" by name, but it builds the SQL string with an f-string instead of a parameterized query — the exact SQL injection risk from Sub-topic 4. It also returns the <em>wrong</em> row here, since the fake cursor doesn't recognize the f-string's shape and falls back to returning every row. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_unsafe_lookup.py</span>
+      </div>
+      <pre><code>def unsafe_lookup(cursor, name):
+    sql = f"SELECT * FROM students WHERE name = '{name}'"
+    cursor.execute(sql)
+    return cursor.fetchone()
+
+
+debug_cursor = FakeConnection(STUDENTS_TABLE).cursor()
+print(unsafe_lookup(debug_cursor, "Ben Osei"))</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

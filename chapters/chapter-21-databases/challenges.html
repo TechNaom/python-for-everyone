@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on relational vs. document classification, parameterized queries, SQL injection detection, and MongoDB-style document operations, for Chapter 21: Working with Databases.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-21">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 21 Coding Challenges</span>
+    <span class="reading-time">50-65 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Working with Databases</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser &mdash;
+    no setup required, and no live database or driver install needed. Write
+    your function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-21 have covered so far. No import
+    beyond
+    <code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>/<code>threading</code>/<code>concurrent.futures</code>.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Classify a Database Type <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>classify_db_type(system_name)</code> that returns <code>"relational"</code> if <code>system_name</code> is one of <code>"MySQL"</code>, <code>"PostgreSQL"</code>, or <code>"SQLite"</code>; <code>"document"</code> if it's one of <code>"MongoDB"</code> or <code>"CouchDB"</code>; and <code>"unknown"</code> otherwise.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>system_name</code> is always a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>classify_db_type("MySQL")</code> &rarr; <code>"relational"</code><br>
+        <code>classify_db_type("MongoDB")</code> &rarr; <code>"document"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def classify_db_type(system_name):
+    # TODO: return "relational" for "MySQL"/"PostgreSQL"/"SQLite",
+    # "document" for "MongoDB"/"CouchDB", and "unknown" otherwise.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "classify_db_type",
+  "cases": [
+    { "args": ["MySQL"], "expected": "relational" },
+    { "args": ["MongoDB"], "expected": "document" },
+    { "args": ["Redis"], "expected": "unknown" },
+    { "args": ["PostgreSQL"], "expected": "relational" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def classify_db_type(system_name):
+    relational = {"MySQL", "PostgreSQL", "SQLite"}
+    document = {"MongoDB", "CouchDB"}
+    if system_name in relational:
+        return "relational"
+    if system_name in document:
+        return "document"
+    return "unknown"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">2</span> Build a Parameterized Query <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>build_select_query(table, column, value)</code> that returns a two-item list <code>[sql, params]</code>, where <code>sql</code> is the string <code>f"SELECT * FROM {table} WHERE {column} = %s"</code> and <code>params</code> is the list <code>[value]</code> &mdash; the table and column names are safe to format directly (they come from your own code, not user input), but the value always stays a separate parameter.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>table</code> and <code>column</code> are strings; <code>value</code> may be any type.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>build_select_query("students", "name", "Ana")</code> &rarr; <code>["SELECT * FROM students WHERE name = %s", ["Ana"]]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def build_select_query(table, column, value):
+    # TODO: return [f"SELECT * FROM {table} WHERE {column} = %s", [value]]
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "build_select_query",
+  "cases": [
+    { "args": ["students", "name", "Ana"], "expected": ["SELECT * FROM students WHERE name = %s", ["Ana"]] },
+    { "args": ["orders", "id", 7], "expected": ["SELECT * FROM orders WHERE id = %s", [7]] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def build_select_query(table, column, value):
+    sql = f"SELECT * FROM {table} WHERE {column} = %s"
+    return [sql, [value]]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> Detect an SQL Injection Risk <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_injection_vulnerable(sql_building_code)</code> that returns <code>True</code> if the given line of code (as a string) looks like it builds SQL by directly formatting a value into the string &mdash; specifically, if it contains <code>f"</code> or <code>f'</code> (an f-string), or contains <code>" + "</code> without also containing <code>%s</code> (string concatenation with no parameterized placeholder) &mdash; and <code>False</code> otherwise.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>sql_building_code</code> is always a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_injection_vulnerable('"SELECT * FROM t WHERE name = %s"')</code> &rarr; <code>false</code><br>
+        <code>is_injection_vulnerable('"SELECT * FROM t WHERE name = " + name')</code> &rarr; <code>true</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def is_injection_vulnerable(sql_building_code):
+    # TODO: return True if sql_building_code contains f" or f' (an
+    # f-string), or contains " + " without also containing %s
+    # (concatenation with no parameterized placeholder); False otherwise.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_injection_vulnerable",
+  "cases": [
+    { "args": ["f\"SELECT * FROM t WHERE name = '{name}'\""], "expected": true },
+    { "args": ["\"SELECT * FROM t WHERE name = %s\""], "expected": false },
+    { "args": ["\"SELECT * FROM t WHERE name = \" + name"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def is_injection_vulnerable(sql_building_code):
+    has_fstring = 'f"' in sql_building_code or "f'" in sql_building_code
+    has_concat_no_params = " + " in sql_building_code and "%s" not in sql_building_code
+    return has_fstring or has_concat_no_params</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Safely Look Up a Row <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_lookup(table, name)</code> that searches a list of dicts <code>table</code> (each with a <code>"name"</code> key) for the first row where <code>row["name"] == name</code>, returning that row, or <code>None</code> if no row matches. This models what a parameterized <code>WHERE name = %s</code> query does: <code>name</code> is only ever compared as plain data, so a value like <code>"x' OR '1'='1"</code> simply won't match any real row, instead of matching every row the way an injected query would.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>table</code> is a list of dicts, each with a <code>"name"</code> key; <code>name</code> is a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_lookup([{"name": "Ben", "grade": 78}], "Ben")</code> &rarr; <code>{"name": "Ben", "grade": 78}</code><br>
+        <code>safe_lookup([{"name": "Ben", "grade": 78}], "x' OR '1'='1")</code> &rarr; <code>None</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def safe_lookup(table, name):
+    # TODO: return the first row in `table` where row["name"] == name,
+    # or None if no row matches.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_lookup",
+  "cases": [
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}], "Ben"], "expected": {"name": "Ben", "grade": 78} },
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}], "x' OR '1'='1"], "expected": null },
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}], "Nobody"], "expected": null }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def safe_lookup(table, name):
+    matches = [row for row in table if row["name"] == name]
+    return matches[0] if matches else None</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Count Matching Documents <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_matching_documents(documents, query)</code> that returns how many dicts in the list <code>documents</code> match every key/value pair in the dict <code>query</code> &mdash; the same matching rule <code>pymongo</code>'s <code>find()</code> uses. An empty <code>query</code> matches every document.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>documents</code> is a list of dicts; <code>query</code> is a dict (possibly empty).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_matching_documents([{"grade": 91}, {"grade": 78}], {"grade": 91})</code> &rarr; <code>1</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def count_matching_documents(documents, query):
+    # TODO: return how many dicts in `documents` match every key/value
+    # pair in `query` (an empty query matches every document).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_matching_documents",
+  "cases": [
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}, {"name": "Chen", "grade": 91}], {"grade": 91}], "expected": 2 },
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}, {"name": "Chen", "grade": 91}], {"name": "Ben"}], "expected": 1 },
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}, {"name": "Chen", "grade": 91}], {"name": "Nobody"}], "expected": 0 },
+    { "args": [[{"name": "Ana", "grade": 91}, {"name": "Ben", "grade": 78}, {"name": "Chen", "grade": 91}], {}], "expected": 3 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def count_matching_documents(documents, query):
+    return sum(1 for d in documents if all(d.get(k) == v for k, v in query.items()))</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">6</span> Apply a <code>$set</code>-Style Update <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>apply_set_update(document, set_fields)</code> that returns a <strong>new</strong> dict equal to <code>document</code> with every key/value pair from <code>set_fields</code> applied on top &mdash; modeling what <code>pymongo</code>'s <code>{"$set": set_fields}</code> does: change only the given fields, leave everything else untouched.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>document</code> and <code>set_fields</code> are both dicts.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>apply_set_update({"name": "Ana", "grade": 91}, {"grade": 95})</code> &rarr; <code>{"name": "Ana", "grade": 95}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def apply_set_update(document, set_fields):
+    # TODO: return a NEW dict combining document with set_fields applied
+    # on top (set_fields' values win on any shared key).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "apply_set_update",
+  "cases": [
+    { "args": [{"name": "Ana", "grade": 91}, {"grade": 95}], "expected": {"name": "Ana", "grade": 95} },
+    { "args": [{"name": "Ben"}, {"grade": 80, "active": true}], "expected": {"name": "Ben", "grade": 80, "active": true} },
+    { "args": [{"a": 1}, {}], "expected": {"a": 1} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def apply_set_update(document, set_fields):
+    updated = dict(document)
+    updated.update(set_fields)
+    return updated</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Recommend a Storage Model <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>recommend_storage_model(shape_varies, needs_joins)</code> that returns <code>"relational"</code> if <code>needs_joins</code> is <code>True</code> and <code>shape_varies</code> is <code>False</code>; <code>"document"</code> if <code>shape_varies</code> is <code>True</code> and <code>needs_joins</code> is <code>False</code>; and <code>"either could work"</code> in every other case.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are booleans.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>recommend_storage_model(false, true)</code> &rarr; <code>"relational"</code><br>
+        <code>recommend_storage_model(true, false)</code> &rarr; <code>"document"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def recommend_storage_model(shape_varies, needs_joins):
+    # TODO: return "relational" if needs_joins and not shape_varies;
+    # "document" if shape_varies and not needs_joins; otherwise
+    # "either could work".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "recommend_storage_model",
+  "cases": [
+    { "args": [false, true], "expected": "relational" },
+    { "args": [true, false], "expected": "document" },
+    { "args": [false, false], "expected": "either could work" },
+    { "args": [true, true], "expected": "either could work" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def recommend_storage_model(shape_varies, needs_joins):
+    if needs_joins and not shape_varies:
+        return "relational"
+    if shape_varies and not needs_joins:
+        return "document"
+    return "either could work"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">8</span> Build a Config from Environment Variables <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>build_config_from_env(env, required_keys)</code> that returns a dict containing only the keys listed in <code>required_keys</code>, with their values taken from the dict <code>env</code> (standing in for <code>os.environ</code>) &mdash; modeling how a program should read its database connection details from environment variables instead of hardcoding them.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> every key in <code>required_keys</code> is guaranteed to exist in <code>env</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>build_config_from_env({"DB_HOST": "cloud.example.com", "DB_USER": "reader"}, ["DB_HOST"])</code> &rarr; <code>{"DB_HOST": "cloud.example.com"}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def build_config_from_env(env, required_keys):
+    # TODO: return {key: env[key] for key in required_keys}.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "build_config_from_env",
+  "cases": [
+    { "args": [{"DB_HOST": "cloud.example.com", "DB_USER": "reader", "DB_PASSWORD": "secret"}, ["DB_HOST", "DB_USER"]], "expected": {"DB_HOST": "cloud.example.com", "DB_USER": "reader"} },
+    { "args": [{"DB_HOST": "cloud.example.com", "DB_USER": "reader", "DB_PASSWORD": "secret"}, ["DB_PASSWORD"]], "expected": {"DB_PASSWORD": "secret"} },
+    { "args": [{"DB_HOST": "cloud.example.com", "DB_USER": "reader", "DB_PASSWORD": "secret"}, []], "expected": {} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def build_config_from_env(env, required_keys):
+    return {key: env[key] for key in required_keys}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

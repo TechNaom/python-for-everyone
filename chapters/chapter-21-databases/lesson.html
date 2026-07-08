@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21: Working with Databases — Python for Everyone</title>
+<meta name="description" content="MySQL via mysql-connector-python, MongoDB via pymongo, cloud-hosted connections with environment-variable credentials, parameterized queries and SQL injection, and relational vs. document data — every example runs safely with mock connector classes, no live database required.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-21">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 21 of 27</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">85 min read</span>
+  </div>
+  <h1>Working with Databases</h1>
+  <p><em>Chapter 13's CSV files work fine for small, flat, single-user data &mdash; but the moment multiple programs need to read and write the same data at once, or the data needs querying by more than "read the whole file into memory," a flat file stops being enough. A <strong>database</strong> is software built specifically to store, query, and update data reliably, even with many programs hitting it at once. This chapter covers the two dominant kinds &mdash; <strong>relational</strong> (MySQL) and <strong>document-based</strong> (MongoDB) &mdash; the real, production <code>mysql-connector-python</code> and <code>pymongo</code> APIs for talking to them from Python, why parameterized queries matter, and how the exact same code points at a cloud-hosted database instead of a local one.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> is the entry point: what a database connection actually is, and why Python needs a driver library at all.</li>
+      <li><strong>Sub-topics 2-3</strong> cover MySQL: connecting, cursors, parameterized queries, and fetching results with <code>mysql-connector-python</code>.</li>
+      <li><strong>Sub-topic 4</strong> is the security payoff of Sub-topic 3: a concrete SQL injection attack, and the parameterized-query fix that closes it.</li>
+      <li><strong>Sub-topics 5-6</strong> cover MongoDB: documents as Python dicts, and basic CRUD with <code>pymongo</code>.</li>
+      <li><strong>Sub-topic 7</strong> is the conceptual payoff connecting both halves: relational rows vs. document-based records, side by side.</li>
+      <li><strong>Sub-topic 8</strong> covers cloud-hosted connections &mdash; the exact same code, pointed at a remote host, with credentials from environment variables instead of hardcoded.</li>
+      <li><strong>This environment has no live database, and none is required.</strong> Every executed example uses a small <code>Fake</code> class (<code>FakeConnection</code>, <code>FakeCursor</code>, <code>FakeCollection</code>) that mimics the real connector's interface &mdash; same method names, same call shape &mdash; without needing a real MySQL or MongoDB server. Real, uncommented connection snippets are shown too, clearly labeled as "what this looks like against a real server," but never executed.</li>
+      <li><strong>Every method name and call signature taught here is the real one</strong> from <code>mysql-connector-python</code> and <code>pymongo</code> &mdash; the mocking is only about what's safe to <em>run</em> in this course, not about teaching a simplified or invented API.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-connection">1. What a database connection is</a>
+    <a href="#mysql-connecting">2. Connecting to MySQL</a>
+    <a href="#mysql-queries">3. Cursors &amp; parameterized queries</a>
+    <a href="#sql-injection">4. SQL injection &amp; why parameters matter</a>
+    <a href="#mongodb-basics">5. MongoDB &amp; documents</a>
+    <a href="#mongodb-crud">6. CRUD with pymongo</a>
+    <a href="#relational-vs-document">7. Relational vs. document data</a>
+    <a href="#cloud-connections">8. Cloud-hosted connections</a>
+  </nav>
+
+  <div class="hook">
+    Picture a school's student records stored in <code>students.csv</code> (Chapter 13). One program reads it, updates a grade, and writes the whole file back &mdash; fine, until a second program tries to do the same thing at the same moment and one of their changes silently disappears. A <strong>database</strong> solves exactly this: it lets many programs read and write the same data safely, query for exactly the rows or documents they need instead of loading everything into memory, and keeps that data intact even if a program crashes mid-update. This chapter is about how Python talks to one.
+  </div>
+
+  <div class="subtopic" id="what-is-a-connection">
+    <span class="subtopic-label">Sub-topic 1 of 8</span>
+    <h2>1. What a database connection is, and why Python needs a driver</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A database is a separate piece of software (often running on its own server) that stores and manages data &mdash; Python talks to it over a network connection, even when it's running on the same machine.</li>
+        <li>A <strong>driver library</strong> (<code>mysql-connector-python</code> for MySQL, <code>pymongo</code> for MongoDB) is what actually speaks the database's specific network protocol on Python's behalf.</li>
+        <li>Both drivers share the same shape: connect, get an object to run commands through, run commands, read results back.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every tool in this chapter is really just one consistent pattern (connect &rarr; get a working object &rarr; run a command &rarr; read results) applied to two different kinds of database &mdash; seeing that shared shape up front makes the rest of the chapter feel like one idea, not two unrelated ones.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a database?</span>
+      A <strong>database</strong> is software dedicated to storing, querying, and
+      updating data reliably &mdash; handling many simultaneous readers and
+      writers safely, enforcing rules about what data is allowed in, and
+      surviving crashes without losing or corrupting data. It's a separate
+      running program (a "server"), not a file Python opens directly the way
+      Chapter 13's <code>open()</code> did &mdash; Python talks to it over a
+      network connection instead, even when that database happens to be
+      running on the very same computer.
+    </div>
+
+    <p>
+      Because a database is a separate program speaking its own protocol,
+      Python needs a translator: a library that knows how to open that
+      network connection, send commands in the format the database expects,
+      and translate results back into ordinary Python values.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a driver library?</span>
+      A <strong>driver</strong> (or "connector" or "client library") is a
+      Python package written specifically to speak one database's network
+      protocol. <code>mysql-connector-python</code> is the official driver
+      for MySQL; <code>pymongo</code> is the official driver for MongoDB.
+      Installing one (<code>pip install mysql-connector-python</code> or
+      <code>pip install pymongo</code>, neither run in this course) is what
+      makes <code>import mysql.connector</code> or <code>import pymongo</code>
+      possible in a real project.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">the shared shape, both drivers</span>
+      <pre><code>MySQL (mysql-connector-python)      MongoDB (pymongo)
+------------------------------      ------------------------------
+connect()        -> connection      MongoClient()   -> client
+connection.cursor() -> cursor       client[db_name] -> database
+cursor.execute(sql, params)         database[collection_name] -> collection
+cursor.fetchall()/.fetchone()       collection.find()/.find_one()
+connection.commit()                 collection.insert_one(doc)</code></pre>
+    </div>
+
+    <p>
+      Every sub-topic from here on is filling in one row of that table with
+      real detail &mdash; connecting, running a command, and reading results
+      back, for each database in turn.
+    </p>
+
+    <div class="lesson-note">
+      <strong>About the examples in this chapter:</strong> this course has no
+      backend and cannot connect to a real MySQL or MongoDB server, and
+      never commits credentials. Every example that actually runs uses a
+      small <code>FakeConnection</code>/<code>FakeCursor</code> or
+      <code>FakeCollection</code> class &mdash; a stand-in that mimics the
+      real driver's method names and call shape closely enough to demonstrate
+      the pattern, clearly commented as a stand-in every time it appears.
+      Real, uncommented connection code is shown too (labeled "what this
+      looks like against a real server"), so you learn the genuine API
+      &mdash; it's just never executed here.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A database is separate software Python talks to over a network connection, not a file opened directly.</li>
+      <li>A driver library (<code>mysql-connector-python</code>, <code>pymongo</code>) translates Python calls into that database's protocol and back.</li>
+      <li>Both drivers follow the same shape: connect, get a working object, run a command, read results.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why not just keep using CSV files for everything?</summary>
+      <p>
+        A CSV file has no built-in protection against two programs writing to
+        it at the same time (the exact race Chapter 20 studied, just for a
+        file instead of a shared variable), no way to ask "give me only the
+        rows where <code>grade &gt; 90</code>" without reading and scanning
+        the entire file in Python, and no enforced structure (a script with a
+        typo could easily append a row with the wrong number of columns).
+        Databases exist specifically to solve those three problems at scale
+        &mdash; safe concurrent access, efficient querying, and enforced (or
+        deliberately flexible, for MongoDB) structure.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A database is separate software that stores and manages data reliably, reached over a network connection.</li>
+        <li>A driver library speaks that database's specific protocol on Python's behalf.</li>
+        <li>Every example that runs in this chapter uses a small Fake class standing in for the real driver, clearly labeled.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="mysql-connecting">
+    <span class="subtopic-label">Sub-topic 2 of 8</span>
+    <h2>2. Connecting to MySQL with <code>mysql-connector-python</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>mysql.connector.connect(host=..., user=..., password=..., database=...)</code> opens a connection to a MySQL server.</li>
+        <li><code>connection.cursor()</code> returns a <strong>cursor</strong> &mdash; the object every SQL command actually runs through.</li>
+        <li>This chapter's runnable examples use <code>FakeConnection</code>/<code>FakeCursor</code>, standing in for the real driver's objects.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> <code>connect()</code> and <code>.cursor()</code> are the first two calls in literally every MySQL script &mdash; getting comfortable with exactly what each one returns is the foundation the rest of this chapter's MySQL sub-topics build on.
+    </div>
+
+    <p>
+      Here's what a real connection looks like against a real MySQL server
+      &mdash; shown for reference, never executed in this course:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">what_this_looks_like_for_real.py (reference only -- not run)</span>
+      </div>
+      <pre><code>import mysql.connector
+
+connection = mysql.connector.connect(
+    host="localhost",
+    user="app_user",
+    password="a-real-password-would-go-here",
+    database="school_records"
+)
+cursor = connection.cursor()</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a cursor?</span>
+      A <strong>cursor</strong> is the object a MySQL connection hands back
+      that every SQL command actually runs through &mdash; calling
+      <code>cursor.execute(sql)</code> sends a command to the database, and
+      the cursor is also what reading results (<code>fetchone()</code>,
+      <code>fetchall()</code>) happens through afterward. Think of the
+      connection as the open phone line to the database, and the cursor as
+      the actual conversation happening over it.
+    </div>
+
+    <p>
+      Since a real server isn't available here, every runnable MySQL example
+      in this chapter uses <code>FakeConnection</code> and
+      <code>FakeCursor</code> &mdash; small classes that store rows in an
+      ordinary Python list and dict instead of talking to a real server, but
+      expose the exact same method names (<code>.cursor()</code>,
+      <code>.execute()</code>, <code>.fetchall()</code>,
+      <code>.commit()</code>) a real connection and cursor would:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fake_mysql_setup.py</span>
+      </div>
+      <pre><code># FakeConnection/FakeCursor stand in for a real mysql.connector connection
+# and cursor object, so this chapter's examples run without a live MySQL
+# server. Same method names, same call shape as the real driver.
+
+class FakeCursor:
+    def __init__(self, table):
+        self.table = table          # a list of dicts, standing in for SQL rows
+        self._last_result = []
+
+    def execute(self, sql, params=None):
+        # A real cursor would send `sql` to the server; this fake one just
+        # remembers what was asked for so fetch methods below can respond.
+        self._last_sql = sql
+        self._last_params = params or ()
+
+    def fetchall(self):
+        return list(self._last_result)
+
+    def fetchone(self):
+        return self._last_result[0] if self._last_result else None
+
+
+class FakeConnection:
+    def __init__(self, table):
+        self.table = table
+
+    def cursor(self):
+        return FakeCursor(self.table)
+
+    def commit(self):
+        pass  # a real connection would save changes; nothing to save here
+
+
+students_table = [
+    {"id": 1, "name": "Ana Torres", "grade": 91},
+    {"id": 2, "name": "Ben Osei", "grade": 78},
+]
+connection = FakeConnection(students_table)
+cursor = connection.cursor()
+print(type(cursor).__name__)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of fake_mysql_setup.py</span>
+      <pre><code>FakeCursor</code></pre>
+    </div>
+
+    <p>
+      <code>connection.cursor()</code> is real MySQL vocabulary &mdash; a
+      real connection's <code>.cursor()</code> method returns a real cursor
+      object the exact same way. The next sub-topic makes <code>FakeCursor</code>
+      actually search <code>students_table</code> when <code>.execute()</code>
+      is called, so it behaves like a genuine (if simplified) query engine.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>mysql.connector.connect(host=, user=, password=, database=)</code> opens a real connection (shown for reference, not run here).</li>
+      <li><code>connection.cursor()</code> returns a cursor &mdash; the object every SQL command runs through.</li>
+      <li><code>FakeConnection</code>/<code>FakeCursor</code> mimic that same shape so this chapter's examples run without a live server.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why does connect() take a whole database name, not just a server?</summary>
+      <p>
+        A single MySQL server commonly hosts many separate databases at
+        once (a company might run one server with a <code>school_records</code>
+        database and a completely separate <code>inventory</code> database
+        side by side) &mdash; the <code>database=</code> argument tells
+        <code>connect()</code> which one this particular connection should
+        operate on, so table names in later queries don't need to be
+        qualified with the database name every time.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>mysql.connector.connect(host=, user=, password=, database=)</code> opens a connection to a real MySQL server.</li>
+        <li><code>connection.cursor()</code> returns a cursor, the object every SQL command runs through.</li>
+        <li>This chapter's runnable examples use <code>FakeConnection</code>/<code>FakeCursor</code>, matching the real driver's method names.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="mysql-queries">
+    <span class="subtopic-label">Sub-topic 3 of 8</span>
+    <h2>3. Cursors, <code>execute()</code>, and parameterized queries</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>cursor.execute(sql, params)</code> runs a SQL command, with <code>%s</code> placeholders in <code>sql</code> filled in safely from the <code>params</code> tuple.</li>
+        <li><code>cursor.fetchall()</code> returns every matching row; <code>cursor.fetchone()</code> returns just the first one (or <code>None</code>).</li>
+        <li><code>connection.commit()</code> saves changes made by <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> permanently.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the <code>%s</code>-placeholder style used here isn't just a style choice &mdash; Sub-topic 4 shows exactly what goes wrong when a query is built without it, so understanding this pattern now is what makes that danger concrete rather than abstract.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a parameterized query?</span>
+      A <strong>parameterized query</strong> writes <code>%s</code> as a
+      placeholder inside the SQL string wherever a real value belongs, then
+      passes the actual values separately, as a tuple, to
+      <code>cursor.execute(sql, params)</code>. The driver fills in each
+      <code>%s</code> safely, treating the substituted value strictly as
+      data &mdash; never as part of the SQL command itself, no matter what
+      characters that value contains.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fake_mysql_query.py</span>
+      </div>
+      <pre><code># FakeCursor stands in for a real mysql.connector cursor -- same method
+# names (execute, fetchall, fetchone) as the real driver, but it searches
+# an in-memory list of dicts instead of sending SQL to a live server.
+
+class FakeCursor:
+    def __init__(self, table):
+        self.table = table
+        self._last_result = []
+
+    def execute(self, sql, params=None):
+        params = params or ()
+        # This fake only understands one shape of query, just enough to
+        # demonstrate the real cursor.execute(sql, params) call signature:
+        # "SELECT * FROM students WHERE grade > %s"
+        if "grade > %s" in sql:
+            threshold = params[0]
+            self._last_result = [row for row in self.table if row["grade"] > threshold]
+        elif "id = %s" in sql:
+            student_id = params[0]
+            self._last_result = [row for row in self.table if row["id"] == student_id]
+        else:
+            self._last_result = list(self.table)
+
+    def fetchall(self):
+        return list(self._last_result)
+
+    def fetchone(self):
+        return self._last_result[0] if self._last_result else None
+
+
+students_table = [
+    {"id": 1, "name": "Ana Torres", "grade": 91},
+    {"id": 2, "name": "Ben Osei", "grade": 78},
+    {"id": 3, "name": "Chen Wu", "grade": 88},
+]
+cursor = FakeCursor(students_table)
+
+cursor.execute("SELECT * FROM students WHERE grade > %s", (85,))
+for row in cursor.fetchall():
+    print(f"{row['name']}: {row['grade']}")
+
+cursor.execute("SELECT * FROM students WHERE id = %s", (2,))
+print(cursor.fetchone())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of fake_mysql_query.py</span>
+      <pre><code>Ana Torres: 91
+Chen Wu: 88
+{'id': 2, 'name': 'Ben Osei', 'grade': 78}</code></pre>
+    </div>
+
+    <p>
+      Notice the call shape: <code>cursor.execute("... WHERE grade &gt; %s", (85,))</code>
+      &mdash; a real MySQL cursor uses this exact same signature, with
+      <code>%s</code> placeholders in the SQL string and the actual values
+      passed as a separate tuple, never glued directly into the string with
+      an f-string. <code>fetchall()</code> returns every matching row as a
+      list; <code>fetchone()</code> returns just the first one, or
+      <code>None</code> if nothing matched.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>connection.commit()</code>?</span>
+      For queries that change data (<code>INSERT</code>, <code>UPDATE</code>,
+      <code>DELETE</code>), MySQL doesn't save those changes permanently
+      until <code>connection.commit()</code> is called &mdash; this gives a
+      program a chance to run several related changes and either commit them
+      all together or back out if something goes wrong partway through,
+      rather than each individual <code>execute()</code> call taking effect
+      immediately and irreversibly.
+    </div>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="20">class FakeCursor:
+    def __init__(self, table):
+        self.table = table
+        self._last_result = []
+
+    def execute(self, sql, params=None):
+        params = params or ()
+        if "grade > %s" in sql:
+            threshold = params[0]
+            self._last_result = [r for r in self.table if r["grade"] > threshold]
+        else:
+            self._last_result = list(self.table)
+
+    def fetchall(self):
+        return list(self._last_result)
+
+
+students = [
+    {"id": 1, "name": "Ana", "grade": 91},
+    {"id": 2, "name": "Ben", "grade": 78},
+    {"id": 3, "name": "Chen", "grade": 95},
+]
+cursor = FakeCursor(students)
+cursor.execute("SELECT * FROM students WHERE grade > %s", (90,))
+for row in cursor.fetchall():
+    print(row["name"])</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing the threshold from 90 to 80 and see which names print.</div>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>cursor.execute(sql, params)</code> uses <code>%s</code> placeholders filled in from a separate <code>params</code> tuple &mdash; the safe way to include real values in a query.</li>
+      <li><code>cursor.fetchall()</code> returns every matching row as a list; <code>cursor.fetchone()</code> returns just the first, or <code>None</code>.</li>
+      <li><code>connection.commit()</code> permanently saves changes made by <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> queries.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what does %s actually stand for?</summary>
+      <p>
+        <code>%s</code> is <code>mysql-connector-python</code>'s
+        placeholder syntax regardless of what type of value is being
+        substituted &mdash; a string, a number, a date &mdash; the driver
+        figures out the correct way to safely represent whatever Python
+        value is passed in that position. It looks similar to
+        Chapter 6's old-style <code>%</code>-formatting for strings, but
+        it's a different thing entirely: string formatting happens in
+        Python before anything is sent anywhere, while a parameterized
+        query's placeholder substitution happens inside the database driver
+        itself, specifically so it can be done safely (Sub-topic 4 shows
+        exactly why that distinction matters).
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>cursor.execute(sql, params)</code> runs a query, with <code>%s</code> placeholders filled in safely from a separate <code>params</code> tuple.</li>
+        <li><code>fetchall()</code> gets every matching row; <code>fetchone()</code> gets just the first, or <code>None</code>.</li>
+        <li><code>connection.commit()</code> makes changes from <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> permanent.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="sql-injection">
+    <span class="subtopic-label">Sub-topic 4 of 8</span>
+    <h2>4. SQL injection, and why parameterized queries matter</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Building a SQL string with an f-string or <code>+</code> lets untrusted input change the <em>meaning</em> of the query, not just its data &mdash; this is a <strong>SQL injection</strong> attack.</li>
+        <li>Parameterized queries (<code>%s</code> + a separate <code>params</code> tuple) close this gap entirely, since substituted values are always treated as data, never as SQL syntax.</li>
+        <li>This is one of the most consequential security lessons in this entire course &mdash; real breaches have happened from exactly this mistake.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 3 showed the safe pattern; this sub-topic shows precisely what breaks without it, using the exact same shared students table so the before-and-after contrast is completely concrete.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... SQL injection?</span>
+      <strong>SQL injection</strong> is an attack where untrusted input
+      (something a user typed) gets glued directly into a SQL command as
+      text, letting that input change what the query actually
+      <em>does</em> &mdash; not just what data it searches for. A single
+      quote or a SQL keyword typed into what was supposed to be an ordinary
+      name or search term can turn one intended query into a completely
+      different one.
+    </div>
+
+    <p>
+      Here's the vulnerable version &mdash; building the SQL string directly
+      with an f-string, using the same <code>FakeCursor</code> pattern from
+      Sub-topic 3, but this time <code>execute()</code> is given the
+      <em>already-assembled</em> string instead of a placeholder and
+      separate params:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">injection_vulnerable_demo.py</span>
+      </div>
+      <pre><code># FakeCursor stands in for a real mysql.connector cursor. This version's
+# execute() takes the FULLY-BUILT sql string and, for demonstration only,
+# checks whether it contains a classic injection payload -- a real MySQL
+# server would actually run whatever SQL text it's handed, which is
+# exactly the danger this demo is illustrating.
+
+class FakeCursor:
+    def __init__(self, table):
+        self.table = table
+
+    def execute_vulnerable(self, sql):
+        print(f"SQL actually sent to the server: {sql}")
+        if "OR '1'='1'" in sql:
+            # A real server would match EVERY row here, since '1'='1' is
+            # always true -- the attacker just bypassed the name filter
+            # entirely and dumped the whole table.
+            return list(self.table)
+        name = sql.split("name = '")[1].rstrip("'")
+        return [row for row in self.table if row["name"] == name]
+
+
+students_table = [
+    {"id": 1, "name": "Ana Torres", "grade": 91},
+    {"id": 2, "name": "Ben Osei", "grade": 78},
+]
+cursor = FakeCursor(students_table)
+
+# A normal, well-behaved search:
+user_input = "Ana Torres"
+sql = f"SELECT * FROM students WHERE name = '{user_input}'"
+print(cursor.execute_vulnerable(sql))
+
+print()
+
+# An attacker's input instead of a real name:
+malicious_input = "x' OR '1'='1"
+sql = f"SELECT * FROM students WHERE name = '{malicious_input}'"
+print(cursor.execute_vulnerable(sql))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of injection_vulnerable_demo.py</span>
+      <pre><code>SQL actually sent to the server: SELECT * FROM students WHERE name = 'Ana Torres'
+[{'id': 1, 'name': 'Ana Torres', 'grade': 91}]
+
+SQL actually sent to the server: SELECT * FROM students WHERE name = 'x' OR '1'='1'
+[{'id': 1, 'name': 'Ana Torres', 'grade': 91}, {'id': 2, 'name': 'Ben Osei', 'grade': 78}]</code></pre>
+    </div>
+
+    <p>
+      The attacker never typed a real student's name at all &mdash; they
+      typed <code>x' OR '1'='1</code>, and because that text was glued
+      directly into the SQL string, the closing quote they included ended
+      the intended string early and added a brand-new condition
+      (<code>OR '1'='1'</code>) that's always true, matching every row in
+      the table instead of just one. The fix isn't "check the input for
+      quotes" (attackers have countless other tricks) &mdash; it's to never
+      build SQL out of untrusted text in the first place:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">injection_fixed_demo.py</span>
+      </div>
+      <pre><code># FakeCursor here mimics execute(sql, params) exactly the way Sub-topic 3's
+# safe version does -- the %s placeholder and separate params tuple, never
+# string-building.
+
+class FakeCursor:
+    def __init__(self, table):
+        self.table = table
+
+    def execute(self, sql, params):
+        name = params[0]  # treated strictly as DATA, never as SQL syntax
+        return [row for row in self.table if row["name"] == name]
+
+
+students_table = [
+    {"id": 1, "name": "Ana Torres", "grade": 91},
+    {"id": 2, "name": "Ben Osei", "grade": 78},
+]
+cursor = FakeCursor(students_table)
+
+malicious_input = "x' OR '1'='1"
+print(cursor.execute("SELECT * FROM students WHERE name = %s", (malicious_input,)))</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of injection_fixed_demo.py</span>
+      <pre><code>[]</code></pre>
+    </div>
+
+    <p>
+      Same malicious input, completely different (and correct) result: an
+      empty list, because no student is actually named
+      <code>x' OR '1'='1</code>. The parameterized version never lets that
+      text touch the SQL command's structure at all &mdash; it's compared
+      against the <code>name</code> column as a plain string value, exactly
+      like any other search term, which is precisely what makes injection
+      impossible through this parameter.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Building SQL by gluing untrusted input directly into a string lets that input change the query's meaning, not just its data &mdash; this is SQL injection.</li>
+      <li>Parameterized queries (<code>%s</code> + a separate <code>params</code> tuple) are the fix, because substituted values are always treated strictly as data.</li>
+      <li>"Sanitizing" input by checking for quotes or keywords is not a reliable defense &mdash; using parameterized queries for every value, always, is.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is this just a MySQL problem?</summary>
+      <p>
+        No &mdash; SQL injection affects any relational database reached
+        with hand-built query strings (PostgreSQL, SQLite, SQL Server, and
+        more), and it's been a top entry on industry-standard lists of
+        critical web application security risks for over a decade, because
+        the mistake is so easy to make by accident and so damaging when
+        exploited (a real attacker armed with this technique has, in real
+        incidents, read or deleted an entire production database). The fix
+        is the same everywhere: never build a query string by concatenating
+        untrusted input into it &mdash; always use that driver's
+        parameterized-query mechanism instead.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>SQL injection happens when untrusted input is glued directly into a query string, letting it change the query's actual behavior.</li>
+        <li>Parameterized queries close this gap by treating every substituted value strictly as data, never as SQL syntax.</li>
+        <li>Always use <code>%s</code> placeholders with a separate params tuple for any value coming from outside the program &mdash; no exceptions, no manual "sanitizing" instead.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="mongodb-basics">
+    <span class="subtopic-label">Sub-topic 5 of 8</span>
+    <h2>5. MongoDB and documents</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>MongoDB is a <strong>document database</strong>: it stores records as flexible, JSON-like documents instead of fixed-column rows.</li>
+        <li><code>pymongo.MongoClient()</code> connects; indexing the client by name gets a database, and indexing that by name gets a <strong>collection</strong>.</li>
+        <li>In Python, a MongoDB document IS a dict &mdash; no separate translation step needed the way SQL rows require one.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topics 2-4 covered MySQL's fixed-row-and-column world; MongoDB works on a genuinely different model, and understanding documents-as-dicts here directly is what makes Sub-topic 7's relational-vs-document comparison land.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a document database?</span>
+      A <strong>document database</strong> stores each record as a
+      self-contained, flexible structure (a "document") &mdash; similar to a
+      JSON object &mdash; instead of forcing every record into the same
+      fixed set of columns the way a relational table does. Different
+      documents in the same collection can have different fields entirely,
+      and a field can hold a nested structure (a list, or another document)
+      directly, without needing a separate related table the way SQL would.
+    </div>
+
+    <p>
+      Here's what connecting to a real MongoDB server looks like &mdash;
+      shown for reference, never executed in this course:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">what_this_looks_like_for_real.py (reference only -- not run)</span>
+      </div>
+      <pre><code>from pymongo import MongoClient
+
+client = MongoClient("mongodb://localhost:27017/")
+database = client["school_records"]
+collection = database["students"]</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a collection?</span>
+      A <strong>collection</strong> is MongoDB's equivalent of a SQL table
+      &mdash; a named group of related documents. Unlike a SQL table, though,
+      a collection doesn't enforce that every document inside it has the
+      same fields; it's a grouping, not a fixed structural contract.
+    </div>
+
+    <p>
+      Since a real server isn't available here, this chapter's runnable
+      MongoDB examples use <code>FakeCollection</code> &mdash; a class
+      storing documents in a plain Python list, exposing the same method
+      names (<code>insert_one</code>, <code>find</code>, <code>find_one</code>,
+      <code>update_one</code>, <code>delete_one</code>) a real
+      <code>pymongo</code> collection would:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fake_mongo_setup.py</span>
+      </div>
+      <pre><code># FakeCollection stands in for a real pymongo Collection object, so this
+# chapter's MongoDB examples run without a live server. Same method names
+# as the real driver -- insert_one, find, find_one, update_one,
+# delete_one -- operating on a plain Python list of dicts instead.
+
+class FakeCollection:
+    def __init__(self):
+        self.documents = []
+
+    def insert_one(self, document):
+        self.documents.append(dict(document))
+        return document
+
+    def find(self, query=None):
+        query = query or {}
+        return [d for d in self.documents if all(d.get(k) == v for k, v in query.items())]
+
+    def find_one(self, query=None):
+        results = self.find(query)
+        return results[0] if results else None
+
+
+students = FakeCollection()
+students.insert_one({
+    "name": "Ana Torres",
+    "grade": 91,
+    "clubs": ["chess", "robotics"],   # a nested list -- no separate table needed
+})
+students.insert_one({
+    "name": "Ben Osei",
+    "grade": 78,
+    # Ben has no "clubs" field at all -- perfectly valid, unlike a SQL table
+    # where every row needs a value (or NULL) for every column.
+})
+
+for doc in students.find():
+    print(doc)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of fake_mongo_setup.py</span>
+      <pre><code>{'name': 'Ana Torres', 'grade': 91, 'clubs': ['chess', 'robotics']}
+{'name': 'Ben Osei', 'grade': 78}</code></pre>
+    </div>
+
+    <p>
+      Ana's document has a <code>"clubs"</code> field holding a whole nested
+      list; Ben's document has no such field at all &mdash; both are
+      completely valid documents in the same collection. This is the core
+      difference from MySQL's rows: nothing here required declaring a fixed
+      set of columns in advance, and a document's shape can vary from one
+      record to the next.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>MongoDB stores records as flexible, JSON-like documents, not fixed-column rows.</li>
+      <li><code>MongoClient()</code> connects; indexing by name reaches a database, then a collection.</li>
+      <li>A document in Python IS a dict &mdash; nested lists and dicts are stored directly, and different documents in the same collection can have different fields.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does MongoDB enforce any structure at all?</summary>
+      <p>
+        Real MongoDB deployments can optionally enforce a "schema" (a set of
+        required fields and types per collection) using a feature called
+        schema validation, but it's opt-in rather than the default &mdash;
+        unlike a SQL table, which always enforces its column structure. Most
+        introductory MongoDB use (and this chapter's examples) rely on the
+        flexible, no-schema-required default, which is exactly what makes it
+        a natural fit for data whose shape genuinely varies record to record.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>MongoDB is a document database: records are flexible, JSON-like documents, not fixed rows.</li>
+        <li><code>MongoClient()</code> connects; <code>client[db_name][collection_name]</code> reaches a specific collection.</li>
+        <li>A MongoDB document is a Python dict directly &mdash; different documents in the same collection can have different fields.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="mongodb-crud">
+    <span class="subtopic-label">Sub-topic 6 of 8</span>
+    <h2>6. CRUD with <code>pymongo</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>CRUD</strong> stands for Create, Read, Update, Delete &mdash; the four basic operations any data store needs.</li>
+        <li><code>insert_one(doc)</code> creates; <code>find_one(query)</code>/<code>find(query)</code> reads; <code>update_one(query, {"$set": ...})</code> updates; <code>delete_one(query)</code> deletes.</li>
+        <li>A query is itself a dict &mdash; <code>{"name": "Ana Torres"}</code> means "find documents where <code>name</code> equals <code>"Ana Torres"</code>."</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> these four methods are, in practice, almost everything a real application does with a MongoDB collection day to day &mdash; the same four verbs this course's own CSV-based projects (Chapter 13) and dict-based projects (Chapter 8) have already been doing, just against a real (or in this chapter's case, faked) database instead of an in-memory list.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... CRUD?</span>
+      <strong>CRUD</strong> is a standard acronym for the four fundamental
+      operations any data-backed system supports: <strong>C</strong>reate a
+      new record, <strong>R</strong>ead existing records, <strong>U</strong>pdate
+      a record's fields, and <strong>D</strong>elete a record. Nearly every
+      database driver &mdash; MySQL's, MongoDB's, and beyond &mdash; offers
+      some version of these same four operations, just with different exact
+      method names and syntax.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fake_mongo_crud.py</span>
+      </div>
+      <pre><code># FakeCollection again stands in for a real pymongo Collection, with the
+# same method names and call shape the real driver uses.
+
+class FakeCollection:
+    def __init__(self):
+        self.documents = []
+
+    def insert_one(self, document):
+        self.documents.append(dict(document))
+        return document
+
+    def find(self, query=None):
+        query = query or {}
+        return [d for d in self.documents if all(d.get(k) == v for k, v in query.items())]
+
+    def find_one(self, query=None):
+        results = self.find(query)
+        return results[0] if results else None
+
+    def update_one(self, query, update):
+        doc = self.find_one(query)
+        if doc is not None:
+            doc.update(update.get("$set", {}))
+            return True
+        return False
+
+    def delete_one(self, query):
+        doc = self.find_one(query)
+        if doc is not None:
+            self.documents.remove(doc)
+            return True
+        return False
+
+
+students = FakeCollection()
+
+# Create
+students.insert_one({"name": "Ana Torres", "grade": 91})
+students.insert_one({"name": "Ben Osei", "grade": 78})
+
+# Read
+print("After insert:", students.find())
+print("One student:", students.find_one({"name": "Ben Osei"}))
+
+# Update
+students.update_one({"name": "Ben Osei"}, {"$set": {"grade": 82}})
+print("After update:", students.find_one({"name": "Ben Osei"}))
+
+# Delete
+students.delete_one({"name": "Ana Torres"})
+print("After delete:", students.find())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of fake_mongo_crud.py</span>
+      <pre><code>After insert: [{'name': 'Ana Torres', 'grade': 91}, {'name': 'Ben Osei', 'grade': 78}]
+One student: {'name': 'Ben Osei', 'grade': 78}
+After update: {'name': 'Ben Osei', 'grade': 82}
+After delete: [{'name': 'Ben Osei', 'grade': 82}]</code></pre>
+    </div>
+
+    <p>
+      Every step uses exactly the real <code>pymongo</code> method names and
+      call shapes: <code>insert_one(document)</code> takes a plain dict;
+      <code>find(query)</code>/<code>find_one(query)</code> take a dict
+      describing what to match; <code>update_one(query, {"$set": {...}})</code>
+      takes a query dict plus an update dict wrapped in <code>"$set"</code>
+      (MongoDB's real syntax for "change these fields, leave everything else
+      alone"); <code>delete_one(query)</code> takes a query dict too.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>"$set"</code>?</span>
+      <code>{"$set": {"grade": 82}}</code> is real MongoDB update syntax
+      meaning "change the <code>grade</code> field to <code>82</code>,
+      leaving every other field on the document untouched." Without
+      <code>"$set"</code>, an update in real MongoDB would replace the
+      <em>entire</em> document with whatever's passed &mdash; <code>"$set"</code>
+      is specifically how a partial, field-by-field update is expressed.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>CRUD (Create, Read, Update, Delete) are the four fundamental operations, expressed in <code>pymongo</code> as <code>insert_one</code>, <code>find</code>/<code>find_one</code>, <code>update_one</code>, and <code>delete_one</code>.</li>
+      <li>Queries are themselves plain dicts &mdash; <code>{"name": "Ana Torres"}</code> matches documents where that field equals that value.</li>
+      <li><code>{"$set": {...}}</code> updates specific fields without replacing the whole document.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what about updating or deleting MANY documents at once?</summary>
+      <p>
+        <code>update_one</code>/<code>delete_one</code> only ever touch the
+        first matching document; real <code>pymongo</code> also offers
+        <code>update_many</code> and <code>delete_many</code>, which apply
+        the same operation to every document matching the query instead of
+        just the first one. This chapter sticks to the single-document
+        versions since they cover the core pattern; reaching for the
+        <code>_many</code> variants when genuinely needed is a small,
+        natural extension once <code>update_one</code>/<code>delete_one</code>
+        are second nature.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>CRUD (Create, Read, Update, Delete) maps to <code>insert_one</code>, <code>find</code>/<code>find_one</code>, <code>update_one</code>, <code>delete_one</code> in <code>pymongo</code>.</li>
+        <li>A MongoDB query is a plain dict describing what to match, passed to <code>find</code>, <code>update_one</code>, or <code>delete_one</code>.</li>
+        <li><code>{"$set": {...}}</code> updates specific fields while leaving the rest of a document unchanged.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="relational-vs-document">
+    <span class="subtopic-label">Sub-topic 7 of 8</span>
+    <h2>7. Relational rows vs. document-based records</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>MySQL's rows have a <strong>fixed schema</strong> shared by every row in a table; related data lives in separate tables connected by a <strong>join</strong>.</li>
+        <li>MongoDB's documents have a <strong>flexible schema</strong> that can vary document to document; related data can be nested directly inside one document.</li>
+        <li>Neither is "better" universally &mdash; each fits a different shape of real-world data.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the conceptual payoff of covering both databases in one chapter &mdash; without this side-by-side comparison, MySQL and MongoDB would just look like two unrelated skills instead of two answers to the same underlying question: "how should this particular data be shaped?"
+    </div>
+
+    <p>
+      Picture the exact same student record, stored each way:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the same student, relational vs. document</span>
+      <pre><code>RELATIONAL (MySQL) -- fixed columns, related data in separate tables
+students table:              clubs table:
++----+------------+-------+  +----+------------+--------+
+| id | name       | grade |  | id | student_id | club   |
++----+------------+-------+  +----+------------+--------+
+| 1  | Ana Torres | 91    |  | 1  | 1          | chess  |
++----+------------+-------+  | 2  | 1          | robotics|
+                              +----+------------+--------+
+-- getting Ana's clubs requires a JOIN across both tables
+
+DOCUMENT (MongoDB) -- one flexible, self-contained record
+{
+  "name": "Ana Torres",
+  "grade": 91,
+  "clubs": ["chess", "robotics"]   -- nested directly, no join needed
+}</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a join?</span>
+      A <strong>join</strong> is how a relational database combines rows
+      from two or more tables that are related by a shared value (like
+      <code>clubs.student_id</code> matching <code>students.id</code>) into
+      one combined result. Joins are one of SQL's most powerful features
+      &mdash; but they only exist because relational data is deliberately
+      split across separate, fixed-column tables in the first place, which
+      is exactly the tradeoff a document database avoids by nesting related
+      data directly inside one document instead.
+    </div>
+
+    <p>
+      The tradeoff runs both directions, and it's worth stating plainly:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Relational (MySQL) fits data with a genuinely fixed, well-known shape</strong> and relationships that benefit from being queried flexibly across tables &mdash; financial ledgers, inventory systems, anything where consistency and structure matter more than flexibility.</li>
+      <li><strong>Document-based (MongoDB) fits data whose shape varies</strong> record to record, or where an entire related record naturally belongs nested inside its parent &mdash; a product catalog where different product categories have wildly different attributes, a content-management system's articles, user profiles with optional fields.</li>
+      <li>Real production systems often use <em>both</em>, choosing per use case rather than picking one database for an entire company.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: could the clubs example be modeled in MySQL without a separate table?</summary>
+      <p>
+        Technically, a text or JSON column could store something like
+        <code>"chess,robotics"</code> or a JSON blob directly inside a
+        MySQL row &mdash; but that gives up the ability to efficiently
+        query "which students are in the chess club" without scanning and
+        parsing every single row's text, which a separate <code>clubs</code>
+        table with a proper join handles natively and efficiently. This is
+        exactly the kind of tradeoff that "relational vs. document" is
+        really about: not that one can't represent the other's data at all,
+        but that each is naturally efficient at different kinds of queries
+        over that data.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Relational databases use fixed-column rows and joins across separate tables for related data.</li>
+        <li>Document databases use flexible, self-contained documents that can nest related data directly.</li>
+        <li>Each fits a different shape of real-world data; production systems often use both, chosen per use case.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="cloud-connections">
+    <span class="subtopic-label">Sub-topic 8 of 8</span>
+    <h2>8. Cloud-hosted connections &amp; keeping credentials safe</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Connecting to a cloud-hosted database uses the exact same driver code &mdash; only the <code>host</code> (or connection string/URI) changes, from <code>"localhost"</code> to a remote address.</li>
+        <li>Credentials belong in environment variables (<code>os.environ</code>, Chapter 13's territory), never hardcoded in source code.</li>
+        <li>Real cloud connections use TLS (encryption in transit) so credentials and data aren't readable if intercepted over the network.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the sub-topic that makes everything else in this chapter production-ready rather than "toy code" &mdash; the exact same <code>mysql.connector.connect()</code> or <code>MongoClient()</code> calls from Sub-topics 2 and 5, pointed at a real, remote, possibly-shared database instead of a local one.
+    </div>
+
+    <p>
+      Nothing about the driver API changes when the database lives on a
+      cloud provider's server instead of the same machine &mdash; only the
+      value passed for the host (or, for MongoDB, the whole connection
+      string) changes:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">what_this_looks_like_for_real.py (reference only -- not run)</span>
+      </div>
+      <pre><code>import os
+import mysql.connector
+
+# The SAME connect() call as Sub-topic 2 -- only host/user/password/database
+# now come from environment variables instead of being hardcoded, and host
+# points at a remote server instead of "localhost".
+connection = mysql.connector.connect(
+    host=os.environ["DB_HOST"],           # e.g. "my-database.cloudprovider.com"
+    user=os.environ["DB_USER"],
+    password=os.environ["DB_PASSWORD"],   # never hardcoded, never committed
+    database=os.environ["DB_NAME"],
+)
+
+# MongoDB's equivalent: the whole address lives in one connection string/URI.
+from pymongo import MongoClient
+mongo_uri = os.environ["MONGO_URI"]  # e.g. "mongodb+srv://user:pass@cluster.mongodb.net/school_records"
+client = MongoClient(mongo_uri)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a connection string / URI?</span>
+      A <strong>connection string</strong> (or URI) packs a database's
+      address, port, and sometimes credentials into a single string, rather
+      than separate arguments &mdash; MongoDB's driver favors this style
+      (<code>mongodb+srv://user:password@host/database</code>), while
+      <code>mysql-connector-python</code>'s <code>connect()</code> favors
+      separate keyword arguments. Either style still comes from the same
+      underlying source in production code: environment variables, not
+      hardcoded text.
+    </div>
+
+    <p>
+      Chapter 13 introduced reading environment variables with
+      <code>os.environ</code> for exactly this reason &mdash; a program's
+      source code is often stored in a public or shared repository (like
+      this course's own GitHub repo), but the actual password, API key, or
+      full connection string a specific deployment uses should never live
+      inside that source code at all. Instead, it's set as an environment
+      variable on whatever machine actually runs the program, and the code
+      just reads it at startup:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">fake_cloud_connection_demo.py</span>
+      </div>
+      <pre><code># FakeConnection stands in for a real mysql.connector connection. This
+# demo focuses on WHERE the credentials come from (os.environ, set here
+# with os.environ[...] = ... only to simulate a deployment environment
+# that already has them set -- a real program never sets its own
+# credentials this way, it only reads ones set outside the program).
+
+import os
+
+
+class FakeConnection:
+    def __init__(self, host, user, database):
+        self.host = host
+        self.user = user
+        self.database = database
+
+    def describe(self):
+        return f"Connected to '{self.database}' on {self.host} as {self.user}"
+
+
+# Simulating a deployment environment that already has these set --
+# a real program would NOT set its own credentials like this; it would
+# only read ones the hosting platform already configured.
+os.environ["DB_HOST"] = "student-records.cloudprovider.example.com"
+os.environ["DB_USER"] = "app_reader"
+os.environ["DB_NAME"] = "school_records"
+
+connection = FakeConnection(
+    host=os.environ["DB_HOST"],
+    user=os.environ["DB_USER"],
+    database=os.environ["DB_NAME"],
+)
+print(connection.describe())</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of fake_cloud_connection_demo.py</span>
+      <pre><code>Connected to 'school_records' on student-records.cloudprovider.example.com as app_reader</code></pre>
+    </div>
+
+    <p>
+      Not one credential appears as a literal string next to
+      <code>connect()</code> or <code>MongoClient()</code> &mdash; every
+      value is read through <code>os.environ[...]</code>, which means the
+      actual password (deliberately never even created in this safe demo)
+      can differ per environment (a developer's laptop, a testing server, a
+      production deployment) without ever changing a single line of source
+      code, and can never accidentally end up committed to a public
+      repository.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... TLS?</span>
+      <strong>TLS</strong> (Transport Layer Security) encrypts data in
+      transit over a network connection &mdash; without it, credentials and
+      data sent to a database could be read by anyone able to intercept the
+      network traffic between a program and a remote server. Real cloud
+      database services enable TLS by default (or require it) for exactly
+      this reason; it's mentioned here as the reason a cloud connection
+      string often includes <code>+srv</code> or an explicit
+      <code>ssl=true</code>-style option, not something this chapter's
+      offline examples need to configure themselves.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A cloud-hosted database uses the exact same driver code &mdash; only the host address (or connection string) points somewhere remote instead of local.</li>
+      <li>Credentials belong in environment variables (<code>os.environ</code>), read at startup, never hardcoded or committed to source control.</li>
+      <li>TLS encrypts a cloud connection in transit, protecting credentials and data from being read if intercepted over the network.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what if a project needs MANY environment variables, not just one or two?</summary>
+      <p>
+        Real projects commonly use a local <code>.env</code> file (never
+        committed &mdash; listed in <code>.gitignore</code>) alongside a
+        library like <code>python-dotenv</code> to load many environment
+        variables at once during local development, while a production
+        deployment's hosting platform sets the real environment variables
+        directly, with no file involved at all. The underlying pattern this
+        chapter teaches &mdash; reading credentials through
+        <code>os.environ</code> rather than hardcoding them &mdash; stays
+        exactly the same either way; only how those variables get set in
+        the first place changes.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>The same driver code connects to a cloud-hosted database &mdash; only the host or connection string changes, from local to remote.</li>
+        <li>Credentials always come from environment variables at startup, never hardcoded in source code.</li>
+        <li>TLS encrypts real cloud connections in transit, protecting credentials and data from interception.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Nearly every production web application, mobile app backend, and internal business tool is backed by a relational database (MySQL, PostgreSQL) or a document database (MongoDB) or both &mdash; this is one of the most universally applicable skills in this entire course.</li>
+      <li>SQL injection remains one of the most consequential, most preventable security vulnerabilities in real software, precisely because the fix (parameterized queries, every time, no exceptions) is simple but easy to skip under deadline pressure.</li>
+      <li>Reading credentials from environment variables instead of hardcoding them is standard practice at every company running real infrastructure &mdash; it's what makes the exact same code deployable across a developer's laptop, a staging server, and production without ever risking a leaked secret.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A database is separate software reached over a network connection; a driver library (<code>mysql-connector-python</code>, <code>pymongo</code>) speaks its protocol on Python's behalf.</li>
+      <li>MySQL: <code>connect()</code> opens a connection, <code>.cursor()</code> gets a cursor, <code>cursor.execute(sql, params)</code> runs a query with <code>%s</code> placeholders, <code>fetchall()</code>/<code>fetchone()</code> read results, <code>connection.commit()</code> saves changes.</li>
+      <li>SQL injection happens when untrusted input is glued directly into a query string; parameterized queries (<code>%s</code> + a separate params tuple) close this gap by treating substituted values strictly as data.</li>
+      <li>MongoDB: <code>MongoClient()</code> connects, <code>client[db][collection]</code> reaches a collection, documents are plain Python dicts, and CRUD maps to <code>insert_one</code>/<code>find</code>/<code>update_one</code>/<code>delete_one</code>.</li>
+      <li>Relational rows use a fixed schema and joins across tables; document-based records use a flexible schema and can nest related data directly &mdash; each fits a different shape of real-world data.</li>
+      <li>A cloud-hosted connection uses the exact same driver code, pointed at a remote host via a connection string or URI, with credentials read from environment variables (never hardcoded) and TLS encrypting the connection in transit.</li>
+      <li>Every example that actually ran in this chapter used a small Fake class mimicking the real driver's interface &mdash; the method names and call shapes taught are the genuine <code>mysql-connector-python</code>/<code>pymongo</code> APIs, just never pointed at a live server here.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -32,12 +32,13 @@ moving to the next. The rendered, always-current version lives at
 | 18 | Regular Expressions | `re.match()`/`re.search()`/`re.fullmatch()`, `findall()`/`finditer()`, character classes/quantifiers/anchors, groups & named groups, `re.sub()`/`re.split()`, `re.compile()`, greedy-vs-non-greedy, raw strings & flags (`IGNORECASE`/`MULTILINE`), real-world pattern matching — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Project: Resume Keyword Scanner |
 | 19 | Working with APIs & JSON | What an API is and why JSON is the shared data format, `requests.get()`/`response.status_code`/`.text`/`.json()`, the `json` module (`loads()`/`dumps()`, `indent=`), navigating nested JSON (dicts of lists of dicts), handling bad responses and missing keys (`requests.exceptions.RequestException`, status-code checks, `dict.get()`), query params & headers (including the API-key-via-environment-variable pattern), and a real, keyless public API to try locally — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Every graded example uses a mocked JSON response, so nothing here requires live network access or an API key. Project: Weather & Quote-of-the-Day Fetcher |
 | 20 | Multithreading | What a thread is and why it helps (I/O-bound vs. CPU-bound work), creating and starting threads (`threading.Thread`, `.start()`, `.join()`), the GIL (why it helps I/O-bound work but not CPU-bound work), race conditions (a concrete shared-counter demonstration), `threading.Lock` (the `with lock:` pattern), thread safety patterns (avoiding shared mutable state, `threading.local()`), and `concurrent.futures.ThreadPoolExecutor` (`.map()`, `.submit()`, `as_completed()`) as the modern higher-level alternative to raw `Thread` objects — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. Every timing example uses `time.sleep()` to simulate I/O-bound waits, so nothing here requires a real network call or file write, and every graded example is designed so its final result is deterministic even though thread interleaving isn't. Project: Concurrent File-Download Simulator |
+| 21 | Working with Databases | What a database connection is and why Python needs a driver library, connecting to MySQL with `mysql-connector-python` (`connect()`, `.cursor()`, `cursor.execute(sql, params)` with `%s` parameterized queries, `.fetchall()`/`.fetchone()`, `connection.commit()`), SQL injection (a concrete attack demonstration) and why parameterized queries close it structurally, MongoDB with `pymongo` (`MongoClient`, collections, documents as Python dicts) and CRUD (`insert_one`/`find`/`update_one`/`delete_one`), the relational-rows-vs-document-records tradeoff side by side, and cloud-hosted connections (the same driver code pointed at a remote host via a connection string, credentials read from `os.environ` instead of hardcoded, a TLS mention) — plus a Challenges page (8 auto-graded coding problems) and 4 extra real-world project ideas. No real MySQL/MongoDB server is available or required: every executed example runs against a small `FakeConnection`/`FakeCursor`/`FakeCollection` class matching the real drivers' method names and call shapes, so nothing here needs a live database or an installed driver. Project: Student Record Management System |
+| — | Module 4 Written Exam | covers Chapters 17-21 |
 
 ## Planned (in build order)
 
 | # | Title | Project |
 |---|---|---|
-| 21 | Working with Databases (MySQL, MongoDB & Cloud-Hosted DBs) | Student record management system |
 | 22 | Building Web Apps & APIs (Flask & FastAPI) | Task-manager web app with a REST API |
 | 23 | NumPy for Data Analysis | Grade/statistics analyzer |
 | 24 | Pandas for Data Analysis | Sales-data dashboard (CSV in, insights out) |
@@ -62,17 +63,6 @@ like React would consume that JSON API — conceptual only, no React code.
 Project: a task-manager web app exposing a REST API (CRUD on tasks),
 built once in Flask and once in FastAPI so the contrast is concrete,
 optionally persisting to the DB layer from Ch21.
-
-**Chapter 21 scope note:** covers three connection scenarios, not just
-MySQL — (1) MySQL via `mysql-connector-python` (cursors, parameterized
-queries, avoiding SQL injection), (2) MongoDB via `pymongo` (collections,
-documents-as-dicts, basic CRUD, contrasting relational rows vs. JSON-like
-documents), and (3) connecting to a cloud-hosted instance of either
-(connection strings/URIs, credentials via environment variables instead of
-hardcoding, TLS basics) rather than a local database — framed as "the same
-`pymongo`/`mysql-connector` code, pointed at a remote host." Keep the
-relational-vs-document contrast explicit throughout, since it's the
-conceptual payoff of covering both.
 
 ## Format every chapter follows
 

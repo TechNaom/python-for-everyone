@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 21: Working with Databases, including interview-style scenario problems on MySQL cursors, SQL injection, MongoDB CRUD, relational vs. document data, and cloud credentials.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-21">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 21 Practice Bank</span>
+    <span class="reading-time">75-95 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Working with Databases</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Every
+    "database" here is a <code>FakeConnection</code>/<code>FakeCursor</code>
+    or <code>FakeCollection</code> class standing in for a real
+    <code>mysql-connector-python</code>/<code>pymongo</code> object &mdash;
+    no live database or installed driver is needed anywhere in this bank.
+    No import beyond
+    <code>json</code>/<code>os</code>/<code>re</code>/<code>math</code>/<code>datetime</code>/<code>random</code>/<code>csv</code>/<code>threading</code>/<code>concurrent.futures</code>.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-is-a-connection">1. What a Connection Is &amp; Why a Driver</a>
+    <a href="#mysql-connecting">2. Connecting to MySQL &amp; Cursors</a>
+    <a href="#sql-injection">3. Parameterized Queries &amp; SQL Injection</a>
+    <a href="#mongodb-basics">4. MongoDB &amp; Documents</a>
+    <a href="#mongodb-crud">5. CRUD with pymongo</a>
+    <a href="#relational-vs-document">6. Relational vs. Document Data</a>
+    <a href="#cloud-connections">7. Cloud-Hosted Connections</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="what-is-a-connection">Topic 1: What a Database Connection Is, and Why a Driver</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Does this system need a driver?</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>needs_a_driver(system)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> The shared connect-run-read shape</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>connection_steps()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This claims a driver stores the whole database in Python's memory. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Choosing whether a driver is needed</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>does_this_tool_need_a_driver(uses_csv_only)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why Python needs a driver at all</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_why_a_driver_is_needed()</code>.</p>
+  </div>
+
+  <h2 id="mysql-connecting">Topic 2: Connecting to MySQL and Cursors</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Getting a cursor</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Get a connection and cursor from <code>FakeConnection</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A reusable query helper</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>run_query(cursor, sql, params)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Counting matching rows</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. Write <code>count_matching_rows(cursor, sql, params)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.4</code>. This calls <code>.execute()</code> directly on a connection instead of a cursor. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Reusable query helper</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>fetch_students_above(cursor, threshold)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Cursor vs. connection</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_cursor_vs_connection()</code>.</p>
+  </div>
+
+  <h2 id="sql-injection">Topic 3: Parameterized Queries and SQL Injection</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Building a parameterized query</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>build_parameterized_query(column, value)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Spotting suspicious input</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>looks_like_injection_attempt(user_input)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This builds a query with an f-string. Fix it to be parameterized.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Reviewing a teammate's query code</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>review_teammates_query()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why input-checking isn't enough</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_why_input_checking_isnt_enough()</code>.</p>
+  </div>
+
+  <h2 id="mongodb-basics">Topic 4: MongoDB and Documents</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Documents with different shapes</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Insert two differently-shaped documents into one collection.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Checking for a field</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>has_field(document, field_name)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This claims every document must share the same fields. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Modeling a product catalog</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>explain_product_catalog_fit()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The flexible-schema tradeoff</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_flexible_schema_tradeoff()</code>.</p>
+  </div>
+
+  <h2 id="mongodb-crud">Topic 5: CRUD with pymongo</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Insert and count</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Insert three documents and count them.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Updating a field</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Use <code>update_one</code> with <code>{"$set": ...}</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Deleting a document</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. Use <code>delete_one</code> and confirm the rest remain.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">4</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.4</code>. This update is missing the <code>"$set"</code> wrapper. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A simple inventory tracker</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>restock_item(collection, item_name, amount)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3><code>update_one</code> vs. <code>update_many</code></h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_update_one_vs_many()</code>.</p>
+  </div>
+
+  <h2 id="relational-vs-document">Topic 6: Relational vs. Document Data</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Which model fits better?</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>fits_relational_better(has_fixed_shape, needs_joins)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Describing a join</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>describe_join()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This overstates what relational databases can never do. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Choosing a model for a new feature</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>recommend_model_for_user_profiles()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The 30-second comparison</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>elevator_pitch_relational_vs_document()</code>.</p>
+  </div>
+
+  <h2 id="cloud-connections">Topic 7: Cloud-Hosted Connections and Environment Variables</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Building an env-backed config</h3>
+    <p>Find <code>&#35; TODO 7.1</code>. Write <code>build_env_backed_config(keys)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Spotting a hardcoded secret</h3>
+    <p>Find <code>&#35; TODO 7.2</code>. Write <code>is_hardcoded_secret(line_of_code)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 7.3</code>. This hardcodes a password directly in the source. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Reviewing a deployment config</h3>
+    <p>Find <code>&#35; TODO 7.A</code>. Write <code>review_hardcoded_password()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What TLS adds</h3>
+    <p>Find <code>&#35; TODO 7.B</code>. Write <code>explain_tls_role()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match &mdash; the goal is that your program
+    runs without errors and does what each TODO asks. One exception:
+    Topic 2's debug task intentionally demonstrates a real
+    <code>AttributeError</code> (caught and printed) before it's fixed
+    &mdash; that's the whole point of that task.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 21: Working with Databases — mysql-connector-python, cursors, parameterized queries, SQL injection, pymongo, MongoDB documents and CRUD, relational vs. document data, and cloud connections.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-21-interview" data-active-chapter="chapter-21">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 21 Interview Prep</span>
+    <span class="reading-time">50 min read</span>
+  </div>
+  <h1>Interview Questions: Working with Databases</h1>
+  <p>Databases sit behind nearly every real application, and SQL injection specifically is one of the most consequential security questions in software engineering interviews. This set covers <code>mysql-connector-python</code>'s connection/cursor model, parameterized queries and SQL injection, <code>pymongo</code>'s document model and CRUD methods, relational vs. document tradeoffs, and cloud-hosted connections with environment-variable credentials.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What does a database driver library actually do, and why can't Python just use <code>open()</code> the way it does for files?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A database (MySQL, MongoDB, or otherwise) is separate software, usually running as its own server process, speaking its own specific network protocol &mdash; even when it happens to run on the same machine as the Python program. A driver library (<code>mysql-connector-python</code>, <code>pymongo</code>) is written specifically to speak that protocol: opening the network connection, sending commands in the format the server expects, and translating results back into ordinary Python values. <code>open()</code> works for files because a file is just bytes on the same machine's disk, reachable through the operating system directly &mdash; a database requires a whole separate negotiation over a network connection instead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a database as "just a bigger file" or not being able to explain why a network connection (even to "localhost") is fundamentally different from opening a local file.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If MySQL is running on the exact same machine as the Python program, is a network connection still involved?" (Yes &mdash; even "localhost" connections go through the same client-server protocol a remote connection would, just without leaving the machine; the driver still has to open a network connection, not a plain file handle.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Walk through the objects involved in a basic MySQL query: connection, cursor, and results.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>mysql.connector.connect(host=, user=, password=, database=)</code> opens a connection to the server. <code>connection.cursor()</code> returns a cursor &mdash; the object every SQL command actually runs through. <code>cursor.execute(sql, params)</code> sends a command; for a <code>SELECT</code>, <code>cursor.fetchall()</code> then returns every matching row as a list, or <code>cursor.fetchone()</code> returns just the first one (or <code>None</code>). For a data-changing command (<code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>), <code>connection.commit()</code> is what actually makes the change permanent.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing the connection and the cursor (thinking commands run directly through the connection object), or forgetting that data-changing operations need an explicit <code>commit()</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a program calls <code>cursor.execute()</code> for an <code>UPDATE</code> but never calls <code>connection.commit()</code>, what happens?" (The change is not guaranteed to be saved permanently &mdash; MySQL requires an explicit commit for changes made inside a transaction to actually persist, which is exactly why forgetting <code>commit()</code> is a common real bug.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What is SQL injection, and how does it actually work?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>SQL injection is an attack where untrusted input (something a user typed) is glued directly into a SQL command as raw text, letting that input change what the query actually does, not just what data it searches for. Concretely: if a query is built as <code>f"SELECT * FROM students WHERE name = '{name}'"</code> and an attacker enters <code>x' OR '1'='1</code> as <code>name</code>, the closing quote in their input ends the intended string early and appends <code>OR '1'='1'</code> &mdash; a condition that's always true &mdash; turning a lookup for one specific student into a query that matches every row in the table.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing SQL injection vaguely ("it's a hacking technique") without being able to walk through a concrete example of how a query's structure actually changes.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why does the attacker's single quote matter so much in that example?" (Because the query was built with the value wrapped in quotes as part of the string itself &mdash; the attacker's own quote character closes that string early, and everything after it gets interpreted as new SQL syntax rather than as more of the search value.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What is a parameterized query, and why does it prevent SQL injection completely, rather than just making it harder?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A parameterized query writes <code>%s</code> as a placeholder inside the SQL string wherever a value belongs, then passes the actual values separately as a tuple to <code>cursor.execute(sql, params)</code>. The driver substitutes each <code>%s</code> in a way that always treats the value strictly as data &mdash; never as SQL syntax &mdash; no matter what characters (quotes, semicolons, SQL keywords) that value contains. This is a structural guarantee, not a filter: there's no "sanitizing" step being bypassed, because the substituted value never touches the part of the process that parses SQL syntax in the first place.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing parameterized queries as "checking input for bad characters" (that's a fundamentally different, weaker approach) rather than as structurally separating code from data.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could a sufficiently clever attacker still break out of a parameterized query the way they broke out of the f-string version?" (No &mdash; that's precisely the guarantee: the substituted value is never parsed as part of the SQL command's structure at all, so there's no "clever enough" input that changes the query's meaning; it's a structural fix, not a best-effort filter.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Why isn't "checking user input for quote characters" considered an adequate defense against SQL injection?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Because it's a blocklist approach trying to anticipate every way an attacker might break out of a string, and attackers have far more techniques than a single quote character &mdash; different quoting styles, encoding tricks, and database-specific syntax quirks can all bypass a naive character check. Parameterized queries sidestep the entire category of attack structurally, by never letting a substituted value touch the SQL command's syntax at all, which is why they're the standard fix rather than any form of input scanning or escaping done by hand.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting "just escape the quotes" or "strip dangerous characters" as a sufficient fix, rather than reaching for parameterized queries.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a team is using an ORM (object-relational mapper) instead of raw SQL, are they automatically safe from SQL injection?" (Mostly, for standard query-building methods the ORM provides, since those typically generate parameterized queries under the hood &mdash; but many ORMs still allow dropping into raw SQL for complex queries, and that raw-SQL escape hatch reintroduces exactly the same injection risk if it's built with string formatting instead of parameters.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What is a MongoDB document, and how is it different from a SQL row?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A MongoDB document is a flexible, self-contained record, similar to a JSON object &mdash; in Python, it's just a plain dict, with no separate translation step needed. Unlike a SQL row, a document isn't bound to a fixed set of columns shared by every other document in its collection: one document might have a field another document entirely lacks, and a field can hold a nested list or nested document directly, without needing a separate related table the way SQL would.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a MongoDB document as "just a row with a different name" without acknowledging the flexible-schema difference, or not knowing that a document maps directly to a Python dict.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can two documents in the same MongoDB collection have completely different sets of fields?" (Yes &mdash; that's the core structural difference from a SQL table; MongoDB doesn't require every document in a collection to share the same shape by default.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> Walk through the four CRUD operations in <code>pymongo</code>.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>Create:</strong> <code>collection.insert_one(document)</code> adds a new document (a plain dict). <strong>Read:</strong> <code>collection.find(query)</code> returns every document matching a query dict; <code>find_one(query)</code> returns just the first match, or <code>None</code>. <strong>Update:</strong> <code>collection.update_one(query, {"$set": {...}})</code> changes specific fields on the first matching document, leaving everything else untouched. <strong>Delete:</strong> <code>collection.delete_one(query)</code> removes the first matching document. A query is itself just a dict, like <code>{"name": "Ana Torres"}</code>, meaning "match documents where that field equals that value."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Forgetting the <code>"$set"</code> wrapper on updates (a common mistake that silently no-ops against a real MongoDB server, since an update without <code>"$set"</code> means something different), or not knowing that <code>update_one</code>/<code>delete_one</code> only touch the first match.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What happens if <code>update_one(query, {"grade": 82})</code> is called WITHOUT wrapping the update in <code>{"$set": ...}</code>, against a real MongoDB server?" (Without an update operator like <code>$set</code>, MongoDB interprets the second argument as a full replacement document &mdash; it would replace the ENTIRE matched document with just <code>{"grade": 82}</code>, losing every other field, rather than updating just the <code>grade</code> field.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> When would you choose a relational database over a document database, and vice versa?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A relational database (MySQL, PostgreSQL) fits data with a genuinely fixed, well-known shape and relationships that benefit from being queried flexibly across tables via joins &mdash; financial ledgers, inventory systems, anything where consistency and enforced structure matter more than flexibility. A document database (MongoDB) fits data whose shape genuinely varies record to record, or where a whole related record naturally belongs nested inside its parent &mdash; a product catalog with wildly different attributes per category, user profiles with many optional fields. Real production systems often use both, chosen per use case, rather than picking one database for an entire company's needs.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming one is universally "better" than the other, or being unable to name a concrete real-world scenario that fits each.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could a document database technically store data that also fits a relational model well?" (Yes, technically &mdash; but it would give up efficient joins across separate collections and any enforced fixed schema, so while it's <em>possible</em>, it's not naturally the best fit for that kind of data.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What is a join, and why does a document database's design avoid needing one as often?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A join combines rows from two or more related tables (connected by a shared value, like a foreign key) into one combined result &mdash; it's necessary in a relational database because related data is deliberately split across separate, fixed-column tables. A document database avoids needing a join for the same relationship by nesting related data directly inside one document instead (a student's clubs stored as a list field on their own document, rather than in a separate <code>clubs</code> table). The tradeoff: nesting is simpler for reading one complete record, but a separate table with a join can be more efficient for certain cross-cutting queries (like "which students are in the chess club," across every student).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing joins as purely a limitation of SQL rather than understanding they're the natural consequence of deliberately normalized, separated tables.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could nested data inside a MongoDB document ever become a problem for querying?" (Yes &mdash; querying "every student in the chess club" requires scanning every document and checking each one's nested <code>clubs</code> list, which can be less efficient at scale than a dedicated, indexed join in a relational design built specifically for that kind of cross-cutting query.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> How does connecting to a cloud-hosted database differ from connecting to a local one, at the code level?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Almost nothing about the driver code changes &mdash; the same <code>mysql.connector.connect()</code> or <code>MongoClient()</code> call is used either way. Only the value passed for the host (or, for MongoDB, the entire connection string/URI) changes, from <code>"localhost"</code> to a remote server's address. This is precisely why understanding the driver API well pays off: the exact same code that runs against a local database in development runs against a production, cloud-hosted database with just a configuration change, not a code change.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Believing cloud-hosted connections require an entirely different API or driver, rather than just a different host value.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a team's local development database and production database use the exact same driver calls, what SHOULD differ between the two environments?" (Only the connection details &mdash; host, credentials, database name &mdash; ideally read from environment variables, so the same source code runs correctly against either environment without any code changes.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> Why should database credentials live in environment variables instead of directly in source code?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Source code is very often stored in a shared or public repository (like this course's own GitHub repo) &mdash; a hardcoded password or connection string committed there is exposed to anyone with access, and remains recoverable in the git history even after being removed from the latest version. Reading credentials through <code>os.environ</code> at startup means the actual secret value is set outside the source code entirely, on whatever machine or platform is actually running the program, so the same code can run correctly across a developer's laptop, a staging server, and production, each with different real credentials, without ever risking a leaked secret in version control.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting a hardcoded credential is acceptable "just for now" or in a private repository, or not knowing that git history retains removed secrets.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a password was accidentally committed and later removed in a follow-up commit, is the secret still exposed?" (Yes &mdash; it still exists in the git history's earlier commit, retrievable by anyone with repository access unless the history itself is rewritten and force-pushed, which is disruptive and often impractical; the safer practice is rotating the leaked credential immediately, not just removing it from the latest code.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What does TLS add to a cloud database connection, beyond keeping credentials out of source code?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Environment variables solve where credentials are stored; TLS (Transport Layer Security) separately solves how safely those credentials and the data itself travel over the network. Without TLS, anyone able to intercept network traffic between the program and a remote database server could potentially read the credentials and data being exchanged in plain text. Real cloud database services enable or require TLS by default specifically to prevent this &mdash; it's a different, complementary protection from "don't hardcode secrets," addressing what happens to data once it's actually in transit.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Conflating "credentials aren't hardcoded" with "the connection itself is secure" &mdash; they address genuinely different risks and both matter for a real cloud connection.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If credentials come from environment variables but the connection itself has no TLS, is the connection fully secure?" (No &mdash; the credentials are still sent over the network to authenticate the connection, and without TLS encrypting that traffic, they (and all data exchanged afterward) could be read by anyone able to intercept the connection, even though they're never hardcoded in the source code.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>connection.____()</code> returns a cursor, the object every SQL command runs through.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="cursor" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>cursor.execute(sql, params)</code> uses <code>____</code> placeholders filled in safely from a separate tuple.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="%s" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>cursor.____all()</code> returns every matching row as a list.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="fetch" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>connection.____()</code> permanently saves changes made by INSERT/UPDATE/DELETE.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="commit" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> SQL ____ happens when untrusted input glued into a query string changes what it does.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="injection" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A ____ query treats every substituted value strictly as data, never as SQL syntax.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="parameterized" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> In Python, a MongoDB document IS a plain ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="dict,dictionary" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>collection.insert_____()</code> creates a new document.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="one" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>{"____": {"grade": 82}}</code> updates only the grade field, leaving the rest of the document untouched.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="$set" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> A relational database combines related tables using a ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="join" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> A document database's ____ schema can vary document to document.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="flexible" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> Real database credentials should be read from ____ variables, never hardcoded.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="environment" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> ____ encrypts a cloud database connection in transit, protecting data from interception.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="TLS,tls" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

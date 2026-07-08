@@ -157,7 +157,7 @@ window.PFE_MODULES = [
   },
   {
     title: "Module 4 — Real-World Python",
-    examPath: null,
+    examPath: "assessments/written-exams/module-4-exam.md",
     chapters: [
       { id: "chapter-17", num: 17, title: "Generators, Iterators & Context Managers", path: "chapters/chapter-17-generators-iterators-context-managers/lesson.html", subtopics: [
         { id: "iterables-vs-iterators", title: "Iterables vs. iterators" },
@@ -195,7 +195,16 @@ window.PFE_MODULES = [
         { id: "thread-pool-executor", title: "ThreadPoolExecutor" },
         { id: "real-world-threading", title: "Real-world threading" }
       ] },
-      { id: "chapter-21", num: 21, title: "Working with Databases (MySQL)", path: null }
+      { id: "chapter-21", num: 21, title: "Working with Databases", path: "chapters/chapter-21-databases/lesson.html", subtopics: [
+        { id: "what-is-a-connection", title: "What a database connection is" },
+        { id: "mysql-connecting", title: "Connecting to MySQL" },
+        { id: "mysql-queries", title: "Cursors & parameterized queries" },
+        { id: "sql-injection", title: "SQL injection & why parameters matter" },
+        { id: "mongodb-basics", title: "MongoDB & documents" },
+        { id: "mongodb-crud", title: "CRUD with pymongo" },
+        { id: "relational-vs-document", title: "Relational vs. document data" },
+        { id: "cloud-connections", title: "Cloud-hosted connections" }
+      ] }
     ]
   },
   {

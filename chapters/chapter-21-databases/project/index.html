@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 21 Project: Student Record Management System — Python for Everyone</title>
+<meta name="description" content="Build a menu-driven student record management system using a mock database layer matching mysql-connector-python's real interface, demonstrating CRUD, parameterized-query safety, and reporting — plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-21">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 21 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Student Record Management System</h1>
+  <p>A menu-driven mini-app built <strong>around this chapter's core tools</strong> as its organizing principle &mdash; a mock database layer (<code>FakeConnection</code>/<code>FakeCursor</code>) that implements <code>mysql-connector-python</code>'s real interface (<code>cursor()</code>, <code>execute(sql, params)</code>, <code>fetchall()</code>, <code>fetchone()</code>, <code>commit()</code>) closely enough to demonstrate genuine CRUD operations, parameterized-query safety, and reporting &mdash; all without a live MySQL server. No real network access or database connection happens anywhere in this file, so it runs identically for every learner, every time.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Student Record Management System ===
+
+1. List all students
+2. Find a student by ID
+3. Add a new student
+4. Update a student's grade
+5. Delete a student
+6. Show class average
+7. Show honor roll (grade >= 90)
+8. Export all students as JSON
+9. Show why SQL injection matters (safe demo, no execution)
+10. Quit
+Choose an option (1-10): 1
+
+  [1] Ana Torres: 91
+  [2] Ben Osei: 78
+  [3] Chen Wu: 88
+
+...
+Choose an option (1-10): 3
+
+New student's name: Dana Kim
+New student's grade: 95
+Added Dana Kim.
+
+...
+Choose an option (1-10): 6
+
+Class average: 88.0
+
+...
+Choose an option (1-10): 10
+
+Goodbye!</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">What you're building</span>
+    A menu loop with ten options: list all students, find one by ID, add
+    a new student, update a grade, delete a student, show the class
+    average, show the honor roll, export everything as JSON, see a safe
+    (never-executed) SQL injection demonstration, or quit.
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, then run
+    <code>python3 starter.py</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><code>FakeConnection</code>/<code>FakeCursor</code> &mdash; a mock database layer whose method names and call shapes exactly match a real <code>mysql-connector-python</code> connection and cursor: <code>.cursor()</code>, <code>.execute(sql, params)</code>, <code>.fetchall()</code>, <code>.fetchone()</code>, <code>.commit()</code>. Only the underlying "server" differs (a plain Python list of dicts instead of a live MySQL instance) &mdash; everything written against it is genuine <code>mysql-connector-python</code> usage.</li>
+    <li><code>add_student()</code> / <code>list_students()</code> / <code>find_student()</code> / <code>update_grade()</code> / <code>delete_student()</code> &mdash; the four CRUD operations, each built on a parameterized query (<code>%s</code> placeholders, values passed separately) rather than string-building.</li>
+    <li><code>class_average()</code> / <code>honor_roll()</code> &mdash; small reporting functions built on top of <code>list_students()</code>.</li>
+    <li><code>export_to_json()</code> &mdash; dumps every student record with <code>json.dumps(..., indent=2)</code>, tying back to Chapter 19's <code>json</code> module.</li>
+    <li><code>build_unsafe_search_query()</code> &mdash; builds (but never executes) the vulnerable f-string version of a query, so menu option 9 can show exactly what an injection attempt would do to it, side by side with the safe parameterized query this project actually runs.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a "search by name" option using a genuinely parameterized query (<code>WHERE name = %s</code>), rather than only searching by ID.</li>
+    <li>Track a simple audit log recording every add/update/delete with a timestamp (Chapter 11's <code>datetime</code> module), and add a menu option to display it.</li>
+    <li>Add basic validation rejecting a grade outside <code>0-100</code>, raising a custom exception (Chapter 12) with a clear message instead of silently accepting bad data.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Every real student information system, HR platform, and customer database is, underneath its user interface, exactly this pattern: CRUD operations built on parameterized queries against a relational database. This project's mock database layer uses the genuine <code>mysql-connector-python</code> method names and call shapes throughout, so everything learned here &mdash; the cursor/execute/fetchall/commit rhythm, and the parameterized-query habit that closes off SQL injection &mdash; transfers directly to a real MySQL-backed application, changing only the connection details (Sub-topic 8's cloud-hosted, environment-variable-backed <code>connect()</code> call) rather than any of the query logic itself.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Student Record Management System above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 21. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> MongoDB-Style Document-Store Inventory Tracker (Mocked)</h3>
+    <p><strong>Problem:</strong> A small warehouse needs to track inventory items whose attributes genuinely vary by category (electronics need a <code>warranty_years</code> field, groceries need an <code>expiration_date</code> field, clothing needs a <code>size</code> field) &mdash; a fixed-column table would need many unused columns per item.</p>
+    <p><strong>What it should do:</strong> Build a <code>FakeCollection</code> class (following this chapter's <code>insert_one</code>/<code>find</code>/<code>update_one</code>/<code>delete_one</code> pattern) storing inventory items as plain dicts with only the fields relevant to each item's own category. Menu options: add an item, search by category, update quantity with <code>{"$set": ...}</code>, and list everything.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's exact CRUD-function naming convention, swapping the MySQL-style <code>FakeCursor</code> for a <code>FakeCollection</code> &mdash; the shape doesn't change based on which database style is mocked, only the underlying storage and query methods.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Cloud Connection-String Config Validator</h3>
+    <p><strong>Problem:</strong> Before a real deployment, a team wants a small tool that checks whether all required database configuration is actually present as environment variables, without ever connecting to a real database.</p>
+    <p><strong>What it should do:</strong> Build a function <code>validate_db_config(required_keys)</code> that checks <code>os.environ</code> for every key in <code>required_keys</code>, returning a report of which are present and which are missing. Menu options: run a validation check and print a report, and simulate "fixing" a missing variable by setting it (for demonstration only).</p>
+    <p><strong>Suggested approach:</strong> Tie this directly to Sub-topic 8 &mdash; the entire tool is a small, practical extension of "credentials should come from <code>os.environ</code>, not be hardcoded," turned into something a team could actually run before a deployment.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A Simple ORM-Lite Wrapper Exercise</h3>
+    <p><strong>Problem:</strong> Writing raw parameterized SQL for every single query gets repetitive &mdash; a very small "ORM-lite" (Object-Relational Mapper) could wrap common patterns into reusable functions.</p>
+    <p><strong>What it should do:</strong> Build a small <code>Table</code> class wrapping a <code>FakeConnection</code>/<code>FakeCursor</code> pair, with methods like <code>.all()</code>, <code>.find_by_id(id)</code>, <code>.insert(**fields)</code>, <code>.update(id, **fields)</code>, and <code>.delete(id)</code> &mdash; each internally building the exact same parameterized queries this chapter's project uses, just exposed through a friendlier interface.</p>
+    <p><strong>Suggested approach:</strong> Note in your own README that real ORMs (like SQLAlchemy for Python) do exactly this at a much larger scale &mdash; generating parameterized SQL automatically from higher-level method calls.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Library Checkout System with Two Mock Backends</h3>
+    <p><strong>Problem:</strong> A library wants to compare a relational design (books and checkouts as separate related tables) against a document design (each book's checkout history nested inside its own document) for the exact same real-world data.</p>
+    <p><strong>What it should do:</strong> Build the same checkout system twice: once using a MySQL-style <code>FakeCursor</code> with a separate <code>checkouts</code> table joined by <code>book_id</code>, and once using a <code>FakeCollection</code> where each book document has a nested <code>checkout_history</code> list. Menu options let a user check a book in/out and view its history, through either backend.</p>
+    <p><strong>Suggested approach:</strong> This is the most direct way to build Sub-topic 7's relational-vs-document comparison yourself &mdash; write a short README section stating which backend felt simpler for which specific operation, and why.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>
