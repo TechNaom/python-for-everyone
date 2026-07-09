@@ -155,6 +155,117 @@ def explain_none_vs_exception():
     )
 
 
+# ============================================================
+# Topic 4: Accidental O(n^2) Patterns
+# ============================================================
+
+# TODO 4.1
+def has_common_element(list_a, list_b):
+    set_b = set(list_b)
+    for item in list_a:
+        if item in set_b:
+            return True
+    return False
+
+
+# TODO 4.2
+def unique_in_order(items):
+    seen = set()
+    result = []
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
+# TODO 4.3
+def merge_prepend(existing_items, new_items):
+    return list(new_items) + list(existing_items)
+
+
+print(merge_prepend([3, 4], [1, 2]))
+
+
+# TODO 4.A
+def should_use_set_for_lookup(collection_size, checked_repeatedly):
+    return collection_size > 100 and checked_repeatedly is True
+
+
+# TODO 4.B
+def explain_quadratic_pattern():
+    return (
+        "An accidental O(n^2) bug is almost always the same shape: an "
+        "operation that's O(n) on its own (a list membership check, an "
+        "insert at the front, a scan through a second list) gets placed "
+        "inside a loop that runs n times. Each individual operation "
+        "looks fine -- it's only the multiplication of n times an O(n) "
+        "cost that produces O(n^2) overall, and that only becomes "
+        "visible once the input is large enough."
+    )
+
+
+# ============================================================
+# Topic 5: Caching & Redundant Work
+# ============================================================
+
+# TODO 5.1
+def memoized_calls(keys, compute_fn):
+    cache = {}
+    results = []
+    for key in keys:
+        if key not in cache:
+            cache[key] = compute_fn(key)
+        results.append(cache[key])
+    return results
+
+
+# TODO 5.2
+def count_distinct_calls(keys):
+    return len(set(keys))
+
+
+# TODO 5.3
+def slow_tax_lookup(region):
+    total = 0
+    for _ in range(1000):
+        total += 1
+    return 0.08
+
+
+def tax_totals(cart):
+    total = 0
+    cache = {}
+    for item in cart:
+        region = item["region"]
+        if region not in cache:
+            cache[region] = slow_tax_lookup(region)
+        total += item["price"] * (1 + cache[region])
+    return total
+
+
+print(tax_totals([{"price": 10, "region": "CA"}, {"price": 20, "region": "CA"}]))
+
+
+# TODO 5.A
+def should_cache_by_region(num_items, num_distinct_regions):
+    return num_distinct_regions < num_items / 2
+
+
+# TODO 5.B
+def explain_when_caching_is_safe():
+    return (
+        "Caching a function's result is only correct when the same "
+        "input reliably produces the same output every time, with no "
+        "dependency on anything that changes between calls -- no live "
+        "external state, no randomness, no time-dependence. A tax rate "
+        "for a fixed region during checkout is safe to cache; a live "
+        "stock price or a random value is not, since caching either "
+        "would silently return a stale or wrong result instead of just "
+        "being slower."
+    )
+
+
 if __name__ == "__main__":
     print(required_config_or_raise({"A": 1, "B": 2}, ["A", "B"]))
     print(safe_slice_sum([1, 2, 3], 10))
@@ -164,3 +275,8 @@ if __name__ == "__main__":
     print(find_or_none([{"name": "Ana"}], "name", "Beto"))
     print(get_email_safe([{"name": "Ana"}], "Beto"))
     print(parse_api_results("<html>Down</html>"))
+    print(has_common_element([1, 2, 3], [3, 4, 5]))
+    print(unique_in_order([1, 2, 1, 3, 2]))
+    print(memoized_calls(["a", "b", "a"], str.upper))
+    print(count_distinct_calls(["a", "b", "a"]))
+    print(should_cache_by_region(100, 5))

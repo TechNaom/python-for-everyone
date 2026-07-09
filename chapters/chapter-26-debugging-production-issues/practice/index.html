@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Practice Bank — Python for Everyone</title>
-<meta name="description" content="Deeper per-topic practice problems for Chapter 26: Debugging Production Issues (Category 1), including interview-style scenario problems on missing keys, out-of-range access, exception handling, and quiet failure values.">
+<meta name="description" content="Deeper per-topic practice problems for Chapter 26: Debugging Production Issues (Categories 1-2), including interview-style scenario problems on missing keys, exception handling, quiet failure values, accidental O(n^2) patterns, and caching.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,7 @@
   <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Practice Bank (Category 1)</span>
+    <span class="chapter-badge">Chapter 26 Practice Bank (Categories 1-2)</span>
     <span class="reading-time">45-60 min, hands-on</span>
   </div>
   <h1>Practice Bank: Debugging Production Issues</h1>
@@ -47,6 +47,8 @@
     <a href="#missing-keys">1. Missing Keys &amp; Out-of-Range Access</a>
     <a href="#hidden-exceptions">2. Exception Handling That Hides Bugs</a>
     <a href="#quiet-failures">3. None, Zero &amp; Other Quiet Failure Values</a>
+    <a href="#quadratic-patterns">4. Accidental O(n^2) Patterns</a>
+    <a href="#caching">5. Caching &amp; Redundant Work</a>
   </nav>
 
   <div class="what-is">
@@ -146,6 +148,64 @@
     <span class="scenario-tag">💼 Interview Prep</span>
     <h3>None vs. raising an exception</h3>
     <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_none_vs_exception()</code>.</p>
+  </div>
+
+  <h2 id="quadratic-patterns">Topic 4: Accidental O(n^2) Patterns</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> An O(1) membership check</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>has_common_element(list_a, list_b)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Deduplicating with a set</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>unique_in_order(items)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This uses <code>list.insert(0, x)</code> in a loop (O(n&sup2;)). Fix it with concatenation.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>should_use_set_for_lookup(collection_size, checked_repeatedly)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The shape of an accidental O(n&sup2;) bug</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_quadratic_pattern()</code>.</p>
+  </div>
+
+  <h2 id="caching">Topic 5: Caching &amp; Redundant Work</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Caching repeated computations</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>memoized_calls(keys, compute_fn)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Counting the "real" work needed</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>count_distinct_calls(keys)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This recomputes an expensive lookup per item instead of caching by region. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>A Slow Report Generator</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>should_cache_by_region(num_items, num_distinct_regions)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>When caching is safe</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_when_caching_is_safe()</code>.</p>
   </div>
 
   <div class="what-is">

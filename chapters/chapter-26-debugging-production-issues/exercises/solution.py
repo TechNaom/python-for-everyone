@@ -69,6 +69,57 @@ print("load_timeout result:", load_timeout(raw_config))
 print("raw_config keys:", list(raw_config.keys()))
 
 
+# TODO 9
+def has_duplicate(items):
+    seen = set()
+    for item in items:
+        if item in seen:
+            return True
+        seen.add(item)
+    return False
+
+
+# TODO 10
+def dedupe_preserve_order(items):
+    seen = set()
+    result = []
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
+# TODO 11
+def index_by_key(records, key_name):
+    return {r[key_name]: r for r in records}
+
+
+# TODO 12
+def smallest_and_largest(numbers):
+    return (min(numbers), max(numbers))
+
+
+# TODO 13
+def first_match_or_none(items, predicate):
+    for item in items:
+        if predicate(item):
+            return item
+    return None
+
+
+# TODO 14
+def reversed_list(items):
+    result = []
+    for item in items:
+        result.append(item)
+    result.reverse()
+    return result
+
+
+print(reversed_list([1, 2, 3]))
+
+
 if __name__ == "__main__":
     print(safe_lookup({"HOST": "localhost"}, "DATABASE_URL", "not set"))
     print(safe_top_n([88, 92, 79, 95], 5))
@@ -80,3 +131,8 @@ if __name__ == "__main__":
         print(e)
     print(average_or_none(47, 0))
     print(parse_json_safe("<html>Service Unavailable</html>"))
+    print(has_duplicate([1, 2, 3, 2]))
+    print(dedupe_preserve_order([1, 2, 1, 3, 2]))
+    print(index_by_key([{"id": 1}, {"id": 2}], "id"))
+    print(smallest_and_largest([5, 1, 9, 3]))
+    print(first_match_or_none([1, 2, 3, 4], lambda x: x > 2))

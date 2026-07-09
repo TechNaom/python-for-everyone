@@ -60,3 +60,42 @@ def load_timeout(raw):
 raw_config = {"timeoout": "45"}
 print("load_timeout result:", load_timeout(raw_config))
 print("raw_config keys:", list(raw_config.keys()))
+
+
+# TODO 9: Write has_duplicate(items). Return True if any value appears
+# more than once, using a set for the membership check (not repeated
+# `in` checks against a list).
+
+
+# TODO 10: Write dedupe_preserve_order(items). Return a new list with
+# duplicates removed, keeping only the first occurrence of each value,
+# in original order. Use a set to track what's been seen so far.
+
+
+# TODO 11: Write index_by_key(records, key_name). Return a dict mapping
+# each record's record[key_name] value to the record itself -- the
+# one-time setup step that turns a slow nested-loop lookup into an O(1)
+# dict lookup.
+
+
+# TODO 12: Write smallest_and_largest(numbers). Return a tuple
+# (min(numbers), max(numbers)) -- without calling sorted().
+
+
+# TODO 13: Write first_match_or_none(items, predicate). Loop through
+# items and return the first one where predicate(item) is True,
+# stopping immediately once found. Return None if nothing matches.
+
+
+# TODO 14 (Debug the Code): reversed_list() below is supposed to
+# return items in reverse order, but it uses list.insert(0, x) in a
+# loop, which is O(n) per call. Fix it to use .append() followed by
+# one .reverse() call instead.
+def reversed_list(items):
+    result = []
+    for item in items:
+        result.insert(0, item)
+    return result
+
+
+print(reversed_list([1, 2, 3]))

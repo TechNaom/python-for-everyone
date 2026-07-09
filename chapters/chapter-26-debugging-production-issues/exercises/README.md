@@ -1,10 +1,11 @@
-# Chapter 26 Exercises: Debugging Production Issues (Category 1)
+# Chapter 26 Exercises: Debugging Production Issues (Categories 1-2)
 
-These exercises use what Category 1 covered: `KeyError`, `IndexError`,
-bare `except:` vs. specific exceptions, `TypeError` from unvalidated
-input, `AttributeError` from an implicit `None` return,
-`ZeroDivisionError`, and `json.JSONDecodeError`. Every task here uses
-only the standard library -- no installs needed.
+These exercises use what Categories 1-2 covered: `KeyError`,
+`IndexError`, bare `except:` vs. specific exceptions, `TypeError` from
+unvalidated input, `AttributeError` from an implicit `None` return,
+`ZeroDivisionError`, `json.JSONDecodeError`, quadratic membership
+checks, dict-based indexing, and avoiding unnecessary full-list sorts.
+Every task here uses only the standard library -- no installs needed.
 
 ## How to run
 
@@ -59,6 +60,39 @@ JSON.
 Find `# TODO 8`. `load_timeout()` uses a bare `except:` that hides a
 real typo (`"timeoout"` instead of `"timeout"`) in the config dict.
 Fix the `except` clause to catch only `KeyError`.
+
+## Task 9 — Checking for a duplicate with a set
+
+Find `# TODO 9`. Write `has_duplicate(items)` — return `True` if any
+value appears more than once, using a set for the membership check.
+
+## Task 10 — Deduplicating while preserving order
+
+Find `# TODO 10`. Write `dedupe_preserve_order(items)` — remove
+duplicates, keeping only the first occurrence of each value, using a
+set to track what's been seen.
+
+## Task 11 — Indexing records by key
+
+Find `# TODO 11`. Write `index_by_key(records, key_name)` — build a
+dict mapping each record's key value to the record itself.
+
+## Task 12 — Min and max without sorting
+
+Find `# TODO 12`. Write `smallest_and_largest(numbers)` — return
+`(min(numbers), max(numbers))` without calling `sorted()`.
+
+## Task 13 — Stopping at the first match
+
+Find `# TODO 13`. Write `first_match_or_none(items, predicate)` —
+return the first item where `predicate(item)` is `True`, stopping
+immediately once found.
+
+## Task 14 — Debug the Code
+
+Find `# TODO 14`. `reversed_list()` uses `list.insert(0, x)` in a
+loop, which is O(n) per call. Fix it to use `.append()` followed by
+one `.reverse()` call instead.
 
 ## Checking your work
 

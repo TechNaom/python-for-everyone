@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Coding Challenges — Python for Everyone</title>
-<meta name="description" content="8 auto-graded, HackerRank-style challenges on diagnosing and fixing production crash patterns, for Chapter 26: Debugging Production Issues (Category 1: Crashes & Exceptions).">
+<meta name="description" content="15 auto-graded, HackerRank-style challenges on diagnosing and fixing production crash and performance patterns, for Chapter 26: Debugging Production Issues (Categories 1-2: Crashes & Exceptions, Performance).">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,17 +31,19 @@
   <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Coding Challenges (Category 1)</span>
-    <span class="reading-time">45-60 min, auto-graded</span>
+    <span class="chapter-badge">Chapter 26 Coding Challenges (Categories 1-2)</span>
+    <span class="reading-time">60-80 min, auto-graded</span>
   </div>
   <h1>Coding Challenges: Debugging Production Issues</h1>
   <p>
-    8 HackerRank-style challenges, auto-graded right in your browser
-    &mdash; no local install needed, standard library only. Write your
-    function in the code box, then click <strong>Run Tests</strong> to
-    check it against a set of test cases (including edge cases). Stuck?
-    Every challenge has a <strong>Show Solution</strong> reveal at the
-    bottom. Only uses what Chapters 1-26 (Category 1) have covered so far.
+    15 HackerRank-style challenges (8 on Category 1: Crashes &amp;
+    Exceptions, 7 on Category 2: Performance), auto-graded right in
+    your browser &mdash; no local install needed, standard library
+    only. Write your function in the code box, then click
+    <strong>Run Tests</strong> to check it against a set of test cases
+    (including edge cases). Stuck? Every challenge has a
+    <strong>Show Solution</strong> reveal at the bottom. Only uses what
+    Chapters 1-26 (Categories 1-2) have covered so far.
   </p>
 
   <div class="what-is">
@@ -457,6 +459,348 @@ def will_terminate(n, step):
     # otherwise, n reaches exactly 0 only if it's an exact multiple
     # of step in the direction that closes the distance to 0
     return n % step == 0</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">9</span> Has a Duplicate? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>has_duplicate(items)</code> that returns <code>True</code> if any value appears more than once in <code>items</code>, or <code>False</code> otherwise. Use a <code>set</code> for the membership check, not repeated <code>in</code> checks against a list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> is a list of hashable values (numbers or strings).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>has_duplicate([1, 2, 3, 2])</code> &rarr; <code>True</code><br>
+        <code>has_duplicate([1, 2, 3])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_9.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def has_duplicate(items):
+    # TODO: return True if any value appears more than once, using a
+    # set for the membership check.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "has_duplicate",
+  "cases": [
+    { "args": [[1, 2, 3, 2]], "expected": true },
+    { "args": [[1, 2, 3]], "expected": false },
+    { "args": [[]], "expected": false },
+    { "args": [["a", "b", "a"]], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_9.py</span>
+        </div>
+        <pre><code>def has_duplicate(items):
+    seen = set()
+    for item in items:
+        if item in seen:
+            return True
+        seen.add(item)
+    return False</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">10</span> Reverse Without Inserting at the Front <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>reverse_via_append(items)</code> that returns a new list with <code>items</code> in reverse order, using only <code>.append()</code> and <code>.reverse()</code> &mdash; never <code>.insert(0, x)</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> is a list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>reverse_via_append([1, 2, 3])</code> &rarr; <code>[3, 2, 1]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_10.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def reverse_via_append(items):
+    # TODO: build the reversed list using only .append() and .reverse().
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "reverse_via_append",
+  "cases": [
+    { "args": [[1, 2, 3]], "expected": [3, 2, 1] },
+    { "args": [[]], "expected": [] },
+    { "args": [["a", "b"]], "expected": ["b", "a"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_10.py</span>
+        </div>
+        <pre><code>def reverse_via_append(items):
+    result = []
+    for item in items:
+        result.append(item)
+    result.reverse()
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">11</span> Cached Uppercase <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>cached_upper(keys)</code> that returns a list <code>[results, call_count]</code>, where <code>results</code> is <code>key.upper()</code> for every key in <code>keys</code> (in order), and <code>call_count</code> is how many times <code>.upper()</code> actually had to be computed &mdash; cache repeated keys so a repeated key is never recomputed.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>keys</code> is a list of strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>cached_upper(["a", "b", "a"])</code> &rarr; <code>[["A", "B", "A"], 2]</code> (2 distinct keys, so only 2 real computations even though 3 lookups happened)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_11.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def cached_upper(keys):
+    # TODO: return [results, call_count]. results[i] is keys[i].upper().
+    # call_count is how many times .upper() was actually called -- cache
+    # repeated keys so a repeated key costs 0 extra calls.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "cached_upper",
+  "cases": [
+    { "args": [["a", "b", "a"]], "expected": [["A", "B", "A"], 2] },
+    { "args": [[]], "expected": [[], 0] },
+    { "args": [["x", "x", "x"]], "expected": [["X", "X", "X"], 1] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_11.py</span>
+        </div>
+        <pre><code>def cached_upper(keys):
+    cache = {}
+    call_count = 0
+    results = []
+    for key in keys:
+        if key not in cache:
+            call_count += 1
+            cache[key] = key.upper()
+        results.append(cache[key])
+    return [results, call_count]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">12</span> Index Records by ID <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>index_by_id(records)</code> that builds a dict mapping each record's <code>"id"</code> value to the record itself, then returns it as a list of <code>[id, record]</code> pairs, sorted by <code>id</code> &mdash; the one-time setup step that turns a slow nested-loop lookup into a fast dict lookup.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>records</code> is a list of dicts, each with an <code>"id"</code> key.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>index_by_id([{"id": 1, "name": "x"}])</code> &rarr; <code>[[1, {"id": 1, "name": "x"}]]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_12.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def index_by_id(records):
+    # TODO: build a dict mapping each record's "id" to the record, then
+    # return it as a sorted list of [id, record] pairs.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "index_by_id",
+  "cases": [
+    { "args": [[{"id": 1, "name": "x"}, {"id": 2, "name": "y"}]], "expected": [[1, {"id": 1, "name": "x"}], [2, {"id": 2, "name": "y"}]] },
+    { "args": [[]], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_12.py</span>
+        </div>
+        <pre><code>def index_by_id(records):
+    by_id = {r["id"]: r for r in records}
+    return [[k, v] for k, v in sorted(by_id.items())]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">13</span> Largest Without Sorting <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>largest_of(numbers)</code> that returns the largest value in <code>numbers</code> using <code>max()</code> &mdash; not <code>sorted(numbers)[-1]</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>numbers</code> is a non-empty list of numbers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>largest_of([3, 1, 4, 1, 5])</code> &rarr; <code>5</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_13.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def largest_of(numbers):
+    # TODO: return the largest value using max(), not sorted()[-1].
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "largest_of",
+  "cases": [
+    { "args": [[3, 1, 4, 1, 5]], "expected": 5 },
+    { "args": [[-3, -1, -4]], "expected": -1 },
+    { "args": [[7]], "expected": 7 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_13.py</span>
+        </div>
+        <pre><code>def largest_of(numbers):
+    return max(numbers)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">14</span> Stop Early <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>first_over_threshold(numbers, threshold)</code> that returns the first value in <code>numbers</code>, doubled, that's greater than <code>threshold</code> &mdash; or <code>None</code> if none qualify. Loop and return as soon as a match is found; don't build a full list of every doubled value first.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>numbers</code> is a list of numbers; <code>threshold</code> is a number.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>first_over_threshold([1, 2, 3, 4, 5], 3)</code> &rarr; <code>4</code> (2 doubled is 4, the first doubled value over 3)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_14.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def first_over_threshold(numbers, threshold):
+    # TODO: return the first (n * 2) that's greater than threshold,
+    # stopping as soon as it's found. Return None if nothing qualifies.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "first_over_threshold",
+  "cases": [
+    { "args": [[1, 2, 3, 4, 5], 3], "expected": 4 },
+    { "args": [[1, 2], 100], "expected": null },
+    { "args": [[10], 5], "expected": 20 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_14.py</span>
+        </div>
+        <pre><code>def first_over_threshold(numbers, threshold):
+    for n in numbers:
+        doubled = n * 2
+        if doubled > threshold:
+            return doubled
+    return None</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">15</span> Dict Membership, No <code>.keys()</code> <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>dict_membership_check(d, keys_to_check)</code> that returns a list of booleans &mdash; one per key in <code>keys_to_check</code>, <code>True</code> if that key is in <code>d</code>. Check membership directly against <code>d</code>, never <code>d.keys()</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>d</code> is a dict; <code>keys_to_check</code> is a list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>dict_membership_check({"a": 1, "b": 2}, ["a", "c"])</code> &rarr; <code>[True, False]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_15.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def dict_membership_check(d, keys_to_check):
+    # TODO: return [k in d for k in keys_to_check] -- no .keys() needed.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "dict_membership_check",
+  "cases": [
+    { "args": [{"a": 1, "b": 2}, ["a", "c"]], "expected": [true, false] },
+    { "args": [{}, ["x"]], "expected": [false] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_15.py</span>
+        </div>
+        <pre><code>def dict_membership_check(d, keys_to_check):
+    return [k in d for k in keys_to_check]</code></pre>
       </div>
     </details>
   </div>

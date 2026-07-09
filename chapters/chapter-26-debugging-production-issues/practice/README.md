@@ -1,4 +1,4 @@
-# Chapter 26 Practice Bank (Category 1): Debugging Production Issues
+# Chapter 26 Practice Bank (Categories 1-2): Debugging Production Issues
 
 A deeper set of practice problems, organized by topic, for extra reps
 beyond the main exercises — including scenario-based problems written
@@ -46,6 +46,28 @@ python3 starter.py
 - **3.A (Scenario)** `parse_api_results(raw_text)` — handle a
   non-JSON API response.
 - **3.B (Interview Prep)** `explain_none_vs_exception()`.
+
+## Topic 4: Accidental O(n^2) Patterns
+
+- **4.1** `has_common_element(list_a, list_b)` — convert one list to a
+  set for an O(1) membership check.
+- **4.2** `unique_in_order(items)` — deduplicate while preserving
+  order, using a set to track what's seen.
+- **4.3 (Debug the Code)** — `merge_prepend()` uses `list.insert(0, x)`
+  in a loop (O(n^2)); fix it with list concatenation (O(n)).
+- **4.A (Scenario)** `should_use_set_for_lookup(collection_size, checked_repeatedly)`.
+- **4.B (Interview Prep)** `explain_quadratic_pattern()`.
+
+## Topic 5: Caching & Redundant Work
+
+- **5.1** `memoized_calls(keys, compute_fn)` — cache repeated keys
+  instead of recomputing.
+- **5.2** `count_distinct_calls(keys)` — the number of "real"
+  computations a cache would actually need to perform.
+- **5.3 (Debug the Code)** — `tax_totals()` recomputes an expensive
+  lookup per item instead of caching by region; fix it.
+- **5.A (Scenario)** `should_cache_by_region(num_items, num_distinct_regions)`.
+- **5.B (Interview Prep)** `explain_when_caching_is_safe()`.
 
 ## Checking your work
 

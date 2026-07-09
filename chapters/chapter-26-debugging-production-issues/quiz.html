@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Quiz — Python for Everyone</title>
-<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 26: Debugging Production Issues (Category 1: Crashes & Exceptions).">
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 26: Debugging Production Issues (Categories 1-2: Crashes & Exceptions, Performance).">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +30,7 @@
 
   <p><a href="lesson.html">&larr; Back to the lesson</a></p>
 
-  <span class="chapter-badge">Chapter 26 Quiz (Category 1)</span>
+  <span class="chapter-badge">Chapter 26 Quiz (Categories 1-2)</span>
   <h1>Debugging Production Issues</h1>
   <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
 
@@ -172,13 +172,100 @@
       </div>
     </div>
 
+    <div class="quiz-question mcq-question">
+      <label id="mcq16-label"><span class="q-num">16</span> Why does checking <code>item in some_list</code> inside a loop that runs n times become O(n&sup2;) overall?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq16-label">
+        <button type="button" class="mcq-option" data-correct="false">Because lists can only hold 1000 items before slowing down</button>
+        <button type="button" class="mcq-option" data-correct="true">Each list membership check is itself O(n), and doing an O(n) check n times multiplies out to O(n^2)</button>
+        <button type="button" class="mcq-option" data-correct="false">Because Python re-sorts the list before every membership check</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq17-label"><span class="q-num">17</span> Why is <code>list.insert(0, x)</code> called repeatedly in a loop slow?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq17-label">
+        <button type="button" class="mcq-option" data-correct="false">insert() always re-sorts the whole list</button>
+        <button type="button" class="mcq-option" data-correct="true">Inserting at the front has to shift every existing element over by one, which is O(n) per call</button>
+        <button type="button" class="mcq-option" data-correct="false">Lists can't have new items inserted, only appended</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq18-label"><span class="q-num">18</span> When is caching a function's result in a dict a CORRECT optimization, not just a fast one?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq18-label">
+        <button type="button" class="mcq-option" data-correct="false">Always -- caching is always safe to add</button>
+        <button type="button" class="mcq-option" data-correct="true">Only when the same input reliably produces the same output every time -- caching a value that legitimately changes between calls introduces a correctness bug</button>
+        <button type="button" class="mcq-option" data-correct="false">Only for functions that take no arguments</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq19-label"><span class="q-num">19</span> Why does building a dict of customers by ID once, before the loop, fix the nested-loop enrichment example?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq19-label">
+        <button type="button" class="mcq-option" data-correct="false">Dicts are always faster than lists for any operation</button>
+        <button type="button" class="mcq-option" data-correct="true">It turns each per-order lookup from an O(m) scan into an O(1) dict lookup, changing the whole function from O(n*m) to O(n+m)</button>
+        <button type="button" class="mcq-option" data-correct="false">It reduces the number of orders that need to be processed</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq20-label"><span class="q-num">20</span> Why is the speedup from <code>re.compile()</code> real but modest, unlike the dramatic speedups elsewhere in this category?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq20-label">
+        <button type="button" class="mcq-option" data-correct="false">re.compile() doesn't actually change performance at all</button>
+        <button type="button" class="mcq-option" data-correct="true">It removes small, repeated parsing overhead rather than fixing an algorithmic (Big-O) problem, and CPython already caches some recently-used patterns internally</button>
+        <button type="button" class="mcq-option" data-correct="false">re.search() is actually faster than re.compile() on large inputs</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q21"><span class="q-num">21</span> A <code>____</code> has O(1) average-case membership checking, unlike a list's O(n).</label>
+      <div class="fib-row">
+        <input type="text" id="q21" class="fib-blank" data-answers="set" aria-label="Answer for question 21">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q22"><span class="q-num">22</span> <code>list.____()</code> adds to the end of a list in O(1) amortized time, unlike inserting at the front.</label>
+      <div class="fib-row">
+        <input type="text" id="q22" class="fib-blank" data-answers="append" aria-label="Answer for question 22">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q23"><span class="q-num">23</span> <code>____()</code> finds the largest value in one O(n) pass, without sorting anything.</label>
+      <div class="fib-row">
+        <input type="text" id="q23" class="fib-blank" data-answers="max" aria-label="Answer for question 23">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q24"><span class="q-num">24</span> A <code>____</code> expression produces values lazily, one at a time, so an early-exiting loop never computes the remaining values.</label>
+      <div class="fib-row">
+        <input type="text" id="q24" class="fib-blank" data-answers="generator" aria-label="Answer for question 24">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q25"><span class="q-num">25</span> <code>key in some_dict</code> is already O(1) on average -- adding <code>.____()</code> to it adds unnecessary indirection.</label>
+      <div class="fib-row">
+        <input type="text" id="q25" class="fib-blank" data-answers="keys" aria-label="Answer for question 25">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
     <div id="check-all-wrap">
       <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
       <span id="quiz-score"></span>
     </div>
 
     <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
-      🎉 Perfect score! Chapter 26 (Category 1) is marked complete &mdash; on to the exercises.
+      🎉 Perfect score! Chapter 26 (Categories 1-2) is marked complete &mdash; on to the exercises.
     </div>
 
   </form>

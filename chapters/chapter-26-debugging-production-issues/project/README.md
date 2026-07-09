@@ -1,15 +1,15 @@
-# Chapter 26 Project (Category 1): Production Incident Runbook
+# Chapter 26 Project (Categories 1-2): Production Incident Runbook
 
 A small, standalone **incident runbook** (one Python file, standard
 library only) that takes a plain-language description of a symptom —
 the kind of thing you'd type into a bug report or say out loud during
-an incident — and classifies it against the Category 1 catalog,
+an incident — and classifies it against the Categories 1-2 catalog,
 returning the likely root cause(s) and fix(es) instead of leaving you
 to search the lesson page manually.
 
 ## What you'll build
 
-A `CATALOG` of the 10 issues from Category 1: Crashes & Exceptions,
+A `CATALOG` of the 20 issues from Categories 1-2 (Crashes & Exceptions, Performance),
 each with a set of keywords a symptom description might contain. A
 classifier matches a free-text description against that catalog and
 formats a short runbook entry for every match:
@@ -30,8 +30,13 @@ Issue #1: KeyError
   Root cause: A dict was accessed with [] on a key that isn't present -- often a config/env var missing in this environment.
   Fix: Use .get(key, default) for optional keys, or validate all required keys explicitly at startup and fail with a clear message.
 
+SYMPTOM: Report generator gets slower as the dataset grows -- looks quadratic
+Issue #11: (no exception -- slow)
+  Root cause: A membership check (`in`) against a list, done repeatedly inside a loop, is O(n) per check -- doing it n times makes the whole function O(n^2).
+  Fix: Use a set instead of a list for repeated membership checks -- O(1) average case regardless of size.
+
 SYMPTOM: Everything is fine, no crash at all
-No matching catalog entry for this symptom yet -- check Category 1 in the lesson for the closest pattern.
+No matching catalog entry for this symptom yet -- check the lesson's catalog for the closest pattern.
 ```
 
 ## How to run
@@ -46,7 +51,7 @@ Run `python3 solution.py`.
 
 ## The pieces
 
-- **`CATALOG`** — the 10 Category 1 issues, each with an exception
+- **`CATALOG`** — the 20 Categories 1-2 issues, each with an exception
   name, matching keywords, a root cause, and a fix, mirroring the
   lesson's issue cards exactly.
 - **`classify_symptom(description)`** — the matching logic: lowercase
@@ -81,7 +86,7 @@ enough times to notice the pattern.
 From Chapter 7 onward, you get a genuine choice of what to build. The
 Production Incident Runbook above is fully built out with a starter
 and reference solution — the four ideas below are not. Each is a real,
-grounded use case solvable with only what Category 1 has taught so
+grounded use case solvable with only what Categories 1-2 have taught so
 far. No starter or solution files are provided on purpose — building
 one of these unassisted is the point.
 
@@ -116,7 +121,7 @@ pattern-spotter using what's been taught.
 
 ### 3. A Symptom-to-Fix Quiz Generator
 
-**Problem:** Turn the Category 1 catalog into a self-quiz: show a
+**Problem:** Turn the Categories 1-2 catalog into a self-quiz: show a
 random symptom, let the user guess the exception type, then reveal the
 root cause and fix.
 

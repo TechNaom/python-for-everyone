@@ -127,3 +127,95 @@ print(average_price([10, 20, 30]))
 # explain_none_vs_exception() describing when a function returning
 # None for "not found" is the right design, vs. when raising a named
 # exception is better.
+
+
+# ============================================================
+# Topic 4: Accidental O(n^2) Patterns
+# ============================================================
+
+# TODO 4.1: Write has_common_element(list_a, list_b). Return True if
+# any value appears in both lists. Convert one list to a set first so
+# the membership check against it is O(1), not O(n).
+
+
+# TODO 4.2: Write unique_in_order(items). Return a new list with
+# duplicates removed, preserving the order of first occurrence. Use a
+# set to track what's already been seen.
+
+
+# TODO 4.3 (Debug the Code): merge_prepend() below is supposed to
+# build a combined list with new_items placed BEFORE existing_items,
+# but it does so by calling list.insert(0, x) once per item in a loop
+# -- O(n^2) for building an n-item result. Fix it to build the result
+# with list concatenation or slicing instead (new_items + existing_items),
+# which is O(n) total.
+def merge_prepend(existing_items, new_items):
+    result = list(existing_items)
+    for item in reversed(new_items):
+        result.insert(0, item)
+    return result
+
+
+print(merge_prepend([3, 4], [1, 2]))
+
+
+# TODO 4.A (Scenario -- Comparing Two Approaches): write
+# should_use_set_for_lookup(collection_size, checked_repeatedly).
+# Return True (use a set) if collection_size is greater than 100 AND
+# checked_repeatedly is True, else False (a list is fine for a small
+# or one-off check).
+
+
+# TODO 4.B (Scenario -- Interview Prep): write
+# explain_quadratic_pattern() describing the general shape of an
+# accidental O(n^2) bug: an O(n) operation performed inside a loop
+# that runs n times.
+
+
+# ============================================================
+# Topic 5: Caching & Redundant Work
+# ============================================================
+
+# TODO 5.1: Write memoized_calls(keys, compute_fn). Return a list of
+# compute_fn(key) for each key in keys, calling compute_fn at most
+# once per distinct key (cache repeated keys).
+
+
+# TODO 5.2: Write count_distinct_calls(keys). Using the same caching
+# idea as 5.1 but without actually needing compute_fn, return how many
+# DISTINCT values are in keys -- the number of times a "real"
+# computation would have been needed if each distinct key were
+# computed once.
+
+
+# TODO 5.3 (Debug the Code): tax_totals() below recomputes
+# slow_tax_lookup(region) for every single item, even when many items
+# share the same region. Fix it to cache the result per region.
+def slow_tax_lookup(region):
+    total = 0
+    for _ in range(1000):
+        total += 1
+    return 0.08
+
+def tax_totals(cart):
+    total = 0
+    for item in cart:
+        rate = slow_tax_lookup(item["region"])
+        total += item["price"] * (1 + rate)
+    return total
+
+
+print(tax_totals([{"price": 10, "region": "CA"}, {"price": 20, "region": "CA"}]))
+
+
+# TODO 5.A (Scenario -- A Slow Report Generator): write
+# should_cache_by_region(num_items, num_distinct_regions). Return True
+# if num_distinct_regions is meaningfully smaller than num_items (say,
+# less than half), since that's when caching by region actually saves
+# real work.
+
+
+# TODO 5.B (Scenario -- Interview Prep): write
+# explain_when_caching_is_safe() describing the one condition that
+# must hold for caching a function's result to be correct, not just
+# fast.

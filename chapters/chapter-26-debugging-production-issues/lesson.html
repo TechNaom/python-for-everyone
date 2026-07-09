@@ -44,14 +44,15 @@
       <li>This is a <strong>catalog, not a narrative</strong> &mdash; each entry is self-contained. Use the on-page navigation to jump straight to a category, or to a specific symptom if you already know roughly what's going wrong.</li>
       <li>Every entry follows the same four-part shape: <strong>Symptom</strong> (what you'd actually see), <strong>Root cause</strong> (the real mechanism, tied back to a specific earlier chapter), <strong>Fix</strong>, and a runnable repro.</li>
       <li>Every repro on this page was actually executed with Python 3.14.4 before being written down &mdash; the output shown is real, not invented.</li>
-      <li><strong>Category 1: Crashes &amp; Exceptions</strong> is complete below. The remaining 7 categories (Performance, Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, Logging &amp; Observability) are planned and will be added in later passes — they're listed in the on-page navigation so the shape of the full chapter is visible, but only Category 1 has content on this page for now.</li>
+      <li><strong>Categories 1 and 2</strong> (Crashes &amp; Exceptions, Performance) are complete below. The remaining 6 categories (Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, Logging &amp; Observability) are planned and will be added in later passes — they're listed in the on-page navigation so the shape of the full chapter is visible, but only Categories 1-2 have content on this page for now.</li>
+      <li><strong>Category 2's entries follow a slightly different shape</strong> than Category 1's, since a performance problem doesn't raise an exception &mdash; each entry pairs a "before" and "after" version of the same logic and reports both measured directly, with <code>time.perf_counter()</code>, rather than a traceback. A couple of entries show a modest, honest speedup (not every fix is a 100x win) rather than being cherry-picked for a dramatic number.</li>
     </ul>
   </div>
 
   <nav class="page-toc" aria-label="On this page">
     <span class="toc-label">On this page</span>
     <a href="#crashes-exceptions">1. Crashes &amp; Exceptions</a>
-    <span class="toc-planned">2. Performance (planned)</span>
+    <a href="#performance">2. Performance</a>
     <span class="toc-planned">3. Memory Leaks (planned)</span>
     <span class="toc-planned">4. Concurrency &amp; Deadlocks (planned)</span>
     <span class="toc-planned">5. Data Corruption (planned)</span>
@@ -540,7 +541,7 @@ json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code></
   </div>
 
   <div class="real-world">
-    <span class="label">In the Real World</span>
+    <span class="label">In the Real World (Category 1)</span>
     <ul>
       <li>Production incident write-ups almost always follow this exact shape &mdash; symptom, root cause, fix &mdash; because that's the order information actually becomes available: you see the crash first, then dig into why, then decide what changes.</li>
       <li>The most dangerous bugs in real systems are rarely the ones that crash loudly (issues #1, #2, #4, #5, #7, #8, #10 here) &mdash; they're the ones that silently return a plausible-but-wrong answer (issues #3 and #6), because nothing alerts anyone that something went wrong.</li>
@@ -548,13 +549,708 @@ json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code></
     </ul>
   </div>
 
+  <div class="subtopic" id="performance">
+    <span class="subtopic-label">Category 2 of 8</span>
+    <h2>2. Performance</h2>
+    <p>
+      Ten real performance patterns &mdash; each one a "before" and
+      "after" version of the same logic, both actually timed with
+      <code>time.perf_counter()</code>. A few show a dramatic speedup;
+      a few show a modest, honest one. Both are real, and knowing
+      which kind of fix you're looking at matters: some of these are
+      genuine Big-O improvements, others are removing small, repeated
+      overhead that only adds up at scale.
+    </p>
+
+    <div class="issue-card">
+      <span class="issue-id">#11</span>
+      <h3>Checking membership against a growing list, over and over</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A "find duplicates" function that's fast on a small test list becomes noticeably slow once the real dataset has a few thousand items &mdash; and gets dramatically worse as the dataset grows, not just proportionally worse.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 8 covered that checking <code>item in some_list</code> has to scan the list from the start until it finds a match (or reaches the end) &mdash; an O(n) operation. Doing that check inside a loop that runs n times makes the whole function O(n&sup2;): every new item re-scans an ever-growing list.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Use a <code>set</code> instead of a list for the membership check &mdash; Chapter 8 also covered that <code>item in some_set</code> is O(1) on average, regardless of how large the set gets.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_11_quadratic_membership.py</span>
+        </div>
+        <pre><code>import time
+
+def find_duplicates_slow(items):
+    seen = []
+    duplicates = []
+    for item in items:
+        if item in seen:  # O(n) list scan, called n times -> O(n^2)
+            duplicates.append(item)
+        else:
+            seen.append(item)
+    return duplicates
+
+def find_duplicates_fast(items):
+    seen = set()
+    duplicates = []
+    for item in items:
+        if item in seen:  # O(1) average-case set membership
+            duplicates.append(item)
+        else:
+            seen.add(item)
+    return duplicates
+
+data = list(range(5000)) + list(range(2000))
+
+start = time.perf_counter()
+find_duplicates_slow(data)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+find_duplicates_fast(data)
+fast_time = time.perf_counter() - start
+
+print(f"list-based (O(n^2)): {slow_time:.4f}s")
+print(f"set-based (O(n)):    {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>list-based (O(n^2)): 0.0972s
+set-based (O(n)):    0.0008s</code></pre>
+      </div>
+      <div class="genai-prompt-box">
+        <p class="genai-thought"><strong>Thought process:</strong> the actual fix here isn't "sets are faster than lists" as a blanket rule &mdash; it's recognizing the specific access pattern (repeated membership checks against a growing collection) where the difference between O(1) and O(n) per check compounds into O(n) vs. O(n&sup2;) overall. An experienced dev looks for this exact shape: any <code>in</code> check inside a loop, against a collection that's also being built up inside that same loop.</p>
+        <div class="genai-try-first">
+          <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+          <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that finds duplicate items in a list efficiently..."></textarea>
+          <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+          <div class="genai-compare-note" hidden>
+            Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+          </div>
+        </div>
+        <details class="genai-reveal">
+          <summary>Show a strong version of this prompt</summary>
+          <div class="genai-prompt-text"><pre>Write a Python function find_duplicates(items) that returns a list of every item that appears more than once in `items`, preserving the order duplicates are first re-encountered. Use a set (not a list) to track items already seen, so the membership check inside the loop stays O(1) average case instead of O(n) -- this needs to stay fast even on a list with tens of thousands of items.</pre></div>
+        </details>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#12</span>
+      <h3>Inserting at the front of a list in a loop</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A function that reverses the order of a list by building it up one item at a time gets dramatically slower as the input grows, even though it's doing the same amount of "work" per item.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 7 covered that <code>list.insert(0, x)</code> has to shift every existing element over by one to make room at the front &mdash; an O(n) operation. Calling it n times to build an n-item list makes the whole function O(n&sup2;), the same shape of problem as issue #11 but from a different list operation.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p><code>list.append()</code> adds to the end in O(1) amortized time. Append everything in order, then call <code>.reverse()</code> once at the very end &mdash; one O(n) pass total, instead of n separate O(n) shifts.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_12_insert_front.py</span>
+        </div>
+        <pre><code>import time
+
+def reverse_order_slow(items):
+    result = []
+    for item in items:
+        result.insert(0, item)  # O(n) shift, every single call
+    return result
+
+def reverse_order_fast(items):
+    result = []
+    for item in items:
+        result.append(item)  # O(1) amortized
+    result.reverse()  # one O(n) pass at the end
+    return result
+
+items = list(range(20000))
+
+start = time.perf_counter()
+a = reverse_order_slow(items)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = reverse_order_fast(items)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"insert(0, x) in a loop: {slow_time:.4f}s")
+print(f"append then reverse():  {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>True
+insert(0, x) in a loop: 0.0824s
+append then reverse():  0.0005s</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#13</span>
+      <h3>Recomputing the same expensive result over and over</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A checkout function that calculates tax for a shopping cart is slow specifically when the cart has many items from the same handful of regions &mdash; even though there's only a few distinct regions actually involved.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 10 covered function calls as the unit of reusable work &mdash; but nothing about a function call automatically remembers a previous result. A tax-rate lookup was called once per cart item, even though the same region's rate was computed identically, from scratch, every single time it recurred.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Cache results in a dict (Chapter 8) keyed by the input that determines the result &mdash; here, the region. Look up the cache before doing the expensive work, and only do the work (and store it) the first time a given region is seen.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_13_repeated_recompute.py</span>
+        </div>
+        <pre><code>import time
+
+def slow_tax_lookup(region):
+    # stands in for a genuinely expensive computation
+    total = 0
+    for _ in range(20000):
+        total += 1
+    return 0.08
+
+def total_price_slow(cart, get_tax_rate):
+    total = 0
+    for item in cart:
+        rate = get_tax_rate(item["region"])  # recomputed for every item
+        total += item["price"] * (1 + rate)
+    return total
+
+def total_price_fast(cart, get_tax_rate):
+    total = 0
+    cache = {}
+    for item in cart:
+        region = item["region"]
+        if region not in cache:
+            cache[region] = get_tax_rate(region)
+        total += item["price"] * (1 + cache[region])
+    return total
+
+cart = [{"price": 10, "region": "CA"} for _ in range(500)]
+
+start = time.perf_counter()
+total_price_slow(cart, slow_tax_lookup)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+total_price_fast(cart, slow_tax_lookup)
+fast_time = time.perf_counter() - start
+
+print(f"recompute every item: {slow_time:.4f}s")
+print(f"cache by region:      {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>recompute every item: 0.3718s
+cache by region:      0.0007s</code></pre>
+      </div>
+      <div class="genai-prompt-box">
+        <p class="genai-thought"><strong>Thought process:</strong> caching is only a correct fix when the same input reliably produces the same output &mdash; the region's tax rate doesn't change mid-checkout, so caching by region is safe here. An experienced dev checks that assumption explicitly before reaching for a cache, since caching a result that legitimately changes between calls (a live stock price, a random value) would introduce a correctness bug, not just a performance win.</p>
+        <div class="genai-try-first">
+          <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+          <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that avoids recomputing the same expensive lookup for repeated inputs..."></textarea>
+          <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+          <div class="genai-compare-note" hidden>
+            Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+          </div>
+        </div>
+        <details class="genai-reveal">
+          <summary>Show a strong version of this prompt</summary>
+          <div class="genai-prompt-text"><pre>Write a Python function total_price(cart, get_tax_rate) where cart is a list of dicts with "price" and "region" keys, and get_tax_rate(region) is an expensive function that returns a tax rate for a region. Cache the result of get_tax_rate() in a dict keyed by region, so it's only ever called once per distinct region across the whole cart, not once per item. Return the total price including tax.</pre></div>
+        </details>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#14</span>
+      <h3>A nested loop to join two lists of records</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A function that attaches customer names to a list of orders works fine in testing with a handful of records, then times out once it's run against the real orders and customers tables.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>For every order, the code scans the <em>entire</em> customers list looking for a matching ID &mdash; an O(m) scan repeated n times, for O(n&middot;m) overall. With a few thousand of each, that's tens of millions of comparisons for what should be a simple lookup.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Build a dict mapping customer ID to customer record once, up front (Chapter 8's dict/set-comprehension-friendly pattern), then look up each order's customer in O(1) instead of scanning &mdash; O(n + m) overall instead of O(n&middot;m).</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_14_nested_loop_lookup.py</span>
+        </div>
+        <pre><code>import time
+
+def enrich_orders_slow(orders, customers):
+    enriched = []
+    for order in orders:
+        for customer in customers:  # full scan, for EVERY order
+            if customer["id"] == order["customer_id"]:
+                enriched.append({**order, "customer_name": customer["name"]})
+                break
+    return enriched
+
+def enrich_orders_fast(orders, customers):
+    customer_by_id = {c["id"]: c for c in customers}  # built once
+    enriched = []
+    for order in orders:
+        customer = customer_by_id.get(order["customer_id"])
+        enriched.append({**order, "customer_name": customer["name"] if customer else None})
+    return enriched
+
+customers = [{"id": i, "name": f"Customer {i}"} for i in range(2000)]
+orders = [{"customer_id": i % 2000, "amount": 10} for i in range(2000)]
+
+start = time.perf_counter()
+a = enrich_orders_slow(orders, customers)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = enrich_orders_fast(orders, customers)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"nested loop (O(n*m)): {slow_time:.4f}s")
+print(f"dict lookup (O(n)):   {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>True
+nested loop (O(n*m)): 0.1629s
+dict lookup (O(n)):   0.0015s</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#15</span>
+      <h3>Recompiling the same regular expression on every call</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A log-scanning function using <code>re.search()</code> is a bit slower than expected on a large batch of lines &mdash; a real but modest overhead, not a dramatic one.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 18 covered <code>re.search(pattern, text)</code> as a convenience function &mdash; internally, it still has to turn the pattern string into a compiled matcher before it can search. Called repeatedly with the same pattern string, that parsing step repeats every time (CPython does cache a small number of recently-used patterns internally, which is why this speedup is real but modest rather than dramatic).</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Call <code>re.compile(pattern)</code> once, outside the loop, and call <code>.search()</code>/<code>.match()</code> on the resulting compiled pattern object instead &mdash; the parsing step happens exactly once no matter how many times it's used afterward.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_15_regex_recompile.py</span>
+        </div>
+        <pre><code>import re
+import time
+
+PATTERN_STR = r"\d{3}-\d{3}-\d{4}"
+
+def find_phone_numbers_slow(lines):
+    found = []
+    for line in lines:
+        match = re.search(PATTERN_STR, line)  # parses PATTERN_STR every call
+        if match:
+            found.append(match.group())
+    return found
+
+def find_phone_numbers_fast(lines):
+    compiled = re.compile(PATTERN_STR)  # parsed once
+    found = []
+    for line in lines:
+        match = compiled.search(line)
+        if match:
+            found.append(match.group())
+    return found
+
+lines = [f"Contact: 555-{i:03d}-{i:04d} for details" for i in range(30000)]
+
+# take the BEST of 5 runs for each version -- a single run's timing can be
+# noisy (one-off system interference); best-of-several is more stable
+def timed(fn, arg):
+    start = time.perf_counter()
+    result = fn(arg)
+    return time.perf_counter() - start, result
+
+slow_time, a = min((timed(find_phone_numbers_slow, lines) for _ in range(5)), key=lambda t: t[0])
+fast_time, b = min((timed(find_phone_numbers_fast, lines) for _ in range(5)), key=lambda t: t[0])
+
+print(a == b)
+print(f"re.search() each time (best of 5): {slow_time:.4f}s")
+print(f"re.compile() once (best of 5):     {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4, best of 5 runs each) -- your own numbers will vary by machine</span>
+        <pre><code>True
+re.search() each time (best of 5): 0.0267s
+re.compile() once (best of 5):     0.0205s</code></pre>
+      </div>
+      <p>
+        A real speedup, but a modest one &mdash; not every fix in this
+        category is a dramatic win, and it's worth being honest about
+        which is which. <code>re.compile()</code> is still worth doing
+        as a habit: it costs nothing, and the margin grows if the
+        pattern is more complex than this one.
+      </p>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#16</span>
+      <h3>Sorting an entire list just to read the largest value</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A "top score" function is noticeably slower than it needs to be on a large dataset, despite only ever using one value out of the whole result.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p><code>sorted()</code> is O(n log n) &mdash; it does the work of putting every element in order, even when the only thing the caller actually wants is the single largest one.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p><code>max()</code> finds the largest value in a single O(n) pass, without sorting anything. Use the built-in that matches what's actually needed &mdash; <code>max()</code>/<code>min()</code> for one extreme value, <code>sorted()</code> only when the full order genuinely matters.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_16_sort_for_max.py</span>
+        </div>
+        <pre><code>import time
+import random
+
+def top_score_slow(scores):
+    ordered = sorted(scores)  # O(n log n) to sort everything...
+    return ordered[-1]         # ...just to read the last element
+
+def top_score_fast(scores):
+    return max(scores)  # O(n)
+
+scores = list(range(200000))
+random.shuffle(scores)
+
+start = time.perf_counter()
+a = top_score_slow(scores)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = top_score_fast(scores)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"sorted()[-1]: {slow_time:.4f}s")
+print(f"max():        {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>True
+sorted()[-1]: 0.0704s
+max():        0.0092s</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#17</span>
+      <h3>Re-evaluating <code>len()</code> on every loop iteration</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A hand-written <code>while</code> loop summing a very large list is measurably slower than the equivalent <code>for</code> loop, even though both do the same O(n) amount of "real" work.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>This one isn't about Big-O &mdash; <code>len()</code> on a list is already O(1). It's about repeated small overhead: <code>while i &lt; len(items):</code> calls <code>len()</code> fresh on every single iteration, and that function-call overhead adds up across millions of iterations even though each individual call is cheap.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Compute <code>len(items)</code> once, store it in a variable before the loop starts, and check against that variable instead &mdash; the list's length doesn't change during the loop here, so there's nothing to recompute.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_17_len_in_condition.py</span>
+        </div>
+        <pre><code>import time
+
+def sum_while_slow(items):
+    total = 0
+    i = 0
+    while i < len(items):  # len() called fresh every iteration
+        total += items[i]
+        i += 1
+    return total
+
+def sum_while_fast(items):
+    total = 0
+    i = 0
+    n = len(items)  # computed once
+    while i < n:
+        total += items[i]
+        i += 1
+    return total
+
+items = list(range(2000000))
+
+start = time.perf_counter()
+a = sum_while_slow(items)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = sum_while_fast(items)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"len(items) every iteration: {slow_time:.4f}s")
+print(f"len(items) computed once:   {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>True
+len(items) every iteration: 0.2065s
+len(items) computed once:   0.1292s</code></pre>
+      </div>
+      <p>
+        Another honest, modest speedup &mdash; and a preview of why
+        Chapter 5's plain <code>for item in items:</code> is usually
+        preferable to a hand-rolled <code>while</code> loop with a
+        manual index in the first place: it sidesteps this whole class
+        of micro-overhead automatically.
+      </p>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#18</span>
+      <h3>Re-reading the same file from disk, once per search term</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A function that counts how many times each of several search terms appears in a log file gets slower the more search terms are passed in &mdash; even though the file itself never changes between searches.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 13 covered reading a file with <code>open()</code>/<code>.read()</code>. Disk I/O is slow relative to in-memory operations &mdash; re-opening and re-reading the entire file once per search term repeats that slow I/O work unnecessarily, when the file's contents haven't changed at all between calls.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Read the file into memory exactly once, then run every search against that in-memory string &mdash; I/O happens once regardless of how many search terms there are.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_18_reread_file.py</span>
+        </div>
+        <pre><code>import time
+
+def count_matches_slow(path, needles):
+    counts = {}
+    for needle in needles:
+        with open(path) as f:  # re-opens and re-reads the file every time
+            content = f.read()
+        counts[needle] = content.count(needle)
+    return counts
+
+def count_matches_fast(path, needles):
+    with open(path) as f:
+        content = f.read()  # read once
+    counts = {}
+    for needle in needles:
+        counts[needle] = content.count(needle)
+    return counts
+
+# set up a sample log file so this script is runnable on its own
+with open("access.log", "w") as f:
+    for i in range(5000):
+        f.write(f"line-{i}\n")
+
+needles = [f"line-{i}" for i in range(0, 500, 50)]
+
+start = time.perf_counter()
+a = count_matches_slow("access.log", needles)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = count_matches_fast("access.log", needles)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"re-read file per needle: {slow_time:.4f}s")
+print(f"read file once:          {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4, run against a 5,000-line log file) -- your own numbers will vary by machine and disk</span>
+        <pre><code>True
+re-read file per needle: 0.0014s
+read file once:          0.0005s</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#19</span>
+      <h3>Materializing a full list when the loop could stop early</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A "find the first value over a threshold" function is dramatically slower than it should be on a large dataset, even though it usually only needs to look at the first handful of values before finding a match.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 17 covered generators as lazy, on-demand value production. A list comprehension does the opposite: it computes and stores every value up front, before the loop even starts &mdash; so even though the loop below it exits early once a match is found, all the <em>other</em> work (doubling every remaining number that's never even inspected) already happened.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Use a generator expression instead of a list comprehension when the consumer might stop early. A generator produces values one at a time, on demand &mdash; once the loop finds its match and returns, no further values are ever computed.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_19_materialize_generator.py</span>
+        </div>
+        <pre><code>import time
+
+def find_first_over_slow(numbers, threshold):
+    doubled = [n * 2 for n in numbers]  # computes EVERY value up front
+    for d in doubled:
+        if d > threshold:
+            return d
+    return None
+
+def find_first_over_fast(numbers, threshold):
+    doubled = (n * 2 for n in numbers)  # lazy -- computes on demand
+    for d in doubled:
+        if d > threshold:
+            return d
+    return None
+
+numbers = list(range(2000000))
+
+start = time.perf_counter()
+a = find_first_over_slow(numbers, 100)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = find_first_over_fast(numbers, 100)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"list comprehension (materializes all): {slow_time:.4f}s")
+print(f"generator expression (lazy, stops early): {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>True
+list comprehension (materializes all): 0.2775s
+generator expression (lazy, stops early): 0.0000s</code></pre>
+      </div>
+      <p>
+        The single biggest speedup in this category, and it's a direct
+        callback to Chapter 25's generators-vs-lists comparison &mdash;
+        the same underlying idea (don't build what you don't need)
+        showing up as a memory win there and a speed win here.
+      </p>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#20</span>
+      <h3>Checking membership against <code>dict.keys()</code> instead of the dict itself</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A filtering function using <code>if key in some_dict.keys()</code> is a little slower than the same check written without <code>.keys()</code> &mdash; small, but consistent and free to fix.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 8 covered dict membership (<code>key in some_dict</code>) as already O(1) average case &mdash; it doesn't need <code>.keys()</code> at all. Writing <code>.keys()</code> explicitly adds an unnecessary view-object layer that <code>in</code> then has to go through, for no benefit.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Drop the <code>.keys()</code> &mdash; <code>key in some_dict</code> checks the keys by default, is exactly as correct, and has one less layer of indirection.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_20_keys_membership.py</span>
+        </div>
+        <pre><code>import time
+
+def filter_active_slow(user_ids, status_by_id):
+    active = []
+    for uid in user_ids:
+        if uid in status_by_id.keys():  # unnecessary .keys()
+            if status_by_id[uid] == "active":
+                active.append(uid)
+    return active
+
+def filter_active_fast(user_ids, status_by_id):
+    active = []
+    for uid in user_ids:
+        if uid in status_by_id:  # dict membership is already O(1)
+            if status_by_id[uid] == "active":
+                active.append(uid)
+    return active
+
+status_by_id = {i: ("active" if i % 2 == 0 else "inactive") for i in range(200000)}
+user_ids = list(range(200000))
+
+start = time.perf_counter()
+a = filter_active_slow(user_ids, status_by_id)
+slow_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = filter_active_fast(user_ids, status_by_id)
+fast_time = time.perf_counter() - start
+
+print(a == b)
+print(f"'in dict.keys()': {slow_time:.4f}s")
+print(f"'in dict':         {fast_time:.4f}s")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4) -- your own numbers will vary by machine</span>
+        <pre><code>True
+'in dict.keys()': 0.0231s
+'in dict':         0.0161s</code></pre>
+      </div>
+    </div>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Nested loops and repeated <code>in</code> checks against a growing list/being scanned are the classic sign of an accidental O(n&sup2;) algorithm &mdash; a <code>set</code> or <code>dict</code> almost always fixes it.</li>
+        <li>Not every fix is a Big-O improvement &mdash; some (regex compilation, avoiding <code>.keys()</code>, hoisting <code>len()</code> out of a loop) just remove small, repeated overhead, and it's worth knowing the difference.</li>
+        <li>Generators (Chapter 17) aren't just a memory optimization (Chapter 25) &mdash; they're also a speed win whenever a consumer might stop early, since unconsumed values are never computed at all.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World (Category 2)</span>
+    <ul>
+      <li>"Make it faster" without measuring first is how engineers waste time optimizing the wrong thing &mdash; every fix in this category was verified with an actual timer, not assumed.</li>
+      <li>The nested-loop-lookup pattern (issue #14) is one of the single most common real-world performance bugs &mdash; it shows up constantly in code that joins two datasets without first indexing one of them by key.</li>
+      <li>Knowing which fixes are dramatic (O(n&sup2;) &rarr; O(n)) vs. modest (removing small per-call overhead) helps prioritize: fix the algorithmic issues first, since that's where the real wins are.</li>
+    </ul>
+  </div>
+
   <div class="points-to-remember">
-    <h2>Points to Remember (Category 1)</h2>
+    <h2>Points to Remember (Categories 1-2)</h2>
     <ul>
       <li><code>KeyError</code>, <code>IndexError</code>, <code>TypeError</code>, <code>AttributeError</code>, <code>ZeroDivisionError</code>, <code>RecursionError</code>, and <code>JSONDecodeError</code> each have a specific, predictable trigger &mdash; recognizing the pattern is faster than reading the whole traceback from scratch every time.</li>
       <li>A function that implicitly returns <code>None</code> on some code path (Chapter 10) is one of the most common sources of a downstream <code>AttributeError</code> far from where the real problem started.</li>
       <li>Bare <code>except:</code> and overly broad <code>except Exception:</code> are the two patterns most likely to turn a real bug into a silent, wrong-but-plausible result &mdash; always catch the most specific exception you actually expect.</li>
-      <li>This category is the first of eight; the rest (Performance, Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, Logging &amp; Observability) are planned and will extend this same catalog format.</li>
+      <li>A repeated <code>in</code> check against a list, or a nested loop joining two datasets, are the two most common sources of an accidental O(n&sup2;) algorithm &mdash; a <code>set</code> or <code>dict</code> almost always fixes both.</li>
+      <li>Caching (a dict keyed by whatever determines the result) is only correct when the same input reliably produces the same output &mdash; check that assumption before reaching for a cache.</li>
+      <li>This chapter is a growing catalog; Categories 1-2 (of 8) are complete, and the remaining 6 (Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, Logging &amp; Observability) are planned and will extend this same format.</li>
     </ul>
   </div>
 

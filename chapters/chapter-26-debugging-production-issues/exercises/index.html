@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Exercises — Python for Everyone</title>
-<meta name="description" content="Hands-on exercises for Chapter 26: Debugging Production Issues (Category 1), covering KeyError, IndexError, specific-vs-bare except, TypeError from unvalidated input, implicit None returns, ZeroDivisionError, JSONDecodeError, and a Debug the Code task.">
+<meta name="description" content="Hands-on exercises for Chapter 26: Debugging Production Issues (Categories 1-2), covering KeyError, IndexError, specific-vs-bare except, TypeError from unvalidated input, implicit None returns, ZeroDivisionError, JSONDecodeError, quadratic membership checks, dict indexing, and two Debug the Code tasks.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,7 @@
   <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Exercises (Category 1)</span>
+    <span class="chapter-badge">Chapter 26 Exercises (Categories 1-2)</span>
     <span class="reading-time">35 min, hands-on</span>
   </div>
   <h1>Exercises: Debugging Production Issues</h1>
@@ -101,6 +101,50 @@
 
 raw_config = {"timeoout": "45"}
 print("load_timeout result:", load_timeout(raw_config))</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">9</span> Checking for a duplicate with a set</h3>
+    <p>Write <code>has_duplicate(items)</code> — return <code>True</code> if any value appears more than once, using a set for the membership check.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">10</span> Deduplicating while preserving order</h3>
+    <p>Write <code>dedupe_preserve_order(items)</code> — remove duplicates, keeping only the first occurrence of each value.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">11</span> Indexing records by key</h3>
+    <p>Write <code>index_by_key(records, key_name)</code> — build a dict mapping each record's key value to the record itself.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">12</span> Min and max without sorting</h3>
+    <p>Write <code>smallest_and_largest(numbers)</code> — return <code>(min(numbers), max(numbers))</code> without calling <code>sorted()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">13</span> Stopping at the first match</h3>
+    <p>Write <code>first_match_or_none(items, predicate)</code> — return the first item where <code>predicate(item)</code> is <code>True</code>, stopping immediately once found.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 14 — Debug the Code</h3>
+    <p>This is supposed to return <code>items</code> in reverse order, but it uses <code>list.insert(0, x)</code> in a loop, which is O(n) per call. Fix it to use <code>.append()</code> followed by one <code>.reverse()</code> call instead.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_reversed_list.py</span>
+      </div>
+      <pre><code>def reversed_list(items):
+    result = []
+    for item in items:
+        result.insert(0, item)
+    return result
+
+
+print(reversed_list([1, 2, 3]))</code></pre>
     </div>
   </div>
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Interview Questions — Python for Everyone</title>
-<meta name="description" content="Interview prep for Chapter 26: Debugging Production Issues (Category 1: Crashes & Exceptions) -- diagnosing real production crash patterns and knowing the specific exception each one raises.">
+<meta name="description" content="Interview prep for Chapter 26: Debugging Production Issues (Categories 1-2: Crashes & Exceptions, Performance) -- diagnosing real production crash and slowdown patterns.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,11 +31,11 @@
   <p><a href="challenges.html">&larr; Back to challenges</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Interview Prep (Category 1)</span>
+    <span class="chapter-badge">Chapter 26 Interview Prep (Categories 1-2)</span>
     <span class="reading-time">40 min read</span>
   </div>
   <h1>Interview Questions: Debugging Production Issues</h1>
-  <p>Debugging questions in real interviews rarely ask you to name an exception in isolation &mdash; they show you a symptom or a snippet and ask you to diagnose it, the same way this chapter's catalog is organized. This set covers the ten crash patterns from Category 1: Crashes &amp; Exceptions.</p>
+  <p>Debugging questions in real interviews rarely ask you to name an exception in isolation &mdash; they show you a symptom or a snippet and ask you to diagnose it, the same way this chapter's catalog is organized. This set covers the ten crash patterns from Category 1: Crashes &amp; Exceptions, plus the ten performance patterns from Category 2: Performance.</p>
 
   <details class="qa-item">
     <summary><span class="q-num">1</span> A dict lookup crashes with <code>KeyError</code> in production but never did in testing. Walk me through how you'd debug it.</summary>
@@ -157,6 +157,126 @@
     </div>
   </details>
 
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> A function is fast in testing but slows down dramatically as the real dataset grows. What's your first hypothesis?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>An accidental O(n&sup2;) (or worse) algorithm hiding inside what looks like straightforward code — most commonly a membership check (<code>in</code>) against a list inside a loop, or a nested loop scanning one collection once per item of another. Both look completely reasonable at small scale, since the difference between O(n) and O(n&sup2;) is invisible on a 10-item test list and severe on a 100,000-item production dataset. I'd look specifically for any <code>in</code> check against a list, or any loop nested inside another loop over a different collection.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for a vague "add caching" or "use numpy" answer without first identifying the actual algorithmic shape of the slowdown.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you confirm that hypothesis before changing any code?" (Time it at a few different input sizes and see whether runtime grows linearly or quadratically with size — that distinguishes a real algorithmic issue from a constant-overhead one.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Why is <code>list.insert(0, x)</code> in a loop a performance problem, and what's the fix?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Inserting at index 0 has to shift every existing element over by one to make room, which is O(n) per call. Doing that n times to build an n-item list makes the whole operation O(n&sup2;). The fix is to append to the end instead (O(1) amortized) and reverse the whole list once at the end if order matters — one O(n) pass total instead of n separate O(n) shifts.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing that this is the exact same underlying problem as a quadratic membership check — repeated O(n) work inside a loop that runs n times.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is list.append() always O(1)?" (Amortized O(1) — occasionally Python has to resize the underlying array, which is O(n) for that one call, but averaged over many appends the cost per append is O(1).)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> When is caching a function's result actually safe, and when does it introduce a bug?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Caching is safe exactly when the function is "pure" with respect to its cache key — the same input reliably produces the same output every time, with no dependency on anything that changes between calls (time, external state, randomness). A tax rate for a fixed region during one checkout is safe to cache; a live stock price or a random value is not — caching either of those would silently return stale or wrong data instead of just being slow.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating caching as a universal "add it and things get faster" trick without checking whether the cached function's output can legitimately change between calls.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you cache a function whose result SHOULD occasionally change (e.g. refreshed every hour)?" (Cache with an expiration — store a timestamp alongside the cached value and recompute once it's older than some threshold, rather than caching forever.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> Two lists of records need to be joined by ID. Walk me through the slow way and the fast way.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The slow way: for each record in list A, loop through the entirety of list B looking for a matching ID — O(n&middot;m) total. The fast way: build a dict mapping ID to record for list B once, up front (O(m)), then look up each record in list A against that dict in O(1) — O(n+m) total. The dict-building step is the whole trick: it trades a one-time O(m) cost for turning every subsequent lookup from O(m) into O(1).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting sorting both lists and doing a merge-join as the only alternative — that works but is more complex than necessary when a dict solves it directly, especially before joins on more than one field are involved.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What if list B has duplicate IDs?" (A dict keyed by ID can only hold one record per ID, so the last one written wins — if duplicates need to be preserved, use a dict of lists instead: dict[id].append(record).)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">15</span> Is <code>re.compile()</code> always worth doing over calling <code>re.search()</code> directly? Why or why not?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Nearly always worth doing as a habit, though the actual speedup is often modest rather than dramatic, since CPython internally caches a small number of recently-used uncompiled patterns already. It's clearly worth it when the same pattern is used repeatedly (a loop, a function called many times) and the pattern itself is complex. For a truly one-off match against a simple pattern, the difference is negligible either way — but there's essentially no downside to compiling once, so it's a safe default.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming re.compile() always produces a dramatic speedup — overselling a real but modest optimization undermines credibility on the bigger, genuinely dramatic fixes in this same category.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Where would you put the compile() call if the pattern is used inside a function called many times?" (Outside the function, at module level or passed in, so it's compiled exactly once regardless of how many times the function itself is called.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">16</span> Someone writes <code>sorted(scores)[-1]</code> to get the highest score. What would you say in code review?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>sorted() is O(n log n) — it fully orders the entire list even though only the single largest value is actually needed. max() gets the same answer in a single O(n) pass without sorting anything. I'd suggest max() (or min() for the smallest) whenever only one extreme value is needed, and reserve sorted() for when the full order actually matters downstream.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing sorted()[-1] and max() as behaviorally identical (same result) but algorithmically different (different Big-O) — this is exactly the kind of code that "works" and passes review on correctness alone.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What if they needed the top 3 values, not just the top 1?" (heapq.nlargest(3, scores) gets the top k in better than O(n log n) for k much smaller than n — worth knowing exists, though sorted()[-3:] is a reasonable, simpler answer too for a small, fixed k.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">17</span> A <code>while</code> loop checks <code>i &lt; len(items)</code> on every iteration. Is that a real performance problem?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A real but small one — len() on a list is already O(1), so this isn't a Big-O issue like the others in this category. It's about the repeated overhead of a function call happening on every single iteration, which adds up across millions of iterations even though each call is individually cheap. Hoisting len(items) into a variable before the loop removes that repeated overhead. In practice, using a plain for item in items: loop sidesteps the whole question, since it never needs an explicit index or length check at all.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming this is an O(n) vs O(n^2) issue — it isn't; conflating "real, measurable overhead" with "algorithmic complexity problem" shows a gap in understanding Big-O.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When would you actually need a while loop with a manual index instead of a for loop?" (When the index needs to jump around non-sequentially, or change by more than 1 per iteration — a plain for loop can't do either of those.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">18</span> A function re-opens and re-reads the same file once per search term. What's the fix, and why does it matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Read the file into memory exactly once, then run every search against that in-memory string. Disk I/O is slow relative to in-memory work, and the file's contents don't change between searches in this scenario, so there's no reason to pay that I/O cost more than once. This matters more, not less, at scale — the same bug against a real production log file (megabytes, not a small test file) or over a network filesystem would be dramatically worse than a local test run suggests.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not distinguishing this from an in-memory algorithmic issue — the bottleneck here is I/O, not computation, so the fix is about minimizing disk access, not about a smarter algorithm.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What if the file is too large to fit comfortably in memory?" (Then reading it all upfront isn't viable either — that's a genuinely different problem, needing a streaming/single-pass approach that processes the file once while computing all needed results together, rather than one read per file.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">19</span> Why can a generator expression be faster than a list comprehension, not just more memory-efficient?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A list comprehension computes and stores every value immediately, before anything downstream even runs. A generator expression computes values lazily, one at a time, only as they're requested. If the code consuming the values might stop early (a for loop with a return/break once some condition is met), the generator version never computes the values that were never needed — while the list comprehension already did that work regardless, up front. So it's not just about peak memory (Chapter 25) — it's a real speed difference whenever early exit is possible.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "generators are memory-efficient" and "generators can be faster" as the same fact — they're related but distinct, and this question is specifically testing the speed angle.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If the loop always processes every single value with no early exit, is the generator still faster?" (Not meaningfully — if nothing exits early, both versions end up computing every value; the generator's advantage specifically comes from skipped work on early exit, not from generators being inherently faster to compute each value.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">20</span> Is <code>if key in some_dict.keys()</code> wrong, or just suboptimal?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Not wrong — it produces the correct result. It's suboptimal: key in some_dict already checks the dict's keys by default and is O(1) average case, so appending .keys() adds an unnecessary view-object layer for zero benefit. It's a small, free fix (delete four characters), and a good habit to build since it signals a slightly clearer understanding of how dict membership actually works.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming .keys() changes the Big-O complexity — it doesn't; both are O(1) average case, this is purely about removing unnecessary indirection, not fixing an algorithmic problem.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is there ever a real reason to write .keys() explicitly?" (Yes — when you need the keys view itself for something else, like set operations (dict.keys() & other_set) or iterating just the keys explicitly for readability; for a plain membership check, it's unnecessary.)</p>
+    </div>
+  </details>
+
   <h2>Rapid-Fire Review</h2>
   <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
 
@@ -251,6 +371,96 @@
       <label for="r10"><span class="q-num">10</span> Before assuming an API response body is JSON, check the response's ____ code first.</label>
       <div class="fib-row">
         <input type="text" id="r10" class="fib-blank" data-answers="status" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> Checking <code>item in some_list</code> repeatedly inside a loop is a classic sign of an accidental O(n^____) algorithm.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="2" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> <code>list.insert(0, x)</code> is slow because it has to ____ every existing element over by one.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="shift,move" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> Caching is only correct when the same input reliably produces the same ____ every time.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="output,result" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> A nested loop joining two lists of size n and m is O(n____m).</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="*,x,times" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r15"><span class="q-num">15</span> <code>re.____()</code> parses a pattern once, so it doesn't need to be re-parsed on every search call.</label>
+      <div class="fib-row">
+        <input type="text" id="r15" class="fib-blank" data-answers="compile" aria-label="Answer for rapid-fire question 15">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r16"><span class="q-num">16</span> <code>____()</code> finds the largest value in O(n) time, without sorting.</label>
+      <div class="fib-row">
+        <input type="text" id="r16" class="fib-blank" data-answers="max" aria-label="Answer for rapid-fire question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r17"><span class="q-num">17</span> Computing <code>len(items)</code> once, outside a loop, avoids repeated per-call ____ that adds up across many iterations.</label>
+      <div class="fib-row">
+        <input type="text" id="r17" class="fib-blank" data-answers="overhead" aria-label="Answer for rapid-fire question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r18"><span class="q-num">18</span> Reading a file into memory once instead of re-reading it repeatedly avoids repeated, slow ____ access.</label>
+      <div class="fib-row">
+        <input type="text" id="r18" class="fib-blank" data-answers="disk" aria-label="Answer for rapid-fire question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r19"><span class="q-num">19</span> A generator expression can be faster than a list comprehension specifically when the consumer might exit ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r19" class="fib-blank" data-answers="early" aria-label="Answer for rapid-fire question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r20"><span class="q-num">20</span> <code>key in some_dict</code> already checks the ____ by default -- <code>.keys()</code> is unnecessary for a plain membership check.</label>
+      <div class="fib-row">
+        <input type="text" id="r20" class="fib-blank" data-answers="keys" aria-label="Answer for rapid-fire question 20">
         <button type="button" class="check-btn">Check</button>
         <span class="fib-feedback" aria-live="polite"></span>
       </div>

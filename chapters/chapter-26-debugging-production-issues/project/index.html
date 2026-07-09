@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Project: Production Incident Runbook — Python for Everyone</title>
-<meta name="description" content="Build a Production Incident Runbook that classifies a plain-language symptom description against the Category 1 debugging catalog and suggests root causes and fixes, plus four more real-world project ideas.">
+<meta name="description" content="Build a Production Incident Runbook that classifies a plain-language symptom description against the Categories 1-2 debugging catalog and suggests root causes and fixes, plus four more real-world project ideas.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,12 +31,12 @@
   <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Project (Category 1)</span>
+    <span class="chapter-badge">Chapter 26 Project (Categories 1-2)</span>
     <span class="reading-time">40 min build</span>
   </div>
   <h1>Production Incident Runbook</h1>
 
-  <p>A small, standalone <strong>incident runbook</strong> that takes a plain-language description of a symptom &mdash; the kind of thing you'd type into a bug report or say out loud during an incident &mdash; and classifies it against the Category 1 catalog, returning the likely root cause(s) and fix(es) instead of leaving you to search the lesson page manually.</p>
+  <p>A small, standalone <strong>incident runbook</strong> that takes a plain-language description of a symptom &mdash; the kind of thing you'd type into a bug report or say out loud during an incident &mdash; and classifies it against the Categories 1-2 catalog, returning the likely root cause(s) and fix(es) instead of leaving you to search the lesson page manually.</p>
 
   <h2>Example run</h2>
   <div class="output-block">
@@ -46,8 +46,13 @@ Issue #1: KeyError
   Root cause: A dict was accessed with [] on a key that isn't present -- often a config/env var missing in this environment.
   Fix: Use .get(key, default) for optional keys, or validate all required keys explicitly at startup and fail with a clear message.
 
+SYMPTOM: Report generator gets slower as the dataset grows -- looks quadratic
+Issue #11: (no exception -- slow)
+  Root cause: A membership check (`in`) against a list, done repeatedly inside a loop, is O(n) per check -- doing it n times makes the whole function O(n^2).
+  Fix: Use a set instead of a list for repeated membership checks -- O(1) average case regardless of size.
+
 SYMPTOM: Everything is fine, no crash at all
-No matching catalog entry for this symptom yet -- check Category 1 in the lesson for the closest pattern.</code></pre>
+No matching catalog entry for this symptom yet -- check the lesson's catalog for the closest pattern.</code></pre>
   </div>
 
   <div class="what-is">
@@ -95,7 +100,7 @@ No matching catalog entry for this symptom yet -- check Category 1 in the lesson
 
   <h2>The pieces</h2>
   <ul>
-    <li><strong><code>CATALOG</code>:</strong> the 10 Category 1 issues, each with an exception name, matching keywords, a root cause, and a fix &mdash; mirroring the lesson's issue cards exactly.</li>
+    <li><strong><code>CATALOG</code>:</strong> the 20 Categories 1-2 issues, each with an exception name, matching keywords, a root cause, and a fix &mdash; mirroring the lesson's issue cards exactly.</li>
     <li><strong><code>classify_symptom(description)</code>:</strong> the matching logic &mdash; lowercase the description, check each catalog entry's keywords against it.</li>
     <li><strong><code>format_runbook_entry(entry)</code>:</strong> turns one matched catalog entry into a readable block.</li>
     <li><strong><code>diagnose(description)</code>:</strong> the public entry point most code would actually call, handling the no-match case gracefully.</li>
@@ -114,7 +119,7 @@ No matching catalog entry for this symptom yet -- check Category 1 in the lesson
   </div>
 
   <h2>More project ideas</h2>
-  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Production Incident Runbook above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what Category 1 has taught so far. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Production Incident Runbook above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what Categories 1-2 have taught so far. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
 
   <div class="task-card">
     <h3><span class="task-num">1</span> A Traceback-to-Exception-Type Extractor</h3>
@@ -132,7 +137,7 @@ No matching catalog entry for this symptom yet -- check Category 1 in the lesson
 
   <div class="task-card">
     <h3><span class="task-num">3</span> A Symptom-to-Fix Quiz Generator</h3>
-    <p><strong>Problem:</strong> Turn the Category 1 catalog into a self-quiz: show a random symptom, let the user guess the exception type, then reveal the root cause and fix.</p>
+    <p><strong>Problem:</strong> Turn the Categories 1-2 catalog into a self-quiz: show a random symptom, let the user guess the exception type, then reveal the root cause and fix.</p>
     <p><strong>What it should do:</strong> Pick a random <code>CATALOG</code> entry, print its root_cause as a clue, prompt the user for a guess, and report whether they were right.</p>
     <p><strong>Suggested approach:</strong> <code>random.choice(CATALOG)</code> plus a simple case-insensitive string comparison against the guess.</p>
   </div>

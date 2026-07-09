@@ -1,14 +1,14 @@
 """
-Chapter 26 Project (Category 1): Production Incident Runbook
+Chapter 26 Project (Categories 1-2): Production Incident Runbook
 See README.md in this folder for full instructions.
 Run this from inside the project/ folder: python3 starter.py
 
 Standard library only -- no installs needed.
 """
 
-# The catalog: each entry mirrors one issue card from the Category 1
-# lesson. "keywords" are lowercase substrings the classifier looks for
-# in a symptom description.
+# The catalog: each entry mirrors one issue card from the Categories
+# 1-2 lesson. "keywords" are lowercase substrings the classifier looks
+# for in a symptom description.
 CATALOG = [
     {
         "id": 1,
@@ -80,6 +80,76 @@ CATALOG = [
         "root_cause": "Code assumed an API response body was always JSON without checking the status code first -- an outage/redirect returned HTML instead.",
         "fix": "Check response.status_code before parsing, and wrap json.loads() in its own try/except for a clear error on non-JSON bodies.",
     },
+    {
+        "id": 11,
+        "exception": "(no exception -- slow)",
+        "keywords": ["quadratic", "gets slower as", "scales badly", "membership check slow"],
+        "root_cause": "A membership check (`in`) against a list, done repeatedly inside a loop, is O(n) per check -- doing it n times makes the whole function O(n^2).",
+        "fix": "Use a set instead of a list for repeated membership checks -- O(1) average case regardless of size.",
+    },
+    {
+        "id": 12,
+        "exception": "(no exception -- slow)",
+        "keywords": ["insert(0", "insert at the front", "prepend slow"],
+        "root_cause": "list.insert(0, x) shifts every existing element over by one -- O(n) per call, O(n^2) total when called n times in a loop.",
+        "fix": "Append to the end instead (O(1) amortized), then call .reverse() once at the end if order matters.",
+    },
+    {
+        "id": 13,
+        "exception": "(no exception -- slow)",
+        "keywords": ["recompute", "recalculating", "redundant work", "repeated lookup slow"],
+        "root_cause": "The same expensive computation was repeated for every occurrence of the same input, instead of being computed once and reused.",
+        "fix": "Cache results in a dict keyed by whatever determines the result, and only recompute for genuinely new inputs.",
+    },
+    {
+        "id": 14,
+        "exception": "(no exception -- slow)",
+        "keywords": ["nested loop", "join two lists", "n times m", "times out"],
+        "root_cause": "A nested loop scanned an entire second list once per item of the first -- O(n*m) instead of O(n+m).",
+        "fix": "Build a dict mapping the join key to record once, up front, then look up each item in O(1) instead of scanning.",
+    },
+    {
+        "id": 15,
+        "exception": "(no exception -- slow)",
+        "keywords": ["regex slow", "re.search slow", "recompiling"],
+        "root_cause": "re.search(pattern, text) re-parses the pattern string internally on every call when the same pattern is reused repeatedly.",
+        "fix": "Call re.compile(pattern) once, outside any loop, and reuse the compiled pattern object.",
+    },
+    {
+        "id": 16,
+        "exception": "(no exception -- slow)",
+        "keywords": ["sorted()[-1]", "sorting just to get", "sort for max"],
+        "root_cause": "sorted() is O(n log n) and orders the entire list, even when only the single largest or smallest value is actually needed.",
+        "fix": "Use max() or min() for a single extreme value -- O(n), no sorting required.",
+    },
+    {
+        "id": 17,
+        "exception": "(no exception -- slow)",
+        "keywords": ["len() in loop", "len(items) every iteration"],
+        "root_cause": "Calling len() fresh on every iteration of a while loop repeats small, avoidable function-call overhead across every pass.",
+        "fix": "Compute len(items) once, store it in a variable before the loop, and check against that instead.",
+    },
+    {
+        "id": 18,
+        "exception": "(no exception -- slow)",
+        "keywords": ["re-reading the file", "reopening the file", "reading disk repeatedly"],
+        "root_cause": "The same file was opened and read from disk once per search term, even though its contents never changed between calls.",
+        "fix": "Read the file into memory exactly once, then run every search against that in-memory content.",
+    },
+    {
+        "id": 19,
+        "exception": "(no exception -- slow)",
+        "keywords": ["materializes", "list comprehension slow", "builds the full list first"],
+        "root_cause": "A list comprehension computed every value up front, even though the consuming loop could exit early after finding a match.",
+        "fix": "Use a generator expression instead -- values are produced lazily, so unconsumed values are never computed at all.",
+    },
+    {
+        "id": 20,
+        "exception": "(no exception -- slow)",
+        "keywords": ["dict.keys() slow", "in dict.keys()"],
+        "root_cause": "key in some_dict.keys() adds an unnecessary view-object layer -- key in some_dict is already O(1) on its own.",
+        "fix": "Drop the .keys() -- check membership directly against the dict.",
+    },
 ]
 
 
@@ -98,9 +168,9 @@ CATALOG = [
 
 # TODO 3: Write diagnose(description). Call classify_symptom(). If no
 # matches, return "No matching catalog entry for this symptom yet --
-# check Category 1 in the lesson for the closest pattern." If there
-# are matches, return format_runbook_entry() for each match, joined by
-# a blank line between entries.
+# check the lesson's catalog for the closest pattern." If there are
+# matches, return format_runbook_entry() for each match, joined by a
+# blank line between entries.
 
 
 def run():
@@ -108,6 +178,7 @@ def run():
         "Service crashes on startup with a KeyError for a missing config key",
         "Function looks like it works but silently returns the wrong value -- no error, just a bare except somewhere",
         "API call returns 503 but our code tries json.loads on it anyway and gets 'Expecting value'",
+        "Report generator gets slower as the dataset grows -- looks quadratic",
         "Everything is fine, no crash at all",
     ]
     for symptom in sample_symptoms:
