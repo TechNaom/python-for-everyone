@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Practice Bank — Python for Everyone</title>
-<meta name="description" content="Deeper per-topic practice problems for Chapter 26: Debugging Production Issues (Categories 1-2), including interview-style scenario problems on missing keys, exception handling, quiet failure values, accidental O(n^2) patterns, and caching.">
+<meta name="description" content="Deeper per-topic practice problems for Chapter 26: Debugging Production Issues (Categories 1-8), including interview-style scenario problems on missing keys, exception handling, quiet failure values, accidental O(n^2) patterns, caching, unbounded growth, concurrency shapes, data corruption, deployment/environment, and database/API/observability reliability.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,15 +31,20 @@
   <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Practice Bank (Categories 1-2)</span>
-    <span class="reading-time">45-60 min, hands-on</span>
+    <span class="chapter-badge">Chapter 26 Practice Bank (Categories 1-8)</span>
+    <span class="reading-time">90-120 min, hands-on</span>
   </div>
   <h1>Practice Bank: Debugging Production Issues</h1>
   <p>
     A deeper set of practice problems, organized by topic, for extra reps
     beyond the main exercises &mdash; including scenario-based problems
-    written in the same style you'll meet in real interviews. Standard
-    library only &mdash; <code>json</code>, no installs needed.
+    written in the same style you'll meet in real interviews. Topics 1-5
+    cover Categories 1-2 (Crashes &amp; Exceptions, Performance); Topics
+    6-10 cover Categories 3-8 (Memory Leaks, Concurrency &amp; Deadlocks,
+    Data Corruption, Deployment &amp; Environment, Database &amp; API
+    Failures, and Logging &amp; Observability). Standard library only
+    &mdash; <code>json</code>, <code>copy</code>, <code>math</code>,
+    <code>collections</code> &mdash; no installs needed.
   </p>
 
   <nav class="page-toc" aria-label="On this page">
@@ -49,6 +54,11 @@
     <a href="#quiet-failures">3. None, Zero &amp; Other Quiet Failure Values</a>
     <a href="#quadratic-patterns">4. Accidental O(n^2) Patterns</a>
     <a href="#caching">5. Caching &amp; Redundant Work</a>
+    <a href="#unbounded-growth">6. Unbounded Growth &amp; Shared State</a>
+    <a href="#concurrency-shapes">7. Concurrency Shapes</a>
+    <a href="#data-precision">8. Data Corruption &amp; Precision</a>
+    <a href="#deployment-env">9. Deployment &amp; Environment</a>
+    <a href="#db-api-observability">10. Database &amp; API Reliability, and Observability</a>
   </nav>
 
   <div class="what-is">
@@ -206,6 +216,151 @@
     <span class="scenario-tag">💼 Interview Prep</span>
     <h3>When caching is safe</h3>
     <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_when_caching_is_safe()</code>.</p>
+  </div>
+
+  <h2 id="unbounded-growth">Topic 6: Unbounded Growth &amp; Shared State</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Capping a growing list</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>bounded_history(events, maxlen)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Evicting the oldest cache entry</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>evict_oldest(cache, maxsize)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. <code>Logger</code> uses a class-level <code>history = []</code> shared by every instance. Fix it to be per-instance.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Tracking Without Owning</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>should_use_weakref_registry(purpose_is_tracking_not_owning)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Reachable vs. leaked memory</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_reachable_vs_leaked()</code>.</p>
+  </div>
+
+  <h2 id="concurrency-shapes">Topic 7: Concurrency Shapes (Modeled Without Real Threads)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Modeling a lost update</h3>
+    <p>Find <code>&#35; TODO 7.1</code>. Write <code>simulate_lost_updates(reads_before_writes)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Checking lock-order consistency</h3>
+    <p>Find <code>&#35; TODO 7.2</code>. Write <code>acquisition_order_is_consistent(lock_orders)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 7.3</code>. <code>pop_if_any()</code> does a check-then-act on a shared list in two separate steps. Fix it to be a single atomic check-and-pop.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Threads vs. Processes</h3>
+    <p>Find <code>&#35; TODO 7.A</code>. Write <code>should_use_multiprocessing(is_cpu_bound)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The GIL and threading</h3>
+    <p>Find <code>&#35; TODO 7.B</code>. Write <code>explain_gil_and_threading()</code>.</p>
+  </div>
+
+  <h2 id="data-precision">Topic 8: Data Corruption &amp; Precision</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A real deep copy</h3>
+    <p>Find <code>&#35; TODO 8.1</code>. Write <code>deep_independent_copy(original)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Comparing floats safely</h3>
+    <p>Find <code>&#35; TODO 8.2</code>. Write <code>floats_close(a, b)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 8.3</code>. <code>page_slice()</code> has a pagination off-by-one that silently drops the first page. Fix the offset math.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>The Mutable Default Argument Trap</h3>
+    <p>Find <code>&#35; TODO 8.A</code>. Write <code>explain_mutable_default_argument_trap()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Shallow vs. deep copy</h3>
+    <p>Find <code>&#35; TODO 8.B</code>. Write <code>explain_shallow_vs_deep_copy()</code>.</p>
+  </div>
+
+  <h2 id="deployment-env">Topic 9: Deployment &amp; Environment</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Every missing env var at once</h3>
+    <p>Find <code>&#35; TODO 9.1</code>. Write <code>missing_required_env(env, required_keys)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reading from config, not a hardcoded value</h3>
+    <p>Find <code>&#35; TODO 9.2</code>. Write <code>resolve_config_value(env, key, default)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 9.3</code>. <code>startup_check()</code> swallows a missing environment variable with a bare <code>except:</code>. Fix it to validate and raise a clear error naming what's missing.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>"Works on My Machine"</h3>
+    <p>Find <code>&#35; TODO 9.A</code>. Write <code>explain_works_on_my_machine()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Pinning dependencies</h3>
+    <p>Find <code>&#35; TODO 9.B</code>. Write <code>explain_pinning_dependencies()</code>.</p>
+  </div>
+
+  <h2 id="db-api-observability">Topic 10: Database &amp; API Reliability, and Observability</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Avoiding N+1 lookups</h3>
+    <p>Find <code>&#35; TODO 10.1</code>. Write <code>join_without_n_plus_1(records, lookup_table, key_name)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A safe idempotent retry</h3>
+    <p>Find <code>&#35; TODO 10.2</code>. Write <code>charge_idempotently(processed, idempotency_key, amount)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 10.3</code>. <code>summarize_log()</code> builds a free-text log message instead of a structured dict. Fix it to return structured data a log aggregator could filter on.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Unknown vs. No</h3>
+    <p>Find <code>&#35; TODO 10.A</code>. Write <code>explain_unknown_vs_no()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>log.exception() vs. log.error(str(e))</h3>
+    <p>Find <code>&#35; TODO 10.B</code>. Write <code>explain_log_exception_vs_str_e()</code>.</p>
   </div>
 
   <div class="what-is">

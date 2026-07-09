@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Quiz — Python for Everyone</title>
-<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 26: Debugging Production Issues (Categories 1-2: Crashes & Exceptions, Performance).">
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 26: Debugging Production Issues, covering all 8 categories from Crashes & Exceptions through Logging & Observability.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +30,7 @@
 
   <p><a href="lesson.html">&larr; Back to the lesson</a></p>
 
-  <span class="chapter-badge">Chapter 26 Quiz (Categories 1-2)</span>
+  <span class="chapter-badge">Chapter 26 Quiz</span>
   <h1>Debugging Production Issues</h1>
   <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
 
@@ -259,13 +259,151 @@
       </div>
     </div>
 
+    <div class="quiz-question mcq-question">
+      <label id="mcq26-label"><span class="q-num">26</span> Why did the unbounded module-level cache in issue #21 keep growing across 200,000 distinct <code>user_id</code> lookups?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq26-label">
+        <button type="button" class="mcq-option" data-correct="false">Dicts in Python automatically clear themselves after 100,000 entries</button>
+        <button type="button" class="mcq-option" data-correct="true">The cache dict lives for the entire process lifetime and nothing ever removes an entry -- every distinct input adds one more, forever</button>
+        <button type="button" class="mcq-option" data-correct="false">fetch_from_db() was called twice for every user_id</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq27-label"><span class="q-num">27</span> In issue #31, why did 8 threads each incrementing a shared counter produce a final total lower than expected, even though the GIL prevents two threads from running Python bytecode at once?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq27-label">
+        <button type="button" class="mcq-option" data-correct="false">The GIL doesn't exist in Python 3.14</button>
+        <button type="button" class="mcq-option" data-correct="true">counter += 1 is not one atomic step -- it's read, add, then write back, and a thread can be switched out in between those steps</button>
+        <button type="button" class="mcq-option" data-correct="false">threading.Thread() silently drops some increments by design</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq28-label"><span class="q-num">28</span> In issue #32, why did transfer_a_to_b() and transfer_b_to_a() deadlock against each other?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq28-label">
+        <button type="button" class="mcq-option" data-correct="false">threading.Lock() objects can only be created once per program</button>
+        <button type="button" class="mcq-option" data-correct="true">One function acquires lock_a then lock_b, the other acquires lock_b then lock_a -- if both grab their first lock around the same time, each waits forever for a lock the other is holding</button>
+        <button type="button" class="mcq-option" data-correct="false">time.sleep() inside a "with lock:" block automatically releases the lock</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq29-label"><span class="q-num">29</span> Why does <code>def add_item(item, cart=[]):</code> (issue #41) cause carts to leak items between unrelated calls?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq29-label">
+        <button type="button" class="mcq-option" data-correct="false">Lists passed as arguments are always shared globally in Python</button>
+        <button type="button" class="mcq-option" data-correct="true">The default value [] is created exactly once, when the function is defined -- every call that doesn't pass its own cart reuses that same list object</button>
+        <button type="button" class="mcq-option" data-correct="false">append() creates a new list each time, but Python caches the result incorrectly</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq30-label"><span class="q-num">30</span> In issue #58, why does a hardcoded <code>"localhost"</code> database URL fail in production but work perfectly on a developer's machine?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq30-label">
+        <button type="button" class="mcq-option" data-correct="false">"localhost" is a reserved word that only works in local Python installations</button>
+        <button type="button" class="mcq-option" data-correct="true">"localhost" means "this machine" wherever the code runs -- a developer's machine has a database running locally, but a production container's own localhost has no database on it</button>
+        <button type="button" class="mcq-option" data-correct="false">Production servers block all connections to port 5432 by default</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq31-label"><span class="q-num">31</span> Why is building a SQL query with an f-string (issue #61) dangerous, even if it "works" in normal testing?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq31-label">
+        <button type="button" class="mcq-option" data-correct="false">f-strings are slower than string concatenation, which times out the database</button>
+        <button type="button" class="mcq-option" data-correct="true">A malicious value can be crafted to break out of the intended string literal and inject its own SQL, changing what the query actually does -- e.g. returning every row instead of one</button>
+        <button type="button" class="mcq-option" data-correct="false">sqlite3 doesn't support f-strings as a language feature</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq32-label"><span class="q-num">32</span> What's the key difference between <code>logger.error(str(e))</code> and <code>logger.exception(...)</code> (issue #76)?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq32-label">
+        <button type="button" class="mcq-option" data-correct="false">There is no difference -- they produce identical log output</button>
+        <button type="button" class="mcq-option" data-correct="true">logger.exception() automatically attaches the full traceback (which file, which line, the whole call stack), while str(e) only gives the bare error message</button>
+        <button type="button" class="mcq-option" data-correct="false">logger.exception() only works for exceptions raised inside a thread</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq33-label"><span class="q-num">33</span> In issue #75, why is it not enough for <code>process_invoice()</code> to log the charge failure and continue?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq33-label">
+        <button type="button" class="mcq-option" data-correct="false">Logging errors is always sufficient -- nothing else is needed</button>
+        <button type="button" class="mcq-option" data-correct="true">The function still returns its normal "success" value regardless of the failure, so nothing downstream (or any caller) has any way to know the charge actually failed</button>
+        <button type="button" class="mcq-option" data-correct="false">logger.error() raises its own exception that must be caught separately</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q34"><span class="q-num">34</span> <code>weakref.____Dictionary</code> lets a registry track objects without keeping them alive, unlike a plain dict.</label>
+      <div class="fib-row">
+        <input type="text" id="q34" class="fib-blank" data-answers="WeakValue,weakvalue" aria-label="Answer for question 34">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q35"><span class="q-num">35</span> Threading speeds up ____-bound work (waiting on a network or disk), but not CPU-bound work, because of the GIL.</label>
+      <div class="fib-row">
+        <input type="text" id="q35" class="fib-blank" data-answers="I/O,IO,io" aria-label="Answer for question 35">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q36"><span class="q-num">36</span> A <code>threading.____</code> (re-entrant lock) lets the same thread acquire the same lock more than once without deadlocking against itself.</label>
+      <div class="fib-row">
+        <input type="text" id="q36" class="fib-blank" data-answers="RLock,rlock" aria-label="Answer for question 36">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q37"><span class="q-num">37</span> <code>copy.____copy()</code> recursively copies every nested mutable value, so mutating the copy never affects the original.</label>
+      <div class="fib-row">
+        <input type="text" id="q37" class="fib-blank" data-answers="deep,Deep" aria-label="Answer for question 37">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q38"><span class="q-num">38</span> Never compare floats resulting from arithmetic with <code>==</code> -- use <code>math.____()</code> for a tolerance-based comparison instead.</label>
+      <div class="fib-row">
+        <input type="text" id="q38" class="fib-blank" data-answers="isclose" aria-label="Answer for question 38">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q39"><span class="q-num">39</span> A relative file path is resolved against the process's current ____ ____, not the location of the script file.</label>
+      <div class="fib-row">
+        <input type="text" id="q39" class="fib-blank" data-answers="working directory,working dir" aria-label="Answer for question 39">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q40"><span class="q-num">40</span> Repeatedly querying one row at a time in a loop, instead of a single JOIN, is called the N+____ query pattern.</label>
+      <div class="fib-row">
+        <input type="text" id="q40" class="fib-blank" data-answers="1,one" aria-label="Answer for question 40">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q41"><span class="q-num">41</span> <code>logging.handlers.____FileHandler</code> automatically rotates to a new file once a size limit is hit, capping total disk usage.</label>
+      <div class="fib-row">
+        <input type="text" id="q41" class="fib-blank" data-answers="Rotating,rotating" aria-label="Answer for question 41">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
     <div id="check-all-wrap">
       <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
       <span id="quiz-score"></span>
     </div>
 
     <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
-      🎉 Perfect score! Chapter 26 (Categories 1-2) is marked complete &mdash; on to the exercises.
+      🎉 Perfect score! Chapter 26 is marked complete &mdash; on to the exercises.
     </div>
 
   </form>

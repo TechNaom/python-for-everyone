@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Interview Questions — Python for Everyone</title>
-<meta name="description" content="Interview prep for Chapter 26: Debugging Production Issues (Categories 1-2: Crashes & Exceptions, Performance) -- diagnosing real production crash and slowdown patterns.">
+<meta name="description" content="Interview prep for Chapter 26: Debugging Production Issues (Categories 1-8) -- diagnosing real production crashes, slowdowns, memory leaks, concurrency bugs, data corruption, deployment failures, database/API failures, and logging gaps.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,11 +31,11 @@
   <p><a href="challenges.html">&larr; Back to challenges</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Interview Prep (Categories 1-2)</span>
-    <span class="reading-time">40 min read</span>
+    <span class="chapter-badge">Chapter 26 Interview Prep (Categories 1-8)</span>
+    <span class="reading-time">65 min read</span>
   </div>
   <h1>Interview Questions: Debugging Production Issues</h1>
-  <p>Debugging questions in real interviews rarely ask you to name an exception in isolation &mdash; they show you a symptom or a snippet and ask you to diagnose it, the same way this chapter's catalog is organized. This set covers the ten crash patterns from Category 1: Crashes &amp; Exceptions, plus the ten performance patterns from Category 2: Performance.</p>
+  <p>Debugging questions in real interviews rarely ask you to name an exception in isolation &mdash; they show you a symptom or a snippet and ask you to diagnose it, the same way this chapter's catalog is organized. This set covers all eight categories: Crashes &amp; Exceptions and Performance (Q1-20), then Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, and Logging &amp; Observability (Q21-38).</p>
 
   <details class="qa-item">
     <summary><span class="q-num">1</span> A dict lookup crashes with <code>KeyError</code> in production but never did in testing. Walk me through how you'd debug it.</summary>
@@ -277,6 +277,223 @@
     </div>
   </details>
 
+
+  <details class="qa-item">
+    <summary><span class="q-num">21</span> A service's memory grows steadily over days of uptime and never comes back down. Where do you start looking?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>I'd look for something that's reachable and keeps growing: an unbounded module-level cache, a global "recent items" list with no size cap, a closure capturing a list it never trims, or a class attribute accidentally shared and appended to by every instance. Python's garbage collector reclaims anything genuinely unreachable, so a leak here almost always means "still reachable, longer than intended" rather than a language-level failure. I'd start with anything holding a dict or list at module or class scope that's mutated on every request.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating this as a mysterious, unfixable "Python leaks memory" problem — Python's memory model makes this a solvable, mechanical search for a reachable reference, not a black box.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the fastest way to confirm your hypothesis before changing code?" (A tool like tracemalloc, or simply watching a specific collection's len() over time in a long-running process — measurement, not just code reading, is how memory leaks get diagnosed.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">22</span> What's the difference between Python's reference counting and its cyclic garbage collector, and why do both exist?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Reference counting frees an object the instant its reference count hits zero — fast, deterministic, and how most objects are actually cleaned up. It can't handle a reference cycle, though — two objects that reference each other never reach a count of zero on their own, even when nothing outside the cycle refers to either one. The separate cyclic garbage collector runs periodically specifically to detect and break cycles like that, since reference counting alone would leak them forever.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming Python "doesn't really garbage collect" or conflating the two mechanisms as if they're the same thing — they solve different problems and understanding why both exist is the actual point of the question.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you break a parent/child reference cycle without waiting for the cyclic collector?" (Store the back-reference, e.g. child-to-parent, as a weakref.ref instead of a normal reference, so reference counting alone can free the parent.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">23</span> An object that should be garbage-collected the moment it's no longer used stays alive instead. What's a common, easy-to-miss cause?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Subscribing a bound method to an event bus or callback registry — that hands the registry a reference to the method, which keeps the whole instance (self) alive too, since a bound method holds a reference to the object it belongs to. The caller can drop every other reference to the object, but as long as the registry's subscriber list still references the callback, the object can't be collected. The same shape shows up with a plain dict registry holding strong references to values it was only ever meant to look up, not own.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Only considering "did I forget to set a variable to None" — that's rarely the real cause; the actual culprit is almost always a reference held by something else the code doesn't obviously think of as "holding onto" the object.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the fix that doesn't require every caller to remember to clean up after itself?" (Have the registry hold weak references — weakref.WeakValueDictionary for a dict, or weakref-based subscriptions for a callback list — so entries disappear automatically once nothing else references them.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">24</span> A class defines <code>history = []</code> at the class level instead of inside <code>__init__</code>. What actually goes wrong?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>There's exactly one list object, created once when the class body runs, and every instance's self.history resolves to that same shared object unless an instance explicitly overrides it. Two supposedly independent instances end up appending to the exact same list — this is the class-level cousin of the mutable default argument trap, and just as easy to miss because the code reads as obviously per-instance.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not immediately connecting this to the mutable default argument bug — recognizing the shared pattern (a mutable object created once, at definition time, silently shared across every subsequent use) is the actual skill being tested.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the fix?" (Create the list inside __init__ as self.history = [], so it's created fresh, once per instance, instead of once per class.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">25</span> Eight threads increment a shared counter, and the final total is consistently lower than expected. What's happening?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>counter += 1 isn't one atomic step — it's read the current value, add 1, write the result back, three separate steps. If two threads both read the same value before either writes its update back, one thread's increment is silently lost. Python's GIL prevents two threads from executing bytecode at the exact same instant, but it does not make a multi-step operation like this atomic — a thread can still be switched out in the middle of it, which is exactly where the race lives.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming "the GIL means Python is thread-safe by default" — that's a common and dangerous misconception; the GIL prevents simultaneous bytecode execution, not interleaving between the steps of a multi-step operation.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the fix, and why does it work?" (Wrap the read-modify-write in a threading.Lock, so only one thread can execute that whole sequence at a time — turning three separate steps back into one effectively atomic one.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">26</span> Two threads occasionally deadlock while transferring funds between two accounts in opposite directions. What's the classic cause, and the classic fix?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>One function acquires lock_a then lock_b; the other acquires lock_b then lock_a — the opposite order. If both threads grab their first lock at roughly the same time, each ends up waiting forever for the lock the other is holding, and neither can proceed or release anything. The fix is establishing one global lock-acquisition ordering that every code path follows — e.g. always lock the lower-ID account first — which makes this exact deadlock shape structurally impossible, not just less likely.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting "just add a timeout and retry" as the actual fix rather than a stopgap — that can reduce the symptom's visibility without removing the structural cause, and can still fail under sustained contention.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is this deadlock random?" (No — it's fully deterministic given the exact interleaving of thread execution; it *feels* random because that interleaving depends on timing that varies from run to run, but the underlying cause is a fixed, structural lock-ordering conflict.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">27</span> Someone splits a pure-computation task across two threads expecting a 2x speedup on a multi-core machine, and gets no speedup at all. Why?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>CPython's GIL allows only one thread to execute Python bytecode at a time, regardless of how many CPU cores are available. Threading genuinely helps when threads spend most of their time waiting — for a network response, for disk I/O — because the GIL is released during that wait. A tight, CPU-bound pure-Python loop never waits for anything, so the GIL keeps the threads running one at a time, same as sequential execution, plus a bit of thread-switching overhead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting "just add more threads" as the fix — that makes a CPU-bound problem no better, sometimes measurably worse from added overhead.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the right tool instead?" (multiprocessing — separate processes each get their own interpreter and their own GIL, so they can genuinely run in parallel across cores; threading stays the right tool for I/O-bound work specifically.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">28</span> A function starts several background threads and immediately checks a shared results list — and finds it empty, even though the work clearly did finish moments later. What's missing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>thread.start() is non-blocking — it schedules the thread and returns immediately, without waiting for it to finish. If the function never calls t.join() on the threads it started, it returns before any of them have necessarily completed, so anything they were supposed to produce isn't there yet. join() blocks until that specific thread has actually finished, which is the whole point of calling it before reading results those threads were responsible for producing.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a short sleep() after starting threads is an acceptable substitute for join() — it happens to work by luck on some timings and is not a reliable fix.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does join() actually block on?" (The specific thread object it's called on finishing its target function entirely — not on any other thread, and not on the process as a whole.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">29</span> A producer/consumer setup using <code>queue.Queue</code> processes everything correctly, and then the whole program hangs forever. What's the likely bug?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>q.get() blocks by default when the queue is empty, waiting for the next item. If the producer stops after putting its items with no mechanism telling the consumer "that was the last one," the consumer's loop is left waiting on an item that will never come. The fix is having the producer put a sentinel value (like None) once it's done, with the consumer breaking its loop when it sees that sentinel — or coordinating shutdown through a separate signal, like a threading.Event, alongside q.join()/task_done().</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing that the processing itself succeeded — the bug is purely that the consumer thread never learns to stop, which is a different failure mode than "the work was done wrong."</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would daemon threads fix this?" (Only in the narrow sense that the *process* could still exit even with a hung consumer thread — the underlying design flaw (no shutdown signal) is unchanged, and any code waiting on that consumer's results would still hang.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">30</span> A pool of worker threads pops tasks off a shared list, each explicitly checking <code>if not shared_list</code> before popping — and it still occasionally crashes with <code>IndexError: pop from empty list</code>. Why doesn't the check prevent that?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The check and the pop are two separate steps, and nothing stops another thread from running its own pop in between them — thread A can see a non-empty list, get interrupted, and by the time it actually calls .pop(), thread B has already emptied it. The check was true when made, but false by the time it's acted on. This is the general "check-then-act" race condition, the same underlying shape as a lock-ordering deadlock or an unprotected counter increment: multiple steps that need to be atomic, but aren't.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming that "we checked first" is inherently safe — a check is only meaningful if nothing else can invalidate it before the corresponding action runs.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What are two different valid fixes here?" (Wrap the check-and-pop in the same lock so it's atomic, or just attempt the pop and catch IndexError as "someone else got there first" rather than treating it as fatal.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">31</span> Why does an exception raised inside a <code>concurrent.futures.ThreadPoolExecutor</code> worker sometimes seem to just vanish?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A Future captures an exception raised inside its worker function rather than letting it propagate immediately — it's stored on the Future, waiting to be re-raised the moment someone calls .result() on it. If nothing ever calls .result() on a given future, that captured exception is simply never looked at again, and the program continues as if every task succeeded.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming "submitting to a pool" is enough on its own to surface errors — submission only schedules the work; observing the outcome (success or exception) requires actually reading the Future.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the safest pattern for handling a batch of futures?" (Call .result() on every future the pool produced — often via concurrent.futures.as_completed() — so every exception a worker raised gets re-raised somewhere it can actually be seen.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">32</span> A function makes a copy of a dict with <code>.copy()</code>, changes a plain string field on the copy, and the original is unaffected. But changing a list field on the copy also changes the original. Why the inconsistency?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>.copy() is a shallow copy — it creates a new dict, but every value inside it is the exact same object as in the original, not a new copy of that value. Reassigning a key on the copy (copy["status"] = "shipped") only affects the copy, since that changes which object the key points to. But mutating a shared nested object in place (copy["items"].append(...)) changes the one list both dicts are still pointing at — nothing about a shallow copy makes nested mutable values independent.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing this as "some fields are copied and some aren't" — that's not accurate; every top-level key is copied, the distinction is reassignment vs. in-place mutation of a shared nested object.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the fix when a copy genuinely needs to be fully independent?" (copy.deepcopy(), which recursively copies every mutable value nested inside, not just the top-level container.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">33</span> Why shouldn't you compare two floats that came from arithmetic using <code>==</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Most decimal fractions, including something as simple as 0.1, can't be represented exactly in binary floating point — the same way 1/3 can't be written exactly in decimal. Every arithmetic operation accumulates a tiny rounding error, and after enough additions the result can be off from the "obviously correct" value by a sliver too small to see when printed, but large enough that == reports False. The fix is math.isclose() for a tolerance-based comparison, or decimal.Decimal instead of float entirely when exact decimal representation genuinely matters, like money.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Calling this "a bug in Python" rather than a fundamental property of binary floating-point representation shared by essentially every programming language.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When is Decimal clearly the better choice over float, from the start?" (Money and any other domain where exact decimal values and exact decimal arithmetic actually matter — not just "close enough," but precisely correct to the cent.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">34</span> A paginated API's "page 1" is silently missing the first several records, with no error anywhere. What's the likely bug?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>An off-by-one error from mixing a 1-based page number with 0-based slicing math — computing start = page_number * page_size treats page 1 as if it were already page 0, landing on where the second page actually starts. The fix is converting the 1-based page number to a 0-based offset explicitly before slicing: start = (page_number - 1) * page_size. A quick test asserting "page 1 includes the very first record" would catch this immediately.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming this would show up as a crash — it doesn't; every individual page request "succeeds" and returns valid-looking data, which is exactly why boundary bugs like this are so easy to ship unnoticed.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is this category of bug more dangerous than a KeyError?" (No exception ever fires — the program runs, returns something plausible-looking, and the damage is silently wrong data rather than a visible crash someone would investigate.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">35</span> Code that works on every developer's machine crashes at startup on a freshly deployed server with a <code>KeyError</code> on an environment variable name. What's going on?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>This is the same KeyError pattern as a missing dict key, except the missing key lives in os.environ. A developer's shell profile or a local .env file quietly exports variables like an API key every time a terminal opens — a freshly provisioned server has no such setup unless someone explicitly configured that variable in the deployment platform. The fix is validating every required environment variable at startup, before the service accepts any traffic, and failing with a clear message naming exactly which variable is missing — turning a runtime crash deep in request-handling code into an immediate, unambiguous deployment failure.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating this as purely a deployment/ops problem with no code-level fix — validating config at startup is an application-code responsibility, not something that can only be fixed by "configuring things correctly" externally.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is failing loudly at startup better than the KeyError happening later, mid-request?" (It fails before any traffic is served, with a message naming exactly what's missing — instead of an obscure crash on whichever request happens to be the first to touch that code path.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">36</span> A username that comfortably fits under a database column's stated character limit still fails to insert as "too long." What's the likely mismatch?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>len() on a Python string counts characters, but many database column limits are actually enforced in bytes. Once text is encoded to UTF-8, characters outside the basic ASCII range take up 2, 3, or 4 bytes each — so a 10-character string can easily be 12+ bytes, silently exceeding a byte-based limit that character-based truncation or validation never accounted for. The fix is knowing which unit a given limit is actually measured in, and truncating (carefully, without splitting a multi-byte character) against the encoded byte length when the limit is byte-based.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming len(text) always tells you how much storage a string will consume — that's only true for pure-ASCII text under UTF-8; it stops being true the moment accented characters, emoji, or non-Latin scripts are involved.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Where else does this character-vs-byte confusion show up in this chapter?" (Reading a file with the wrong encoding assumption, or comparing two visually identical strings that are actually different Unicode code point sequences — both are the same underlying category: assuming a string's on-the-wire representation matches its in-memory character count.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">37</span> An endpoint listing "books with their authors" is fast in testing and slows down sharply in production, roughly proportional to the number of books. What's the likely cause, and the fix?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The N+1 query pattern: one query fetches all the books, then a separate query fetches each book's author, one at a time, inside a loop — for 150 books, that's 151 total round-trips to the database. This is the exact same nested-loop shape as an in-memory O(n²) bug, just expressed as network round-trips instead of list scans, which makes it much more expensive per unit since each one is a real network call, not an in-memory operation. The fix is a JOIN that fetches books and their authors together in one query — databases are specifically built to do that combination efficiently in a single round-trip.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching straight for "add caching" without first recognizing the actual query-count problem — caching can mask this for a while, but the underlying per-request query count is still wrong.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is this worse than an equivalent-shaped in-memory O(n²) bug?" (Every one of the n extra operations is a full network round-trip to the database, not a cheap in-memory scan — the constant factor per extra operation is dramatically higher.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">38</span> A payment retry mechanism, meant to make the system more reliable, ends up charging a customer twice. What's the underlying mistake?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Retrying is only safe when the operation is idempotent — doing it twice has the same effect as doing it once. A payment charge is not naturally idempotent: if the server-side charge succeeded but the response was lost on the way back (a timeout, a dropped connection), the client has no way to know that, and blindly retrying the same request charges the customer a second time for what it believes is still a single failed attempt. The fix is attaching a unique idempotency key to the request, generated once per logical operation and reused on every retry, so the server can recognize "I've already processed this exact request" and return the original result instead of charging again.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting "just don't retry payment operations" as the fix — that trades a double-charge risk for a worse reliability problem; the actual fix is making the retry safe, not avoiding retries altogether.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a real-world example of an API that supports this pattern natively?" (Stripe's idempotency keys — a client-generated key attached to a charge request that Stripe uses to deduplicate retried requests server-side.)</p>
+    </div>
+  </details>
+
   <h2>Rapid-Fire Review</h2>
   <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
 
@@ -461,6 +678,169 @@
       <label for="r20"><span class="q-num">20</span> <code>key in some_dict</code> already checks the ____ by default -- <code>.keys()</code> is unnecessary for a plain membership check.</label>
       <div class="fib-row">
         <input type="text" id="r20" class="fib-blank" data-answers="keys" aria-label="Answer for rapid-fire question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+
+    <div class="quiz-question">
+      <label for="r21"><span class="q-num">21</span> A memory leak in Python almost always means something is still ____ that shouldn't be.</label>
+      <div class="fib-row">
+        <input type="text" id="r21" class="fib-blank" data-answers="reachable" aria-label="Answer for rapid-fire question 21">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r22"><span class="q-num">22</span> A ____ reference (e.g. parent-to-child and child-to-parent) can only be broken by the cyclic garbage collector, not by reference counting alone.</label>
+      <div class="fib-row">
+        <input type="text" id="r22" class="fib-blank" data-answers="cycle,circular" aria-label="Answer for rapid-fire question 22">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r23"><span class="q-num">23</span> A bound method subscribed to an event bus keeps its whole instance (<code>self</code>) alive, because a bound method holds a reference to its ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r23" class="fib-blank" data-answers="instance,self,object" aria-label="Answer for rapid-fire question 23">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r24"><span class="q-num">24</span> <code>weakref.____Dictionary</code> lets a registry track values without keeping them alive.</label>
+      <div class="fib-row">
+        <input type="text" id="r24" class="fib-blank" data-answers="WeakValue,weakvalue" aria-label="Answer for rapid-fire question 24">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r25"><span class="q-num">25</span> <code>counter += 1</code> is not atomic -- it's read, add, and ____ back, three separate steps a thread switch can land in between.</label>
+      <div class="fib-row">
+        <input type="text" id="r25" class="fib-blank" data-answers="write" aria-label="Answer for rapid-fire question 25">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r26"><span class="q-num">26</span> A deadlock from two locks acquired in different orders is fixed by establishing one global lock ____ that every code path follows.</label>
+      <div class="fib-row">
+        <input type="text" id="r26" class="fib-blank" data-answers="ordering,order" aria-label="Answer for rapid-fire question 26">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r27"><span class="q-num">27</span> The GIL allows only one thread to run Python ____ at a time, no matter how many CPU cores are available.</label>
+      <div class="fib-row">
+        <input type="text" id="r27" class="fib-blank" data-answers="bytecode" aria-label="Answer for rapid-fire question 27">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r28"><span class="q-num">28</span> <code>thread.start()</code> is non-blocking -- always call <code>t.____()</code> before reading a result that thread was supposed to produce.</label>
+      <div class="fib-row">
+        <input type="text" id="r28" class="fib-blank" data-answers="join" aria-label="Answer for rapid-fire question 28">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r29"><span class="q-num">29</span> A producer/consumer queue needs a ____ value (like <code>None</code>) to tell the consumer there's nothing left to wait for.</label>
+      <div class="fib-row">
+        <input type="text" id="r29" class="fib-blank" data-answers="sentinel" aria-label="Answer for rapid-fire question 29">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r30"><span class="q-num">30</span> Checking <code>if not queue</code> and then popping in a separate step is an unsafe ____-then-act pattern under concurrency.</label>
+      <div class="fib-row">
+        <input type="text" id="r30" class="fib-blank" data-answers="check" aria-label="Answer for rapid-fire question 30">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r31"><span class="q-num">31</span> A <code>concurrent.futures.Future</code>'s exception is only re-raised once something calls <code>.____()</code> on it.</label>
+      <div class="fib-row">
+        <input type="text" id="r31" class="fib-blank" data-answers="result" aria-label="Answer for rapid-fire question 31">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r32"><span class="q-num">32</span> <code>dict.copy()</code> is a ____ copy -- nested mutable values are still shared with the original.</label>
+      <div class="fib-row">
+        <input type="text" id="r32" class="fib-blank" data-answers="shallow" aria-label="Answer for rapid-fire question 32">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r33"><span class="q-num">33</span> Use <code>math.____()</code> to compare two floats, never a plain <code>==</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r33" class="fib-blank" data-answers="isclose" aria-label="Answer for rapid-fire question 33">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r34"><span class="q-num">34</span> Converting a 1-based page number to a ____-based offset before slicing avoids an off-by-one that silently drops the first page.</label>
+      <div class="fib-row">
+        <input type="text" id="r34" class="fib-blank" data-answers="0,zero" aria-label="Answer for rapid-fire question 34">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r35"><span class="q-num">35</span> Required environment variables should be validated at ____, before the service accepts any traffic.</label>
+      <div class="fib-row">
+        <input type="text" id="r35" class="fib-blank" data-answers="startup" aria-label="Answer for rapid-fire question 35">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r36"><span class="q-num">36</span> A database column's length limit is sometimes measured in ____, not characters, which UTF-8 multi-byte characters can silently exceed.</label>
+      <div class="fib-row">
+        <input type="text" id="r36" class="fib-blank" data-answers="bytes" aria-label="Answer for rapid-fire question 36">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r37"><span class="q-num">37</span> The N+1 query pattern is fixed with a <code>____</code> that fetches related records in one round-trip instead of one query per row.</label>
+      <div class="fib-row">
+        <input type="text" id="r37" class="fib-blank" data-answers="JOIN,join" aria-label="Answer for rapid-fire question 37">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r38"><span class="q-num">38</span> Retrying a request is only safe when the operation is ____ -- doing it twice has the same effect as doing it once.</label>
+      <div class="fib-row">
+        <input type="text" id="r38" class="fib-blank" data-answers="idempotent" aria-label="Answer for rapid-fire question 38">
         <button type="button" class="check-btn">Check</button>
         <span class="fib-feedback" aria-live="polite"></span>
       </div>

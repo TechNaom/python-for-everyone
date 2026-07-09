@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapter 26 Coding Challenges — Python for Everyone</title>
-<meta name="description" content="15 auto-graded, HackerRank-style challenges on diagnosing and fixing production crash and performance patterns, for Chapter 26: Debugging Production Issues (Categories 1-2: Crashes & Exceptions, Performance).">
+<meta name="description" content="33 auto-graded, HackerRank-style challenges on diagnosing and fixing production crash, performance, memory, concurrency, data-corruption, deployment, database/API, and logging patterns, for Chapter 26: Debugging Production Issues (Categories 1-8).">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,19 +31,26 @@
   <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
 
   <div class="page-meta">
-    <span class="chapter-badge">Chapter 26 Coding Challenges (Categories 1-2)</span>
-    <span class="reading-time">60-80 min, auto-graded</span>
+    <span class="chapter-badge">Chapter 26 Coding Challenges (Categories 1-8)</span>
+    <span class="reading-time">120-160 min, auto-graded</span>
   </div>
   <h1>Coding Challenges: Debugging Production Issues</h1>
   <p>
-    15 HackerRank-style challenges (8 on Category 1: Crashes &amp;
-    Exceptions, 7 on Category 2: Performance), auto-graded right in
-    your browser &mdash; no local install needed, standard library
-    only. Write your function in the code box, then click
+    33 HackerRank-style challenges &mdash; 8 on Category 1: Crashes &amp;
+    Exceptions, 7 on Category 2: Performance, and 18 more spanning
+    Categories 3-8 (Memory Leaks, Concurrency &amp; Deadlocks, Data
+    Corruption, Deployment &amp; Environment, Database &amp; API
+    Failures, and Logging &amp; Observability) &mdash; auto-graded right
+    in your browser, no local install needed, standard library only.
+    Write your function in the code box, then click
     <strong>Run Tests</strong> to check it against a set of test cases
     (including edge cases). Stuck? Every challenge has a
-    <strong>Show Solution</strong> reveal at the bottom. Only uses what
-    Chapters 1-26 (Categories 1-2) have covered so far.
+    <strong>Show Solution</strong> reveal at the bottom. Challenges
+    16-33 model the underlying logic of concurrency, deployment, and
+    database bugs as plain, testable functions &mdash; the in-browser
+    grader runs pure functions only, so a real deadlock or a real
+    unpinned dependency can't literally run here the way the lesson's
+    own runnable examples do.
   </p>
 
   <div class="what-is">
@@ -801,6 +808,892 @@ def dict_membership_check(d, keys_to_check):
         </div>
         <pre><code>def dict_membership_check(d, keys_to_check):
     return [k in d for k in keys_to_check]</code></pre>
+      </div>
+    </details>
+  </div>
+
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">16</span> Bounded Cache Simulator <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>bounded_cache_final_state(keys, maxsize)</code> that simulates a simple least-recently-inserted cache: process <code>keys</code> in order, inserting each into the cache (a key already present is not re-inserted or moved). Once the cache would exceed <code>maxsize</code> entries, evict the oldest-inserted key first. Return the final list of keys still in the cache, oldest-inserted first.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>keys</code> is a list of hashable values; <code>maxsize</code> is a positive int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>bounded_cache_final_state(["a", "b", "c"], 2)</code> &rarr; <code>["b", "c"]</code> (a is evicted once c pushes past size 2)<br>
+        <code>bounded_cache_final_state(["a", "a", "b"], 2)</code> &rarr; <code>["a", "b"]</code> (repeated "a" is not re-inserted)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_16.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def bounded_cache_final_state(keys, maxsize):
+    # TODO: insert each key once (skip if already present), evicting the
+    # oldest-inserted key whenever the cache would exceed maxsize.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "bounded_cache_final_state",
+  "cases": [
+    { "args": [["a", "b", "c"], 2], "expected": ["b", "c"] },
+    { "args": [["a", "a", "b"], 2], "expected": ["a", "b"] },
+    { "args": [["a", "b", "c", "d"], 3], "expected": ["b", "c", "d"] },
+    { "args": [[], 5], "expected": [] },
+    { "args": [["x"], 1], "expected": ["x"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_16.py</span>
+        </div>
+        <pre><code>def bounded_cache_final_state(keys, maxsize):
+    cache = []
+    for key in keys:
+        if key in cache:
+            continue
+        cache.append(key)
+        if len(cache) > maxsize:
+            cache.pop(0)
+    return cache</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">17</span> Deep-Copy-or-Not Detector <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>would_shallow_copy_leak(original)</code> that returns <code>True</code> if <code>original</code> is a dict containing at least one mutable value (a <code>list</code> or a <code>dict</code>) &mdash; meaning a plain <code>.copy()</code> of it would still share that nested value with the original &mdash; or <code>False</code> otherwise.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>original</code> is a dict; values are ints, strs, lists, or dicts.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>would_shallow_copy_leak({"a": 1, "b": "x"})</code> &rarr; <code>False</code><br>
+        <code>would_shallow_copy_leak({"a": 1, "items": [1, 2]})</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_17.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def would_shallow_copy_leak(original):
+    # TODO: return True if any value in original is a list or dict.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "would_shallow_copy_leak",
+  "cases": [
+    { "args": [{"a": 1, "b": "x"}], "expected": false },
+    { "args": [{"a": 1, "items": [1, 2]}], "expected": true },
+    { "args": [{}], "expected": false },
+    { "args": [{"config": {"x": 1}}], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_17.py</span>
+        </div>
+        <pre><code>def would_shallow_copy_leak(original):
+    return any(isinstance(v, (list, dict)) for v in original.values())</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">18</span> Close Enough <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>sums_to_target(values, target)</code> that returns <code>True</code> if <code>sum(values)</code> is close enough to <code>target</code> to count as equal despite floating-point rounding error, using a tolerance-based comparison &mdash; never a plain <code>==</code> on floats.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> is a list of floats; <code>target</code> is a float. Use <code>math.isclose</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>sums_to_target([0.1] * 10, 1.0)</code> &rarr; <code>True</code> (0.1 * 10 is 0.9999999999999999 in float math)<br>
+        <code>sums_to_target([1, 2, 3], 100)</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_18.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import math
+
+def sums_to_target(values, target):
+    # TODO: return True if sum(values) is close to target, using
+    # math.isclose (never a plain == comparison).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "sums_to_target",
+  "cases": [
+    { "args": [[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1], 1.0], "expected": true },
+    { "args": [[1, 2, 3], 100], "expected": false },
+    { "args": [[2.5, 2.5], 5.0], "expected": true },
+    { "args": [[], 0], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_18.py</span>
+        </div>
+        <pre><code>import math
+
+def sums_to_target(values, target):
+    return math.isclose(sum(values), target, rel_tol=1e-9, abs_tol=1e-9)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">19</span> Whole Units Only <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>round_to_nearest_unit(quantity)</code> that returns <code>quantity</code> rounded to the nearest whole number (as an <code>int</code>) &mdash; not truncated toward zero the way <code>int()</code> would silently do.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>quantity</code> is a float.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>round_to_nearest_unit(4.9)</code> &rarr; <code>5</code><br>
+        <code>round_to_nearest_unit(4.1)</code> &rarr; <code>4</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_19.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def round_to_nearest_unit(quantity):
+    # TODO: round to the nearest whole int -- do NOT just use int(),
+    # which truncates toward zero instead of rounding.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "round_to_nearest_unit",
+  "cases": [
+    { "args": [4.9], "expected": 5 },
+    { "args": [4.1], "expected": 4 },
+    { "args": [4.5], "expected": 4 },
+    { "args": [0.4], "expected": 0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_19.py</span>
+        </div>
+        <pre><code>def round_to_nearest_unit(quantity):
+    return round(quantity)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">20</span> Zero-Based Page Slice <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>get_page(records, page_number, page_size)</code> that returns the correct slice of <code>records</code> for a <strong>1-based</strong> <code>page_number</code> (page 1 is the first page). Never let an off-by-one error drop the first page's records.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>records</code> is a list; <code>page_number</code> and <code>page_size</code> are positive ints.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>get_page([0,1,2,3,4,5,6,7,8,9], 1, 3)</code> &rarr; <code>[0, 1, 2]</code><br>
+        <code>get_page([0,1,2,3,4,5,6,7,8,9], 2, 3)</code> &rarr; <code>[3, 4, 5]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_20.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def get_page(records, page_number, page_size):
+    # TODO: convert the 1-based page_number to a 0-based offset before
+    # slicing, so page 1 includes the very first record.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "get_page",
+  "cases": [
+    { "args": [[0,1,2,3,4,5,6,7,8,9], 1, 3], "expected": [0, 1, 2] },
+    { "args": [[0,1,2,3,4,5,6,7,8,9], 2, 3], "expected": [3, 4, 5] },
+    { "args": [[0,1,2,3,4,5,6,7,8,9], 4, 3], "expected": [9] },
+    { "args": [[0,1,2,3,4,5,6,7,8,9], 10, 3], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_20.py</span>
+        </div>
+        <pre><code>def get_page(records, page_number, page_size):
+    start = (page_number - 1) * page_size
+    return records[start:start + page_size]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">21</span> Fixed Column Order <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>rows_in_fixed_order(records, column_order)</code> that returns a list of lists &mdash; one list of values per record, always in the exact order given by <code>column_order</code>, regardless of the key insertion order inside each record's dict.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>records</code> is a list of dicts, all with the same keys; <code>column_order</code> is a list of key names.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>rows_in_fixed_order([{"b": 2, "a": 1}], ["a", "b"])</code> &rarr; <code>[[1, 2]]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_21.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def rows_in_fixed_order(records, column_order):
+    # TODO: for each record, build a list of its values looked up in
+    # column_order's order -- never rely on the dict's own key order.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "rows_in_fixed_order",
+  "cases": [
+    { "args": [[{"b": 2, "a": 1}], ["a", "b"]], "expected": [[1, 2]] },
+    { "args": [[{"a": 1, "b": 2}, {"b": 4, "a": 3}], ["a", "b"]], "expected": [[1, 2], [3, 4]] },
+    { "args": [[], ["a", "b"]], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_21.py</span>
+        </div>
+        <pre><code>def rows_in_fixed_order(records, column_order):
+    return [[record[col] for col in column_order] for record in records]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">22</span> Missing Required Keys <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>missing_required_keys(env, required_keys)</code> that returns a sorted list of every key in <code>required_keys</code> that's <em>not</em> present in <code>env</code> &mdash; an empty list if nothing's missing. This is the "list everything missing at once" check a startup validator would run before deciding whether to raise.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>env</code> is a dict; <code>required_keys</code> is a list of strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>missing_required_keys({"A": "1", "B": "2"}, ["A", "B"])</code> &rarr; <code>[]</code><br>
+        <code>missing_required_keys({"A": "1"}, ["A", "B", "C"])</code> &rarr; <code>["B", "C"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_22.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def missing_required_keys(env, required_keys):
+    # TODO: return a sorted list of every key in required_keys that is
+    # NOT present in env -- list every missing key at once.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "missing_required_keys",
+  "cases": [
+    { "args": [{"A": "1", "B": "2"}, ["A", "B"]], "expected": [] },
+    { "args": [{"A": "1"}, ["A", "B", "C"]], "expected": ["B", "C"] },
+    { "args": [{}, []], "expected": [] },
+    { "args": [{}, ["Z", "A"]], "expected": ["A", "Z"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_22.py</span>
+        </div>
+        <pre><code>def missing_required_keys(env, required_keys):
+    return sorted(k for k in required_keys if k not in env)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">23</span> Zero-Based Offset From a 1-Based Page <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>utc_hour_matches(local_hour, utc_offset_hours, target_utc_hour)</code> that returns <code>True</code> if a naive <code>local_hour</code> (0-23), combined with a UTC offset, lands on <code>target_utc_hour</code> once converted to UTC &mdash; modeling why a naive, timezone-less hour can mean a different real moment depending on where it's interpreted.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> all args are ints; <code>local_hour</code> and <code>target_utc_hour</code> are 0-23; <code>utc_offset_hours</code> can be negative. UTC hour = <code>(local_hour - utc_offset_hours) % 24</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>utc_hour_matches(9, -5, 14)</code> &rarr; <code>True</code> (9am at UTC-5 is 2pm UTC)<br>
+        <code>utc_hour_matches(9, 0, 14)</code> &rarr; <code>False</code> (9am UTC is 9 UTC, not 14)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_23.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def utc_hour_matches(local_hour, utc_offset_hours, target_utc_hour):
+    # TODO: compute the UTC hour from local_hour and utc_offset_hours,
+    # then compare it to target_utc_hour.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "utc_hour_matches",
+  "cases": [
+    { "args": [9, -5, 14], "expected": true },
+    { "args": [9, 0, 14], "expected": false },
+    { "args": [0, -5, 5], "expected": true },
+    { "args": [2, 5, 21], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_23.py</span>
+        </div>
+        <pre><code>def utc_hour_matches(local_hour, utc_offset_hours, target_utc_hour):
+    utc_hour = (local_hour - utc_offset_hours) % 24
+    return utc_hour == target_utc_hour</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">24</span> Config From Environment, Not Hardcoded <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>resolve_db_url(env, default_url)</code> that returns <code>env["DATABASE_URL"]</code> if it's set, or <code>default_url</code> otherwise &mdash; modeling why connection details should come from configuration, never be hardcoded into source code.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>env</code> is a dict; <code>default_url</code> is a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>resolve_db_url({"DATABASE_URL": "prod-host"}, "localhost")</code> &rarr; <code>"prod-host"</code><br>
+        <code>resolve_db_url({}, "localhost")</code> &rarr; <code>"localhost"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_24.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def resolve_db_url(env, default_url):
+    # TODO: return env["DATABASE_URL"] if present, else default_url.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "resolve_db_url",
+  "cases": [
+    { "args": [{"DATABASE_URL": "prod-host"}, "localhost"], "expected": "prod-host" },
+    { "args": [{}, "localhost"], "expected": "localhost" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_24.py</span>
+        </div>
+        <pre><code>def resolve_db_url(env, default_url):
+    return env.get("DATABASE_URL", default_url)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">25</span> Parameterize, Don't Format <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>build_safe_query(username)</code> that returns a list <code>[query, params]</code> for a parameterized SQL query looking up a user by username &mdash; <code>query</code> must contain a <code>?</code> placeholder, never the raw <code>username</code> value formatted directly into the string (which would be vulnerable to SQL injection). <code>params</code> is a list containing just <code>username</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>username</code> is a string (may contain SQL-special characters).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>build_safe_query("ana")</code> &rarr; <code>["SELECT * FROM users WHERE username = ?", ["ana"]]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_25.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def build_safe_query(username):
+    # TODO: return ["SELECT * FROM users WHERE username = ?", [username]]
+    # -- never format username directly into the query string.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "build_safe_query",
+  "cases": [
+    { "args": ["ana"], "expected": ["SELECT * FROM users WHERE username = ?", ["ana"]] },
+    { "args": ["' OR '1'='1"], "expected": ["SELECT * FROM users WHERE username = ?", ["' OR '1'='1"]] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_25.py</span>
+        </div>
+        <pre><code>def build_safe_query(username):
+    return ["SELECT * FROM users WHERE username = ?", [username]]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">26</span> Join Without N+1 <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>attach_authors(books, authors)</code> that returns a new list of book dicts, each with an added <code>"author_name"</code> key looked up from <code>authors</code> (a list of <code>{"id":..., "name":...}</code> dicts) by <code>book["author_id"]</code> &mdash; using one dict built up front, never a per-book scan through <code>authors</code> (the N+1 pattern).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>books</code> is a list of dicts with <code>"author_id"</code>; <code>authors</code> is a list of dicts with <code>"id"</code> and <code>"name"</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>attach_authors([{"title": "X", "author_id": 1}], [{"id": 1, "name": "Ana"}])</code> &rarr; <code>[{"title": "X", "author_id": 1, "author_name": "Ana"}]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_26.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def attach_authors(books, authors):
+    # TODO: build a dict of {author_id: name} once, then attach
+    # "author_name" to each book using that dict -- no nested loop.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "attach_authors",
+  "cases": [
+    { "args": [[{"title": "X", "author_id": 1}], [{"id": 1, "name": "Ana"}]], "expected": [{"title": "X", "author_id": 1, "author_name": "Ana"}] },
+    { "args": [[], [{"id": 1, "name": "Ana"}]], "expected": [] },
+    { "args": [[{"title": "X", "author_id": 1}, {"title": "Y", "author_id": 2}], [{"id": 1, "name": "Ana"}, {"id": 2, "name": "Beto"}]], "expected": [{"title": "X", "author_id": 1, "author_name": "Ana"}, {"title": "Y", "author_id": 2, "author_name": "Beto"}] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_26.py</span>
+        </div>
+        <pre><code>def attach_authors(books, authors):
+    names_by_id = {a["id"]: a["name"] for a in authors}
+    return [
+        {**book, "author_name": names_by_id.get(book["author_id"])}
+        for book in books
+    ]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">27</span> Retry With an Idempotency Key <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>process_charge(processed, idempotency_key, amount)</code> that simulates a safe retry: <code>processed</code> is a dict mapping idempotency keys already charged to their amount. If <code>idempotency_key</code> is already in <code>processed</code>, return its existing recorded amount unchanged (don't charge again). Otherwise, record <code>amount</code> under that key in <code>processed</code> and return it.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>processed</code> is a dict (mutated in place); <code>idempotency_key</code> is a string; <code>amount</code> is a number.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        First call <code>process_charge({}, "req-1", 50)</code> &rarr; <code>50</code>, and <code>processed</code> now has <code>{"req-1": 50}</code>.<br>
+        A retried call <code>process_charge({"req-1": 50}, "req-1", 50)</code> &rarr; <code>50</code> (not charged twice).
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_27.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def process_charge(processed, idempotency_key, amount):
+    # TODO: if idempotency_key already in processed, return its stored
+    # amount without changing anything. Otherwise store amount under
+    # that key and return it.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "process_charge",
+  "cases": [
+    { "args": [{}, "req-1", 50], "expected": 50 },
+    { "args": [{"req-1": 50}, "req-1", 999], "expected": 50 },
+    { "args": [{"req-1": 50}, "req-2", 20], "expected": 20 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_27.py</span>
+        </div>
+        <pre><code>def process_charge(processed, idempotency_key, amount):
+    if idempotency_key in processed:
+        return processed[idempotency_key]
+    processed[idempotency_key] = amount
+    return amount</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">28</span> Validate the Response Field <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>fahrenheit_or_none(weather_response)</code> that reads <code>weather_response["temperature_c"]</code> and converts it to Fahrenheit, returning <code>None</code> instead of crashing if that field is missing or <code>None</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>weather_response</code> is a dict that may or may not have a numeric <code>"temperature_c"</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>fahrenheit_or_none({"temperature_c": 0})</code> &rarr; <code>32.0</code><br>
+        <code>fahrenheit_or_none({"temperature_c": None})</code> &rarr; <code>None</code><br>
+        <code>fahrenheit_or_none({})</code> &rarr; <code>None</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_28.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def fahrenheit_or_none(weather_response):
+    # TODO: return temperature_c * 9 / 5 + 32, or None if the field is
+    # missing or None -- never let a None crash the arithmetic.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "fahrenheit_or_none",
+  "cases": [
+    { "args": [{"temperature_c": 0}], "expected": 32.0 },
+    { "args": [{"temperature_c": null}], "expected": null },
+    { "args": [{}], "expected": null },
+    { "args": [{"temperature_c": 100}], "expected": 212.0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_28.py</span>
+        </div>
+        <pre><code>def fahrenheit_or_none(weather_response):
+    temp_c = weather_response.get("temperature_c")
+    if temp_c is None:
+        return None
+    return temp_c * 9 / 5 + 32</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">29</span> Unknown Is Not "No" <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>stock_status(quantity_or_none)</code> that returns <code>"in_stock"</code> if <code>quantity_or_none</code> is a number greater than 0, <code>"out_of_stock"</code> if it's exactly <code>0</code>, or <code>"unknown"</code> if it's <code>None</code> (standing in for "the inventory service was unreachable") &mdash; never conflating "unreachable" with "zero stock."</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>quantity_or_none</code> is an int or <code>None</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>stock_status(5)</code> &rarr; <code>"in_stock"</code><br>
+        <code>stock_status(0)</code> &rarr; <code>"out_of_stock"</code><br>
+        <code>stock_status(None)</code> &rarr; <code>"unknown"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_29.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def stock_status(quantity_or_none):
+    # TODO: return "unknown" if quantity_or_none is None. Otherwise
+    # return "in_stock" if it's > 0, else "out_of_stock".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "stock_status",
+  "cases": [
+    { "args": [5], "expected": "in_stock" },
+    { "args": [0], "expected": "out_of_stock" },
+    { "args": [null], "expected": "unknown" },
+    { "args": [1], "expected": "in_stock" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_29.py</span>
+        </div>
+        <pre><code>def stock_status(quantity_or_none):
+    if quantity_or_none is None:
+        return "unknown"
+    return "in_stock" if quantity_or_none > 0 else "out_of_stock"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">30</span> Redact Before You Log <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>redact_sensitive(record, sensitive_keys)</code> that returns a new dict identical to <code>record</code>, except every key listed in <code>sensitive_keys</code> that's present has its value replaced with the string <code>"***"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>record</code> is a dict; <code>sensitive_keys</code> is a list of key names (may include keys not present in <code>record</code>).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>redact_sensitive({"user": "ana", "password": "hunter2"}, ["password"])</code> &rarr; <code>{"user": "ana", "password": "***"}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_30.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def redact_sensitive(record, sensitive_keys):
+    # TODO: return a copy of record with every key in sensitive_keys
+    # (that's present) replaced by "***".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "redact_sensitive",
+  "cases": [
+    { "args": [{"user": "ana", "password": "hunter2"}, ["password"]], "expected": {"user": "ana", "password": "***"} },
+    { "args": [{"user": "ana"}, ["password"]], "expected": {"user": "ana"} },
+    { "args": [{"a": 1, "b": 2}, ["a", "b"]], "expected": {"a": "***", "b": "***"} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_30.py</span>
+        </div>
+        <pre><code>def redact_sensitive(record, sensitive_keys):
+    result = dict(record)
+    for key in sensitive_keys:
+        if key in result:
+            result[key] = "***"
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">31</span> Tag Every Log Line With a Correlation ID <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>tag_log_lines(correlation_id, messages)</code> that returns a list of strings, each formatted as <code>f"[{correlation_id}] {message}"</code> &mdash; so every line from one logical operation can be filtered together in a log aggregator.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>correlation_id</code> is a string; <code>messages</code> is a list of strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>tag_log_lines("order-102", ["validating", "charged"])</code> &rarr; <code>["[order-102] validating", "[order-102] charged"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_31.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def tag_log_lines(correlation_id, messages):
+    # TODO: prefix every message with f"[{correlation_id}] ".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "tag_log_lines",
+  "cases": [
+    { "args": ["order-102", ["validating", "charged"]], "expected": ["[order-102] validating", "[order-102] charged"] },
+    { "args": ["x", []], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_31.py</span>
+        </div>
+        <pre><code>def tag_log_lines(correlation_id, messages):
+    return [f"[{correlation_id}] {message}" for message in messages]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">32</span> Structured Log Record <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>filter_failed_orders_over(log_records, min_amount)</code> that, given a list of structured log dicts each with <code>"order_id"</code>, <code>"amount"</code>, and <code>"status"</code> keys, returns the list of <code>order_id</code>s where <code>"status"</code> is <code>"failed"</code> and <code>"amount"</code> is greater than <code>min_amount</code> &mdash; the exact query that's easy against structured data and painful against free-text log lines.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>log_records</code> is a list of dicts; <code>min_amount</code> is a number.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>filter_failed_orders_over([{"order_id": 1, "amount": 600, "status": "failed"}, {"order_id": 2, "amount": 100, "status": "failed"}], 500)</code> &rarr; <code>[1]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_32.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def filter_failed_orders_over(log_records, min_amount):
+    # TODO: return the order_id of every record where status == "failed"
+    # and amount > min_amount.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "filter_failed_orders_over",
+  "cases": [
+    { "args": [[{"order_id": 1, "amount": 600, "status": "failed"}, {"order_id": 2, "amount": 100, "status": "failed"}], 500], "expected": [1] },
+    { "args": [[{"order_id": 1, "amount": 600, "status": "complete"}], 500], "expected": [] },
+    { "args": [[], 500], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_32.py</span>
+        </div>
+        <pre><code>def filter_failed_orders_over(log_records, min_amount):
+    return [
+        r["order_id"] for r in log_records
+        if r["status"] == "failed" and r["amount"] > min_amount
+    ]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Hard">
+    <h3><span class="task-num">33</span> Symptom Classifier <span class="badge-difficulty">Hard</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>classify(description, catalog)</code> where <code>catalog</code> is a list of dicts each with <code>"id"</code> and <code>"keywords"</code> (a list of lowercase strings). Return a sorted list of every catalog entry's <code>"id"</code> whose keywords list has at least one keyword that's a substring of <code>description</code>, checked case-insensitively &mdash; each matching id should appear exactly once, even if multiple of its keywords match.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>description</code> is a string (any case); <code>catalog</code> is a list of dicts as described.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>classify("Getting a KEYERROR in prod", [{"id": 1, "keywords": ["keyerror"]}, {"id": 2, "keywords": ["timeout"]}])</code> &rarr; <code>[1]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_33.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def classify(description, catalog):
+    # TODO: lowercase description, then return the sorted list of ids
+    # of every catalog entry with at least one matching keyword.
+    # Each id appears at most once, even with multiple keyword matches.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "classify",
+  "cases": [
+    { "args": ["Getting a KEYERROR in prod", [{"id": 1, "keywords": ["keyerror"]}, {"id": 2, "keywords": ["timeout"]}]], "expected": [1] },
+    { "args": ["keyerror and missing key both here", [{"id": 1, "keywords": ["keyerror", "missing key"]}]], "expected": [1] },
+    { "args": ["nothing relevant", [{"id": 1, "keywords": ["keyerror"]}]], "expected": [] },
+    { "args": ["deadlock and race condition", [{"id": 5, "keywords": ["deadlock"]}, {"id": 6, "keywords": ["race condition"]}]], "expected": [5, 6] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_33.py</span>
+        </div>
+        <pre><code>def classify(description, catalog):
+    lowered = description.lower()
+    matched_ids = [
+        entry["id"] for entry in catalog
+        if any(keyword in lowered for keyword in entry["keywords"])
+    ]
+    return sorted(matched_ids)</code></pre>
       </div>
     </details>
   </div>

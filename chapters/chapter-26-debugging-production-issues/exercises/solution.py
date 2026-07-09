@@ -1,9 +1,12 @@
 """
-Chapter 26 Exercises: Debugging Production Issues (Category 1)
+Chapter 26 Exercises: Debugging Production Issues (Categories 1-8)
 Reference solution.
 """
 
+import copy
 import json
+import math
+from collections import deque
 
 
 # TODO 1
@@ -120,6 +123,97 @@ def reversed_list(items):
 print(reversed_list([1, 2, 3]))
 
 
+# TODO 15
+def bounded_recent_events(events, maxlen):
+    d = deque(maxlen=maxlen)
+    for event in events:
+        d.append(event)
+    return list(d)
+
+
+# TODO 16
+class SharedCounter:
+    def __init__(self, name):
+        self.name = name
+        self.count = []
+
+    def record(self, value):
+        self.count.append(value)
+
+
+counter_a = SharedCounter("a")
+counter_b = SharedCounter("b")
+counter_a.record(1)
+counter_b.record(2)
+print(f"counter_a.count: {counter_a.count}")
+print(f"same list object: {counter_a.count is counter_b.count}")
+
+
+# TODO 17
+def independent_copy(original):
+    return copy.deepcopy(original)
+
+
+# TODO 18
+def floats_equal(a, b):
+    return math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-9)
+
+
+# TODO 19
+def round_quantity(value):
+    return round(value)
+
+
+# TODO 20
+def get_page(records, page_number, page_size):
+    start = (page_number - 1) * page_size
+    return records[start:start + page_size]
+
+
+print(get_page([10, 20, 30, 40, 50], 1, 2))
+
+
+# TODO 21
+def row_from_fixed_columns(record, column_order):
+    return [record[col] for col in column_order]
+
+
+# TODO 22
+def missing_env_keys(env, required_keys):
+    return sorted(k for k in required_keys if k not in env)
+
+
+# TODO 23
+def charge_once(processed, idempotency_key, amount):
+    if idempotency_key in processed:
+        return processed[idempotency_key]
+    processed[idempotency_key] = amount
+    return amount
+
+
+# TODO 24
+def attach_names(records, lookup_table):
+    return [
+        {**record, "name": lookup_table.get(record["ref_id"])}
+        for record in records
+    ]
+
+
+# TODO 25
+def build_log_record(order_id, amount, status):
+    return {"order_id": order_id, "amount": amount, "status": status}
+
+
+# TODO 26
+def redact_password(request):
+    redacted = dict(request)
+    redacted["password"] = "***"
+    return redacted
+
+
+print(redact_password({"user": "ana", "password": "hunter2"}))
+
+
 if __name__ == "__main__":
     print(safe_lookup({"HOST": "localhost"}, "DATABASE_URL", "not set"))
     print(safe_top_n([88, 92, 79, 95], 5))
@@ -136,3 +230,12 @@ if __name__ == "__main__":
     print(index_by_key([{"id": 1}, {"id": 2}], "id"))
     print(smallest_and_largest([5, 1, 9, 3]))
     print(first_match_or_none([1, 2, 3, 4], lambda x: x > 2))
+    print(bounded_recent_events([1, 2, 3, 4, 5], 3))
+    print(independent_copy({"items": [1, 2]}))
+    print(floats_equal(0.1 + 0.2, 0.3))
+    print(round_quantity(4.9))
+    print(row_from_fixed_columns({"b": 2, "a": 1}, ["a", "b"]))
+    print(missing_env_keys({"A": "1"}, ["A", "B"]))
+    print(charge_once({}, "req-1", 50))
+    print(attach_names([{"ref_id": 1}], {1: "Ana"}))
+    print(build_log_record(102, 599.0, "failed"))

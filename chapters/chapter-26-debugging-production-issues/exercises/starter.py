@@ -1,12 +1,15 @@
 """
-Chapter 26 Exercises: Debugging Production Issues (Category 1)
+Chapter 26 Exercises: Debugging Production Issues (Categories 1-8)
 See README.md in this folder for full instructions.
 Run this from inside the exercises/ folder: python3 starter.py
 
 Every task here uses only the standard library -- no installs needed.
 """
 
+import copy
 import json
+import math
+from collections import deque
 
 
 # TODO 1: Write safe_lookup(config, key, default). Return config[key] if
@@ -99,3 +102,107 @@ def reversed_list(items):
 
 
 print(reversed_list([1, 2, 3]))
+
+
+# TODO 15: Write bounded_recent_events(events, maxlen). Add every item in
+# events to a collections.deque(maxlen=maxlen), then return it as a plain
+# list -- the deque automatically drops the oldest entry once full, so
+# the result never holds more than maxlen items even if events is huge.
+
+
+# TODO 16 (Debug the Code): SharedCounter below is supposed to give
+# each instance its OWN independent count, but "count = []" is written
+# at the CLASS level, so every instance shares the exact same list.
+# Fix it by moving the list creation into __init__ as self.count.
+class SharedCounter:
+    count = []  # BUG: class attribute, shared by every instance
+
+    def __init__(self, name):
+        self.name = name
+
+    def record(self, value):
+        self.count.append(value)
+
+
+counter_a = SharedCounter("a")
+counter_b = SharedCounter("b")
+counter_a.record(1)
+counter_b.record(2)
+print(f"counter_a.count: {counter_a.count}")  # should be [1], not [1, 2]
+print(f"same list object: {counter_a.count is counter_b.count}")  # should be False
+
+
+# TODO 17: Write independent_copy(original). original is a dict that may
+# contain nested lists/dicts. Return a copy where mutating any nested
+# value on the copy (e.g. copy["items"].append(...)) never affects
+# original -- use copy.deepcopy(), not .copy() or dict(original).
+
+
+# TODO 18: Write floats_equal(a, b). Return True if a and b are close
+# enough to count as equal despite floating-point rounding error, using
+# math.isclose() -- never a plain == comparison.
+
+
+# TODO 19: Write round_quantity(value). Return value rounded to the
+# nearest whole number as an int, using round() -- not int(), which
+# would silently truncate toward zero instead of rounding.
+
+
+# TODO 20 (Debug the Code): get_page() below is supposed to return the
+# 1-based page_number's slice of records, but it treats page_number as
+# if it were already a 0-based offset -- for page 1 it actually returns
+# what should be page 2's records, silently dropping the first page
+# entirely. Fix it by converting to a 0-based offset before slicing:
+# start = (page_number - 1) * page_size.
+def get_page(records, page_number, page_size):
+    start = page_number * page_size  # BUG: should be (page_number - 1) * page_size
+    return records[start:start + page_size]
+
+
+print(get_page([10, 20, 30, 40, 50], 1, 2))  # should be [10, 20], the FIRST page
+
+
+# TODO 21: Write row_from_fixed_columns(record, column_order). Return a
+# list of record's values looked up in column_order's order -- never
+# rely on the dict's own key insertion order, since two records built
+# from different sources can end up with different key orders even with
+# identical fields.
+
+
+# TODO 22: Write missing_env_keys(env, required_keys). Return a sorted
+# list of every key in required_keys that's NOT present in env -- the
+# same "list every missing key at once" pattern as issue #1's KeyError
+# fix, applied to environment variables instead of a plain config dict.
+
+
+# TODO 23: Write charge_once(processed, idempotency_key, amount).
+# processed is a dict mapping idempotency keys already charged to their
+# amount. If idempotency_key is already in processed, return its
+# existing stored amount WITHOUT changing anything (a safe retry).
+# Otherwise, store amount under that key in processed and return it.
+
+
+# TODO 24: Write attach_names(records, lookup_table). records is a list
+# of dicts each with a "ref_id" key; lookup_table is a dict mapping id
+# to name. Return a new list of dicts, each with an added "name" key
+# looked up from lookup_table -- build the lookup once, no per-record
+# scan through a second list (avoiding the N+1 pattern).
+
+
+# TODO 25: Write build_log_record(order_id, amount, status). Return a
+# dict (not a free-form string) with keys "order_id", "amount", and
+# "status" -- structured data a log aggregator can filter on directly,
+# instead of a message that needs a fragile regex to parse back out.
+
+
+# TODO 26 (Debug the Code): redact_password() below is supposed to hide
+# a password before logging a request, but it returns the ORIGINAL dict
+# unchanged -- the redacted copy it builds is thrown away. Fix it to
+# actually return the redacted copy.
+def redact_password(request):
+    redacted = dict(request)
+    redacted["password"] = "***"
+    return request  # BUG: returns the original, not the redacted copy
+
+
+print(redact_password({"user": "ana", "password": "hunter2"}))  # should show "***"

@@ -1,18 +1,23 @@
-# Chapter 26 Project (Categories 1-2): Production Incident Runbook
+# Chapter 26 Project (Categories 1-8): Production Incident Runbook
 
 A small, standalone **incident runbook** (one Python file, standard
 library only) that takes a plain-language description of a symptom —
 the kind of thing you'd type into a bug report or say out loud during
-an incident — and classifies it against the Categories 1-2 catalog,
-returning the likely root cause(s) and fix(es) instead of leaving you
-to search the lesson page manually.
+an incident — and classifies it against the full Categories 1-8
+catalog, returning the likely root cause(s) and fix(es) instead of
+leaving you to search the lesson page manually.
 
 ## What you'll build
 
-A `CATALOG` of the 20 issues from Categories 1-2 (Crashes & Exceptions, Performance),
-each with a set of keywords a symptom description might contain. A
-classifier matches a free-text description against that catalog and
-formats a short runbook entry for every match:
+A `CATALOG` of **all 80 issues** from every category in this chapter
+(Crashes & Exceptions, Performance, Memory Leaks, Concurrency &
+Deadlocks, Data Corruption, Deployment & Environment, Database & API
+Failures, and Logging & Observability), each with a set of keywords a
+symptom description might contain. All 80 are included, not a subset
+— the catalog is the whole point of the tool, and a real incident
+runbook is only as useful as its coverage is complete. A classifier
+matches a free-text description against that catalog and formats a
+short runbook entry for every match:
 
 1. **`classify_symptom(description)`** — finds every catalog entry
    whose keywords appear in the description.
@@ -35,6 +40,16 @@ Issue #11: (no exception -- slow)
   Root cause: A membership check (`in`) against a list, done repeatedly inside a loop, is O(n) per check -- doing it n times makes the whole function O(n^2).
   Fix: Use a set instead of a list for repeated membership checks -- O(1) average case regardless of size.
 
+SYMPTOM: Two threads occasionally deadlock with two locks acquired in different orders
+Issue #32: (hang -- deadlock)
+  Root cause: transfer_a_to_b() acquires lock_a then lock_b; transfer_b_to_a() acquires lock_b then lock_a -- the opposite order. If both threads grab their first lock at roughly the same time, each ends up waiting forever for the lock the other thread is holding. Neither thread can proceed, and neither will ever release what it's holding, since the release happens only after the wait -- a classic deadlock.
+  Fix: Establish one global ordering for acquiring locks (e.g. always sort accounts by ID and lock the lower one first) and have every code path follow it -- if both functions always acquired lock_a before lock_b, the deadlock in this exact shape becomes structurally impossible.
+
+SYMPTOM: We're seeing the n+1 query pattern -- one query per row instead of a join
+Issue #63: (no exception -- slow)
+  Root cause: This is Category 2's nested-loop pattern (issue #14), but expressed as database round-trips instead of in-memory list scans: one query fetches all the books, and then a separate query fetches each book's author, one at a time, inside a loop. For 150 books, that's 151 total queries -- and every query is a full network round-trip to the database, which is far slower than any in-memory operation.
+  Fix: Use a JOIN to fetch books and their authors together in a single query -- the database is specifically built to do this kind of combination efficiently, in one round-trip, rather than paying network latency once per row.
+
 SYMPTOM: Everything is fine, no crash at all
 No matching catalog entry for this symptom yet -- check the lesson's catalog for the closest pattern.
 ```
@@ -51,9 +66,9 @@ Run `python3 solution.py`.
 
 ## The pieces
 
-- **`CATALOG`** — the 20 Categories 1-2 issues, each with an exception
-  name, matching keywords, a root cause, and a fix, mirroring the
-  lesson's issue cards exactly.
+- **`CATALOG`** — all 80 issues across Categories 1-8, each with an
+  exception name, matching keywords, a root cause, and a fix,
+  mirroring the lesson's issue cards exactly.
 - **`classify_symptom(description)`** — the matching logic: lowercase
   the description, check each catalog entry's keywords against it.
 - **`format_runbook_entry(entry)`** — turns one matched catalog entry
@@ -86,7 +101,7 @@ enough times to notice the pattern.
 From Chapter 7 onward, you get a genuine choice of what to build. The
 Production Incident Runbook above is fully built out with a starter
 and reference solution — the four ideas below are not. Each is a real,
-grounded use case solvable with only what Categories 1-2 have taught so
+grounded use case solvable with only what Categories 1-8 have taught so
 far. No starter or solution files are provided on purpose — building
 one of these unassisted is the point.
 
@@ -121,9 +136,9 @@ pattern-spotter using what's been taught.
 
 ### 3. A Symptom-to-Fix Quiz Generator
 
-**Problem:** Turn the Categories 1-2 catalog into a self-quiz: show a
-random symptom, let the user guess the exception type, then reveal the
-root cause and fix.
+**Problem:** Turn the full Categories 1-8 catalog into a self-quiz:
+show a random symptom, let the user guess the exception type, then
+reveal the root cause and fix.
 
 **What it should do:** Pick a random `CATALOG` entry, print its
 root_cause as a clue, prompt the user (via `input()`) for their guess

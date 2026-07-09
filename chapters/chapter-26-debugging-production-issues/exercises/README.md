@@ -1,11 +1,17 @@
-# Chapter 26 Exercises: Debugging Production Issues (Categories 1-2)
+# Chapter 26 Exercises: Debugging Production Issues (Categories 1-8)
 
-These exercises use what Categories 1-2 covered: `KeyError`,
+These exercises use what all eight categories covered: `KeyError`,
 `IndexError`, bare `except:` vs. specific exceptions, `TypeError` from
 unvalidated input, `AttributeError` from an implicit `None` return,
 `ZeroDivisionError`, `json.JSONDecodeError`, quadratic membership
-checks, dict-based indexing, and avoiding unnecessary full-list sorts.
-Every task here uses only the standard library -- no installs needed.
+checks, dict-based indexing, avoiding unnecessary full-list sorts
+(Tasks 1-14, Categories 1-2), plus bounded collections, mutable class
+attributes, shallow vs. deep copy, float comparison, integer rounding,
+pagination off-by-one errors, dict key order, environment variable
+validation, idempotent retries, avoiding N+1 lookups, structured
+logging, and redacting sensitive fields before logging (Tasks 15-26,
+Categories 3-8). Every task here uses only the standard library -- no
+installs needed.
 
 ## How to run
 
@@ -93,6 +99,77 @@ immediately once found.
 Find `# TODO 14`. `reversed_list()` uses `list.insert(0, x)` in a
 loop, which is O(n) per call. Fix it to use `.append()` followed by
 one `.reverse()` call instead.
+
+## Task 15 — Bounding a "recent" collection
+
+Find `# TODO 15`. Write `bounded_recent_events(events, maxlen)` — use
+`collections.deque(maxlen=maxlen)` so the result never holds more than
+`maxlen` items, no matter how large `events` is.
+
+## Task 16 — Debug the Code
+
+Find `# TODO 16`. `SharedCounter` uses a class-level `count = []`,
+which is shared by every instance instead of being per-instance. Fix
+it by creating `self.count = []` inside `__init__`.
+
+## Task 17 — Deep copy for real independence
+
+Find `# TODO 17`. Write `independent_copy(original)` — use
+`copy.deepcopy()` so mutating a nested list/dict on the copy never
+affects the original.
+
+## Task 18 — Comparing floats safely
+
+Find `# TODO 18`. Write `floats_equal(a, b)` — use `math.isclose()`,
+never a plain `==`, since floating-point arithmetic accumulates
+rounding error.
+
+## Task 19 — Rounding instead of truncating
+
+Find `# TODO 19`. Write `round_quantity(value)` — use `round()`, not
+`int()`, which silently truncates toward zero instead of rounding.
+
+## Task 20 — Debug the Code
+
+Find `# TODO 20`. `get_page()` treats a 1-based `page_number` as if it
+were already a 0-based offset, silently dropping the first page's
+records. Fix it to convert with `(page_number - 1) * page_size`.
+
+## Task 21 — Never rely on dict key order
+
+Find `# TODO 21`. Write `row_from_fixed_columns(record, column_order)`
+— look up each value by `column_order`'s order, never a dict's own key
+insertion order.
+
+## Task 22 — Missing environment variables, all at once
+
+Find `# TODO 22`. Write `missing_env_keys(env, required_keys)` —
+return a sorted list of every required key that's missing, the
+env-var version of Task 1's `KeyError` fix.
+
+## Task 23 — A safe retry with an idempotency key
+
+Find `# TODO 23`. Write `charge_once(processed, idempotency_key,
+amount)` — a retried call with the same key returns the original
+result instead of charging twice.
+
+## Task 24 — Avoiding the N+1 pattern
+
+Find `# TODO 24`. Write `attach_names(records, lookup_table)` — build
+the lookup once, up front, instead of scanning a second list per
+record.
+
+## Task 25 — Structured, not free-text, logging
+
+Find `# TODO 25`. Write `build_log_record(order_id, amount, status)`
+— return a dict with named fields, not a formatted string, so a log
+aggregator can query it directly.
+
+## Task 26 — Debug the Code
+
+Find `# TODO 26`. `redact_password()` builds a redacted copy but
+returns the original `request` dict by mistake, leaking the password.
+Fix it to return `redacted` instead.
 
 ## Checking your work
 

@@ -1,9 +1,13 @@
-# Chapter 26 Practice Bank (Categories 1-2): Debugging Production Issues
+# Chapter 26 Practice Bank (Categories 1-8): Debugging Production Issues
 
 A deeper set of practice problems, organized by topic, for extra reps
 beyond the main exercises — including scenario-based problems written
-in the same style you'll meet in real interviews. Standard library
-only — `json`, no installs needed.
+in the same style you'll meet in real interviews. Topics 1-5 cover
+Categories 1-2 (Crashes & Exceptions, Performance); Topics 6-10 cover
+Categories 3-8 (Memory Leaks, Concurrency & Deadlocks, Data
+Corruption, Deployment & Environment, Database & API Failures, and
+Logging & Observability). Standard library only — `json`, `copy`,
+`math`, `collections` — no installs needed.
 
 ## How to run
 
@@ -68,6 +72,68 @@ python3 starter.py
   lookup per item instead of caching by region; fix it.
 - **5.A (Scenario)** `should_cache_by_region(num_items, num_distinct_regions)`.
 - **5.B (Interview Prep)** `explain_when_caching_is_safe()`.
+
+## Topic 6: Unbounded Growth & Shared State
+
+- **6.1** `bounded_history(events, maxlen)` — cap a growing list with
+  `collections.deque(maxlen=...)`.
+- **6.2** `evict_oldest(cache, maxsize)` — evict the oldest-inserted
+  key once a dict-based cache exceeds `maxsize`.
+- **6.3 (Debug the Code)** — `Logger` uses a class-level `history = []`
+  shared by every instance; fix it to be a per-instance attribute.
+- **6.A (Scenario)** `should_use_weakref_registry(purpose_is_tracking_not_owning)`.
+- **6.B (Interview Prep)** `explain_reachable_vs_leaked()`.
+
+## Topic 7: Concurrency Shapes (Modeled Without Real Threads)
+
+- **7.1** `simulate_lost_updates(reads_before_writes)` — given a list of
+  "read" values recorded before each of several delayed "writes,"
+  compute the final counter value showing how many increments a race
+  condition would lose.
+- **7.2** `acquisition_order_is_consistent(lock_orders)` — check
+  whether every lock-acquisition order in a list of `(first, second)`
+  pairs agrees on the same relative ordering (no deadlock risk).
+- **7.3 (Debug the Code)** — `pop_if_any()` does a check-then-act on a
+  shared list in two separate steps; fix it to be a single atomic
+  check-and-pop.
+- **7.A (Scenario)** `should_use_multiprocessing(is_cpu_bound)`.
+- **7.B (Interview Prep)** `explain_gil_and_threading()`.
+
+## Topic 8: Data Corruption & Precision
+
+- **8.1** `deep_independent_copy(original)` — use `copy.deepcopy()` so
+  nested mutations never leak back to the original.
+- **8.2** `floats_close(a, b)` — compare floats with `math.isclose()`,
+  never `==`.
+- **8.3 (Debug the Code)** — `page_slice()` has a pagination off-by-one
+  that silently drops the first page; fix the offset math.
+- **8.A (Scenario)** `explain_mutable_default_argument_trap()`.
+- **8.B (Interview Prep)** `explain_shallow_vs_deep_copy()`.
+
+## Topic 9: Deployment & Environment
+
+- **9.1** `missing_required_env(env, required_keys)` — list every
+  missing required environment variable at once.
+- **9.2** `resolve_config_value(env, key, default)` — read from
+  configuration instead of hardcoding a value.
+- **9.3 (Debug the Code)** — `startup_check()` swallows a missing
+  environment variable with a bare `except:`; fix it to validate and
+  raise a clear error naming what's missing.
+- **9.A (Scenario)** `explain_works_on_my_machine()`.
+- **9.B (Interview Prep)** `explain_pinning_dependencies()`.
+
+## Topic 10: Database & API Reliability, and Observability
+
+- **10.1** `join_without_n_plus_1(records, lookup_table, key_name)` —
+  attach a looked-up field to every record using one dict built up
+  front.
+- **10.2** `charge_idempotently(processed, idempotency_key, amount)` —
+  a safe retry that never double-charges.
+- **10.3 (Debug the Code)** — `summarize_log()` builds a free-text log
+  message instead of a structured dict; fix it to return structured
+  data a log aggregator could filter on.
+- **10.A (Scenario)** `explain_unknown_vs_no()`.
+- **10.B (Interview Prep)** `explain_log_exception_vs_str_e()`.
 
 ## Checking your work
 

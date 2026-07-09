@@ -244,9 +244,15 @@ window.PFE_MODULES = [
         { id: "memory-profiling", title: "Memory profiling basics" },
         { id: "generators-memory", title: "Generators as the memory-efficient alternative" }
       ] },
-      { id: "chapter-26", num: 26, title: "Debugging Production Issues (Categories 1-2 of 8)", path: "chapters/chapter-26-debugging-production-issues/lesson.html", subtopics: [
+      { id: "chapter-26", num: 26, title: "Debugging Production Issues", path: "chapters/chapter-26-debugging-production-issues/lesson.html", subtopics: [
         { id: "crashes-exceptions", title: "Category 1: Crashes & Exceptions" },
-        { id: "performance", title: "Category 2: Performance" }
+        { id: "performance", title: "Category 2: Performance" },
+        { id: "memory-leaks", title: "Category 3: Memory Leaks" },
+        { id: "concurrency-deadlocks", title: "Category 4: Concurrency & Deadlocks" },
+        { id: "data-corruption", title: "Category 5: Data Corruption" },
+        { id: "deployment-environment", title: "Category 6: Deployment & Environment" },
+        { id: "database-api-failures", title: "Category 7: Database & API Failures" },
+        { id: "logging-observability", title: "Category 8: Logging & Observability" }
       ] },
       { id: "chapter-27", num: 27, title: "Testing Your Code", path: null },
       { id: "chapter-28", num: 28, title: "Git Fundamentals", path: null },
