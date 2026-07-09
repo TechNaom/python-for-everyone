@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 25 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 25: Memory Management in Python.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-25" data-active-chapter="chapter-25">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 25 Quiz</span>
+  <h1>Memory Management in Python</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What is reference counting?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">A way to count how many times a function has been called</button>
+        <button type="button" class="mcq-option" data-correct="true">A running count, kept per object, of how many references point to it</button>
+        <button type="button" class="mcq-option" data-correct="false">A count of how many variables exist in a program</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> When does Python free an object under reference counting?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">Once a day, on a scheduled cleanup pass</button>
+        <button type="button" class="mcq-option" data-correct="true">Immediately, the instant its reference count reaches zero</button>
+        <button type="button" class="mcq-option" data-correct="false">Only when the program exits</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> Why does <code>sys.getrefcount(obj)</code> report one more than you might expect?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">It's a known bug in Python that's never been fixed</button>
+        <button type="button" class="mcq-option" data-correct="true">Calling getrefcount() itself creates one temporary reference to obj as its argument</button>
+        <button type="button" class="mcq-option" data-correct="false">It always adds exactly 100 for security reasons</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What is a reference cycle?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">A loop in a for statement</button>
+        <button type="button" class="mcq-option" data-correct="true">Two or more objects referencing each other so their refcounts never reach zero on their own</button>
+        <button type="button" class="mcq-option" data-correct="false">A function that calls itself recursively</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> Why can't reference counting alone free a reference cycle?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Because Python doesn't support cycles at all</button>
+        <button type="button" class="mcq-option" data-correct="true">Each object in the cycle still holds a reference to another object in the cycle, so neither refcount ever reaches zero</button>
+        <button type="button" class="mcq-option" data-correct="false">Because cycles are always intentional and shouldn't be freed</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> What does <code>gc.collect()</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">Deletes every variable in the current scope</button>
+        <button type="button" class="mcq-option" data-correct="true">Manually triggers the cyclic garbage collector to find and free unreachable reference cycles</button>
+        <button type="button" class="mcq-option" data-correct="false">Increases every object's reference count by one</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> Why does <code>def f(x=[])</code> cause a bug when the default is mutated?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Because Python re-runs the def statement on every call</button>
+        <button type="button" class="mcq-option" data-correct="true">Because the default list is created once, at function-definition time, and that exact same object is reused across every call</button>
+        <button type="button" class="mcq-option" data-correct="false">Because lists can't be used as arguments at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What's the standard fix for the mutable default argument gotcha?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">Never use lists in a function body</button>
+        <button type="button" class="mcq-option" data-correct="true">Default to None, then build a fresh mutable object inside the function body when it's None</button>
+        <button type="button" class="mcq-option" data-correct="false">Always call the function with every argument explicitly provided</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> What does <code>__slots__</code> remove from a class instance?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">The instance's __init__ method</button>
+        <button type="button" class="mcq-option" data-correct="true">The per-instance __dict__ that would otherwise hold its attributes</button>
+        <button type="button" class="mcq-option" data-correct="false">All of the instance's methods</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What's a real cost of using <code>__slots__</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">Instances become slower to create than regular classes</button>
+        <button type="button" class="mcq-option" data-correct="true">No dynamic attributes beyond what's listed, and restricted multiple inheritance with other slotted classes</button>
+        <button type="button" class="mcq-option" data-correct="false">The class can no longer have an __init__ method</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> What does <code>sys.getsizeof(obj)</code> measure?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">The total memory used by obj and everything it references</button>
+        <button type="button" class="mcq-option" data-correct="true">Just that one object's own size in bytes, not what it references</button>
+        <button type="button" class="mcq-option" data-correct="false">How many times obj has been garbage collected</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> What does <code>tracemalloc</code> let you measure that <code>sys.getsizeof()</code> can't?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">The exact CPU time a function takes to run</button>
+        <button type="button" class="mcq-option" data-correct="true">Current and peak memory use across a whole block of code, including every allocation it makes</button>
+        <button type="button" class="mcq-option" data-correct="false">How many lines of code a function has</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> Why does a generator expression use far less memory than the equivalent list comprehension, at the moment of creation?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Generators use a special compressed number format</button>
+        <button type="button" class="mcq-option" data-correct="true">The generator hasn't computed any values yet — it only holds instructions for producing them later, one at a time</button>
+        <button type="button" class="mcq-option" data-correct="false">Generators can only hold small numbers, never large ones</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What's a real limitation of a generator compared to a list?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">A generator can never be used in a for loop</button>
+        <button type="button" class="mcq-option" data-correct="true">A generator can only be consumed once, in order — no indexing, no len(), no repeated iteration</button>
+        <button type="button" class="mcq-option" data-correct="false">A generator can only produce string values, never numbers</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> What does <code>tracemalloc.take_snapshot().statistics("lineno")</code> provide?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">The total runtime of the program in seconds</button>
+        <button type="button" class="mcq-option" data-correct="true">A ranked breakdown of memory allocations by the source line that made them</button>
+        <button type="button" class="mcq-option" data-correct="false">A list of every variable name currently in scope</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> <code>sys.____()</code> reports how many references currently point to an object.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="getrefcount" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> The Python module providing the cyclic garbage collector is called ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="gc" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> The standard fix for a mutable default argument is to default to ____ and build the real value inside the function.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="None,none" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>____ = (&quot;x&quot;, &quot;y&quot;)</code> removes a class instance's per-instance <code>__dict__</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="__slots__" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> <code>____.start()</code> begins tracking every memory allocation Python makes.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="tracemalloc" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 25 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

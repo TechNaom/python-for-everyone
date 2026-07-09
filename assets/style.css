@@ -1948,6 +1948,173 @@ table {
   }
 }
 
+/* ---------- GenAI thought-process + prompt box (per worked example) ---------- */
+.genai-prompt-box {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin: 6px 0 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.genai-thought {
+  margin: 0 0 14px;
+  line-height: 1.6;
+}
+
+.genai-thought strong {
+  color: var(--color-teal);
+}
+
+.genai-try-first {
+  border-top: 1px dashed var(--color-border);
+  padding-top: 14px;
+}
+
+.genai-prompt-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-navy);
+  margin: 0 0 8px;
+}
+
+textarea.genai-user-attempt {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+textarea.genai-user-attempt:focus {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.genai-reveal-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--color-teal);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.genai-reveal-btn:hover {
+  transform: translateY(-1px);
+}
+
+.genai-compare-note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border-left: 4px solid var(--color-blue);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+details.genai-reveal {
+  margin-top: 16px;
+  border-top: 1px dashed var(--color-border);
+  padding-top: 14px;
+}
+
+details.genai-reveal summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-blue-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+details.genai-reveal summary::-webkit-details-marker {
+  display: none;
+}
+
+details.genai-reveal summary::before {
+  content: "▸";
+  transition: transform 0.15s ease;
+}
+
+details.genai-reveal[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.genai-prompt-text {
+  margin-top: 10px;
+}
+
+.genai-prompt-text pre {
+  background: #0F1420;
+  color: #E8ECF4;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 14px 16px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- AI-paired playbook template (project/ai-paired.html) ---------- */
+.playbook-template {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.playbook-field {
+  margin-bottom: 14px;
+}
+
+.playbook-field label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-navy);
+  margin-bottom: 6px;
+}
+
+.playbook-field textarea,
+.playbook-field input[type="text"] {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
 /* ---------- Accessibility ---------- */
 @media (prefers-reduced-motion: reduce) {
   * {

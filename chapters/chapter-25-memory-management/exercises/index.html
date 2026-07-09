@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 25 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 25: Memory Management in Python, covering reference counting, reference cycles/gc, the mutable default argument gotcha, __slots__, tracemalloc, and a Debug the Code task.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-25">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 25 Exercises</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Memory Management in Python</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. Every task uses only the standard library &mdash; no installs
+    needed.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Reading a refcount</h3>
+    <p>Write <code>refcount_of(obj)</code> — return <code>sys.getrefcount(obj)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Building and collecting a reference cycle</h3>
+    <p>Write <code>make_cycle()</code> — build two objects that reference each other, then return how many objects <code>gc.collect()</code> reports freeing.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Fixing a mutable default argument</h3>
+    <p>Write <code>add_item_safe(item, cart=None)</code> — the safe version of the classic gotcha.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> <code>__slots__</code></h3>
+    <p>Write <code>class SlottedPoint</code> with <code>__slots__ = ("x", "y")</code>, and <code>point_instance_size(x, y)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Measuring one object's size</h3>
+    <p>Write <code>object_size(obj)</code> — return <code>sys.getsizeof(obj)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Peak memory of a list build</h3>
+    <p>Write <code>peak_memory_of_list_build(n)</code> — measure a list comprehension of <code>n</code> squares with <code>tracemalloc</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Peak memory of a generator build</h3>
+    <p>Write <code>peak_memory_of_generator_build(n)</code> — the same, for the equivalent generator expression.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Comparing the two</h3>
+    <p>Write <code>is_generator_smaller(n)</code> — compare the two peak-memory results.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 9 — Debug the Code</h3>
+    <p>This is supposed to give every call its own fresh list when no log is passed in, but it reuses the same list across calls. Find and fix it.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_add_to_log.py</span>
+      </div>
+      <pre><code>def add_to_log(entry, log=[]):
+    log.append(entry)
+    return log
+
+
+print(add_to_log("first"))
+print(add_to_log("second"))</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

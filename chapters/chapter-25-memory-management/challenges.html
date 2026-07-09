@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 25 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on reference counting, reference cycles, the mutable default argument gotcha, __slots__, and memory profiling, for Chapter 25: Memory Management in Python.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-25">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 25 Coding Challenges</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Memory Management in Python</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. Write your
+    function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-25 have covered so far.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+    A couple of these challenges grade a <strong>relative</strong> memory
+    comparison (e.g. "is A smaller than B?" as True/False) rather than an
+    exact byte count, since exact byte counts can vary by Python
+    version/platform &mdash; this keeps every challenge portable.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Refcount Change on Alias <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>refcount_change_on_alias(obj)</code> that takes <code>sys.getrefcount(obj)</code>, creates one new alias (a second reference) to <code>obj</code>, takes the refcount again, and returns the difference (an <code>int</code>) between the second reading and the first.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>obj</code> can be any object (a list, string, or number).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>refcount_change_on_alias([1, 2, 3])</code> &rarr; <code>1</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import sys
+
+def refcount_change_on_alias(obj):
+    # TODO: read the refcount, create an alias, read it again, return
+    # the difference as a plain int.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "refcount_change_on_alias",
+  "cases": [
+    { "args": [[1, 2, 3]], "expected": 1 },
+    { "args": [["a", "b"]], "expected": 1 },
+    { "args": [{"x": 1}], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>import sys
+
+def refcount_change_on_alias(obj):
+    before = sys.getrefcount(obj)
+    alias = obj
+    after = sys.getrefcount(obj)
+    return after - before</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">2</span> Would It Leak Without gc? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>would_leak_without_gc(has_cycle, gc_enabled)</code> that returns <code>True</code> only when there's a real leak risk: a reference cycle exists (<code>has_cycle</code> is <code>True</code>) <strong>and</strong> the cyclic collector is off (<code>gc_enabled</code> is <code>False</code>). Otherwise return <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are booleans.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>would_leak_without_gc(True, False)</code> &rarr; <code>True</code><br>
+        <code>would_leak_without_gc(True, True)</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def would_leak_without_gc(has_cycle, gc_enabled):
+    # TODO: return True only if has_cycle is True AND gc_enabled is False.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "would_leak_without_gc",
+  "cases": [
+    { "args": [true, false], "expected": true },
+    { "args": [true, true], "expected": false },
+    { "args": [false, false], "expected": false },
+    { "args": [false, true], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def would_leak_without_gc(has_cycle, gc_enabled):
+    return has_cycle and not gc_enabled</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Safe Append (Fix the Default) <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_append(item, items=None)</code> that correctly avoids the mutable default argument gotcha: if <code>items</code> is not given, start from a fresh empty list every call, append <code>item</code>, and return the list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>item</code> can be any value; <code>items</code>, if given, is a list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_append("a")</code> &rarr; <code>["a"]</code><br>
+        <code>safe_append("b")</code> &rarr; <code>["b"]</code> (not <code>["a", "b"]</code>)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def safe_append(item, items=None):
+    # TODO: use the None-sentinel pattern so every call without an
+    # explicit items list starts fresh.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_append",
+  "cases": [
+    { "args": ["a"], "expected": ["a"] },
+    { "args": ["b"], "expected": ["b"] },
+    { "args": ["x", ["p", "q"]], "expected": ["p", "q", "x"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def safe_append(item, items=None):
+    if items is None:
+        items = []
+    items.append(item)
+    return items</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Simulate the Shared-Default Bug <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>append_n_times_broken(n)</code> that simulates the classic mutable default argument bug directly: define a local helper <code>def _broken(item, cart=[])</code> inside <code>append_n_times_broken</code>, call it <code>n</code> times in a row with items <code>0, 1, 2, ..., n-1</code> (not resetting <code>cart</code> between calls), and return the <strong>final</strong> call's result as a plain list.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is a non-negative int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>append_n_times_broken(3)</code> &rarr; <code>[0, 1, 2]</code> (every call shared the same growing list)<br>
+        <code>append_n_times_broken(1)</code> &rarr; <code>[0]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def append_n_times_broken(n):
+    # TODO: define a local _broken(item, cart=[]) helper, call it n
+    # times with items 0..n-1, return the LAST call's result.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "append_n_times_broken",
+  "cases": [
+    { "args": [3], "expected": [0, 1, 2] },
+    { "args": [1], "expected": [0] },
+    { "args": [0], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def append_n_times_broken(n):
+    def _broken(item, cart=[]):
+        cart.append(item)
+        return cart
+
+    result = []
+    for i in range(n):
+        result = _broken(i)
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Slotted vs. Regular Instance Size <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_slotted_smaller(x, y)</code> that builds two classes internally &mdash; one regular, one using <code>__slots__ = ("x", "y")</code> &mdash; each with matching <code>__init__(self, x, y)</code>, creates one instance of each with the given values, and returns <code>True</code> if the slotted instance's <code>sys.getsizeof()</code> plus nothing else is strictly smaller than the regular instance's <code>sys.getsizeof()</code> plus its <code>__dict__</code>'s <code>sys.getsizeof()</code> combined.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>x</code> and <code>y</code> are plain values (numbers or strings).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_slotted_smaller(1, 2)</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+import sys
+
+def is_slotted_smaller(x, y):
+    # TODO: define a regular class and a __slots__ class with matching
+    # __init__(self, x, y), build one instance of each, and compare
+    # total sizes (slotted instance vs. regular instance + its dict).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_slotted_smaller",
+  "cases": [
+    { "args": [1, 2], "expected": true },
+    { "args": ["a", "b"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>import sys
+
+def is_slotted_smaller(x, y):
+    class Regular:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    class Slotted:
+        __slots__ = ("x", "y")
+
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    r = Regular(x, y)
+    s = Slotted(x, y)
+    regular_total = sys.getsizeof(r) + sys.getsizeof(r.__dict__)
+    slotted_total = sys.getsizeof(s)
+    return slotted_total < regular_total</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">6</span> Object Byte Size <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>object_byte_size(obj)</code> that returns <code>sys.getsizeof(obj)</code> as a plain <code>int</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>obj</code> can be any object.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>object_byte_size([1, 2, 3])</code> &rarr; an <code>int</code> greater than <code>0</code>.
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import sys
+
+def object_byte_size(obj):
+    # TODO: return sys.getsizeof(obj) as a plain int.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "object_byte_size",
+  "cases": [
+    { "args": [[1, 2, 3]], "expected": 88 },
+    { "args": [[]], "expected": 56 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>import sys
+
+def object_byte_size(obj):
+    return sys.getsizeof(obj)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Is the Generator Lighter? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_generator_lighter(n)</code> that uses <code>tracemalloc</code> to compare, at the moment of creation, the peak memory of a list comprehension <code>[i for i in range(n)]</code> against the equivalent generator expression <code>(i for i in range(n))</code>. Return <code>True</code> if the generator's peak is strictly less than the list's peak, else <code>False</code>. Measure the generator's memory <strong>before</strong> consuming it.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is a positive int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_generator_lighter(1000)</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+import tracemalloc
+
+def is_generator_lighter(n):
+    # TODO: measure peak memory of a list comprehension and a
+    # generator expression separately (start/stop tracemalloc for
+    # each), and return True if the generator's peak is smaller.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_generator_lighter",
+  "cases": [
+    { "args": [1000], "expected": true },
+    { "args": [50000], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>import tracemalloc
+
+def is_generator_lighter(n):
+    tracemalloc.start()
+    lst = [i for i in range(n)]
+    _, list_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    tracemalloc.start()
+    gen = (i for i in range(n))
+    _, gen_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    return gen_peak < list_peak</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> List vs. Set for the Same Data <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>smaller_container_name(n)</code> that measures peak memory (using <code>tracemalloc</code>) for a <code>list(range(n))</code> versus a <code>set(range(n))</code>, and returns the string <code>"list"</code> or <code>"set"</code>, whichever measured a strictly smaller peak.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is a positive int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>smaller_container_name(1000)</code> &rarr; <code>"list"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+import tracemalloc
+
+def smaller_container_name(n):
+    # TODO: measure peak memory of list(range(n)) and set(range(n))
+    # separately, return "list" or "set" whichever is smaller.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "smaller_container_name",
+  "cases": [
+    { "args": [1000], "expected": "list" },
+    { "args": [10000], "expected": "list" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>import tracemalloc
+
+def smaller_container_name(n):
+    tracemalloc.start()
+    lst = list(range(n))
+    _, list_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    tracemalloc.start()
+    st = set(range(n))
+    _, set_peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    return "list" if list_peak < set_peak else "set"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

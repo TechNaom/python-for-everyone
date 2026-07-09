@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 25 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 25: Memory Management in Python — reference counting, reference cycles and gc, the mutable default argument gotcha, __slots__, and memory profiling with tracemalloc.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-25-interview" data-active-chapter="chapter-25">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 25 Interview Prep</span>
+    <span class="reading-time">50 min read</span>
+  </div>
+  <h1>Interview Questions: Memory Management in Python</h1>
+  <p>Memory management questions separate candidates who've memorized syntax from candidates who understand what's actually happening underneath. This set covers reference counting, reference cycles and the garbage collector, the mutable default argument gotcha, <code>__slots__</code>, and memory profiling.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> How does Python decide when to free an object's memory?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Every object carries a reference count — how many references currently point to it. Creating a reference (assignment, passing an argument, appending to a container) increments it; removing one (del, reassignment, going out of scope) decrements it. The instant that count reaches zero, CPython frees the object immediately — there's no separate "sweep" pass for this common case. A backup cyclic garbage collector handles the one case reference counting can't: objects that reference each other in a cycle.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying Python "just garbage collects everything" without distinguishing reference counting (the default, always-on mechanism) from the separate cyclic collector (a backup for a specific case).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is memory freed immediately, or does the program have to wait?" (Immediately, for the reference-counting case — the moment the count hits zero. Reclaiming a reference cycle waits until the cyclic collector actually runs, which is periodic, not instant.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> Why does <code>sys.getrefcount(x)</code> report a number one higher than expected?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Calling getrefcount(x) passes x as an argument to the function, which itself creates one temporary reference to x for the duration of the call. So the reported count always includes that extra, temporary reference on top of whatever "real" references exist in the surrounding code.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming the number is a bug or being unable to explain the off-by-one at all.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a = [1,2,3] and nothing else references it, what does getrefcount(a) return?" (2 — one for a itself, one temporary reference from the getrefcount() call.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's a reference cycle, and why is it a genuine problem for reference counting?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A reference cycle is two or more objects that reference each other, directly or through a chain — for example, two nodes each storing the other as a .partner attribute. Even when nothing outside that pair can reach either node anymore, each node still holds a reference to the other, so neither one's refcount ever drops to zero on its own. Reference counting alone would leave both objects in memory forever.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming Python "can't handle" cycles at all, missing that the separate cyclic garbage collector exists specifically to solve this.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give a real-world example of a reference cycle." (A parent object holding a list of children, where each child also stores a reference back to its parent — a very common, easy-to-write-by-accident pattern in tree/graph structures and GUI widget hierarchies.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How does the cyclic garbage collector actually find and free a reference cycle?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The gc module periodically scans tracked objects (container types like lists, dicts, and class instances, which are the only kinds that can participate in a cycle) looking for groups that are unreachable from anything outside the group, even though their internal reference counts are still above zero. When it finds such a group, it breaks the cycle and frees every object in it together. This can be triggered manually with gc.collect(), or happens automatically once a generation's allocation count crosses a threshold (gc.get_threshold()).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing garbage collection as though it replaces reference counting entirely, rather than working alongside it as a backup for the cyclic case specifically.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What are the three generations in gc.get_count(), and why do they exist?" (Objects are grouped by how long they've survived — new objects start in generation 0, and surviving a collection promotes them to the next generation. Younger generations are collected far more often, since most objects — and most cycles — die young, making that the most efficient place to check first.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Walk through exactly why <code>def f(x=[])</code> is a bug waiting to happen.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The default value [] is evaluated exactly once — when the def statement itself runs, not each time f() is called. That single list object is stored as the parameter's default and reused, by reference, on every call that doesn't supply its own x. Since lists are mutable, any call that appends to x actually mutates that one shared object, so its state silently persists and accumulates across unrelated calls. This isn't special mutable-argument behavior — it's the same object/reference model that governs every assignment in Python, just applied to a spot (a default value) where the "created once" part is easy to overlook.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing this as an arbitrary Python quirk or gotcha to just memorize, rather than a predictable consequence of default values being created once at definition time.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would the same problem happen with a default of 0 or an empty string?" (No — integers and strings are immutable, so even though the same default object is still reused every call, there's no way to mutate it in place. The bug only shows up with mutable defaults: lists, dicts, sets, or mutable custom objects.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the standard fix for the mutable default argument problem, and why does it work?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Default the parameter to None instead, then check "if x is None: x = []" as the first line inside the function body. None is still one shared default object reused across every call, exactly like the broken version — but since None is immutable, sharing it causes no problem. The "if x is None" check then builds a genuinely new, empty list fresh, inside the function body, every single time the function actually needs one.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting a "fix" that still shares a mutable object, or not understanding why None specifically is safe to share.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could you check `if not x` instead of `if x is None`?" (Not safely — `if not x` is also True for an empty list passed in on purpose, silently replacing a caller's genuinely empty list with a new one. `is None` checks specifically for "no argument was given," which is the actual condition that matters.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What does <code>__slots__</code> actually do, mechanically?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>By default, every class instance gets its own __dict__ to hold whatever attributes get assigned to it — flexible, but with real per-instance memory overhead for that dict. Declaring __slots__ = ("x", "y") tells Python to skip creating that per-instance __dict__ entirely, instead reserving a small, fixed-size slot for exactly the named attributes. Measured directly on a simple two-attribute class, a slotted instance can end up well under half the size of a regular instance plus its dict.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing __slots__ as "just a performance flag" without being able to explain the __dict__ mechanism it's actually changing.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When does __slots__ actually matter in practice?" (When a class is instantiated a very large number of times — thousands to millions — like parsed data rows, graph nodes, or game-engine entities. For a class instantiated a handful of times, the savings are negligible against the cost of losing dynamic attributes.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What are the real costs of using <code>__slots__</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Two concrete costs: first, no attribute beyond what's explicitly listed in __slots__ can be assigned dynamically — trying raises an AttributeError, since there's no __dict__ left to catch it. Second, inheriting from two different slotted classes that each define their own non-empty __slots__ raises a TypeError, because Python can't merge two different fixed memory layouts into one — a real restriction on multiple inheritance that regular (dict-based) classes don't have.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Presenting __slots__ as a strictly-better default with no downsides — it's a deliberate trade-off, not a free optimization.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can a slotted class still support one additional dynamic attribute if needed?" (Yes — adding "__dict__" itself as one of the names in __slots__ restores a (now optional) per-instance dict, though that gives back most of the memory savings the slots were meant to provide in the first place.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What's the difference between <code>sys.getsizeof()</code> and <code>tracemalloc</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>sys.getsizeof(obj) reports one object's own size, in isolation — it does not follow references to whatever that object contains or points to. tracemalloc tracks every memory allocation Python makes while it's running, over a whole block of code, reporting current and peak totals across everything allocated in that window — the right tool for "how much memory did this function actually use," not just "how big is this one value."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using sys.getsizeof() on a list and assuming it includes the size of everything the list contains — it doesn't.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you find out which specific line of code is responsible for the most memory?" (tracemalloc.take_snapshot().statistics("lineno") — ranks every tracked allocation by the source line that made it, exactly what a real memory profiler's "top allocations" report shows.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> Why does a generator expression use so much less memory than an equivalent list comprehension?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A list comprehension computes and stores every resulting value immediately — for 100,000 items, that means 100,000 actual objects sitting in memory before anything else happens. A generator expression, by contrast, doesn't compute anything up front — it's a small object holding only the instructions for producing values later, one at a time, only when something actually asks for the next one. Measured directly, a 100,000-item list comprehension costs roughly 4 MB at creation, while the equivalent generator costs a few hundred bytes — because nothing has been computed yet.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming generators are "always better" without acknowledging they trade away random access and repeated iteration to get that memory savings.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you then do list(some_generator()), does the memory savings still apply?" (No — converting to a list forces every value to be computed and stored at once, costing exactly what the list comprehension would have cost from the start. The savings only exist while the data is consumed lazily, in generator form.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What real limitations does a generator have compared to a list?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A generator can only be consumed once, moving forward — once every value has been produced, there's nothing left to iterate again, unlike a list which can be looped over repeatedly. It also has no len(), no indexing (gen[3] fails), and no way to know how many items remain without consuming them to find out. These aren't bugs — they're the direct cost of never actually holding all the values in memory at once.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing that a generator is single-use, and being surprised that iterating it twice produces nothing the second time.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When would a list clearly be the better choice over a generator, even with a big dataset?" (When the data needs to be sorted, indexed into, iterated more than once, or passed to something requiring len() — any of these needs a real list, and the memory savings of a generator only pay off for genuinely one-pass, in-order processing.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> How would you actually determine whether an optimization (like switching to a generator, or adding <code>__slots__</code>) helped, rather than just assuming it did?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Measure both versions with the same tool, under the same conditions, rather than reasoning about which "should" be smaller. tracemalloc.start()/get_traced_memory()/stop() around each version gives real current/peak byte counts to compare directly. For a single object's size specifically (like comparing a regular vs. a slotted instance), sys.getsizeof() on each gives a direct, comparable number. Guessing which approach uses less memory is reliably wrong often enough that measuring first is the only trustworthy approach.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Answering with confidence about which approach "obviously" uses less memory without mentioning measuring it directly.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why might exact byte counts differ between two runs of the identical code?" (Python version, platform (32-bit vs 64-bit builds have different pointer sizes), and even what ran immediately before in the same process can all shift small allocation details — which is exactly why comparisons should focus on relative differences, not memorizing one exact number as universal.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> Every Python object tracks a running <code>____</code> of how many references point to it.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="reference count,refcount" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>sys.____()</code> reports an object's current reference count.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="getrefcount" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Two or more objects referencing each other so their refcounts never reach zero is called a reference <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="cycle" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>____.collect()</code> manually triggers the cyclic garbage collector.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="gc" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A default argument value is created ____ (how many times?), at function-definition time.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="once,one time" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> The standard fix for a mutable default argument is to default to <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="None,none" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>____</code> removes a class instance's per-instance <code>__dict__</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="__slots__" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> A slotted class cannot have attributes assigned that aren't listed in <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="__slots__" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>sys.____()</code> reports one object's own size in bytes.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="getsizeof" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>____.start()</code> begins tracking every memory allocation Python makes.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="tracemalloc" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>tracemalloc.get_traced_memory()</code> returns a tuple of (current, ____).</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="peak" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> A ____ expression computes one value at a time, on demand, instead of storing every value upfront.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="generator" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A generator can only be consumed ____ (how many times?) before it's exhausted.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="once,one time" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

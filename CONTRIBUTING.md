@@ -163,6 +163,168 @@ this is a hard "no" going forward. Concrete rules, not vibes:
 - This is a formatting/prose pass, not a content rewrite — don't change
   what's technically taught, just how densely it's presented.
 
+**Every worked code example gets a GenAI thought-process + prompt box
+(standard as of 2026-07-08, retrofit and new).** This course teaches
+Python, but real-world Python work increasingly means directing an AI
+coding assistant — so every non-trivial worked example (in `lesson.html`,
+and in `project/index.html` for the main project) gets a
+`.genai-prompt-box` immediately after the code window it explains:
+
+```html
+<div class="genai-prompt-box">
+  <p class="genai-thought"><strong>Thought process:</strong> {1-3 sentences
+  of plain-language reasoning an experienced dev would go through before
+  writing this code — what to consider, what could go wrong, why this
+  approach over an obvious alternative. Always visible, never hidden.}</p>
+
+  <div class="genai-try-first">
+    <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+    <textarea class="genai-user-attempt" rows="3"
+      placeholder="e.g. Write a Python function that takes ..."></textarea>
+    <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+    <div class="genai-compare-note" hidden>
+      Paste your prompt into Claude, ChatGPT, Copilot, or whatever
+      assistant you use, and compare what it builds against this
+      lesson's example — does it actually match what this chapter
+      taught? That comparison is the real test, not a score.
+    </div>
+  </div>
+
+  <details class="genai-reveal">
+    <summary>Show a strong version of this prompt</summary>
+    <div class="genai-prompt-text"><pre>{the actual prompt a learner could
+    paste into Claude/ChatGPT/Copilot to produce the shown code — specific
+    enough to be genuinely useful, not a vague one-liner; should reference
+    the real constraints of the example (inputs, edge cases, the exact
+    function signature expected)}</pre></div>
+  </details>
+</div>
+```
+
+**There is no scored "Check my prompt" grader (dropped 2026-07-08 —
+see below for why).** This site is static (GitHub Pages, no backend, no
+API keys), so it cannot literally send a learner's prompt to Claude/GPT/
+etc. for real grading without a hosted proxy service that doesn't exist
+yet (a real LLM-graded version — most likely a self-hosted open-weight
+model behind a rate-limited proxy — is a planned future upgrade, tracked
+outside this repo; do not attempt to wire up a live API call here).
+
+An earlier version of this box shipped a client-side heuristic checklist
+that scored a prompt out of 5 and showed a label like "Specific enough to
+get a good result." It was retired after testing showed it was
+miscalibrated: this course's own hand-written reference prompts —
+including several in Chapter 25 — scored 4/5 or 3/5, never 5/5, because
+one criterion ("mentions a specific edge case") doesn't apply to
+measurement/observation-style examples (comparing memory sizes, tracing
+a refcount, timing an operation) where there's no meaningful "bad input"
+to call out. A tool that presents a number as if it were authoritative
+grading, but actually can't be satisfied by the course's own best
+examples, actively misleads learners about their own good prompts — worse
+than admitting no real grading exists yet. Reworking the criteria
+per-chapter to fit every example type was considered and rejected as
+more fragile than useful across 33 chapters.
+
+Instead, the button reveals the reference prompt for self-comparison
+plus a static note pointing the learner at a real assistant — genuinely
+testing the prompt is only possible against a live LLM, so that's what
+the box should say plainly rather than fake it. `assets/genai-grader.js`
+now only wires up the reveal button and unhides the compare note; it
+contains no grading/scoring logic. Do not reintroduce a scored heuristic
+grader — if this course gets a real LLM-graded backend later, wire it up
+as a genuine API call at that point, not as another heuristic.
+
+Notes on filling this in honestly:
+
+- The **thought process** is the pedagogical core — it's teaching how an
+  experienced developer breaks a problem down, independent of whether AI
+  is involved at all. Never skip or shortcut this to "just write the
+  prompt" — a prompt without the reasoning behind it teaches copy-paste,
+  not judgment.
+- The **reference prompt** in the `<details>` reveal should be a prompt a
+  learner could realistically paste into a real assistant and get
+  something close to the shown solution — not a toy example. Include the
+  real function signature, real edge cases, and real constraints the
+  lesson already established.
+- The learner's own prompt in the `<textarea>` is never sent anywhere,
+  read, or stored — it's for the learner's own use pasting into their own
+  assistant, per the course's no-backend constraint (same reasoning as
+  the quiz engine's client-side-only checking).
+- Retrofit in progress (started 2026-07-08): existing Chapters 1-24 are
+  being brought up to this standard — `.genai-prompt-box` added to every
+  worked example in `lesson.html` and to `project/index.html`'s main
+  walkthrough, plus a new `project/ai-paired.html` per chapter. It does
+  not touch `quiz.html`, `exercises/`, `practice/`, `challenges.html`, or
+  `interview-questions.html`, since those are learner-authored/graded
+  content, not worked examples. Until a chapter is confirmed retrofitted,
+  don't assume it has this — check for `.genai-prompt-box` in its
+  `lesson.html` and for a `project/ai-paired.html` file directly rather
+  than trusting chapter number alone.
+- Add a matching `.genai-prompt-box`/`.genai-thought`/`.genai-try-first`/
+  `.genai-prompt-label`/`.genai-reveal-btn`/`.genai-compare-note`/
+  `.genai-reveal`/`.genai-user-attempt`/`.genai-prompt-text` block to
+  `assets/style.css`, reusing the existing glassmorphic card pattern
+  (`var(--color-card-bg)` + `backdrop-filter: var(--glass-blur)`) and the
+  `<details>`/`summary` reveal styling already established by `.qa-item`
+  — do not invent a visually distinct third pattern.
+- There is also a full **GenAI-in-coding chapter** planned separately
+  (sample prompts/codebase-level prompting patterns as their own lesson
+  content, not just this per-example box) — see the curriculum map for
+  where that lands; the per-example box above is a lighter, course-wide
+  habit, distinct from that dedicated chapter's deeper treatment.
+
+**Every chapter's main project also gets a "solo → AI-paired → critique"
+loop (standard as of 2026-07-08) — this is the course's actual novelty,
+not the prompt box above, which is just step 2's mechanism.** The
+per-example `.genai-prompt-box` teaches prompting in isolation; this loop
+is what makes it matter — it forces the one skill that's genuinely rare
+to teach anywhere: catching an AI's code when it's wrong, incomplete, or
+subtly lying. Add a new `project/ai-paired.html` (linked from
+`project/index.html`, last stop in the chapter-nav chain after the main
+project) structured as:
+
+1. **You already built it solo** — one line back-linking to the project
+   the learner just finished unaided (the existing `project/` content is
+   unchanged; this is additive, not a replacement).
+2. **Now pair with an AI** — the real prompt a learner would give an
+   assistant to build the same project (reuse/extend the chapter's
+   `.genai-prompt-box` prompts rather than writing a new one from
+   scratch), followed by a **plausible, realistic AI output** for it —
+   written by the chapter author, not actually generated by calling an
+   API (this site has no backend/API keys, per the existing course
+   constraints) — that contains 1-3 *genuine, realistic* flaws: e.g. an
+   edge case it silently mishandles, a subtly wrong assumption, a
+   performance trap, a security issue (unescaped input, no parameterized
+   query, etc. — reuse a real gotcha from an earlier chapter where it
+   fits, e.g. Ch18's regex/Ch21's SQL-injection lessons), or a feature it
+   confidently claims to implement but doesn't actually cover. The flaws
+   must be genuinely subtle — not a deliberately broken strawman — or
+   this teaches nothing.
+3. **Where did the AI's code lie to you?** — a `.qa-item`-style reveal
+   (collapsed by default, same `<details>` pattern as interview
+   questions) walking through each planted flaw: what it looks like it
+   does, what it actually does, why that gap matters in production, and
+   the fix. This is the payoff — it's explicitly teaching code review
+   and skepticism toward AI output as a first-class skill, not treating
+   AI code as ground truth.
+4. **Your entry for this chapter's playbook** — a short, pre-filled
+   template block (3-4 fields: "prompt I used," "flaw I would/wouldn't
+   have caught before this chapter," "pattern to watch for next time")
+   that the learner is invited to fill in for themselves (client-side
+   only, not saved — same no-backend constraint as the rest of the site;
+   frame it as "keep your own copy of this" rather than implying it
+   persists). By the Capstone chapter, a learner who did this every
+   chapter has their own accumulated AI-code-review playbook — this is
+   the "byproduct log," achieved without a separate bookkeeping format
+   or extra infrastructure.
+
+This is a bigger lift than the per-example box and should be paced as
+its own retrofit pass across Chapters 1-24 (one `ai-paired.html` per
+chapter, using each chapter's own real project) — do not block new
+chapter builds on finishing this retrofit; sequence it as a parallel or
+follow-up effort, and make every NEW chapter from here forward include
+`project/ai-paired.html` as a standard file in its build, alongside the
+per-example `.genai-prompt-box` work.
+
 **Every chapter page needs both a `.md` and an `.html` version** where noted
 above: the `.md` is what a `git clone` / repo browser sees; the `.html` is
 what the live GitHub Pages site serves (our deploy workflow uploads the raw

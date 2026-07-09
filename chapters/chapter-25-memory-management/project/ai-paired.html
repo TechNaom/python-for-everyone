@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 25: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to rebuild the Chapter 25 Memory Profiler project, then critique its plausible-but-flawed output — catching a snapshot-after-stop bug, a misleading top-allocations claim, and a __slots__ inheritance miss.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-25">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 25 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">30 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just built the <a href="index.html">Memory Profiler for an Earlier Project</a> yourself, unaided. That project is unchanged — this page is additive. Now the same project gets built a second way: by prompting an AI assistant, and then reviewing what it hands back with the same skepticism you'd bring to a coworker's pull request.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant to build the same memory profiler — an extended version of the prompt from the <code>profile_function()</code> box on the main project page:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>Write a Python memory profiler using only the standard library
+(tracemalloc, sys). I need:
+
+1. profile_function(func) — takes a zero-argument callable, measures
+   its peak memory with tracemalloc, and returns the top 3 memory
+   allocations by source line plus the peak byte count.
+2. A comparison between a "heavy" version of a function that builds a
+   list of 5,000 record dicts, and an "optimized" version using
+   __slots__ instead of plain dicts for each record, to see which uses
+   less memory.
+3. A formatted text report showing both versions' peak memory and
+   which one is smaller.
+
+Keep it to one file, no third-party packages, and make sure the
+numbers you report are trustworthy.</code></pre>
+  </div>
+
+  <p>And here's a plausible response — the kind of code an AI assistant might hand back on the first try. Read it as if it just landed in a pull request from a teammate, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">ai_generated_profiler.py</span>
+    </div>
+    <pre><code>import tracemalloc
+import sys
+
+
+def profile_function(func):
+    """Profile a zero-argument function's memory usage."""
+    tracemalloc.start()
+    result = func()
+    tracemalloc.stop()
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics("lineno")
+
+    top_allocations = [str(stat) for stat in top_stats[:3]]
+
+    return {
+        "result": result,
+        "top_allocations": top_allocations,
+    }
+
+
+class RecordSlotted:
+    """Optimized record using __slots__ to save memory per instance."""
+    __slots__ = ("id", "score")
+
+    def __init__(self, id, score):
+        self.id = id
+        self.score = score
+
+
+class TimestampedRecord(RecordSlotted):
+    """A timestamped variant of the optimized record, for reports that
+    need to track when each row was loaded."""
+
+    def __init__(self, id, score, loaded_at):
+        super().__init__(id, score)
+        self.loaded_at = loaded_at
+
+
+def load_records_heavy(n):
+    """Heavy version: a list of plain dicts, one per record."""
+    return [{"id": i, "score": (i * 7) % 101} for i in range(n)]
+
+
+def load_records_optimized(n):
+    """Optimized version: a list of __slots__-based objects instead
+    of dicts -- much less memory per instance."""
+    return [TimestampedRecord(i, (i * 7) % 101, loaded_at="2026-01-01") for i in range(n)]
+
+
+def compare_versions(n=5000):
+    heavy_profile = profile_function(lambda: load_records_heavy(n))
+    optimized_profile = profile_function(lambda: load_records_optimized(n))
+
+    heavy_size = sys.getsizeof(heavy_profile["result"])
+    optimized_size = sys.getsizeof(optimized_profile["result"])
+
+    smaller = "optimized" if optimized_size < heavy_size else "heavy"
+
+    report = []
+    report.append("=== Memory Profiler Report ===")
+    report.append(f"Heavy version size: {heavy_size:,} bytes")
+    report.append(f"Optimized version size: {optimized_size:,} bytes")
+    report.append(f"Smaller: {smaller}")
+    return "\n".join(report)
+
+
+if __name__ == "__main__":
+    print(compare_versions())</code></pre>
+  </div>
+
+  <p>It looks reasonable. It even uses <code>__slots__</code>, exactly as asked. It's also wrong in three separate, genuinely easy-to-miss ways — one of which crashes it outright the moment <code>compare_versions()</code> actually runs.</p>
+
+  <h2>Step 3: Where did the AI's code lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 — the reported memory numbers are misleading</span>
+      <p><strong>What it looks like it does:</strong> <code>compare_versions()</code> reports "Heavy version size" and "Optimized version size" using <code>sys.getsizeof()</code> on each result list, and picks the smaller one as the winner — looks like a clean, direct memory comparison.</p>
+      <p><strong>What it actually does:</strong> <code>sys.getsizeof()</code> on a list only measures the list object's own overhead (the array of pointers) — it does <em>not</em> include the size of what the list contains. Comparing <code>sys.getsizeof(list_of_dicts)</code> against <code>sys.getsizeof(list_of_slotted_objects)</code> compares two nearly-identical numbers (both are just "a list of 5,000 pointers"), completely missing the actual point of the comparison: how much memory each individual <em>record</em> takes. The prompt specifically asked for trustworthy numbers, and this reports a number that looks meaningful but answers the wrong question.</p>
+      <p><strong>Why it matters:</strong> this would report the two versions as nearly identical in size — silently hiding the real savings <code>__slots__</code> provides, and giving a false "no real difference" conclusion to anyone who trusts the printed report without checking how it was computed.</p>
+      <p><strong>The fix:</strong> use <code>tracemalloc</code>'s <code>get_traced_memory()</code> peak value (which was already being tracked and then thrown away by calling <code>tracemalloc.stop()</code> too early — see Flaw 2) instead of <code>sys.getsizeof()</code> on the outer list, since peak memory captures everything allocated during the whole build, not just the outer container's own overhead.</p>
+
+      <span class="qa-section-label flags">Flaw 2 — <code>tracemalloc.stop()</code> is called before the snapshot, crashing the whole report</span>
+      <p><strong>What it looks like it does:</strong> <code>profile_function()</code> calls <code>tracemalloc.stop()</code> and then <code>tracemalloc.take_snapshot()</code> right after — looks like a reasonable "measure, then clean up, then report" order.</p>
+      <p><strong>What it actually does:</strong> <code>tracemalloc.stop()</code> turns tracing off entirely. Calling <code>take_snapshot()</code> <em>after</em> <code>stop()</code> doesn't return an empty result — it raises <code>RuntimeError: the tracemalloc module must be tracing memory allocations to take a snapshot</code>, which propagates straight out of <code>compare_versions()</code> and crashes the whole script before any report is printed. It's an easy mistake to make from reading the two calls' names alone — "stop, then snapshot" sounds like "measure, then clean up" — but the module requires the opposite order.</p>
+      <p><strong>Why it matters:</strong> this isn't a silent correctness bug — it's a hard crash on first run, which usually gets caught fast. But it's exactly the kind of error a learner might "fix" by wrapping the call in a bare <code>try/except</code> that swallows the exception, which would turn a loud, easy-to-diagnose crash into the much worse silent-failure version of this same bug. The right fix addresses the ordering, not the crash.</p>
+      <p><strong>The fix:</strong> call <code>take_snapshot()</code> <em>before</em> <code>tracemalloc.stop()</code> — exactly the ordering used in this chapter's own <code>profile_function()</code> (snapshot, then current/peak reading, then stop).</p>
+
+      <span class="qa-section-label flags">Flaw 3 — <code>TimestampedRecord</code> quietly defeats the whole point of <code>__slots__</code></span>
+      <p><strong>What it looks like it does:</strong> <code>TimestampedRecord(RecordSlotted)</code> inherits from the slotted <code>RecordSlotted</code> class and adds one more attribute, <code>loaded_at</code> — looks like a reasonable extension that stays memory-efficient, since the parent class already declared <code>__slots__</code>.</p>
+      <p><strong>What it actually does:</strong> <code>TimestampedRecord</code> itself declares no <code>__slots__</code> of its own. In Python, a subclass that omits <code>__slots__</code> gets a regular <code>__dict__</code> added back automatically — even when its parent is fully slotted. So every <code>TimestampedRecord</code> instance ends up with <em>both</em> the parent's slot storage <em>and</em> a per-instance <code>__dict__</code>, silently reintroducing the exact per-instance overhead <code>__slots__</code> was supposed to eliminate. The class "uses <code>__slots__</code>" in the sense that the word appears in the code, but the actual instances being measured don't get the memory benefit at all.</p>
+      <p><strong>Why it matters:</strong> this is the single most common real-world <code>__slots__</code> mistake — it fails silently (no error, attributes work fine, code runs) and specifically undermines the exact feature (memory savings at scale) the whole exercise was built to demonstrate.</p>
+      <p><strong>The fix:</strong> add <code>__slots__ = ("loaded_at",)</code> to <code>TimestampedRecord</code> itself — every class in an inheritance chain needs its own <code>__slots__</code> declaration (even an empty one, for a subclass that adds no new attributes) for the memory savings to actually hold all the way down.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself — it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 25?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Check every class in an inheritance chain declares its own __slots__' or 'Verify take_snapshot() runs before stop()'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

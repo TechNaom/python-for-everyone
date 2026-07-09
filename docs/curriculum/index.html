@@ -32,10 +32,20 @@
 
   <h1>Curriculum Roadmap</h1>
   <p>
-    Rebuilt from ten years of real classroom teaching material into 28
-    chapters, grouped into five modules. Each chapter is fully piloted
+    Rebuilt from ten years of real classroom teaching material into 33
+    chapters, grouped into modules. Each chapter is fully piloted
     (lesson, quiz, exercises, interview questions, project) before the
     next one starts, and every module ends with a written exam.
+  </p>
+  <p>
+    <strong>As of Chapter 25, every new chapter is built GenAI-driven by
+    default:</strong> a thought-process + prompt box after every worked
+    example (the reasoning behind the code, then a space to write your
+    own AI prompt and compare it against a real one), and an "AI-paired"
+    critique exercise on every project, where a realistic AI-generated
+    solution has genuine, subtle bugs planted in it to find. Chapter 25
+    (Memory Management) is the reference implementation; a retrofit pass
+    to bring Chapters 1&ndash;24 up to the same standard is in progress.
   </p>
 
   <h2>Module 1 — Foundations</h2>
@@ -205,7 +215,7 @@
     <li class="built"><span class="roadmap-status built">Live</span><div><a href="https://github.com/TechNaom/python-for-everyone/blob/main/assessments/written-exams/module-4-exam.md"><em>Module 4 Written Exam</em></a></div></li>
   </ul>
 
-  <h2>Module 5 — Data Analysis, Testing &amp; Career</h2>
+  <h2>Module 5 — Data Analysis &amp; Reliability</h2>
   <ul class="roadmap-list">
     <li class="built" data-chapter-link="chapter-22">
       <span class="roadmap-status built">Live</span>
@@ -228,11 +238,27 @@
         <div class="status">Project: Sales-Data Dashboard (CSV in, insights out), using groupby aggregation and boolean filtering &mdash; plus a Challenges page with 8 auto-graded coding problems</div>
       </div>
     </li>
-    <li class="planned"><span class="roadmap-status planned">25</span><div>Testing Your Code (unittest/pytest) <span class="status">Project: Test suite for an earlier project</span></div></li>
-    <li class="planned"><span class="roadmap-status planned">26</span><div>Professional Python (git, venv, logging, argparse) <span class="status">Project: Packaged CLI tool</span></div></li>
-    <li class="planned"><span class="roadmap-status planned">27</span><div>Capstone Projects <span class="status">Combine 2-3 earlier projects into one portfolio piece</span></div></li>
-    <li class="planned"><span class="roadmap-status planned">28</span><div>Interview &amp; Career Prep <span class="status">Mock interview + portfolio checklist</span></div></li>
+    <li class="built" data-chapter-link="chapter-25">
+      <span class="roadmap-status built">Live</span>
+      <div>
+        <a href="../../chapters/chapter-25-memory-management/lesson.html"><strong>25. Memory Management in Python</strong></a>
+        <div class="status">Project: Memory profiler for an earlier project, using tracemalloc to compare a memory-heavy version against an optimized one &mdash; plus a Challenges page with 8 auto-graded coding problems</div>
+      </div>
+    </li>
+    <li class="planned"><span class="roadmap-status planned">26</span><div>Debugging Production Issues (100-Issue Playbook) <span class="status">Project: Production incident runbook</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">27</span><div>Testing Your Code (unittest/pytest) <span class="status">Project: Test suite for an earlier project</span></div></li>
     <li class="planned"><span class="roadmap-status planned">&#128221;</span><div><em>Module 5 Written Exam</em></div></li>
+  </ul>
+
+  <h2>Module 6 — Git, GitHub, CI/CD &amp; Career</h2>
+  <ul class="roadmap-list">
+    <li class="planned"><span class="roadmap-status planned">28</span><div>Git Fundamentals <span class="status">Project: local git workflow (branching, merging, rebase, conflict resolution) on a sample repo</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">29</span><div>GitHub &amp; Collaboration <span class="status">Project: an open-source-style collaboration workflow (remotes, forks, pull requests, issues)</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">30</span><div>CI/CD Pipelines <span class="status">Project: a GitHub Actions workflow that lints and tests on every push</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">31</span><div>Professional Python (git, venv, logging, argparse) <span class="status">Project: Packaged CLI tool</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">32</span><div>Capstone Projects <span class="status">Combine 2-3 earlier projects into one portfolio piece</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">33</span><div>Interview &amp; Career Prep <span class="status">Mock interview + portfolio checklist</span></div></li>
+    <li class="planned"><span class="roadmap-status planned">&#128221;</span><div><em>Module 6 Written Exam</em></div></li>
   </ul>
 
   <h2>Format every chapter follows</h2>

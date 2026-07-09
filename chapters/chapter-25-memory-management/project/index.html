@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 25 Project: Memory Profiler — Python for Everyone</title>
+<meta name="description" content="Build a Memory Profiler for an earlier project using tracemalloc — peak memory, top allocations, and a real before/after comparison, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-25">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 25 Project</span>
+    <span class="reading-time">50 min build</span>
+  </div>
+  <h1>Memory Profiler for an Earlier Project</h1>
+
+  <p>A small, standalone <strong>memory profiler</strong> that instruments any zero-argument function with <code>tracemalloc</code>, reporting peak memory use and top allocations &mdash; then uses it to run a real before/after comparison between a memory-heavy version and a memory-optimized version of the same logic.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Memory Profiler Report ===
+
+--- heavy (list) ---
+Peak memory: 1,109,728 bytes
+Top allocations:
+  solution.py:62: size=17.3 KiB, count=255, average=70 B
+  solution.py:78: size=64 B, count=2, average=32 B
+  solution.py:22: size=64 B, count=2, average=32 B
+
+--- optimized (generator) ---
+Peak memory: 408 bytes
+Top allocations:
+  (none traced -- this version never held more than the interpreter's own baseline at once)
+
+Smaller peak memory: optimized (generator)</code></pre>
+  </div>
+  <p><em>Your own exact byte counts and line numbers will differ slightly by Python version/platform &mdash; the comparison is the point, not memorizing one number.</em></p>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, then run <code>python3 starter.py</code>. Standard library only &mdash; no installs needed.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The core piece: <code>profile_function()</code></h2>
+  <p>Everything else in this project calls this one reusable function &mdash; it's the actual "profiler" part.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">profile_function.py</span>
+    </div>
+    <pre><code>import tracemalloc
+
+
+def profile_function(func):
+    tracemalloc.start()
+    result = func()
+    current, peak = tracemalloc.get_traced_memory()
+    snapshot = tracemalloc.take_snapshot()
+    tracemalloc.stop()
+
+    top_stats = snapshot.statistics("lineno")
+    top_allocations = [
+        {"location": str(stat), "size_bytes": stat.size, "count": stat.count}
+        for stat in top_stats[:3]
+    ]
+
+    return {
+        "result": result,
+        "current_bytes": current,
+        "peak_bytes": peak,
+        "top_allocations": top_allocations,
+    }</code></pre>
+  </div>
+
+  <div class="genai-prompt-box" data-not-yet-taught="async,await,multiprocessing,asyncio,memory_profiler,psutil">
+    <p class="genai-thought"><strong>Thought process:</strong> a reusable profiler has to accept an arbitrary zero-argument callable, not a hardcoded function name, so it can be pointed at anything later — that's why func() is called generically inside, and why the snapshot is taken right after the call (while the peak is still meaningful) rather than after some later cleanup step that could distort the reading.</p>
+    <div class="genai-try-first">
+      <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+      <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a reusable function that profiles the memory usage of any given function using tracemalloc..."></textarea>
+      <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+    </div>
+    <details class="genai-reveal">
+      <summary>Show a strong version of this prompt</summary>
+      <div class="genai-prompt-text"><pre>Write a Python function called profile_function(func) using only the standard library tracemalloc module. It should accept any zero-argument callable, start tracemalloc, call func(), read current and peak memory with get_traced_memory(), take a snapshot with take_snapshot() BEFORE stopping tracemalloc (a snapshot taken after stop() will be empty), then stop tracing. Return a dict with keys "result" (func()'s return value), "current_bytes", "peak_bytes", and "top_allocations" — a list of the top 3 entries from snapshot.statistics("lineno"), each as a dict with "location" (str(stat)), "size_bytes" (stat.size), and "count" (stat.count).</pre></div>
+    </details>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong><code>profile_function(func)</code>:</strong> the reusable core — instruments any zero-argument function with <code>tracemalloc</code>.</li>
+    <li><strong><code>compare_functions(label_a, func_a, label_b, func_b)</code>:</strong> profiles two functions and reports which had the smaller peak.</li>
+    <li><strong><code>load_grades_heavy()</code> / <code>load_grades_lazy()</code>:</strong> the "earlier project" logic being profiled — one materializing a full list, one a lazy generator (Chapter 17).</li>
+    <li><strong><code>average_score_from_iterable()</code>:</strong> consumer code that works identically on either version, since both are iterable.</li>
+    <li><strong><code>format_report()</code>:</strong> combines everything into one readable report string.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Point <code>profile_function()</code> at a function from one of your own earlier chapter projects instead of the built-in example.</li>
+    <li>Add a third comparison: the same data loaded with <code>__slots__</code>-based record objects instead of plain dicts.</li>
+    <li>Report the percentage memory reduction alongside the raw byte counts.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>"Is this actually lighter, or does it just feel like it should be?" is a question real engineers answer by measuring, not guessing &mdash; this project builds a small, reusable tool for doing exactly that, on any function, not just the one example built here.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Memory Profiler above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 25. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A Data-Structure Memory Comparison Tool</h3>
+    <p><strong>Problem:</strong> The same dataset can be stored as a list of tuples, a list of dicts, or a list of <code>__slots__</code>-based objects &mdash; which one actually uses the least memory?</p>
+    <p><strong>What it should do:</strong> Build the same 10,000-row dataset three ways and report each structure's peak memory via <code>tracemalloc</code>, ranked smallest to largest.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's <code>profile_function()</code> directly &mdash; this is almost the same tool, pointed at three build functions instead of two.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A <code>__slots__</code> Refactoring Exercise</h3>
+    <p><strong>Problem:</strong> A provided class with 5+ attributes and no <code>__slots__</code> needs refactoring, and someone wants to know exactly how much memory that refactor actually saves at scale.</p>
+    <p><strong>What it should do:</strong> Take a class, build 10,000 instances of both the original and a slotted version, and report the total memory difference.</p>
+    <p><strong>Suggested approach:</strong> Sub-topic 4's <code>PointRegular</code>/<code>PointSlotted</code> comparison, scaled up to a realistic instance count.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A Reference-Cycle Detector</h3>
+    <p><strong>Problem:</strong> Given a small object graph (nodes with <code>.next</code>/<code>.parent</code> attributes), detect whether it contains a reference cycle before it ever becomes a real memory problem.</p>
+    <p><strong>What it should do:</strong> Walk the object graph from a starting node, tracking visited object ids, and report <code>True</code>/<code>False</code> for whether a cycle exists.</p>
+    <p><strong>Suggested approach:</strong> A visited-set walk using <code>id()</code> to track already-seen objects, similar in spirit to graph traversal.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A "Memory Leak" Bug Hunt with <code>weakref</code></h3>
+    <p><strong>Problem:</strong> A provided class has an intentional memory leak &mdash; a cache dict that holds strong references to objects long after they should be collectable.</p>
+    <p><strong>What it should do:</strong> Diagnose why instances aren't being freed even after all "real" references are dropped, then fix it using the <code>weakref</code> module.</p>
+    <p><strong>Suggested approach:</strong> Reproduce the leak first with <code>gc.collect()</code> showing 0 freed, then swap the cache's strong references for <code>weakref.WeakValueDictionary</code>.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

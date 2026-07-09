@@ -29,24 +29,27 @@
 <section class="hero">
   <div class="page">
     <span class="hero-eyebrow">✨ 100% Free &middot; No Sign-Up</span>
-    <h1>Learn Python the way it should be taught.</h1>
+    <h1>A hybrid course: real Python fundamentals, taught alongside real AI-assisted practice.</h1>
     <p class="lede">
-      Interactive mini-textbooks, instant-check quizzes, real projects, and
-      interview prep — built for a curious kid, a career-switcher, and a
-      working professional, all in the same course.
+      You still learn to write and reason about Python the traditional way —
+      no shortcuts on the fundamentals. Then every chapter adds the skill
+      that actually matters on the job now: directing an AI assistant well,
+      and catching it when its code is confidently wrong. Neither half works
+      without the other.
     </p>
     <div class="hero-badges">
       <span>🧠 Plain-language first</span>
       <span>✅ Self-checking quizzes</span>
       <span>🛠️ Real projects</span>
       <span>💼 Interview-ready</span>
+      <span>🤖 AI-paired practice</span>
     </div>
     <a href="chapters/chapter-01-first-program/lesson.html" class="btn-primary">Start Chapter 1 →</a>
     <a href="docs/curriculum/index.html" class="btn-secondary">View the roadmap</a>
 
     <div class="hero-stats">
-      <div><strong>24</strong><span>chapters live</span></div>
-      <div><strong>28</strong><span>chapters planned</span></div>
+      <div><strong>25</strong><span>chapters live</span></div>
+      <div><strong>33</strong><span>chapters planned</span></div>
       <div><strong>150+</strong><span>practice problems</span></div>
       <div><strong>$0</strong><span>cost, ever</span></div>
     </div>
@@ -78,6 +81,16 @@
       <p>Every chapter ends with something genuinely worth building, not a throwaway toy example.</p>
     </div>
     <div class="feature-card">
+      <span class="icon">🤖</span>
+      <h3>Think first, then prompt</h3>
+      <p>Newer chapters show the reasoning an experienced developer works through before writing code, then have you write the prompt yourself before revealing a strong one — a skill this course now builds on purpose, not just Python syntax. <a href="chapters/chapter-25-memory-management/lesson.html">See it in Chapter 25</a>.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🕵️</span>
+      <h3>Catch the AI's mistakes</h3>
+      <p>Each project pairs a solo build with an AI-paired version that has real, subtle bugs planted in it — the point isn't the code, it's learning to review AI output like it might be wrong, because it sometimes is.</p>
+    </div>
+    <div class="feature-card">
       <span class="icon">💼</span>
       <h3>Interview prep built in</h3>
       <p>Strong-answer / red-flag / follow-up breakdowns for every chapter's core concepts.</p>
@@ -87,6 +100,10 @@
       <h3>Open source, forever</h3>
       <p>MIT licensed. Clone it, fork it, use it for your own classroom or study group.</p>
     </div>
+  </div>
+
+  <div class="hook">
+    A course that only teaches "type this syntax" is already behind — AI writes syntax faster than any human. A course that only teaches "prompt an AI" produces people who can't tell when the AI is wrong. This course is built as neither alone: you learn Python the traditional way first — by writing it yourself, understanding why it works, getting it wrong and fixing it — and only then does each chapter ask you to direct an AI at the same problem, and to review its answer like you don't trust it yet. That order matters. Judgment about AI-generated code has to come from somewhere, and it comes from having done the work without AI first.
   </div>
 
   <h2>Chapters</h2>
@@ -259,11 +276,18 @@
       <p>DataFrames &amp; Series &middot; read_csv() &middot; .loc[] vs .iloc[] &middot; groupby &amp; aggregation</p>
       <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
     </a>
+    <a class="chapter-card module-5" data-chapter-link="chapter-25" href="chapters/chapter-25-memory-management/lesson.html">
+      <span class="chapter-card-icon">🧠</span>
+      <span class="chapter-card-num">Chapter 25</span>
+      <h3>Memory Management in Python</h3>
+      <p>Reference counting &amp; the cyclic garbage collector &middot; the mutable-default-argument gotcha &middot; __slots__ &middot; tracemalloc profiling</p>
+      <span class="chapter-card-cta">Start learning <span aria-hidden="true">→</span></span>
+    </a>
     <a class="chapter-card chapter-card-more" href="docs/curriculum/index.html">
       <span class="chapter-card-icon">🗺️</span>
-      <span class="chapter-card-num">+4 more</span>
+      <span class="chapter-card-num">+8 more</span>
       <h3>See the full roadmap</h3>
-      <p>Testing, professional Python, capstone projects, and more — built one chapter at a time.</p>
+      <p>Debugging, testing, git &amp; GitHub, CI/CD, professional Python, capstone projects, and more — built one chapter at a time.</p>
       <span class="chapter-card-cta">View roadmap <span aria-hidden="true">→</span></span>
     </a>
   </div>
@@ -274,6 +298,7 @@
     <li>Every quiz question has its own <strong>Check</strong> button, so you get instant feedback without submitting anything or waiting for a grader.</li>
     <li>"Go Deeper" boxes are optional — skip them on your first pass if you just want the essentials, come back later if you want the full picture.</li>
     <li>Running the Python code requires <a href="https://www.python.org/downloads/">Python 3</a> installed on your computer — everything else (lessons, quizzes) works right in this browser.</li>
+    <li><strong>On chapters with the GenAI prompt box</strong> (Chapter 25 onward): after you understand a worked example on your own, write the prompt you'd give an AI assistant to build it, then reveal a strong reference prompt to compare against — try your own in Claude, ChatGPT, or whatever you use, and see how close you got. On the project's "AI-paired" page, do the reverse: read an AI-generated solution skeptically and try to find its planted bugs before revealing them.</li>
   </ul>
 
   <h2>Course roadmap</h2>

@@ -236,10 +236,22 @@ window.PFE_MODULES = [
         { id: "columns-missing-data", title: "Adding columns & handling missing data" },
         { id: "grouping-aggregation", title: "Grouping, aggregation & sorting" }
       ] },
-      { id: "chapter-25", num: 25, title: "Testing Your Code", path: null },
-      { id: "chapter-26", num: 26, title: "Professional Python", path: null },
-      { id: "chapter-27", num: 27, title: "Capstone Projects", path: null },
-      { id: "chapter-28", num: 28, title: "Interview & Career Prep", path: null }
+      { id: "chapter-25", num: 25, title: "Memory Management in Python", path: "chapters/chapter-25-memory-management/lesson.html", subtopics: [
+        { id: "how-python-manages-memory", title: "How Python manages memory & reference counting" },
+        { id: "reference-cycles-gc", title: "Reference cycles & the garbage collector" },
+        { id: "mutable-default-argument", title: "The mutable default argument gotcha" },
+        { id: "slots", title: "__slots__" },
+        { id: "memory-profiling", title: "Memory profiling basics" },
+        { id: "generators-memory", title: "Generators as the memory-efficient alternative" }
+      ] },
+      { id: "chapter-26", num: 26, title: "Debugging Production Issues (100-Issue Playbook)", path: null },
+      { id: "chapter-27", num: 27, title: "Testing Your Code", path: null },
+      { id: "chapter-28", num: 28, title: "Git Fundamentals", path: null },
+      { id: "chapter-29", num: 29, title: "GitHub & Collaboration", path: null },
+      { id: "chapter-30", num: 30, title: "CI/CD Pipelines", path: null },
+      { id: "chapter-31", num: 31, title: "Professional Python", path: null },
+      { id: "chapter-32", num: 32, title: "Capstone Projects", path: null },
+      { id: "chapter-33", num: 33, title: "Interview & Career Prep", path: null }
     ]
   }
 ];

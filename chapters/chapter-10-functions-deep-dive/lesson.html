@@ -101,6 +101,22 @@ message = greet("Priya")
 print(message)   &#35; Hello, Priya!</code></pre>
     </div>
 
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the smallest useful function demo needs one parameter, one line of real work, and a call site that proves the return value is usable — printing the raw call itself (<code>print(greet("Priya"))</code>) rather than a bare call is what makes "return hands a value back" observable instead of asserted.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a Python function called greet that takes a name and returns a greeting string..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python function called greet(name) that takes one string parameter and returns (not prints) the string "Hello, " + name + "!". Then show it being called by storing the result in a variable called message and printing that variable, so it's clear the function hands back a real value rather than printing anything itself.</pre></div>
+      </details>
+    </div>
+
     <p>
       <code>def greet(name):</code> defines the function — it doesn't run
       anything yet. The body only runs when <code>greet("Priya")</code>
@@ -140,6 +156,22 @@ result = add_returning(3, 4)
 print(result * 10)          &#35; 70 — only possible because a value came back</code></pre>
     </div>
 
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the point isn't the addition itself, it's contrasting two functions side by side that do the same math but differ in exactly one line — one prints, one returns — so the difference in what the caller can do afterward (multiply the result by 10) becomes concrete proof, not just a stated rule.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write two functions that both add two numbers, one using print and one using return, and show why only one lets you reuse the result..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write two Python functions, add_printing(a, b) and add_returning(a, b), that both compute a + b. add_printing should only print the sum and return nothing; add_returning should return the sum without printing it. Then demonstrate the practical difference: call add_printing(3, 4) directly, then call result = add_returning(3, 4) and print(result * 10) — showing that only the returned value can be reused in further computation.</pre></div>
+      </details>
+    </div>
+
     <p>
       <code>add_printing</code>'s result disappears the moment it's shown —
       there's nothing to store or reuse. <code>add_returning</code> hands
@@ -166,6 +198,22 @@ print(result * 10)          &#35; 70 — only possible because a value came back
 
 outcome = log_message("server started")
 print(outcome)   &#35; None</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the demo has to actually capture and print the "missing" return value — printing outcome after the call is what turns "a function with no return gives back None" from a claim into something the reader watches happen.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that only prints a log message with no return statement, then show what calling it and storing the result actually gives back..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python function called log_message(text) that only prints "LOG:" followed by text, with no return statement at all. Then call it as outcome = log_message("server started") and print(outcome), so it's visible that a function with no explicit return implicitly hands back None.</pre></div>
+      </details>
     </div>
 
     <div class="what-is">

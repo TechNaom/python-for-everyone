@@ -117,6 +117,22 @@ print(car.make, car.model)</code></pre>
 Toyota Corolla</code></pre>
     </div>
 
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the point of this example is proving the "is-a" claim with the smallest possible subclass — an empty body — so the demo has to call both a method defined only on the parent (describe()) and access an attribute set only by the parent's __init__ (make/model), otherwise "it inherits everything automatically" would just be an assertion rather than something the reader watches happen.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a Vehicle class and an empty Car subclass that proves inheritance works automatically..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python class Vehicle with __init__(self, make, model) that stores self.make and self.model, and a describe(self) method returning f"{self.make} {self.model}". Then write a class Car(Vehicle) with an empty body (just `pass`) — no __init__, no methods of its own. Create a Car with make="Toyota", model="Corolla" and print car.describe() and car.make, car.model, proving both the inherited method and the inherited attributes work without Car redefining anything.</pre></div>
+      </details>
+    </div>
+
     <p>
       <code>Car(Vehicle)</code> means "<code>Car</code> is a
       <code>Vehicle</code>, plus whatever <code>Car</code> adds." The
@@ -169,6 +185,22 @@ print(car.honk())</code></pre>
       <span class="output-label">actual output of subclass_extra_method.py</span>
       <pre><code>Honda Civic
 Beep beep!</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the previous example already proved a subclass gets a parent's methods for free — this one needs to prove the reverse direction just as clearly: a method added only to the subclass, so calling car.honk() works but would fail on a plain Vehicle object, showing inheritance is one-directional rather than a two-way merge.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Add a method to a subclass that only that subclass has, not the parent..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Using the same Vehicle class (with __init__(self, make, model) and describe(self)), write a Car(Vehicle) subclass that adds one new method, honk(self), returning "Beep beep!" — a method Vehicle itself does not have. Create a Car with make="Honda", model="Civic" and call both car.describe() (inherited) and car.honk() (Car-only) to show both work. Add a one-line comment noting that a plain Vehicle instance would raise AttributeError if .honk() were called on it.</pre></div>
+      </details>
     </div>
 
     <p>

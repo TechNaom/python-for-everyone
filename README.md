@@ -3,14 +3,20 @@
 ![Python for Everyone](assets/banner.svg)
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-1E8E3E)](LICENSE)
-[![Chapters built](https://img.shields.io/badge/chapters%20built-7%20%2F%2027-2E6BB8)](docs/curriculum/CURRICULUM_MAP.md)
+[![Chapters built](https://img.shields.io/badge/chapters%20built-25%20%2F%2033-2E6BB8)](docs/curriculum/CURRICULUM_MAP.md)
 [![Live site](https://img.shields.io/badge/live%20site-technaom.github.io-FFC93C)](https://technaom.github.io/python-for-everyone/)
 [![No signup required](https://img.shields.io/badge/signup-not%20required-0E7C86)](https://technaom.github.io/python-for-everyone/)
 
 Free, interactive Python course for everyone — from complete beginners to
-working professionals. Mini HTML textbooks with instant-check
-fill-in-the-blank quizzes, hands-on exercises, interview prep, and real
-projects.
+working professionals. A **hybrid** course by design: it teaches real
+Python fundamentals the traditional way (write it yourself, understand
+why it works, get it wrong and fix it) and, starting with Chapter 25,
+pairs that with genuine AI-collaboration practice — the reasoning behind
+each worked example, writing the prompt you'd give an AI assistant to
+build it, and an "AI-paired" version of every project with real, subtle
+bugs planted in it to practice catching. Neither half substitutes for
+the other; see [Chapter 25](chapters/chapter-25-memory-management/lesson.html)
+for the current reference implementation.
 
 🔗 **Live course site:** https://technaom.github.io/python-for-everyone/
 
@@ -34,17 +40,30 @@ follows the same format:
    callouts, annotated code (plus a live in-browser "Run Code" playground
    where the example doesn't need `input()`), an optional "Go Deeper" box,
    and a short Quick Recap
-3. A full Points to Remember summary at the end
-4. An interactive fill-in-the-blank quiz — each blank has its own **Check**
+3. **(Chapter 25 onward)** A GenAI thought-process + prompt box after every
+   worked example — the reasoning an experienced developer works through
+   before writing the code, a space to write your own prompt, and a real
+   reference prompt to compare against. There's no scored "AI grader" —
+   an earlier heuristic version was retired after it scored the course's
+   own reference prompts below perfect; the honest version just points
+   you at a real assistant to test your own prompt against.
+4. A full Points to Remember summary at the end
+5. An interactive fill-in-the-blank quiz — each blank has its own **Check**
    button for instant ✅/❌ feedback, a live progress bar, no backend,
    nothing leaves your browser
-5. Exercises, including at least one "Debug the Code" task
-6. A Practice Bank — a deeper, per-topic problem set (5-10 problems per
+6. Exercises, including at least one "Debug the Code" task
+7. A Practice Bank — a deeper, per-topic problem set (5-10 problems per
    sub-topic) with at least two scenario-based, interview-style problems
    per topic, for extra reps and interview prep
-7. Interview questions (strong answer / red flags / follow-up format) plus
+8. Interview questions (strong answer / red flags / follow-up format) plus
    a rapid-fire recall quiz
-8. A small real, resume-worthy project that uses everything the chapter taught
+9. A small real, resume-worthy project that uses everything the chapter
+   taught
+10. **(Chapter 25 onward)** An "AI-paired" follow-up to the project — a
+    realistic AI-generated solution with 1-3 genuinely subtle bugs planted
+    in it, then a reveal walking through what the AI's code actually got
+    wrong. The point is practicing code review and skepticism toward AI
+    output, not just prompting it.
 
 Every 4-6 chapters form a **module**, capped with a written exam covering
 everything in that module. Completing a chapter's quiz with a perfect
@@ -54,19 +73,18 @@ local storage — no accounts, no tracking).
 ## Status
 
 This course is being built **one chapter at a time**, piloted and validated
-before scaling. Currently live (Module 1 — Foundations):
-
-- ✅ Chapter 1: Your First Python Program (`print()`, variables, basic types, `input()`)
-- ✅ Chapter 2: Variables & Data Types (dynamic typing, `type()`/`id()`, conversion)
-- ✅ Chapter 3: Operators (arithmetic, relational/logical, bitwise, `is`/`in`)
-- ✅ Chapter 4: Control Flow (if / elif / else, nested if)
-- ✅ Chapter 5: Loops (while / for, accumulator pattern, break/continue)
-- ✅ Module 1 Written Exam
+before scaling. 25 of a planned 33 chapters are live, spanning Modules
+1-5 (Foundations through Data Analysis with NumPy/Pandas plus Memory
+Management). The GenAI thought-process/prompt-box and AI-paired-critique
+standard above is new as of Chapter 25 — it's the direction every chapter
+from here forward is built with, and a retrofit pass to add it to
+Chapters 1-24 is planned but not yet started, so don't expect it on
+earlier chapters yet.
 
 See the live [roadmap page](https://technaom.github.io/python-for-everyone/docs/curriculum/index.html)
 (or the plain-text draft at
 [`docs/curriculum/CURRICULUM_MAP.md`](docs/curriculum/CURRICULUM_MAP.md))
-for the full 27-chapter, 5-module roadmap.
+for the full 33-chapter roadmap.
 
 ## Repo structure
 
@@ -78,15 +96,19 @@ python-for-everyone/
 │   └── CURRICULUM_MAP.md                 → plain-text draft roadmap (repo browsing)
 ├── assets/
 │   ├── style.css                         → shared visual design, used by every page
-│   └── quiz-engine.js                    → shared fill-in-the-blank quiz checking logic
+│   ├── quiz-engine.js                    → shared fill-in-the-blank quiz checking logic
+│   └── genai-grader.js                   → wires up the GenAI prompt box's reveal button (Ch25+; no scoring)
 ├── chapters/
-│   └── chapter-01-first-program/
-│       ├── lesson.html                   → the interactive mini-textbook
+│   └── chapter-25-memory-management/     → current reference implementation of every standard below
+│       ├── lesson.html                   → the interactive mini-textbook, incl. GenAI prompt boxes
 │       ├── quiz.html                     → fill-in-the-blank quiz
 │       ├── interview-questions.html      → Q&A accordion + rapid-fire quiz
 │       ├── exercises/                    → index.html, README.md, starter.py, solution.py
 │       ├── practice/                     → deeper per-topic problem bank, incl. interview scenarios
-│       └── project/                      → index.html, README.md, starter.py, solution.py
+│       └── project/
+│           ├── index.html                → the solo project, incl. GenAI prompt boxes
+│           ├── ai-paired.html            → AI-paired critique loop (solo → AI-paired → find the bugs)
+│           ├── README.md, starter.py, solution.py
 └── .github/workflows/                    → GitHub Pages deploy workflow
 ```
 
