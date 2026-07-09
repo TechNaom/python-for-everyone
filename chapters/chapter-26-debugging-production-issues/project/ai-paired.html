@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to rebuild the Chapter 26 Production Incident Runbook project, then critique its plausible-but-flawed output -- catching a case-sensitivity bug, a first-match-only bug, and a duplicate-entry bug.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 26 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">25 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just built the <a href="index.html">Production Incident Runbook</a> yourself, unaided. That project is unchanged — this page is additive. Now the same project gets built a second way: by prompting an AI assistant, and then reviewing what it hands back with the same skepticism you'd bring to a coworker's pull request.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant to build the same runbook — an extended version of the prompt from the <code>classify_symptom()</code> box on the main project page:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>Write a Python "incident runbook" using only the standard library.
+I need:
+
+1. A CATALOG list of dicts, each with "id", "exception", "keywords"
+   (a list of strings), "root_cause", and "fix".
+2. classify_symptom(description) -- match a free-text symptom
+   description against CATALOG's keywords and return the matching
+   entries.
+3. diagnose(description) -- call classify_symptom() and return a
+   formatted report string, or a "no match" message if nothing
+   matched.
+
+Keep it to one file, no third-party packages, and make sure it
+actually finds every relevant match, not just the first one.</code></pre>
+  </div>
+
+  <p>And here's a plausible response — the kind of code an AI assistant might hand back on the first try. Read it as if it just landed in a pull request from a teammate, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">ai_generated_runbook.py</span>
+    </div>
+    <pre><code>CATALOG = [
+    {
+        "id": 1,
+        "exception": "KeyError",
+        "keywords": ["keyerror", "missing key"],
+        "root_cause": "A dict was accessed with [] on a key that isn't present.",
+        "fix": "Use .get(key, default) or validate required keys at startup.",
+    },
+    {
+        "id": 8,
+        "exception": "ZeroDivisionError",
+        "keywords": ["zerodivisionerror", "division by zero"],
+        "root_cause": "A denominator sourced from external data was zero.",
+        "fix": "Check the denominator before dividing.",
+    },
+]
+
+
+def classify_symptom(description):
+    """Find every catalog entry whose keywords match the description."""
+    matches = []
+    for entry in CATALOG:
+        for keyword in entry["keywords"]:
+            if keyword in description:
+                matches.append(entry)
+    return matches
+
+
+def diagnose(description):
+    """Return a formatted runbook entry for the best match."""
+    matches = classify_symptom(description)
+    if not matches:
+        return "No matching catalog entry for this symptom yet."
+    best_match = matches[0]
+    return (
+        f"Issue #{best_match['id']}: {best_match['exception']}\n"
+        f"  Root cause: {best_match['root_cause']}\n"
+        f"  Fix: {best_match['fix']}"
+    )
+
+
+if __name__ == "__main__":
+    print(diagnose("Service crashes with a KeyError for a missing config key"))
+    print(diagnose("Getting a KEYERROR in production, missing key issue"))</code></pre>
+  </div>
+
+  <p>It's clean, it's organized the same way the lesson's version is, and the docstrings read well. It's also wrong in three separate, genuinely easy-to-miss ways.</p>
+
+  <h2>Step 3: Where did the AI's code lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 — the match is case-sensitive, so realistic symptom text silently matches nothing</span>
+      <p><strong>What it looks like it does:</strong> <code>classify_symptom()</code> checks <code>if keyword in description</code> for each of the catalog's lowercase keywords — looks like a normal, working substring search.</p>
+      <p><strong>What it actually does:</strong> <code>description</code> is never lowercased. Python's <code>in</code> substring check is case-sensitive, so a keyword like <code>"keyerror"</code> only matches text containing exactly that lowercase spelling. The second call above — <code>"Getting a KEYERROR in production, missing key issue"</code> — contains <code>KEYERROR</code> in all caps, and <code>"keyerror"</code> is not a substring of that, so it's silently skipped. It still matches on <code>"missing key"</code> by luck, but that's incidental, not the fix.</p>
+      <p><strong>Why it matters:</strong> real symptom descriptions — copy-pasted error messages, Slack messages, bug reports — are never guaranteed to be lowercase. A runbook that only works on lowercase input will miss real incidents constantly, and nothing about running it once on a lucky example reveals that.</p>
+      <p><strong>The fix:</strong> lowercase <code>description</code> once at the top of the function (<code>description = description.lower()</code>) before checking any keyword against it — exactly what this chapter's own <code>classify_symptom()</code> does.</p>
+
+      <span class="qa-section-label flags">Flaw 2 — <code>diagnose()</code> silently discards every match except the first</span>
+      <p><strong>What it looks like it does:</strong> the prompt explicitly asked for code that "actually finds every relevant match, not just the first one," and <code>classify_symptom()</code> does return a full list of matches — looks like the requirement was met.</p>
+      <p><strong>What it actually does:</strong> <code>diagnose()</code> takes that full list and then only ever uses <code>matches[0]</code> — <code>best_match</code> — silently throwing away every other match. If a symptom description genuinely matches two different catalog issues (a realistic case — a real incident often has more than one contributing cause), the caller never finds out about the second one at all, with no error or warning that anything was dropped.</p>
+      <p><strong>Why it matters:</strong> this directly contradicts the one requirement the prompt was explicit about. It's also the kind of bug that's invisible in a demo with one clean symptom per call, and only shows up once a real-world, messier description comes through.</p>
+      <p><strong>The fix:</strong> format and return every entry in <code>matches</code>, not just <code>matches[0]</code> — join them with a blank line between entries, the way this chapter's own <code>diagnose()</code> does.</p>
+
+      <span class="qa-section-label flags">Flaw 3 — a symptom matching two keywords from the same entry returns that entry twice</span>
+      <p><strong>What it looks like it does:</strong> the nested loop checks every keyword of every entry against the description and appends the entry when a keyword matches — looks like straightforward "does this entry match" logic.</p>
+      <p><strong>What it actually does:</strong> because the inner loop doesn't stop after the first keyword match, an entry with two keywords that both appear in the description (e.g. a description containing both <code>"keyerror"</code> and <code>"missing key"</code>) gets appended to <code>matches</code> twice — once per matching keyword, not once per matching entry. Combined with Flaw 2 this happens to be masked (only <code>matches[0]</code> is used either way), but fixing Flaw 2 without also fixing this one would start printing the same issue twice in one report.</p>
+      <p><strong>Why it matters:</strong> a runbook that reports the same root cause and fix twice looks unpolished at best, and at worst makes a reader think there are two distinct issues when there's only one — exactly the kind of noise an incident runbook exists to cut through, not add.</p>
+      <p><strong>The fix:</strong> use <code>any(keyword in lowered for keyword in entry["keywords"])</code> to test the whole entry once, appending it at most one time — this chapter's own <code>classify_symptom()</code> does exactly this instead of a nested append-per-keyword loop.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself — it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 26?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Always test string matching with mixed-case real-world input' or 'Check whether a filtering function silently drops results it found'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

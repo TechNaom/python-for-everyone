@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 26: Debugging Production Issues (Category 1: Crashes & Exceptions) -- diagnosing real production crash patterns and knowing the specific exception each one raises.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-26-interview" data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 26 Interview Prep (Category 1)</span>
+    <span class="reading-time">40 min read</span>
+  </div>
+  <h1>Interview Questions: Debugging Production Issues</h1>
+  <p>Debugging questions in real interviews rarely ask you to name an exception in isolation &mdash; they show you a symptom or a snippet and ask you to diagnose it, the same way this chapter's catalog is organized. This set covers the ten crash patterns from Category 1: Crashes &amp; Exceptions.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> A dict lookup crashes with <code>KeyError</code> in production but never did in testing. Walk me through how you'd debug it.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Start from the traceback: it names the exact missing key and the exact line. The real question is why the key is missing in production but not in tests &mdash; usually a config/environment difference (an env var that's set locally but not in the deploy environment, a config file that isn't shipped the same way). The fix depends on whether the key is genuinely optional (use <code>.get()</code> with a sensible default) or required (fail fast at startup with a clear message naming every missing key, not just the first one hit).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Jumping straight to "just use <code>.get()</code> everywhere" without asking whether the key is actually supposed to be required — that just turns a loud, diagnosable crash into a silent misconfiguration.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the downside of wrapping every dict access in a try/except KeyError?" (It can hide genuine bugs the same way a bare except: does — the goal is deciding per-key whether missing is expected, not blanket-suppressing the error everywhere.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> You see <code>IndexError: list index out of range</code> in a loop that uses <code>range(n)</code>. What's your first hypothesis?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>range(n)</code> produces indices with no awareness of any particular list's actual length — it's just a sequence of integers. The first hypothesis is a mismatch between <code>n</code> (however it was chosen) and <code>len(list_being_indexed)</code>. I'd check whether <code>n</code> comes from a different source than the list itself (a separate count, a hardcoded assumption, a different collection's length) — that's almost always where the two silently drift apart.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting a blanket try/except IndexError around the loop instead of fixing the actual bound — that hides the bug instead of preventing it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a bound that can never cause this bug?" (range(len(the_actual_list)), or just iterating the list directly instead of indexing by position at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's wrong with a bare <code>except:</code>, specifically — not "it's bad practice," but what concretely goes wrong?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It catches every exception, not just the one you had in mind — including ones that indicate a real, unrelated bug (a typo'd dict key, a NameError from a refactor, even KeyboardInterrupt/SystemExit in older code). The concrete failure mode: a function returns a fallback value that looks completely normal, while masking a bug that silently produces wrong behavior for months. The fix is always to name the specific exception you expect (<code>except KeyError:</code>), so anything else still surfaces as its own distinct, diagnosable crash.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>A vague "it's just bad style" answer with no concrete failure scenario — this needs a real example of what breaks.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is except Exception: just as bad?" (Nearly — it's slightly narrower than bare except: (it won't catch SystemExit/KeyboardInterrupt), but it's still broad enough to swallow bugs you didn't anticipate, same failure mode.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> A <code>TypeError</code> shows up three function calls deep from where the actual bad value entered the system. How do you find the real source?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Read the traceback bottom-to-top: the deepest frame shows where the crash actually happened (the arithmetic that failed), but the value that caused it was likely valid-looking all the way through several calls until it hit an operation that couldn't tolerate its type. I'd trace the value backward through each frame in the traceback to find where it first entered the call chain — usually external input (form data, a query parameter, an API response) that was never converted or validated at the boundary.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Only looking at the last line of the traceback and proposing a type-check fix at that exact spot, rather than validating input at the actual entry point.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Where's the right place to fix this — where it crashed, or where the bad value entered?" (Where it entered — fixing it at the crash site just moves the problem one call deeper next time.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> <code>AttributeError: 'NoneType' object has no attribute 'X'</code> is one of the most common production tracebacks. What's the usual root cause?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Almost always a function that returns <code>None</code> on some code path — often implicitly, by falling through without an explicit <code>return</code> — and a caller that assumes the return value is always a real object. The fix is either checking for <code>None</code> right where the value comes back, before calling anything on it, or having the source function raise a specific, named exception instead of quietly returning <code>None</code> when nothing was found.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting a blanket <code>if x:</code> check without recognizing that "falsy but not None" values (empty list, 0, empty string) can trigger the same branch incorrectly if the check isn't specifically <code>is None</code>.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is 'is None' preferred over just 'if not x' here?" (Because a valid-but-falsy value like an empty dict or 0 would be wrongly treated the same as None.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> Your custom exception is being raised correctly but a caller's error handling is swallowing it. How do you catch that in code review?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Look specifically at what every <code>except</code> block up the call chain catches — <code>except Exception:</code> (or bare <code>except:</code>) will catch a specific custom exception right alongside genuine bugs, and treat both the same way. In review, I'd flag any <code>except Exception:</code> that doesn't re-raise or at least log what it caught, and ask whether the more specific exception type should be caught (and handled meaningfully) instead.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing that "the exception was raised correctly" and "the exception was handled correctly" are two separate things that both need checking.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the danger of a caught exception that fails silently (no log, no re-raise)?" (There's no signal anywhere that anything went wrong — the only evidence is the operation quietly not doing what it should have.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> A recursive function crashes with <code>RecursionError</code>. Walk me through your diagnosis.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The base case either doesn't exist, or exists but can be stepped over rather than landed on exactly. I'd check the base-case condition against every value the recursive parameter could actually take — an equality check like <code>n != 0</code> is a common trap, since a value that skips past 0 (e.g. counting down from a negative start) never satisfies it. The fix is usually switching to an inequality that can't be skipped, like <code>n &lt;= 0</code>, or validating the input before recursion begins.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting <code>sys.setrecursionlimit()</code> as "the fix" — that just delays the same crash, it doesn't address a genuinely broken or unreachable base case.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When, if ever, is raising the recursion limit actually the right call?" (Only when the recursion is genuinely correct and bounded, but legitimately deep — e.g., a known, finite, deep tree structure — never as a workaround for a broken base case.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> Where should you validate a value that might be zero before it's used as a denominator — right before the division, or earlier?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>As close to the division as the function boundary allows, ideally right inside the function that performs the division, since that function is the one that actually knows zero is unsafe there — relying on every caller to remember to check first is fragile and easy to forget once. The check should also decide what "zero reviews" or "zero total" actually means for the caller (a real 0, a None, a "not enough data" message), not just avoid the crash.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>"Wrap it in try/except ZeroDivisionError" as the only answer — that avoids the crash but doesn't decide what a meaningful zero-case result actually is.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is 0 reviews a bug, or a legitimate state?" (Legitimate — a brand-new product with no reviews is normal, so the function needs to handle it as expected input, not as an error case.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What's the difference between <code>FileNotFoundError</code> and <code>PermissionError</code>, and why does conflating them matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>FileNotFoundError means the path doesn't exist; PermissionError means the path exists but the OS denies the process access to it. They call for genuinely different responses: a missing file is often fine to treat as "nothing here yet," while a permission error usually means the deployment or environment itself is misconfigured and should fail loudly with an actionable message. Code that only catches FileNotFoundError will let a real PermissionError propagate as an unhandled crash in exactly the environment (a locked-down production server) where it's most likely to happen.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "file-related exception" as one bucket and reaching for a single broad except OSError: without distinguishing what each specific case should actually do.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a real production scenario where this distinction matters?" (A deploy script that fails on a locked-down directory it doesn't have read access to — treating that identically to "first run, no file yet" hides a genuine infrastructure misconfiguration.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> An API call succeeds (200 OK... or does it?) but <code>json.loads()</code> on the response body raises <code>JSONDecodeError</code>. What do you check first?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Whether the code checked the response status code before assuming the body was JSON at all. A very common real-world cause is that the request didn't actually succeed — a login redirect, a rate-limit response, or a "503 Service Unavailable" page, all of which return HTML or plain text, not JSON — and the calling code skipped that check and went straight to json.loads(). I'd check status_code (or equivalent) first, and wrap the parse itself in its own try/except so a genuinely malformed response produces a clear, specific error instead of a raw parser traceback.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming "the API sent bad JSON" as the only possible cause, without considering that it may not have sent JSON at all.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Where's the right layer to handle this — inside the function that calls json.loads(), or the caller of that function?" (Inside the function making the request, right after getting the response — that's the only place that actually knows whether the response looks like an error page before parsing is even attempted.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>some_dict[missing_key]</code> raises <code>____</code>Error, with no fallback.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="Key,key" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>range(n)</code> has no awareness of any particular list's actual ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="length,len" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> A bare <code>except:</code> or <code>except ____:</code> is the pattern most likely to silently hide a real bug.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="Exception,exception" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> Python is dynamically ____, so nothing stops a string from being passed where a number is expected.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="typed" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A function with no explicit <code>return</code> on some code path implicitly returns <code>____</code> there.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="None,none" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Catching a custom exception's specific type, instead of the broad <code>Exception</code> base class, prevents it from being ____ alongside unrelated bugs.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="swallowed,caught,hidden" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> A recursive function needs a ____ case that's actually reachable, not just present.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="base" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Dividing by zero with <code>/</code> raises <code>____</code>Error.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="ZeroDivision,zerodivision" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> A file that exists but that the process can't access raises <code>____</code>Error, not FileNotFoundError.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="Permission,permission" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Before assuming an API response body is JSON, check the response's ____ code first.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="status" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

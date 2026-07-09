@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26 Project: Production Incident Runbook — Python for Everyone</title>
+<meta name="description" content="Build a Production Incident Runbook that classifies a plain-language symptom description against the Category 1 debugging catalog and suggests root causes and fixes, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 26 Project (Category 1)</span>
+    <span class="reading-time">40 min build</span>
+  </div>
+  <h1>Production Incident Runbook</h1>
+
+  <p>A small, standalone <strong>incident runbook</strong> that takes a plain-language description of a symptom &mdash; the kind of thing you'd type into a bug report or say out loud during an incident &mdash; and classifies it against the Category 1 catalog, returning the likely root cause(s) and fix(es) instead of leaving you to search the lesson page manually.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>SYMPTOM: Service crashes on startup with a KeyError for a missing config key
+Issue #1: KeyError
+  Root cause: A dict was accessed with [] on a key that isn't present -- often a config/env var missing in this environment.
+  Fix: Use .get(key, default) for optional keys, or validate all required keys explicitly at startup and fail with a clear message.
+
+SYMPTOM: Everything is fine, no crash at all
+No matching catalog entry for this symptom yet -- check Category 1 in the lesson for the closest pattern.</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder, then run <code>python3 starter.py</code>. Standard library only &mdash; no installs needed.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The core piece: <code>classify_symptom()</code></h2>
+  <p>Everything else in this project calls this one function &mdash; it's the actual matching logic.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">classify_symptom.py</span>
+    </div>
+    <pre><code>def classify_symptom(description):
+    lowered = description.lower()
+    matches = []
+    for entry in CATALOG:
+        if any(keyword in lowered for keyword in entry["keywords"]):
+            matches.append(entry)
+    return matches</code></pre>
+  </div>
+
+  <div class="genai-prompt-box">
+    <p class="genai-thought"><strong>Thought process:</strong> the design decision that matters here isn't the matching logic itself (a simple substring check) &mdash; it's the shape of the catalog data it matches against. Keeping each entry as a plain dict with a fixed set of keys (id, exception, keywords, root_cause, fix) means adding a new issue later is just appending one more dict, not touching the matching function at all. An experienced dev optimizes for "easy to extend" here, since this catalog is explicitly meant to grow to ~100 entries over later chapter passes.</p>
+    <div class="genai-try-first">
+      <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+      <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that matches a symptom description against a catalog of known issues using keyword matching..."></textarea>
+      <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+    </div>
+    <details class="genai-reveal">
+      <summary>Show a strong version of this prompt</summary>
+      <div class="genai-prompt-text"><pre>Write a Python function classify_symptom(description) using only the standard library. It takes a list of catalog entries called CATALOG, where each entry is a dict with keys "id", "exception", "keywords" (a list of lowercase strings), "root_cause", and "fix". Lowercase the description argument, then return a list of every CATALOG entry where at least one of its "keywords" is a substring of the lowercased description. Preserve CATALOG's original order in the results. Return an empty list if nothing matches -- don't raise an exception for a no-match case.</pre></div>
+    </details>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong><code>CATALOG</code>:</strong> the 10 Category 1 issues, each with an exception name, matching keywords, a root cause, and a fix &mdash; mirroring the lesson's issue cards exactly.</li>
+    <li><strong><code>classify_symptom(description)</code>:</strong> the matching logic &mdash; lowercase the description, check each catalog entry's keywords against it.</li>
+    <li><strong><code>format_runbook_entry(entry)</code>:</strong> turns one matched catalog entry into a readable block.</li>
+    <li><strong><code>diagnose(description)</code>:</strong> the public entry point most code would actually call, handling the no-match case gracefully.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Add a <code>confidence</code> field based on how many keywords matched, and sort results by confidence instead of catalog order.</li>
+    <li>Feed it real error messages/tracebacks from your own earlier chapter projects and see how well the keyword matching holds up.</li>
+    <li>Extend <code>CATALOG</code> with your own entries for bugs you've personally hit, using the same symptom/root_cause/fix shape.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Real incident response almost always starts with someone describing a symptom in plain language, not a stack trace &mdash; "the checkout page is crashing for some users" comes before anyone finds the actual <code>KeyError</code>. A tool that maps loose, human descriptions to known patterns and their fixes is exactly the kind of internal tooling real engineering teams build once they've hit the same handful of bugs enough times to notice the pattern.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Production Incident Runbook above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what Category 1 has taught so far. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A Traceback-to-Exception-Type Extractor</h3>
+    <p><strong>Problem:</strong> Given a full, multi-line Python traceback as a string, extract just the exception type and message from the last line.</p>
+    <p><strong>What it should do:</strong> Return a tuple <code>(exception_type, message)</code>, e.g. <code>("KeyError", "'DATABASE_URL'")</code>, from a real traceback's last line.</p>
+    <p><strong>Suggested approach:</strong> The last non-empty line of a traceback always has the shape <code>ExceptionType: message</code> &mdash; split on the first <code>": "</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A "Would This Crash?" Static Checker</h3>
+    <p><strong>Problem:</strong> Given a small snippet of code as a string, flag common crash-prone patterns without running it.</p>
+    <p><strong>What it should do:</strong> Check a code string for patterns like a bare <code>except:</code>, an overly broad <code>except Exception:</code>, or an unguarded <code>range(</code>, and report which patterns it found.</p>
+    <p><strong>Suggested approach:</strong> Simple substring/regex checks (Chapter 18) on the code text &mdash; a pattern-spotter, not a real AST-based linter.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> A Symptom-to-Fix Quiz Generator</h3>
+    <p><strong>Problem:</strong> Turn the Category 1 catalog into a self-quiz: show a random symptom, let the user guess the exception type, then reveal the root cause and fix.</p>
+    <p><strong>What it should do:</strong> Pick a random <code>CATALOG</code> entry, print its root_cause as a clue, prompt the user for a guess, and report whether they were right.</p>
+    <p><strong>Suggested approach:</strong> <code>random.choice(CATALOG)</code> plus a simple case-insensitive string comparison against the guess.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A Multi-Symptom Incident Report</h3>
+    <p><strong>Problem:</strong> A single incident often has more than one symptom reported at once &mdash; the runbook should handle a list of symptom descriptions, not just one.</p>
+    <p><strong>What it should do:</strong> Run <code>diagnose()</code> on each of a list of symptom strings and produce one combined report, plus a summary counting distinct catalog issues involved in total.</p>
+    <p><strong>Suggested approach:</strong> Loop over the list, reuse this project's <code>classify_symptom()</code>, and track a running set of matched issue IDs for the summary count.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on diagnosing and fixing production crash patterns, for Chapter 26: Debugging Production Issues (Category 1: Crashes & Exceptions).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 26 Coding Challenges (Category 1)</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Debugging Production Issues</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. Write your
+    function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-26 (Category 1) have covered so far.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Safe Config Get <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_get(d, key, default)</code> that returns <code>d[key]</code> if <code>key</code> is present in the dict <code>d</code>, or <code>default</code> otherwise &mdash; without ever raising <code>KeyError</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>d</code> is a dict; <code>default</code> can be any type.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_get({"a": 1}, "a", 0)</code> &rarr; <code>1</code><br>
+        <code>safe_get({"a": 1}, "b", 0)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def safe_get(d, key, default):
+    # TODO: return d[key] if present, else default -- no KeyError ever.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_get",
+  "cases": [
+    { "args": [{"a": 1}, "a", 0], "expected": 1 },
+    { "args": [{"a": 1}, "b", 0], "expected": 0 },
+    { "args": [{}, "x", "missing"], "expected": "missing" },
+    { "args": [{"HOST": "localhost"}, "DATABASE_URL", null], "expected": null }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def safe_get(d, key, default):
+    return d.get(key, default)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Safe Index Sum <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_index_sum(values, indices)</code> that sums <code>values[i]</code> for every <code>i</code> in <code>indices</code>, but skips any index that's out of range instead of raising <code>IndexError</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>values</code> is a list of numbers; <code>indices</code> is a list of ints (may include negative or too-large indices).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_index_sum([1, 2, 3], [0, 1, 2])</code> &rarr; <code>6</code><br>
+        <code>safe_index_sum([1, 2, 3], [0, 5, 10])</code> &rarr; <code>1</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def safe_index_sum(values, indices):
+    # TODO: sum values[i] for each i in indices, skipping any i that's
+    # out of range (negative indices count as out of range here).
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_index_sum",
+  "cases": [
+    { "args": [[1, 2, 3], [0, 1, 2]], "expected": 6 },
+    { "args": [[1, 2, 3], [0, 5, 10]], "expected": 1 },
+    { "args": [[1, 2, 3], []], "expected": 0 },
+    { "args": [[5, 5, 5], [-1, 0, 1]], "expected": 10 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def safe_index_sum(values, indices):
+    total = 0
+    for i in indices:
+        if 0 <= i < len(values):
+            total += values[i]
+    return total</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Catch Only What You Expect <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>catch_only_keyerror(d, key, default)</code> that returns <code>d[key]</code>, catching <em>only</em> <code>KeyError</code> and returning <code>default</code> in that case &mdash; not a bare <code>except:</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>d</code> is a dict.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>catch_only_keyerror({"a": 1}, "a", 0)</code> &rarr; <code>1</code><br>
+        <code>catch_only_keyerror({"a": 1}, "b", 99)</code> &rarr; <code>99</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def catch_only_keyerror(d, key, default):
+    # TODO: return d[key], catching ONLY KeyError, returning default
+    # in that case.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "catch_only_keyerror",
+  "cases": [
+    { "args": [{"a": 1}, "a", 0], "expected": 1 },
+    { "args": [{"a": 1}, "b", 99], "expected": 99 },
+    { "args": [{}, "x", "fallback"], "expected": "fallback" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def catch_only_keyerror(d, key, default):
+    try:
+        return d[key]
+    except KeyError:
+        return default</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Validate Before Arithmetic <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>to_number(value)</code> that converts <code>value</code> to a <code>float</code>, whether it arrives as a string like <code>"10"</code> or already as a number.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>value</code> is a string or a number that represents a valid number.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>to_number("10")</code> &rarr; <code>10.0</code><br>
+        <code>to_number(10)</code> &rarr; <code>10.0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def to_number(value):
+    # TODO: convert value to a float, whether it's a string or a number.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "to_number",
+  "cases": [
+    { "args": ["10"], "expected": 10.0 },
+    { "args": [10], "expected": 10.0 },
+    { "args": ["3.5"], "expected": 3.5 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def to_number(value):
+    return float(value)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Find Index or -1 <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>find_index_or_negative_one(items, target)</code> that returns the index of the first item equal to <code>target</code>, or <code>-1</code> if nothing matches &mdash; never <code>None</code>, which would risk an <code>AttributeError</code>/<code>TypeError</code> downstream if a caller tries to use it as a number.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>items</code> is a list; <code>target</code> can be any type.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>find_index_or_negative_one([10, 20, 30], 20)</code> &rarr; <code>1</code><br>
+        <code>find_index_or_negative_one([10, 20, 30], 99)</code> &rarr; <code>-1</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def find_index_or_negative_one(items, target):
+    # TODO: return the index of the first match, or -1 if none found.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "find_index_or_negative_one",
+  "cases": [
+    { "args": [[10, 20, 30], 20], "expected": 1 },
+    { "args": [[10, 20, 30], 99], "expected": -1 },
+    { "args": [[], 1], "expected": -1 },
+    { "args": [["a", "b", "c"], "c"], "expected": 2 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def find_index_or_negative_one(items, target):
+    for i, item in enumerate(items):
+        if item == target:
+            return i
+    return -1</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Safe Divide <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_divide(a, b)</code> that returns <code>a / b</code>, or <code>None</code> if <code>b</code> is <code>0</code> &mdash; never raising <code>ZeroDivisionError</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>a</code> and <code>b</code> are numbers.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_divide(10, 2)</code> &rarr; <code>5.0</code><br>
+        <code>safe_divide(10, 0)</code> &rarr; <code>None</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="10">
+def safe_divide(a, b):
+    # TODO: return a / b, or None if b is 0.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_divide",
+  "cases": [
+    { "args": [10, 2], "expected": 5.0 },
+    { "args": [10, 0], "expected": null },
+    { "args": [0, 5], "expected": 0.0 },
+    { "args": [-10, 2], "expected": -5.0 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def safe_divide(a, b):
+    if b == 0:
+        return None
+    return a / b</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Is It Valid JSON? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_valid_json(raw_text)</code> that returns <code>True</code> if <code>raw_text</code> can be parsed as JSON with <code>json.loads()</code>, or <code>False</code> otherwise &mdash; catching <code>json.JSONDecodeError</code> specifically, never letting it propagate.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>raw_text</code> is a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_valid_json('{"a": 1}')</code> &rarr; <code>True</code><br>
+        <code>is_valid_json("&lt;html&gt;err&lt;/html&gt;")</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+import json
+
+def is_valid_json(raw_text):
+    # TODO: return True if raw_text parses as JSON, False otherwise.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_valid_json",
+  "cases": [
+    { "args": ["{\"a\": 1}"], "expected": true },
+    { "args": ["<html>err</html>"], "expected": false },
+    { "args": ["[1, 2, 3]"], "expected": true },
+    { "args": [""], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>import json
+
+def is_valid_json(raw_text):
+    try:
+        json.loads(raw_text)
+        return True
+    except json.JSONDecodeError:
+        return False</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Will the Countdown Terminate? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>A recursive <code>countdown(n)</code> function repeatedly adds <code>step</code> to <code>n</code> until <code>n</code> reaches exactly <code>0</code>, then stops. Write a function <code>will_terminate(n, step)</code> that predicts &mdash; <em>without actually recursing</em> &mdash; whether that countdown will ever land exactly on <code>0</code> (<code>True</code>) or would recurse forever / hit <code>RecursionError</code> (<code>False</code>).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> and <code>step</code> are integers. If <code>step</code> is <code>0</code>, the countdown never changes, so it terminates only if <code>n</code> is already <code>0</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>will_terminate(5, -1)</code> &rarr; <code>True</code> (5, 4, 3, 2, 1, 0)<br>
+        <code>will_terminate(-5, -1)</code> &rarr; <code>False</code> (-5, -6, -7, ... never reaches 0)<br>
+        <code>will_terminate(5, -2)</code> &rarr; <code>False</code> (5, 3, 1, -1, -3, ... skips over 0)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def will_terminate(n, step):
+    # TODO: predict whether repeatedly adding step to n will ever land
+    # exactly on 0, without actually recursing.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "will_terminate",
+  "cases": [
+    { "args": [5, -1], "expected": true },
+    { "args": [-5, -1], "expected": false },
+    { "args": [0, -1], "expected": true },
+    { "args": [5, 1], "expected": false },
+    { "args": [6, -2], "expected": true },
+    { "args": [5, -2], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def will_terminate(n, step):
+    if step == 0:
+        return n == 0
+    if n == 0:
+        return True
+    # moving away from 0 -- n positive and step non-negative, or
+    # n negative and step non-positive -- can never reach 0
+    if (n > 0) != (step < 0):
+        return False
+    # otherwise, n reaches exactly 0 only if it's an exact multiple
+    # of step in the direction that closes the distance to 0
+    return n % step == 0</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

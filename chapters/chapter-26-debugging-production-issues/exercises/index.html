@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 26: Debugging Production Issues (Category 1), covering KeyError, IndexError, specific-vs-bare except, TypeError from unvalidated input, implicit None returns, ZeroDivisionError, JSONDecodeError, and a Debug the Code task.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 26 Exercises (Category 1)</span>
+    <span class="reading-time">35 min, hands-on</span>
+  </div>
+  <h1>Exercises: Debugging Production Issues</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. Every task uses only the standard library &mdash; no installs
+    needed.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A safe dict lookup</h3>
+    <p>Write <code>safe_lookup(config, key, default)</code> — return the value if present, otherwise <code>default</code>, never raising <code>KeyError</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A safe top-N sum</h3>
+    <p>Write <code>safe_top_n(scores, n)</code> — sum the first <code>n</code> items without ever indexing past the end of the list.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Catching the specific exception</h3>
+    <p>Write <code>safe_int_lookup(raw, key, default)</code> — catch only <code>KeyError</code>, not a bare <code>except:</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Validating input before arithmetic</h3>
+    <p>Write <code>safe_discount(price, percent_off)</code> — convert <code>percent_off</code> to a float before using it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Raising instead of implicitly returning None</h3>
+    <p>Write <code>find_user_or_raise(users, name)</code> — raise a clear <code>ValueError</code> instead of implicitly returning <code>None</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Handling a zero denominator</h3>
+    <p>Write <code>average_or_none(total, count)</code> — return <code>None</code> instead of crashing when <code>count</code> is 0.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Handling a non-JSON response</h3>
+    <p>Write <code>parse_json_safe(raw_text)</code> — catch <code>json.JSONDecodeError</code> specifically and return <code>None</code>.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 8 — Debug the Code</h3>
+    <p>This is supposed to return 30 if the "timeout" key is missing, but its bare <code>except:</code> also hides a real typo in the config dict below (<code>"timeoout"</code>, not <code>"timeout"</code>). Fix the except clause so it only catches <code>KeyError</code>.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_load_timeout.py</span>
+      </div>
+      <pre><code>def load_timeout(raw):
+    try:
+        return int(raw["timeout"])
+    except:
+        return 30
+
+
+raw_config = {"timeoout": "45"}
+print("load_timeout result:", load_timeout(raw_config))</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

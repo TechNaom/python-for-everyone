@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26: Debugging Production Issues — Python for Everyone</title>
+<meta name="description" content="A scannable production-debugging playbook: real crash symptoms, their root causes, fixes, and minimal runnable repros, starting with Category 1 -- Crashes & Exceptions.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 26 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">In progress — Category 1 of 8 built</span>
+  </div>
+  <h1>Debugging Production Issues</h1>
+  <p><em>Every earlier chapter taught you how to write Python that works. This chapter is different on purpose: it's a scannable field guide to Python that <strong>breaks</strong> &mdash; real symptoms you'd actually see in a log file or a bug report, the mechanism that causes each one, the fix, and a minimal repro you can run yourself. It's built as a growing catalog, not a story with a beginning and end, so jump to whatever category matches the problem in front of you.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li>This is a <strong>catalog, not a narrative</strong> &mdash; each entry is self-contained. Use the on-page navigation to jump straight to a category, or to a specific symptom if you already know roughly what's going wrong.</li>
+      <li>Every entry follows the same four-part shape: <strong>Symptom</strong> (what you'd actually see), <strong>Root cause</strong> (the real mechanism, tied back to a specific earlier chapter), <strong>Fix</strong>, and a runnable repro.</li>
+      <li>Every repro on this page was actually executed with Python 3.14.4 before being written down &mdash; the output shown is real, not invented.</li>
+      <li><strong>Category 1: Crashes &amp; Exceptions</strong> is complete below. The remaining 7 categories (Performance, Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, Logging &amp; Observability) are planned and will be added in later passes — they're listed in the on-page navigation so the shape of the full chapter is visible, but only Category 1 has content on this page for now.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#crashes-exceptions">1. Crashes &amp; Exceptions</a>
+    <span class="toc-planned">2. Performance (planned)</span>
+    <span class="toc-planned">3. Memory Leaks (planned)</span>
+    <span class="toc-planned">4. Concurrency &amp; Deadlocks (planned)</span>
+    <span class="toc-planned">5. Data Corruption (planned)</span>
+    <span class="toc-planned">6. Deployment &amp; Environment (planned)</span>
+    <span class="toc-planned">7. Database &amp; API Failures (planned)</span>
+    <span class="toc-planned">8. Logging &amp; Observability (planned)</span>
+  </nav>
+
+  <div class="hook">
+    Chapter 12 taught you <code>try</code>/<code>except</code> as a mechanism. This chapter is about the other half of that skill: recognizing <em>which</em> exception a piece of broken code is about to throw, before it throws it &mdash; the pattern-matching real debugging actually runs on.
+  </div>
+
+  <div class="subtopic" id="crashes-exceptions">
+    <span class="subtopic-label">Category 1 of 8</span>
+    <h2>1. Crashes &amp; Exceptions</h2>
+    <p>
+      Ten real crash patterns, each one traceable to a specific
+      earlier chapter's feature. Every traceback below is the actual,
+      unedited output of running that exact code.
+    </p>
+
+    <div class="issue-card">
+      <span class="issue-id">#1</span>
+      <h3>KeyError: 'DATABASE_URL'</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>The service crashes on startup, before it ever handles a single request, with a <code>KeyError</code> pointing at a config key.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 8 covered that <code>some_dict[key]</code> raises <code>KeyError</code> the instant the key isn't present &mdash; there's no "closest match" or silent fallback. A hardcoded config dict is missing a key that a deployment step (an environment variable, a secrets file) was supposed to provide.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Use <code>config.get("DATABASE_URL")</code> with an explicit fallback or a clear startup-time error message, instead of letting a raw <code>KeyError</code> (which doesn't say <em>why</em> the key is missing) surface as the crash.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_01_keyerror.py</span>
+        </div>
+        <pre><code>config = {"HOST": "localhost", "PORT": 5432}
+
+def connect():
+    db_url = config["DATABASE_URL"]
+    return f"Connecting to {db_url}"
+
+print(connect())</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>Traceback (most recent call last):
+  File "issue_01_keyerror.py", line 7, in &lt;module&gt;
+    print(connect())
+          ~~~~~~~^^
+  File "issue_01_keyerror.py", line 4, in connect
+    db_url = config["DATABASE_URL"]
+             ~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'DATABASE_URL'</code></pre>
+      </div>
+      <div class="genai-prompt-box">
+        <p class="genai-thought"><strong>Thought process:</strong> the fix isn't just "use <code>.get()</code>" &mdash; it's deciding whether a missing <code>DATABASE_URL</code> should have a sane default (fine for <code>HOST</code>/<code>PORT</code>) or should fail loudly and immediately (right for something the service can't run without). An experienced dev treats those as two different cases, not one blanket "always use <code>.get()</code>" rule.</p>
+        <div class="genai-try-first">
+          <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+          <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a config loader that fails with a clear error message if a required key is missing..."></textarea>
+          <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+          <div class="genai-compare-note" hidden>
+            Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+          </div>
+        </div>
+        <details class="genai-reveal">
+          <summary>Show a strong version of this prompt</summary>
+          <div class="genai-prompt-text"><pre>Write a Python function load_config(config, required_keys) that checks a dict against a list of required key names. For any key that's missing, raise a RuntimeError with a message listing every missing key at once (not just the first one found) so a developer sees the whole problem in one run instead of fixing keys one at a time. If nothing is missing, return the dict unchanged.</pre></div>
+        </details>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#2</span>
+      <h3>IndexError: list index out of range</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A report-generation function crashes intermittently &mdash; it works for most inputs, then suddenly fails with <code>IndexError</code> once a list is shorter than expected.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 5 covered that <code>range(n)</code> doesn't know or care how long any particular list is &mdash; this function assumes there are always at least <code>n</code> items to loop over, and that assumption silently holds until the day the list is shorter.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Bound the loop by the list's own length: <code>range(min(n, len(scores)))</code>, or loop over <code>scores[:n]</code> directly so the loop can never ask for an index that isn't there.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_02_indexerror.py</span>
+        </div>
+        <pre><code>scores = [88, 92, 79, 95]
+
+def bonus_for_top_n(scores, n):
+    total = 0
+    for i in range(n):
+        total += scores[i]
+    return total
+
+print(bonus_for_top_n(scores, 5))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>Traceback (most recent call last):
+  File "issue_02_indexerror.py", line 9, in &lt;module&gt;
+    print(bonus_for_top_n(scores, 5))
+          ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "issue_02_indexerror.py", line 6, in bonus_for_top_n
+    total += scores[i]
+             ~~~~~~^^^
+IndexError: list index out of range</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#3</span>
+      <h3>A bare except: silently hides a typo, forever</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A settings loader "works" &mdash; it never crashes, and it always returns a default timeout of <code>30</code>. Except it's <em>always</em> returning the default, even for configs where a real value was actually provided, and nobody notices for months.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 12 covered that a bare <code>except:</code> catches <em>every</em> exception, not just the one you had in mind. Here the config key is typo'd (<code>"timeoout"</code>), which raises a <code>KeyError</code> &mdash; and the bare <code>except:</code> quietly swallows it and returns the fallback, exactly as if the key had simply been left out on purpose. The typo becomes invisible.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Catch the specific exception you actually expect (<code>except KeyError:</code>), never a bare <code>except:</code> &mdash; that way a genuine typo or unrelated bug still surfaces as its own distinct crash instead of being silently absorbed into "using the default."</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_03_bare_except.py</span>
+        </div>
+        <pre><code>def load_settings(raw):
+    try:
+        return int(raw["timeout"])
+    except:
+        return 30
+
+# a typo in the config key -- "timeoout", not "timeout"
+print(load_settings({"timeoout": "45"}))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>30</code></pre>
+      </div>
+      <p>
+        Nothing here looks broken &mdash; the function runs, returns a
+        plausible number, and never raises. That's exactly the danger:
+        change <code>except:</code> to <code>except KeyError:</code>
+        and run it again, and the real bug (a typo'd key that means
+        the configured timeout of <code>45</code> is never actually
+        used) finally surfaces as a visible <code>KeyError</code>
+        instead of hiding behind a fallback value forever.
+      </p>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#4</span>
+      <h3>TypeError: unsupported operand type(s) for /: 'str' and 'int'</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A checkout function crashes with a <code>TypeError</code> several function calls deep &mdash; the traceback points at a line of ordinary-looking arithmetic.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 2 covered that Python is dynamically typed &mdash; nothing stops a caller from passing a string where a number was expected. Here <code>percent_off</code> arrives as the string <code>"10"</code> (likely straight from form input or a query parameter) and gets passed through two function calls before the arithmetic finally fails, far from where the bad value actually originated.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Convert and validate external input at the boundary where it enters the system (right after reading it from a form/request), not deep inside business logic &mdash; by the time <code>apply_discount()</code> runs, <code>percent_off</code> should already be guaranteed numeric.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_04_typeerror.py</span>
+        </div>
+        <pre><code>def apply_discount(price, percent_off):
+    return price - (price * percent_off / 100)
+
+def checkout_total(price, percent_off):
+    return apply_discount(price, percent_off)
+
+# percent_off arrived as a string, e.g. straight from request.form
+print(checkout_total(100, "10"))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>Traceback (most recent call last):
+  File "issue_04_typeerror.py", line 7, in &lt;module&gt;
+    print(checkout_total(100, "10"))
+          ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "issue_04_typeerror.py", line 5, in checkout_total
+    return apply_discount(price, percent_off)
+  File "issue_04_typeerror.py", line 2, in apply_discount
+    return price - (price * percent_off / 100)
+                    ~~~~~~~~~~~~~~~~~~~~^~~~~
+TypeError: unsupported operand type(s) for /: 'str' and 'int'</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#5</span>
+      <h3>AttributeError: 'NoneType' object has no attribute 'get'</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>Sending a welcome email crashes with an <code>AttributeError</code> mentioning <code>NoneType</code> &mdash; a type that was never mentioned anywhere in the code that crashed.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 10 covered that a function with no explicit <code>return</code> on some code path implicitly returns <code>None</code> on that path. <code>find_user()</code> only <code>return</code>s inside the loop when a match is found &mdash; if the loop finishes without matching, the function falls through and returns <code>None</code>, with nothing announcing that it happened.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Check for <code>None</code> right where the value comes back (<code>if user is None: ...</code>) before calling any method on it &mdash; or raise a clear, named exception from <code>find_user()</code> itself when no match exists, instead of returning <code>None</code> silently.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_05_attributeerror.py</span>
+        </div>
+        <pre><code>users = [
+    {"name": "Ana", "email": "ana@example.com"},
+    {"name": "Beto"},
+]
+
+def find_user(name):
+    for u in users:
+        if u["name"] == name:
+            return u
+    # falls through here if nothing matched -- implicitly returns None
+
+def send_welcome_email(name):
+    user = find_user(name)
+    return user.get("email").upper()
+
+print(send_welcome_email("Carla"))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>Traceback (most recent call last):
+  File "issue_05_attributeerror.py", line 15, in &lt;module&gt;
+    print(send_welcome_email("Carla"))
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "issue_05_attributeerror.py", line 13, in send_welcome_email
+    return user.get("email").upper()
+           ^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#6</span>
+      <h3>A custom exception gets raised correctly -- and swallowed anyway</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A withdrawal of $200 from a $50 balance is reported as successful, with the balance left unchanged at $50 &mdash; no error, no warning, and no money actually moved (which is the only reason this bug is survivable at all).</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 12 covered writing custom exception classes specifically so callers can react to <em>meaningful, named</em> failures. <code>InsufficientFundsError</code> is raised correctly here &mdash; but the caller's <code>except Exception:</code> is broad enough to catch it too, right alongside genuine bugs, and silently falls back to "return the balance unchanged" as if nothing happened.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Catch the specific custom exception (<code>except InsufficientFundsError:</code>) and handle it deliberately &mdash; show the user a real "insufficient funds" message &mdash; instead of catching <code>Exception</code> broadly and treating every possible failure the same way.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_06_swallowed_custom_exception.py</span>
+        </div>
+        <pre><code>class InsufficientFundsError(Exception):
+    pass
+
+def withdraw(balance, amount):
+    if amount > balance:
+        raise InsufficientFundsError(f"Cannot withdraw {amount}, balance is {balance}")
+    return balance - amount
+
+def process_withdrawal(balance, amount):
+    try:
+        return withdraw(balance, amount)
+    except Exception:
+        return balance
+
+result = process_withdrawal(50, 200)
+print(f"Balance after withdrawal attempt: {result}")</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>Balance after withdrawal attempt: 50</code></pre>
+      </div>
+      <p>
+        The output looks completely reasonable in isolation &mdash;
+        it's only wrong once you know a $200 withdrawal was silently
+        rejected instead of clearly refused. This is the same shape of
+        bug as #3: a too-broad <code>except</code> turning a real,
+        specific failure into indistinguishable "normal" behavior.
+      </p>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#7</span>
+      <h3>RecursionError: maximum recursion depth exceeded</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A recursive countdown function crashes with a huge traceback ending in <code>RecursionError</code>, instead of just counting down and stopping.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 10 covered that every recursive function needs a base case that's actually reachable. <code>countdown()</code>'s base case checks <code>n != 0</code> &mdash; but called with a negative starting number, <code>n</code> counts <code>-5, -6, -7, ...</code> and steps straight past <code>0</code> without ever landing exactly on it, so the base case never triggers.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Use a base case that can't be skipped over, such as <code>n &lt;= 0</code> instead of <code>n != 0</code> &mdash; or validate the input and reject a negative starting value before recursion begins at all.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_07_recursionerror.py</span>
+        </div>
+        <pre><code>def countdown(n):
+    print(n)
+    if n != 0:
+        countdown(n - 1)
+
+countdown(-5)</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4, truncated)</span>
+        <pre><code>-5
+-6
+-7
+...
+  File "issue_07_recursionerror.py", line 4, in countdown
+    countdown(n - 1)
+    ~~~~~~~~~^^^^^^^
+  [Previous line repeated 996 more times]
+RecursionError: maximum recursion depth exceeded</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#8</span>
+      <h3>ZeroDivisionError: division by zero</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>Computing a product's average rating crashes with <code>ZeroDivisionError</code> &mdash; but only for products that don't have any reviews yet.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 3 covered that <code>/</code> raises <code>ZeroDivisionError</code> whenever the denominator is exactly <code>0</code> &mdash; no rounding, no special case. <code>num_reviews</code> here comes from a data source (this stands in for a real API/database result, tying back to Chapter 19) that's a perfectly valid <code>0</code> for a brand-new product, but the function never checks for it.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Check the denominator before dividing and return a sensible value for the zero case &mdash; <code>0</code>, <code>None</code>, or <code>"No reviews yet"</code>, whichever fits how the result gets displayed &mdash; instead of letting the division itself decide by crashing.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_08_zerodivisionerror.py</span>
+        </div>
+        <pre><code>def average_rating(total_score, num_reviews):
+    return total_score / num_reviews
+
+# a brand-new product with no reviews yet
+review_data = {"total_score": 47, "num_reviews": 0}
+print(average_rating(review_data["total_score"], review_data["num_reviews"]))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>Traceback (most recent call last):
+  File "issue_08_zerodivisionerror.py", line 6, in &lt;module&gt;
+    print(average_rating(review_data["total_score"], review_data["num_reviews"]))
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "issue_08_zerodivisionerror.py", line 2, in average_rating
+    return total_score / num_reviews
+           ~~~~~~~~~~~~^~~~~~~~~~~~~
+ZeroDivisionError: division by zero</code></pre>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#9</span>
+      <h3>FileNotFoundError and PermissionError look similar -- and aren't</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>A log reader was written to handle "the file doesn't exist yet" gracefully. In production it crashes anyway &mdash; not because the file is missing, but because the process doesn't have permission to read it.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 13 covered handling <code>FileNotFoundError</code> around <code>open()</code>. That's a different, more specific exception than <code>PermissionError</code> (raised when the file exists but the OS denies access &mdash; a locked-down production deploy directory, for example). Code that only catches <code>FileNotFoundError</code> lets a real <code>PermissionError</code> propagate as an unhandled crash, and the two are easy to mentally lump together as "file problems" even though the fix for each is completely different.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Catch both explicitly, and handle them differently: <code>FileNotFoundError</code> usually means "treat this as empty/first run"; <code>PermissionError</code> usually means the deployment itself is misconfigured and should fail loudly with a message an operator can act on, not be silently absorbed.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_09_file_errors.py</span>
+        </div>
+        <pre><code>def read_log(path):
+    try:
+        with open(path) as f:
+            return f.read()
+    except FileNotFoundError:
+        return "no log file yet"
+
+print(read_log("/var/log/myapp/nonexistent-2026-07-09.log"))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4)</span>
+        <pre><code>no log file yet</code></pre>
+      </div>
+      <p>
+        This particular run succeeds because the path genuinely
+        doesn't exist. The bug only shows up in an environment where
+        the path exists but is locked down &mdash; at that point,
+        <code>open()</code> raises <code>PermissionError</code>
+        instead, which this <code>except FileNotFoundError:</code>
+        does not catch, and the crash propagates uncaught.
+      </p>
+    </div>
+
+    <div class="issue-card">
+      <span class="issue-id">#10</span>
+      <h3>json.decoder.JSONDecodeError: Expecting value</h3>
+      <div class="issue-block">
+        <span class="issue-label">Symptom</span>
+        <p>Parsing an API response crashes with <code>JSONDecodeError</code> &mdash; not because the API sent malformed JSON, but because it didn't send JSON at all.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Root cause</span>
+        <p>Chapter 19 covered <code>json.loads()</code> and checking a response's status code before trusting its body. This code skips that check and assumes every response body is valid JSON &mdash; but a real outage, rate limit, or misconfigured URL often returns an HTML error page (a login redirect, a "503 Service Unavailable" page) instead, and <code>json.loads()</code> has no way to parse that as JSON.</p>
+      </div>
+      <div class="issue-block">
+        <span class="issue-label">Fix</span>
+        <p>Check <code>response.status_code</code> (or equivalent) before parsing, and wrap <code>json.loads()</code> in its own <code>try</code>/<code>except json.JSONDecodeError</code> so a non-JSON response produces a clear "the API returned something unexpected" error instead of a raw parser traceback.</p>
+      </div>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">issue_10_jsondecodeerror.py</span>
+        </div>
+        <pre><code>import json
+
+def parse_api_response(raw_text):
+    data = json.loads(raw_text)
+    return data["results"]
+
+# what a downed API actually returned -- an HTML error page, not JSON
+fake_response_body = "&lt;html&gt;&lt;body&gt;Service Unavailable&lt;/body&gt;&lt;/html&gt;"
+print(parse_api_response(fake_response_body))</code></pre>
+      </div>
+      <div class="output-block">
+        <span class="output-label">actual output (Python 3.14.4, standard-library json frames trimmed for length)</span>
+        <pre><code>Traceback (most recent call last):
+  File "issue_10_jsondecodeerror.py", line 8, in &lt;module&gt;
+    print(parse_api_response(fake_response_body))
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "issue_10_jsondecodeerror.py", line 4, in parse_api_response
+    data = json.loads(raw_text)
+  ...
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code></pre>
+      </div>
+    </div>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Most production crashes trace back to an assumption that was true in testing and false in the real world: a key that's always present, a list that's always long enough, input that's always the right type, a denominator that's never zero.</li>
+        <li>A bare <code>except:</code> or an overly broad <code>except Exception:</code> doesn't prevent bugs &mdash; it hides them, often turning a loud, easy-to-diagnose crash into a silent wrong answer (issues #3 and #6).</li>
+        <li>Similarly-named exceptions (<code>FileNotFoundError</code> vs. <code>PermissionError</code>) can require genuinely different handling &mdash; catching one doesn't mean the other is covered.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Production incident write-ups almost always follow this exact shape &mdash; symptom, root cause, fix &mdash; because that's the order information actually becomes available: you see the crash first, then dig into why, then decide what changes.</li>
+      <li>The most dangerous bugs in real systems are rarely the ones that crash loudly (issues #1, #2, #4, #5, #7, #8, #10 here) &mdash; they're the ones that silently return a plausible-but-wrong answer (issues #3 and #6), because nothing alerts anyone that something went wrong.</li>
+      <li>Being able to predict which exception a piece of code is about to throw &mdash; before running it &mdash; is a skill senior engineers use constantly during code review, and it's built entirely from knowing these patterns cold.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember (Category 1)</h2>
+    <ul>
+      <li><code>KeyError</code>, <code>IndexError</code>, <code>TypeError</code>, <code>AttributeError</code>, <code>ZeroDivisionError</code>, <code>RecursionError</code>, and <code>JSONDecodeError</code> each have a specific, predictable trigger &mdash; recognizing the pattern is faster than reading the whole traceback from scratch every time.</li>
+      <li>A function that implicitly returns <code>None</code> on some code path (Chapter 10) is one of the most common sources of a downstream <code>AttributeError</code> far from where the real problem started.</li>
+      <li>Bare <code>except:</code> and overly broad <code>except Exception:</code> are the two patterns most likely to turn a real bug into a silent, wrong-but-plausible result &mdash; always catch the most specific exception you actually expect.</li>
+      <li>This category is the first of eight; the rest (Performance, Memory Leaks, Concurrency &amp; Deadlocks, Data Corruption, Deployment &amp; Environment, Database &amp; API Failures, Logging &amp; Observability) are planned and will extend this same catalog format.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

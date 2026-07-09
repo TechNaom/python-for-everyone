@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 26 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 26: Debugging Production Issues (Category 1: Crashes & Exceptions).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-26" data-active-chapter="chapter-26">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 26 Quiz (Category 1)</span>
+  <h1>Debugging Production Issues</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> Why does <code>config["DATABASE_URL"]</code> raise <code>KeyError</code> instead of returning something like <code>None</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="true">Dict subscript access (<code>dict[key]</code>) raises KeyError the instant the key isn't present -- there's no silent fallback</button>
+        <button type="button" class="mcq-option" data-correct="false">Because the dict was defined with the wrong data type</button>
+        <button type="button" class="mcq-option" data-correct="false">It only happens if the dict has more than 3 keys</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> Why did <code>bonus_for_top_n(scores, 5)</code> raise <code>IndexError</code> when <code>scores</code> only had 4 items?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">range() automatically stops at the list's length</button>
+        <button type="button" class="mcq-option" data-correct="true">range(n) doesn't know or care how long any particular list is -- it happily produces an index the list doesn't have</button>
+        <button type="button" class="mcq-option" data-correct="false">Lists can only be looped over with a for-each loop, never range()</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> Why is a bare <code>except:</code> dangerous, even when the code "works" and never crashes?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">It's slower than except Exception:</button>
+        <button type="button" class="mcq-option" data-correct="true">It catches every exception, including ones you never anticipated -- silently hiding real bugs like a typo'd key, not just the one error you meant to handle</button>
+        <button type="button" class="mcq-option" data-correct="false">It only catches exceptions raised inside a for loop</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> Why did <code>checkout_total(100, "10")</code> crash with <code>TypeError</code> several calls deep instead of at the point where <code>"10"</code> was first passed in?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">Python validates argument types only after 2 function calls</button>
+        <button type="button" class="mcq-option" data-correct="true">Python is dynamically typed -- nothing stops a string from being passed where a number is expected, so the bad value only fails once actual arithmetic is attempted on it</button>
+        <button type="button" class="mcq-option" data-correct="false">The percent_off parameter was spelled differently in each function</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> Why did <code>find_user("Carla")</code> lead to <code>AttributeError: 'NoneType' object has no attribute 'get'</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">find_user() explicitly returns the string "None"</button>
+        <button type="button" class="mcq-option" data-correct="true">find_user() only has a return statement inside the loop -- if the loop finishes without a match, the function falls through and implicitly returns None</button>
+        <button type="button" class="mcq-option" data-correct="false">The users list was empty</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> In the withdrawal example, why was a $200 withdrawal from a $50 balance reported as "successful" with the balance unchanged?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">InsufficientFundsError was never actually raised</button>
+        <button type="button" class="mcq-option" data-correct="true">The caller's except Exception: was broad enough to catch the specific InsufficientFundsError too, and silently fell back to returning the balance unchanged</button>
+        <button type="button" class="mcq-option" data-correct="false">Python doesn't support custom exception classes</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> Why did <code>countdown(-5)</code> raise <code>RecursionError</code> when the base case was <code>if n != 0</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Python doesn't support negative numbers in recursive calls</button>
+        <button type="button" class="mcq-option" data-correct="true">Counting down from a negative number steps straight past 0 without ever landing exactly on it, so n != 0 never becomes false</button>
+        <button type="button" class="mcq-option" data-correct="false">countdown() was missing a return statement</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What's the safest fix for <code>average_rating()</code> crashing with <code>ZeroDivisionError</code> when <code>num_reviews</code> is 0?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">Wrap the whole program in one big try/except and ignore all errors</button>
+        <button type="button" class="mcq-option" data-correct="true">Check the denominator before dividing and return a sensible value (0, None, or a message) for the zero case</button>
+        <button type="button" class="mcq-option" data-correct="false">Always add 1 to num_reviews before dividing</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> Why is catching only <code>FileNotFoundError</code> around <code>open()</code> not enough in production?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">FileNotFoundError and PermissionError are the exact same exception under different names</button>
+        <button type="button" class="mcq-option" data-correct="true">A file that exists but that the process lacks permission to read raises a different exception, PermissionError, which won't be caught by except FileNotFoundError:</button>
+        <button type="button" class="mcq-option" data-correct="false">open() never raises PermissionError, only FileNotFoundError</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> Why did <code>json.loads(fake_response_body)</code> raise <code>JSONDecodeError</code> when parsing an API response?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">json.loads() only works with data read from a real file, never a string</button>
+        <button type="button" class="mcq-option" data-correct="true">The response body was an HTML error page, not JSON at all -- the code never checked the status code before assuming the body was valid JSON</button>
+        <button type="button" class="mcq-option" data-correct="false">The JSON contained a trailing comma</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q11"><span class="q-num">11</span> <code>some_dict[____]</code> raises <code>KeyError</code> immediately if the key isn't present, with no fallback.</label>
+      <div class="fib-row">
+        <input type="text" id="q11" class="fib-blank" data-answers="key" aria-label="Answer for question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q12"><span class="q-num">12</span> A function with no <code>return</code> statement on some code path implicitly returns ____ on that path.</label>
+      <div class="fib-row">
+        <input type="text" id="q12" class="fib-blank" data-answers="None,none" aria-label="Answer for question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> A bare <code>except:</code> or an overly broad <code>except ____:</code> is the pattern most likely to turn a real bug into a silent, wrong-but-plausible result.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="Exception,exception" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> Dividing by zero with the <code>/</code> operator raises ____Error.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="ZeroDivision,zerodivision" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q15"><span class="q-num">15</span> Parsing text that isn't valid JSON with <code>json.loads()</code> raises a <code>json.decoder.____Error</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q15" class="fib-blank" data-answers="JSONDecode,jsondecode" aria-label="Answer for question 15">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 26 (Category 1) is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
