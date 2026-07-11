@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 28: Git Fundamentals.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-28" data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 28 Quiz</span>
+  <h1>Git Fundamentals</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What real problem does version control solve that manual folder-copying (project_final_v2/, etc.) doesn't?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">It makes files smaller on disk</button>
+        <button type="button" class="mcq-option" data-correct="true">It keeps a permanent, queryable history and lets independent work be combined without hand-editing</button>
+        <button type="button" class="mcq-option" data-correct="false">It automatically writes your code for you</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> What is a git repository?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">A website that hosts your code</button>
+        <button type="button" class="mcq-option" data-correct="true">A project folder git is tracking, via a hidden .git folder holding its full history</button>
+        <button type="button" class="mcq-option" data-correct="false">A single commit's snapshot</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does the git staging area actually do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">Permanently deletes files not yet committed</button>
+        <button type="button" class="mcq-option" data-correct="true">Holds exactly the changes you want in the next commit, separate from other unstaged edits</button>
+        <button type="button" class="mcq-option" data-correct="false">Uploads your code to a remote server</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What does a git commit actually store?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">Only the lines that changed since the last commit</button>
+        <button type="button" class="mcq-option" data-correct="true">A complete snapshot of every tracked file, plus a pointer to its parent commit</button>
+        <button type="button" class="mcq-option" data-correct="false">A copy of the entire .git folder</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What does git status show?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">The exact line-by-line content of unstaged changes</button>
+        <button type="button" class="mcq-option" data-correct="true">What's staged, unstaged, and untracked right now, without changing anything</button>
+        <button type="button" class="mcq-option" data-correct="false">The full commit history</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> What is a git branch, technically?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">A full copy of the entire project's files</button>
+        <button type="button" class="mcq-option" data-correct="true">A lightweight, movable pointer to a specific commit</button>
+        <button type="button" class="mcq-option" data-correct="false">A separate .git folder</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What does git switch -c feature/x do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Deletes the feature/x branch</button>
+        <button type="button" class="mcq-option" data-correct="true">Creates a new branch called feature/x and switches to it in one step</button>
+        <button type="button" class="mcq-option" data-correct="false">Merges feature/x into the current branch</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> When does git perform a fast-forward merge?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">Whenever you type git merge, regardless of history</button>
+        <button type="button" class="mcq-option" data-correct="true">When the branch being merged into hasn't gained any commits since the other branch split off</button>
+        <button type="button" class="mcq-option" data-correct="false">Only when there's a merge conflict</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> What makes a merge commit different from a normal commit?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">It has no parent commit at all</button>
+        <button type="button" class="mcq-option" data-correct="true">It has two parent commits, one from each branch being merged</button>
+        <button type="button" class="mcq-option" data-correct="false">It cannot be viewed with git log</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What exactly causes a merge conflict?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">Two branches changing different files</button>
+        <button type="button" class="mcq-option" data-correct="true">Both branches changing the same lines of the same file in different, incompatible ways</button>
+        <button type="button" class="mcq-option" data-correct="false">Committing more than once on the same branch</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> In conflict markers, what does the section between &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD and ======= represent?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">The version from the branch being merged in</button>
+        <button type="button" class="mcq-option" data-correct="true">The version currently on the branch you're merging into</button>
+        <button type="button" class="mcq-option" data-correct="false">A syntax error git wants you to delete entirely</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> How is git rebase different from git merge?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">Rebase never creates conflicts, merge always does</button>
+        <button type="button" class="mcq-option" data-correct="true">Rebase replays commits onto a new base for a linear history, instead of creating a two-parent merge commit</button>
+        <button type="button" class="mcq-option" data-correct="false">Rebase only works on the main branch</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> Why is it risky to rebase commits that have already been pushed and shared?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Rebase permanently deletes the remote repository</button>
+        <button type="button" class="mcq-option" data-correct="true">Rebase gives replayed commits new hashes, creating diverging history for anyone who already has the originals</button>
+        <button type="button" class="mcq-option" data-correct="false">It's not actually risky at all</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What's the safe undo tool for a commit that's already been pushed and possibly pulled by teammates?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">git reset --hard</button>
+        <button type="button" class="mcq-option" data-correct="true">git revert, since it adds a new commit instead of rewriting history</button>
+        <button type="button" class="mcq-option" data-correct="false">git rebase -i</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> What does git reset --hard HEAD~1 do to uncommitted-turned-committed changes?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">Keeps the commit but unstages the changes</button>
+        <button type="button" class="mcq-option" data-correct="true">Undoes the commit and discards the changes from the working files entirely</button>
+        <button type="button" class="mcq-option" data-correct="false">Only affects the remote repository, not your local files</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq16-label"><span class="q-num">16</span> What does git stash do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq16-label">
+        <button type="button" class="mcq-option" data-correct="false">Permanently deletes uncommitted changes</button>
+        <button type="button" class="mcq-option" data-correct="true">Temporarily shelves uncommitted changes so the working tree is clean, without committing or losing them</button>
+        <button type="button" class="mcq-option" data-correct="false">Creates a new branch automatically</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq17-label"><span class="q-num">17</span> How can a commit "lost" after git reset --hard often be recovered?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq17-label">
+        <button type="button" class="mcq-option" data-correct="false">It can never be recovered once reset --hard runs</button>
+        <button type="button" class="mcq-option" data-correct="true">Find its hash in git reflog, then git reset --hard back to that hash</button>
+        <button type="button" class="mcq-option" data-correct="false">Re-type the exact same code by hand into a new commit</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> <code>git ____</code> turns a folder into a git repository.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="init" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>git ____ &lt;file&gt;</code> stages a file's current changes for the next commit.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="add" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> <code>git ____</code> shows the line-by-line content of unstaged changes.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="diff" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q21"><span class="q-num">21</span> <code>git ____ -c feature/x</code> creates and switches to a new branch called feature/x in one step.</label>
+      <div class="fib-row">
+        <input type="text" id="q21" class="fib-blank" data-answers="switch" aria-label="Answer for question 21">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q22"><span class="q-num">22</span> A merge commit has ____ parent commits, unlike a normal commit's one.</label>
+      <div class="fib-row">
+        <input type="text" id="q22" class="fib-blank" data-answers="two,2" aria-label="Answer for question 22">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q23"><span class="q-num">23</span> After resolving a merge conflict by hand, you run <code>git add</code> and then <code>git ____</code> to finish the merge.</label>
+      <div class="fib-row">
+        <input type="text" id="q23" class="fib-blank" data-answers="commit" aria-label="Answer for question 23">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q24"><span class="q-num">24</span> <code>git rebase ____</code> continues a rebase after you've resolved a conflict and staged the fix.</label>
+      <div class="fib-row">
+        <input type="text" id="q24" class="fib-blank" data-answers="--continue" aria-label="Answer for question 24">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q25"><span class="q-num">25</span> The golden rule of rebase: never rebase commits that have already been ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q25" class="fib-blank" data-answers="pushed,shared,pulled" aria-label="Answer for question 25">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q26"><span class="q-num">26</span> <code>git ____ &lt;file&gt;</code> discards uncommitted changes to that file, restoring its last committed state.</label>
+      <div class="fib-row">
+        <input type="text" id="q26" class="fib-blank" data-answers="restore" aria-label="Answer for question 26">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q27"><span class="q-num">27</span> <code>git reset --____ HEAD~1</code> undoes the last commit but discards its changes from staging and the working files entirely.</label>
+      <div class="fib-row">
+        <input type="text" id="q27" class="fib-blank" data-answers="hard" aria-label="Answer for question 27">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q28"><span class="q-num">28</span> <code>git ____ HEAD</code> safely undoes a shared commit by adding a new, opposite commit rather than rewriting history.</label>
+      <div class="fib-row">
+        <input type="text" id="q28" class="fib-blank" data-answers="revert" aria-label="Answer for question 28">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q29"><span class="q-num">29</span> <code>git ____ pop</code> brings back the most recently shelved uncommitted work.</label>
+      <div class="fib-row">
+        <input type="text" id="q29" class="fib-blank" data-answers="stash" aria-label="Answer for question 29">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q30"><span class="q-num">30</span> <code>git ____</code> is the local log of every place HEAD has pointed, used to recover a commit lost after a hard reset.</label>
+      <div class="fib-row">
+        <input type="text" id="q30" class="fib-blank" data-answers="reflog" aria-label="Answer for question 30">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 28 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

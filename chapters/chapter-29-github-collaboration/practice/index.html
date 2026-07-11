@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 29: GitHub & Collaboration, including interview-style scenario problems on remotes, forking vs. cloning, pull requests, code review, issues, and end-to-end collaboration workflow.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 Practice Bank</span>
+    <span class="reading-time">60-80 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: GitHub &amp; Collaboration</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. Standard
+    library only, no installs needed. Since these run in a Python
+    grader (not a real terminal), every problem reasons about or
+    simulates a GitHub collaboration concept as a plain Python function
+    &mdash; but the underlying git/GitHub behavior behind each one was
+    verified against a real local bare-repo simulation first.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#remotes">1. Remotes (origin, push/pull/fetch, tracking branches)</a>
+    <a href="#fork-vs-clone">2. Forking vs. Cloning</a>
+    <a href="#pull-requests">3. Pull Requests</a>
+    <a href="#code-review">4. Code Review</a>
+    <a href="#issues">5. Issues &amp; Project Workflow</a>
+    <a href="#end-to-end">6. Real-World End-to-End Collaboration</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder. Standard
+    library only &mdash; nothing to install.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="remotes">Topic 1: Remotes (origin, push/pull/fetch, tracking branches)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Look up a remote URL</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>remote_url_for(remotes, name)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Fast-forward or merge?</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>is_fast_forward_pull(local_only_commits, remote_only_commits)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This wrongly claims <code>git fetch</code> changes your working directory. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Has a tracking branch?</h3>
+    <p>Find <code>&#35; TODO 1.4</code>. Write <code>has_tracking_branch(branch_info)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Silent Push Confusion</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>needs_dash_u_explanation(used_dash_u_on_first_push)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Fetch-then-pull workflow</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_fetch_then_pull_workflow()</code>.</p>
+  </div>
+
+  <h2 id="fork-vs-clone">Topic 2: Forking vs. Cloning</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Fork or clone?</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>correct_workflow_for(has_write_access)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Remotes after forking</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>remote_setup_after_fork()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. This wrongly claims a fork auto-syncs with the original forever. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Open Source First Contribution</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>first_contribution_steps(has_write_access)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Fork vs. clone</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_fork_vs_clone()</code>.</p>
+  </div>
+
+  <h2 id="pull-requests">Topic 3: Pull Requests (workflow, descriptions, draft PRs)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Ready for review?</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>is_ready_for_review(is_draft, has_description, tests_passing)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> PR title quality</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>pr_title_quality(title)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This has draft-PR logic backwards. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Merge Conflict Blocking a PR</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>safe_way_to_update_stale_pr(commits_behind_upstream, has_open_pr)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What makes a good PR description</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_good_pr_description()</code>.</p>
+  </div>
+
+  <h2 id="code-review">Topic 4: Code Review (what reviewers look for, giving/receiving feedback)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Review verdict</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>review_verdict(comment_type)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Count blocking reviews</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>count_blocking_reviews(review_types)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This ignores the follow-up-request flag entirely. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>"LGTM but can you add a test?"</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>interpret_lgtm_with_ask(review_type, has_followup_request)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What makes review feedback constructive</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_good_code_review_feedback()</code>.</p>
+  </div>
+
+  <h2 id="issues">Topic 5: Issues &amp; Project Workflow (good issues, labels, linking to PRs)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Minimum issue quality</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>has_minimum_issue_quality(title, has_repro_steps, has_expected_behavior)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Build the right labels</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>issue_labels_for(is_bug, is_feature_request, blocks_release)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This only checks closing keywords in uppercase. Fix it to be case-insensitive.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Triaging a Vague Bug Report</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>triage_action(has_repro_steps, has_expected_behavior)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Good issue vs. bad issue</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_good_issue_vs_bad_issue()</code>.</p>
+  </div>
+
+  <h2 id="end-to-end">Topic 6: Real-World End-to-End Collaboration Scenario</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Next step in the workflow</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>next_step_in_workflow(step)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Safe to merge?</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>is_safe_to_merge(approved, ci_passing, has_conflicts)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This only checks the first step instead of the whole list. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>End-to-End Contribution</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>plan_contribution(has_write_access, issue_number)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The full issue-to-merge loop</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_end_to_end_collaboration()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match on the explanation-style tasks
+    &mdash; the goal is that your program runs without errors and does
+    what each TODO asks. Every non-explanation task's output is exactly
+    reproducible.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

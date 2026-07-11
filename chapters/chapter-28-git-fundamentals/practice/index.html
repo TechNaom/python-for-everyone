@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 28: Git Fundamentals, including interview-style scenario problems on version control, the core git workflow, branching, merging, rebasing, and safely undoing changes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Git Fundamentals</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This
+    chapter teaches git itself, not just Python syntax, so every problem
+    here is a Python function that <strong>simulates or reasons about</strong>
+    a git concept using plain data standing in for a repo's history.
+    Standard library only &mdash; no installs needed.
+  </p>
+
+  <div class="what-is">
+    <span class="label">Why simulate git instead of running it?</span>
+    This site runs your code in a browser sandbox with no real git
+    installed, so every problem models a git concept as a Python
+    function over plain data (lists of commit ids, booleans for
+    branch state, strings for file content) instead of literally
+    shelling out to git. Every behavior these problems describe was
+    checked against real git in a scratch repository first &mdash; the
+    semantics are genuinely correct, just expressed in Python so they
+    can be auto-graded. To practice the real commands, install git and
+    follow along with this chapter's lesson in an actual terminal.
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#why-vcs">1. Why Version Control Matters</a>
+    <a href="#core-workflow">2. The Core Git Workflow</a>
+    <a href="#branching">3. Branching</a>
+    <a href="#merging">4. Merging</a>
+    <a href="#rebase">5. Rebase</a>
+    <a href="#undoing">6. Undoing Things Safely</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder. Standard
+    library only &mdash; nothing to install.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="why-vcs">Topic 1: Why Version Control Matters</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Counting manual "backup" files</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>count_versions_without_git(filenames)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Can two people edit safely?</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>can_two_people_edit_safely(uses_git)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This wrongly claims git only tracks the current file state, like a shared folder. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>safer_collaboration_choice(team_size, needs_history)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why version control matters</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_why_version_control_matters()</code>.</p>
+  </div>
+
+  <h2 id="core-workflow">Topic 2: The Core Git Workflow (init, add, commit, status, diff, log, staging area)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> What's staged?</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>files_in_staging_area(added_files, committed_files)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Is the working tree clean?</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>is_working_tree_clean(staged, unstaged)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. This wrongly claims <code>git add</code> immediately and permanently commits a file. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>should_run_status_first(has_uncommitted_changes)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why add and commit are separate</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_add_then_commit()</code>.</p>
+  </div>
+
+  <h2 id="branching">Topic 3: Branching (create/switch/delete, branch-as-pointer)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Where a new branch starts</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>new_branch_points_to(current_commit)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A branch pointer advancing</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>commits_on_branch_after(history, branch_start_commit, new_commits)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This wrongly claims deleting a branch instantly erases its commits forever. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>should_delete_branch(is_merged, still_needed)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Branch as a movable pointer</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_branch_as_pointer()</code>.</p>
+  </div>
+
+  <h2 id="merging">Topic 4: Merging (fast-forward vs. three-way, merge commits, resolving conflicts)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Is a fast-forward possible?</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>is_fast_forward_possible(target_branch_commits, source_branch_commits)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Does the merge create a commit?</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>merge_creates_commit(is_fast_forward)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This has the HEAD/incoming conflict marker order backwards. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>predict_merge_type(target_has_new_commits)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Resolving a real conflict</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_resolving_a_conflict()</code>.</p>
+  </div>
+
+  <h2 id="rebase">Topic 5: Rebase (vs. merge, interactive rebase basics, don't rebase shared history)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Rebase gives a linear history</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>rebase_result_is_linear()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Rebased commits get new hashes</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>commit_hashes_change_after_rebase(original_hashes)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This always says it's safe to rebase, even a shared branch. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>choose_merge_or_rebase(branch_is_shared, wants_linear_history)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why not rebase shared history</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_why_not_rebase_shared_history()</code>.</p>
+  </div>
+
+  <h2 id="undoing">Topic 6: Undoing Things Safely (checkout/restore vs. reset vs. revert, stashing, reflog)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Revert adds a commit</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>revert_keeps_history_length(original_commit_count)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Reset --hard shortens the log</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>reset_hard_removes_from_log(original_commit_count, commits_reset_away)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This always recommends <code>reset</code>, even for a commit that's already been pushed and shared. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Recovering "Lost" Work</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>can_recover_after_hard_reset(reflog_still_has_entry)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>reset vs. revert</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_reset_vs_revert()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match on the explanation-style tasks
+    &mdash; the goal is that your program runs without errors and does
+    what each TODO asks. Every data-driven task's output is exactly
+    reproducible.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

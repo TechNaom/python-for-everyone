@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to resolve a real git merge conflict, then critique its plausible-but-risky advice -- a force push on a shared branch, a rebase of already-pushed commits, and a conflict resolution that silently drops a change.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">25 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just worked through the <a href="index.html">Git Workflow Practice</a> project yourself, unaided &mdash; branching, hitting a real conflict, resolving it, merging, and rebasing, all by hand in your terminal. That project is unchanged; this page is additive. Now imagine a messier, more realistic version of that same situation: a conflict you're stuck on mid-workflow, and you turn to an AI assistant for help getting unstuck &mdash; the way developers actually do this on real teams, constantly.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant while stuck exactly where Step 2 of the main project leaves you &mdash; mid-merge-conflict, wanting to move fast:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>I'm resolving a merge conflict in recipe.txt. My team's shared
+"feature/double-recipe" branch has two commits on it that a
+teammate already pushed and pulled down (we've both been
+committing to it for a few days). I tried to merge it into main
+and got a conflict on the "Serves:" line. I already have some
+uncommitted local edits to recipe.txt that I made before I even
+started the merge -- I don't remember exactly what they were.
+
+I just want this done fast: how do I resolve the conflict, get
+everything merged and pushed, and clean up my branch so the
+history looks tidy for the pull request?</code></pre>
+  </div>
+
+  <p>And here's a plausible response &mdash; the kind of advice an AI assistant might hand back on the first try, confident and procedurally correct-looking. Read it the way you'd read a teammate's Slack message talking you through a fix, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">ai-response.txt</span>
+    </div>
+    <pre><code>No problem, here's the fastest path to a clean PR:
+
+1. First, get rid of the noise so you're only looking at the
+   real conflict:
+
+     git checkout -- recipe.txt
+
+   This clears your uncommitted local edits and leaves you with
+   just the conflicted merge state to deal with -- one less thing
+   to think about.
+
+2. Since your branch's changes (doubling the recipe) are the ones
+   that actually matter here, just take your side of the conflict
+   and move on:
+
+     git checkout --ours recipe.txt
+     git add recipe.txt
+     git commit -m "Merge feature/double-recipe"
+
+3. Now clean up the branch history before your PR so it's tidy --
+   squash everything into one commit and force-push it:
+
+     git checkout feature/double-recipe
+     git reset --soft main
+     git commit -m "Double the chili recipe"
+     git push --force origin feature/double-recipe
+
+That gives you one clean commit on the branch and a resolved
+merge on main. Ready for review!</code></pre>
+  </div>
+
+  <p>It's confident, uses real commands correctly, and reads like exactly the kind of fast, decisive answer you asked for. It's also genuinely risky in three separate ways.</p>
+
+  <h2>Step 3: Where did the AI's advice lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 &mdash; step 1 silently destroys uncommitted work that was never backed up</span>
+      <p><strong>What it looks like it does:</strong> "clears the noise" so the merge conflict is easier to focus on &mdash; framed as a harmless cleanup step, something you'd do to simplify your own view of the problem.</p>
+      <p><strong>What it actually risks:</strong> <code>git checkout -- recipe.txt</code> permanently discards uncommitted changes in the working directory, with no undo and no reflog entry &mdash; reflog only tracks where <em>commits</em> and HEAD have pointed, never uncommitted edits that were never staged or committed in the first place. The prompt explicitly said "I don't remember exactly what they were," which is precisely the situation where you cannot verify nothing important is being thrown away. A safe assistant treats "I don't remember what these changes are" as a reason to stash or diff first, not a reason to discard faster.</p>
+      <p><strong>Why it matters:</strong> once uncommitted, unstashed work is discarded this way, it is gone &mdash; not "hard to find," genuinely unrecoverable. On a real team this is the single most common way people lose real work: a quick "clean this up first" step taken under time pressure, before anyone checked what was actually in it.</p>
+      <p><strong>The fix:</strong> <code>git stash push -m "pre-merge WIP"</code> instead &mdash; it achieves the same "clean working directory" goal but keeps the changes recoverable on the stash stack, so they can be inspected or reapplied later once the merge is sorted out.</p>
+
+      <span class="qa-section-label flags">Flaw 2 &mdash; resolving the conflict with <code>--ours</code> silently discards the other branch's changes, not just "your side"</span>
+      <p><strong>What it looks like it does:</strong> "take your side of the conflict" sounds like a reasonable simplification when you believe your branch's changes are the ones that matter.</p>
+      <p><strong>What it actually risks:</strong> <code>git checkout --ours recipe.txt</code> doesn't just resolve the conflicted lines in your favor &mdash; it replaces the <em>entire file</em> with your branch's version, silently discarding every change <code>main</code> made to that file, including changes far from the conflicted lines that auto-merged cleanly and were never in dispute. In this scenario, main's "Clarify serving size" edit disappears entirely, with no warning, no conflict marker, nothing flagging that a decision was even made. Whether "just take our side" is the right call for the *conflicted lines* is a judgment call worth making deliberately; blowing away the *rest of the file* along with it is not something the person asking ever agreed to.</p>
+      <p><strong>Why it matters:</strong> <code>--ours</code>/<code>--theirs</code> are whole-file operations, not per-line "pick a side" tools &mdash; a very easy thing to not realize until it's already cost someone their work. On a shared file, this is exactly how a teammate's real, intentional change quietly vanishes from a merge with nobody noticing until much later.</p>
+      <p><strong>The fix:</strong> open the file, read both sides of each conflict block individually, and resolve deliberately &mdash; exactly what the main project's Step 4 walks through. If the intent really is "keep my whole file, discard theirs entirely," say so explicitly and treat it as a reviewed decision, not a default.</p>
+
+      <span class="qa-section-label flags">Flaw 3 &mdash; step 3 force-pushes a rewritten history over a branch a teammate has already pulled</span>
+      <p><strong>What it looks like it does:</strong> "clean up the branch history before your PR" sounds like good practice &mdash; squashing messy commits into one clean commit is a genuinely good habit (see the main project's "squash three messy commits" idea).</p>
+      <p><strong>What it actually risks:</strong> the prompt says a teammate "already pushed and pulled down" commits on this exact branch &mdash; meaning it is shared, not private. <code>git reset --soft main</code> followed by a new commit rewrites those commits with new hashes, and <code>git push --force</code> overwrites the remote branch to match. The teammate's local copy now has commits that no longer exist on the remote at all; their next <code>git pull</code> either creates a confusing divergent-history mess or, worse, if they push back without noticing, can silently re-push and resurrect exactly the messy history this was meant to clean up &mdash; or overwrite work in the other direction. Squashing itself isn't the problem; doing it to already-shared history via a bare force push, with no warning that this specifically breaks for a teammate who has the old commits, is.</p>
+      <p><strong>Why it matters:</strong> this is the single most damaging git mistake a team can make, and it's damaging precisely because the person who runs the command doesn't see the damage &mdash; it lands on the teammate's machine, often hours later, as a confusing mess they now have to untangle.</p>
+      <p><strong>The fix:</strong> either don't rewrite a shared branch's history at all (merge is always safe for shared branches), or if the team genuinely wants it cleaned up, coordinate first and use <code>git push --force-with-lease</code> instead of a bare <code>--force</code> &mdash; it refuses the push if the remote has commits you haven't seen locally, catching the "someone else pushed in the meantime" case that a bare force push overwrites silently.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself &mdash; it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 28?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Never let an assistant discard uncommitted changes I can't describe' or 'Ask whether a branch is shared before accepting any rewrite/force-push suggestion'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

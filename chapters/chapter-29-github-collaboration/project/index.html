@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29 Project: Open-Source-Style Collaboration Workflow — Python for Everyone</title>
+<meta name="description" content="Fork, branch, push, simulate a reviewed pull request, merge, and sync a fork -- a real GitHub collaboration workflow run with real git commands against a local bare-repo stand-in, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Open-Source-Style Collaboration Workflow</h1>
+
+  <p>A guided simulation of a real GitHub contribution: fork, feature branch, push, pull request, code review, merge, and syncing your fork afterward. Every remote/branch/commit/merge command below is a <strong>real git command that actually runs</strong> against a <strong>real local Git repository</strong> &mdash; not a description of GitHub's UI. The steps that genuinely can't be scripted (opening a PR, a reviewer leaving comments, clicking "Approve," clicking "Merge pull request") are marked <strong>documented-only</strong> below, since they live inside github.com's web UI, which this offline project has no way to reach.</p>
+
+  <div class="what-is">
+    <span class="label">Why a local bare repo stands in for GitHub</span>
+    This site is static (GitHub Pages, no backend, nowhere for a learner's machine to push to). So instead of describing fictional GitHub commands, this project builds a real stand-in for "GitHub" using <code>git init --bare</code> &mdash; a genuine Git repository with no working directory, structurally identical to what GitHub hosts on its own servers for every repo. Cloning it, pushing to it, and fetching from it are the exact same git operations you'd run against a real github.com URL &mdash; only the URL is a local folder path instead of <code>https://github.com/...</code>.
+  </div>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>=== Chapter 29 Project: GitHub Collaboration Workflow ===
+
+Scenario ready.
+  upstream (stands in for the real GitHub repo you don't own): .../scenario/upstream.git
+  my-fork  (stands in for YOUR fork of it on GitHub):          .../scenario/my-fork.git
+
+--- Step 1: clone your fork (not upstream) ---
+$ git clone .../my-fork.git scenario/workdir
+...
+--- Step 5: simulate the maintainer merging the approved PR ---
+$ git merge --no-ff pr-1-add-pancake-servings -m "Merge pull request #1 ..."
+Merge made by the 'ort' strategy.
+ recipes.py | 7 +++++++
+
+Upstream history after the merge:
+*   e11dccf Merge pull request #1 from learner/add-pancake-servings
+|\
+| * a34b3a4 Add servings_for() to scale a recipe by number of people
+|/
+* 0a69be7 Initial commit: recipe box skeleton
+
+=== Done. Your fork's main branch now matches upstream's main, ... ===</code></pre>
+  </div>
+  <p><em>Your own commit hashes will differ &mdash; the shape of the history is what matters.</em></p>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Requires a real <code>git</code> executable on your PATH (check with <code>git --version</code>). Download <code>starter.py</code> below into an empty folder, then run <code>python3 starter.py</code>. Standard library only otherwise &mdash; no pip installs needed. Everything happens inside a <code>scenario/</code> subfolder, safe to delete any time; re-running the script wipes and rebuilds it automatically.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The workflow, step by step</h2>
+  <p>Nine steps total. The first four and last four are real, executed git commands. The middle steps (5-6) happen on github.com and are documented-only &mdash; but step 7 (the merge itself) reproduces the <em>mechanical result</em> of that review with real commands, so you see exactly what git does underneath GitHub's "Merge pull request" button.</p>
+
+  <ul>
+    <li><strong>1. Clone your fork</strong> (not the original repo) into a working directory &mdash; <em>real, executed</em></li>
+    <li><strong>2. Add <code>upstream</code> as a second remote</strong>, alongside <code>origin</code> (your fork) &mdash; <em>real, executed</em></li>
+    <li><strong>3. Create a feature branch and commit real work</strong> to it &mdash; <em>real, executed</em></li>
+    <li><strong>4. Push the feature branch to your fork</strong> &mdash; <em>real, executed</em></li>
+    <li><strong>5. Open a pull request on github.com</strong> comparing your branch against upstream's <code>main</code> &mdash; <strong>documented-only</strong></li>
+    <li><strong>6. A reviewer reviews and approves the PR on github.com</strong> &mdash; <strong>documented-only</strong></li>
+    <li><strong>7. The maintainer merges it</strong> &mdash; the underlying mechanics are simulated with real git commands (a second clone fetches your branch and performs a real <code>git merge --no-ff</code>, then pushes the result) &mdash; <em>real, executed</em>; the actual button-click on github.com is <strong>documented-only</strong></li>
+    <li><strong>8. Sync your fork</strong> now that upstream has moved ahead of it (fetch, merge, push) &mdash; <em>real, executed</em></li>
+    <li><strong>9. Delete the merged feature branch</strong>, locally and on your fork &mdash; <em>real, executed</em></li>
+  </ul>
+
+  <h2>The core piece: <code>run_git()</code> and <code>setup_scenario()</code></h2>
+  <p>Every step below calls <code>run_git()</code> &mdash; it's the whole trick: a thin wrapper around <code>subprocess</code> that runs a real git command and prints exactly what happened. <code>setup_scenario()</code> is provided, building the two bare repos before your work starts.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">run_git.py</span>
+    </div>
+    <pre><code>import subprocess
+
+def run_git(args, cwd=None, check=True):
+    """Run a real git command and return the CompletedProcess."""
+    print(f"$ git {' '.join(args)}" + (f"   (in {cwd})" if cwd else ""))
+    result = subprocess.run(
+        ["git"] + args,
+        cwd=cwd,
+        check=check,
+        capture_output=True,
+        text=True,
+    )
+    if result.stdout.strip():
+        print(result.stdout.strip())
+    if result.stderr.strip():
+        print(result.stderr.strip())
+    return result</code></pre>
+  </div>
+
+  <div class="genai-prompt-box" data-not-yet-taught="github-actions,ssh-keys,gpg-signing">
+    <p class="genai-thought"><strong>Thought process:</strong> the whole project hinges on making every command genuinely visible and genuinely real, not narrated — printing the exact command before running it, and its real stdout/stderr after, is what turns this into something you can trust rather than a script that just claims steps happened. <code>check=True</code> matters too: if any git command actually fails, the script should crash loudly right there instead of silently continuing with a broken repo state.</p>
+    <div class="genai-try-first">
+      <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+      <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a Python helper that runs a git command via subprocess and prints..."></textarea>
+      <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+      <div class="genai-compare-note" hidden>
+        Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+      </div>
+    </div>
+    <details class="genai-reveal">
+      <summary>Show a strong version of this prompt</summary>
+      <div class="genai-prompt-text"><pre>Write a Python function run_git(args, cwd=None, check=True) using only the standard library subprocess module. It should run a real git command (["git"] + args), print the exact command being run (and the cwd if one was given) before executing it, capture stdout and stderr as text, print any non-empty stdout/stderr after the command finishes, propagate a real CalledProcessError if the command fails and check=True (do not swallow failures silently), and return the CompletedProcess object so callers can inspect it further.</pre></div>
+    </details>
+  </div>
+
+  <h2>Steps 5-6, written up for real (since they happen on github.com)</h2>
+  <p>These are the steps this script cannot execute, because they require a real github.com account and browser session. Here's exactly what you'd do on the real site, in order, right after Step 4's push:</p>
+
+  <ol>
+    <li><strong>Open a pull request.</strong> Go to your fork on github.com. GitHub detects the recently-pushed branch and shows a "Compare &amp; pull request" banner &mdash; click it. You'll land on a compare view showing <code>base: upstream/main &larr; compare: your-fork/add-pancake-servings</code>.</li>
+    <li><strong>Write a PR description.</strong> Give it a clear title ("Add servings_for() to scale a recipe by number of people") and a body explaining <em>what</em> changed and <em>why</em> &mdash; see this chapter's <a href="../interview-questions.html">interview questions</a> for what makes a PR description actually useful to a reviewer.</li>
+    <li><strong>Click "Create pull request."</strong> This opens PR #1 against the upstream repo. GitHub now shows a "Files changed" diff view and a comment thread.</li>
+    <li><strong>A reviewer reviews it.</strong> On github.com, a reviewer opens "Files changed," reads the diff, and either leaves inline comments, requests changes, approves, or just comments &mdash; see this chapter's interview questions for the difference between those three review actions.</li>
+    <li><strong>The reviewer approves.</strong> Once satisfied, they submit a review with "Approve" selected.</li>
+    <li><strong>The maintainer merges.</strong> With an approval in hand, the "Merge pull request" button becomes available (assuming no branch protection rule blocks it). They pick a merge strategy (merge commit, squash-and-merge, or rebase-and-merge &mdash; see interview questions for the tradeoffs) and click through.</li>
+  </ol>
+
+  <p>Step 7 in the script reproduces the <strong>mechanical result</strong> of that merge &mdash; a real merge commit built from real git commands &mdash; so you can see exactly what git itself did underneath GitHub's button, even though the button itself isn't something a script can click.</p>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong><code>run_git(args, cwd)</code>:</strong> runs a real git command via <code>subprocess</code>, printing exactly what executed and its output.</li>
+    <li><strong><code>setup_scenario()</code>:</strong> builds the two bare repos (<code>upstream.git</code>, <code>my-fork.git</code>) and seeds upstream with one starter commit. Provided for you.</li>
+    <li><strong>7 TODOs:</strong> the actual collaboration workflow &mdash; clone the fork, add the upstream remote, branch, commit, push, simulate the maintainer's merge, sync the fork, clean up the branch.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Change the merge in Step 7 to a <strong>squash merge</strong> instead (<code>git merge --squash pr-1-... &amp;&amp; git commit -m "..."</code>) and compare the resulting <code>git log</code> shape against the <code>--no-ff</code> merge commit version &mdash; this is exactly the difference GitHub's three merge-button options produce.</li>
+    <li>Add a <strong>second contributor</strong>: clone another fork from the same upstream, make a conflicting change to the same line of <code>recipes.py</code>, and work through resolving the merge conflict for real.</li>
+    <li>After the sync in Step 8, try opening a <strong>second</strong> feature branch from the now-updated <code>main</code> and repeat the whole cycle &mdash; this is the actual weekly rhythm of contributing to a real open-source repo.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Fork/clone, remotes, PRs, and code review are the daily mechanics of essentially every professional software job that uses Git &mdash; not just open source. The GitHub UI parts (opening a PR, reviewing, clicking merge) are easy to read about and hard to internalize without practice; the git mechanics underneath them (what a fork actually is, what <code>git fetch</code> really does, what a merge commit actually looks like) are the part a script <em>can</em> make completely real, so that's exactly what this project does.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Collaboration Workflow above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 29. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Sync a Fork That's Fallen Badly Behind</h3>
+    <p><strong>Problem:</strong> A fork hasn't been synced in a long time &mdash; upstream has several new commits on <code>main</code>, and the fork's <code>main</code> is now many commits behind.</p>
+    <p><strong>What it should do:</strong> Using the same <code>git init --bare</code> technique from this project, build a bare "upstream" repo with 4-5 sequential commits on <code>main</code>, a "fork" bare repo cloned from an <em>early</em> point in that history (so it's genuinely behind), and a working clone of the fork. Practice the real sync sequence &mdash; <code>git fetch upstream</code>, <code>git merge upstream/main</code>, <code>git push origin main</code> &mdash; and print the before/after <code>git log --oneline --graph</code> to show the fork catching up.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's <code>run_git()</code>/<code>setup_scenario()</code> pattern, but seed upstream with multiple commits <em>after</em> cloning the fork instead of before, so there's a real gap to close.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Write a PR Description From a Bug Report</h3>
+    <p><strong>Problem:</strong> A bug report says: "The <code>servings_for()</code> function crashes with a <code>ZeroDivisionError</code> if <code>people</code> is 0, instead of returning a sensible message." You've fixed it &mdash; now you need a PR description a reviewer would actually find useful.</p>
+    <p><strong>What it should do:</strong> Write the actual code fix (a real Python function with a guard clause for <code>people &lt;= 0</code>), then write a real PR description using this template: <strong>What changed</strong>, <strong>Why</strong>, <strong>How to test it</strong>, <strong>Anything a reviewer should pay special attention to</strong>. No starter file &mdash; write both the fix and the description from scratch, in a plain text or Markdown file.</p>
+    <p><strong>Suggested approach:</strong> Base the description on this chapter's interview-question answer about what makes a PR description genuinely useful to a reviewer, not just a summary of the diff.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Write Three Kinds of Review Comments for One Diff</h3>
+    <p><strong>Problem:</strong> The same small, buggy diff needs three <em>different</em> kinds of code review comments &mdash; a real reviewer doesn't write every comment the same way.</p>
+    <p><strong>What it should do:</strong> Take this diff (a function with a real bug &mdash; mutating a default mutable argument, straight from Chapter 8's lesson):</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">diff.py</span>
+      </div>
+      <pre><code>def add_topping(topping, toppings=[]):
+    toppings.append(topping)
+    return toppings</code></pre>
+    </div>
+    <p>Write three separate comments a reviewer might leave on it: <strong>one nitpick</strong> (something small and non-blocking, like a naming or docstring suggestion), <strong>one blocking comment</strong> (the actual mutable default argument bug &mdash; specific enough that the author knows exactly what to change), and <strong>one piece of praise</strong> (something genuinely good about the code, stated specifically rather than generically).</p>
+    <p><strong>Suggested approach:</strong> Use this chapter's interview-question answers on "what reviewers look for" and "approve vs. request-changes vs. comment" to calibrate tone and specificity for each of the three.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Simulate a Full Issue-to-PR Workflow</h3>
+    <p><strong>Problem:</strong> A real open-source contribution usually starts with an issue, not a PR &mdash; someone reports a bug, a contributor claims it, fixes it, and links the fix back to the original report.</p>
+    <p><strong>What it should do:</strong> Using the same bare-repo technique as this project, write up (in a Markdown file) a realistic issue report for a bug in <code>recipes.py</code> (choose your own &mdash; e.g. <code>list_recipes()</code> doesn't handle an empty <code>RECIPES</code> dict cleanly), then actually build the fix as a real feature branch + commit against a bare-repo scenario you set up yourself, with a commit message and PR description that includes a <strong>closing keyword</strong> (e.g. <code>Fixes #12</code>) linking back to the issue number.</p>
+    <p><strong>Suggested approach:</strong> Reuse this project's <code>setup_scenario()</code>/<code>run_git()</code> pattern for the real git mechanics; write the issue and PR description as plain Markdown files since GitHub issues themselves can't be created without a real repo.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

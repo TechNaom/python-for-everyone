@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to write a PR description and resolve review feedback for the Chapter 29 collaboration project, then critique its plausible-but-flawed advice -- a PR description that omits the breaking change, and force-push advice that silently destroys a reviewer's comment context.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">25 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just built the <a href="index.html">Open-Source-Style Collaboration Workflow</a> yourself, unaided &mdash; forking, branching, pushing, and syncing with real git commands. That project is unchanged &mdash; this page is additive. This time, instead of asking an AI to write code, you'll ask it to help with two things that come up constantly in real collaboration: writing a PR description, and deciding how to respond to review feedback. Read its advice with the same skepticism you'd bring to a coworker's Slack message before actually following it.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Picture this: you extended <code>recipes.py</code> from the main project further. The catalog used to store each recipe as a plain <code>list</code> of ingredient strings (<code>RECIPES["pancakes"] == ["flour", "egg", "milk"]</code>). You changed it to a <code>dict</code> mapping each ingredient to a quantity (<code>RECIPES["pancakes"] == {"flour": "2 cups", "egg": "1", "milk": "1 cup"}</code>), so `servings_for()` can print real quantities instead of just listing ingredient names. You've pushed the branch and you're about to open the PR. Here's the prompt you give an AI assistant:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>Write a pull request description for this change: I changed the
+RECIPES dict in recipes.py so each recipe's value is now a dict of
+{ingredient: quantity} instead of a plain list of ingredient name
+strings, so servings_for() can print real quantities. Keep it
+concise but cover what a reviewer needs to know.</code></pre>
+  </div>
+
+  <p>And here's a plausible response &mdash; the kind of description an AI assistant might hand back on the first try. Read it as if it just landed as a real PR on GitHub, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">pr-description.md</span>
+    </div>
+    <pre><code>## Add ingredient quantities to the recipe catalog
+
+**What changed**
+`servings_for()` now returns actual ingredient quantities (e.g.
+"2 cups flour") instead of just listing ingredient names. This makes
+the output genuinely useful for someone who wants to actually cook
+the recipe, not just see what's in it.
+
+**Why**
+The old output ("pancakes for 4 people uses: flour, egg, milk") told
+you *what* you needed but not *how much* — not very actionable for
+an actual kitchen.
+
+**How to test it**
+Run `servings_for("pancakes", 4)` and confirm the output now includes
+quantities for each ingredient.
+
+**Notes for the reviewer**
+Nothing else changed — this is a self-contained improvement to the
+formatting logic.</code></pre>
+  </div>
+
+  <p>It reads well, it's got all four sections the chapter's own PR-description template calls for, and the tone is exactly right for a real PR. It's also missing something that would matter a lot to any teammate reading it &mdash; and, separately, you also asked the same assistant a follow-up question about review feedback that came back with equally confident, equally incomplete advice.</p>
+
+  <h2>Step 2b: the follow-up question</h2>
+  <p>A reviewer leaves an inline comment on your PR: <em>"Can you rename <code>servings_for</code> to <code>ingredients_with_quantities_for</code> — the current name doesn't reflect what it returns anymore."</em> You make the rename locally, but your branch has drifted a bit from what's on GitHub (you rebased onto the latest <code>main</code> to pick up an unrelated fix), so a plain push is rejected. You ask the assistant what to do:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-followup-prompt.txt</span>
+    </div>
+    <pre><code>I rebased my PR branch onto the latest main and made the rename my
+reviewer asked for, but `git push` is rejected because the remote
+branch has diverged. How do I get my changes up?</code></pre>
+  </div>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">ai-response.txt</span>
+    </div>
+    <pre><code>That happens whenever you rebase a branch that's already been pushed
+— the rebase rewrites your commits' hashes, so the remote no longer
+recognizes your local history as a continuation of what it has.
+Just force it through:
+
+    git push --force origin add-recipe-quantities
+
+That'll overwrite the remote branch with your rebased version and
+your rename will show up in the PR right away.</code></pre>
+  </div>
+
+  <p>The command itself will, in fact, get the rename onto GitHub. That's exactly what makes this worth pausing on.</p>
+
+  <h2>Step 3: Where did the AI's advice lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 — the PR description never mentions this is a breaking change</span>
+      <p><strong>What it looks like it does:</strong> the description covers what changed, why, how to test it, and has a "notes for the reviewer" section explicitly stating "nothing else changed — this is a self-contained improvement" — it looks thorough and honest about scope.</p>
+      <p><strong>What it actually does:</strong> <code>RECIPES["pancakes"]</code> changed shape entirely — from a list of strings to a dict of ingredient-to-quantity pairs. Any other code (in this repo or, worse, in a downstream fork or a different branch someone else is working from) that does <code>for ingredient in RECIPES[name]</code> expecting plain strings, or that indexes it like a list, breaks silently or outright crashes the moment it touches the new shape. The description's "notes for the reviewer" section actively claims the opposite of the truth — "nothing else changed" is precisely wrong for a change that alters a shared data structure's type.</p>
+      <p><strong>Why it matters:</strong> a breaking change to a shared data structure is exactly the kind of thing a PR description exists to surface loudly, not bury. A reviewer who trusts the "notes for the reviewer" section at face value has no reason to go check whether anything else in the codebase reads <code>RECIPES</code> the old way — and finds out the hard way, after merge, when something else breaks.</p>
+      <p><strong>The fix:</strong> the description needs an explicit "Breaking change" callout: <code>RECIPES[name]</code> used to be a list of ingredient strings and is now a dict of {ingredient: quantity} — any other code reading this structure directly needs to be checked and updated. This is exactly the kind of "anything risky or non-obvious" content this chapter's own PR-description template calls for, and it's the one thing this AI draft quietly dropped.</p>
+
+      <span class="qa-section-label flags">Flaw 2 — the force-push advice is technically correct and dangerously incomplete</span>
+      <p><strong>What it looks like it does:</strong> the response correctly diagnoses <em>why</em> the push was rejected (a rebase rewrites commit hashes, so the remote branch and the local branch no longer share a common history the way a normal fast-forward push expects) and gives a command that will, in fact, resolve the immediate error.</p>
+      <p><strong>What it actually does:</strong> <code>git push --force</code> unconditionally overwrites whatever is on the remote branch right now with your local version — with zero check for whether anything changed there since you last fetched. Two concrete risks it never mentions: first, the reviewer's inline comment that's still open on this PR is anchored to a specific commit on the branch; once that commit no longer exists after a force-push, GitHub can lose the live anchor for that comment's context (this chapter's own interview questions cover exactly this). Second, if a teammate had pushed anything to this same branch in the meantime — a small fix, a suggested change applied directly — a plain force-push discards it permanently with no warning, no diff shown, nothing to undo.</p>
+      <p><strong>Why it matters:</strong> the advice isn't wrong about what unblocks the push — it's wrong by omission. A response that hands over a command with real, irreversible failure modes, with no mention that a materially safer version of the same command exists, is teaching "force it through" as the default instinct on a shared branch — exactly backwards from how experienced teams actually operate.</p>
+      <p><strong>The fix:</strong> use <code>git push --force-with-lease origin add-recipe-quantities</code> instead. It performs the identical rewrite when nothing unexpected has happened on the remote, but refuses the push and tells you plainly if the remote has commits your local copy hasn't seen — turning a silent, unrecoverable overwrite into a stop-and-check moment. On a solo branch nobody else touches, plain <code>--force</code> is low-risk; on any branch open for review, <code>--force-with-lease</code> should be the default reflex, not an afterthought.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself &mdash; it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- would you have caught the missing breaking-change note, or the force-push risk, on your own before reading Chapter 29?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Check whether a data-structure change breaks anything else reading it' or 'Default to --force-with-lease on any branch open for review'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

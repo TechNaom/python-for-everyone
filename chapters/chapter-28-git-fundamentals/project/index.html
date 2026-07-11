@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28 Project: Git Workflow Practice — Python for Everyone</title>
+<meta name="description" content="A guided, hands-on git workflow on a real scratch repository -- branch, diverge, hit a genuine merge conflict, resolve it, merge, and rebase, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Git Workflow Practice</h1>
+
+  <p>A guided, hands-on git workflow on a real scratch repository &mdash; not a Python script to write. You'll branch, diverge, hit a genuine merge conflict, resolve it, merge, and rebase a second branch onto the result, using real <code>git</code> commands in your own terminal.</p>
+
+  <div class="what-is">
+    <span class="label">What you'll do</span>
+    <code>starter.py</code> is a one-time setup script (it runs real <code>git</code> commands under the hood via <code>subprocess</code>) that builds a scratch repository called <code>recipe-box/</code> and pre-loads it with a scenario: an initial commit on <code>main</code>, a <code>feature/double-recipe</code> branch that diverges with two of its own commits, and a follow-up commit on <code>main</code> that edits the <strong>same line</strong> &mdash; so the two branches conflict on purpose. Nothing is merged yet; that's your job, by hand, in the terminal.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (verifier &mdash; run after you finish)</a>
+  </div>
+
+  <div class="what-is">
+    <span class="label">solution.py is a verifier, not an answer key</span>
+    Run it after you're done and it inspects your actual repo's git state (branch existence, commit count, whether the conflict was really resolved, whether the rebase was clean) via real <code>git</code> subprocess calls, and reports pass/fail per check &mdash; instead of showing you a "correct" copy to compare against.
+  </div>
+
+  <h2>How to run</h2>
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">terminal</span>
+    </div>
+    <pre><code>cd chapters/chapter-28-git-fundamentals/project
+python3 starter.py
+cd recipe-box</code></pre>
+  </div>
+  <p>Everything from here happens with real <code>git</code> commands, inside <code>recipe-box/</code>.</p>
+
+  <h2>The workflow, step by step</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Look around first</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git log --oneline --graph --all
+git status
+git branch</code></pre>
+    </div>
+    <p>You should see <code>main</code> and <code>feature/double-recipe</code> diverging from the same initial commit, each with their own commits after that.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Attempt the merge</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git checkout main
+git merge feature/double-recipe</code></pre>
+    </div>
+    <p>This <strong>will</strong> fail with a conflict &mdash; that's the point. <code>main</code> and <code>feature/double-recipe</code> both changed the last line of <code>recipe.txt</code>, so git can't automatically decide which version is correct.</p>
+    <div class="output-block">
+      <span class="output-label">Output</span>
+      <pre><code>Auto-merging recipe.txt
+CONFLICT (content): Merge conflict in recipe.txt
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> a merge conflict on a single line means git genuinely can't tell which version is "correct" &mdash; that's a judgment call about the actual content, not something to blindly automate away. Before asking an AI for help, it's worth reading both sides of the conflict yourself first, since an AI assistant handed only the conflict markers has the same blind spot git does: no idea which change is intentional and which is a mistake.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help resolve this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I have a git merge conflict on this one line, here's both versions..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare its suggested resolution against what you actually decide to do below — does it just pick one side, or does it ask what you actually want to keep?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have a git merge conflict in recipe.txt. My branch (main) has this line: "Serves: 4-6 depending on appetite". The incoming branch (feature/double-recipe) has these two lines instead: "Serves: 8 (doubled)" and "- pinch of cinnamon". I want to keep the doubled serving count from the feature branch AND the cinnamon note, but reworded to fit the original file's tone. Show me the exact final text to put in place of the conflict markers, and explain why you kept or dropped each piece.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Inspect the conflict markers</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git status
+cat recipe.txt</code></pre>
+    </div>
+    <p>Notice the ingredient lines merged automatically with no conflict &mdash; only the lines both branches genuinely disagree about get marked. <code>recipe.txt</code> now contains:</p>
+    <div class="output-block">
+      <span class="output-label">recipe.txt</span>
+      <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+Serves: 4-6 depending on appetite
+=======
+Serves: 8 (doubled)
+- pinch of cinnamon
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/double-recipe</code></pre>
+    </div>
+    <ul>
+      <li>Everything between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is <strong>your current branch's</strong> version (<code>main</code>).</li>
+      <li>Everything between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/double-recipe</code> is the <strong>incoming branch's</strong> version.</li>
+    </ul>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Resolve the conflict</h3>
+    <p>Open <code>recipe.txt</code> in an editor and decide what the final content should actually be. A reasonable resolution keeps both ideas &mdash; the doubled quantities and the cinnamon note &mdash; and drops the markers entirely:</p>
+    <div class="output-block">
+      <span class="output-label">recipe.txt (resolved)</span>
+      <pre><code>Grandma's Chili
+================
+Ingredients:
+- 2 lb ground beef
+- 2 cans beans
+- 2 cans tomatoes
+
+Serves: 8 (doubled)
+- pinch of cinnamon</code></pre>
+    </div>
+    <p>Delete all three marker lines (<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>) &mdash; they must not survive into the final file.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Stage and commit the resolution</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git add recipe.txt
+git commit</code></pre>
+    </div>
+    <p>Git pre-fills a merge commit message for you (<code>Merge branch 'feature/double-recipe'</code>) &mdash; accept it or edit it, then save and close. Check the result with <code>git log --oneline --graph --all</code>: you now have a real three-way merge commit with two parents, tying both branches' histories together.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Create a second branch and let main move on</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git checkout -b feature/add-notes
+echo "Note: can substitute kidney beans for black beans." &gt;&gt; recipe.txt
+git add recipe.txt
+git commit -m "Add substitution note"
+
+git checkout main
+echo "" &gt;&gt; README.md
+echo "Contributions welcome!" &gt;&gt; README.md
+git add README.md
+git commit -m "Update README with contribution note"</code></pre>
+    </div>
+    <p>Now <code>main</code> has moved on <em>again</em> since <code>feature/add-notes</code> branched off it &mdash; a very common situation on a real team.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Rebase your feature branch onto the updated main</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git checkout feature/add-notes
+git rebase main</code></pre>
+    </div>
+    <p>This replays <code>feature/add-notes</code>'s one commit on top of <code>main</code>'s new tip, producing a straight, linear history with no extra merge commit. Check it with <code>git log --oneline --graph --all</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Practice one undo command</h3>
+    <p>Pick at least one of these and actually run it (see the project ideas below for a deeper version of each):</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code># stash a change, then bring it back
+echo "temp idea" &gt;&gt; recipe.txt
+git stash push -m "WIP idea"
+git status
+git stash pop
+
+# see the full history of where HEAD has pointed
+git reflog</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">9</span> Verify your work</h3>
+    <p>From the <code>project/</code> folder (one level up from <code>recipe-box/</code>):</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>cd ..
+python3 solution.py</code></pre>
+    </div>
+    <p>It checks: the feature branch existed, the merge commit exists, no conflict markers were left behind, the resolved content reflects both sides, and the second branch was cleanly rebased. Fix anything marked <code>FAIL</code> by revisiting the matching step above.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Want to start over?</span>
+    <pre><code>rm -rf recipe-box
+python3 starter.py</code></pre>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Merge conflicts and rebases are not edge cases &mdash; they're what actually happens on any team where more than one person touches the same file. Reading conflict markers calmly, resolving them deliberately instead of panicking and picking a side at random, and knowing when to reach for merge vs. rebase is a day-one skill on every real engineering team, not a one-time interview topic.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>No starter/solution files are provided for these on purpose &mdash; building and verifying each one yourself, entirely with real <code>git</code> commands, is the point. Each is solvable with only what this chapter and the main project above have taught.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Simulate a hotfix workflow</h3>
+    <p><strong>Scenario:</strong> Production is broken and needs a fix <em>right now</em>, but you also have a half-finished feature branch that isn't ready yet.</p>
+    <p><strong>What to do:</strong> From <code>main</code>, create <code>hotfix/urgent-bug</code>, make and commit a one-line fix, merge it straight back into <code>main</code>, then switch to your still-open feature branch and rebase it onto the now-updated <code>main</code> so it picks up the fix too.</p>
+    <p><strong>Suggested approach:</strong> This is steps 6&ndash;7 above, just framed as a hotfix instead of a notes branch &mdash; practice explaining out loud <em>why</em> the feature branch needs rebasing (or merging) after the hotfix lands, not just running the commands.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Recover a commit you "accidentally" <code>reset --hard</code></h3>
+    <p><strong>Scenario:</strong> You just ran <code>git reset --hard HEAD~1</code> and realized the commit you threw away actually had work you needed.</p>
+    <p><strong>What to do:</strong> On a throwaway branch, make a commit, note its message, then deliberately run <code>git reset --hard HEAD~1</code> to "lose" it. Use <code>git reflog</code> to find the lost commit's hash, then <code>git reset --hard &lt;that-hash&gt;</code> to bring it back. Confirm with <code>git log</code> that the commit is really there again.</p>
+    <p><strong>Suggested approach:</strong> <code>git reflog</code> lists every place HEAD has pointed, most recent first &mdash; the commit you "lost" is still in there even though <code>git log</code> no longer shows it, because it hasn't been garbage-collected yet.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Squash three messy commits into one clean commit</h3>
+    <p><strong>Scenario:</strong> A feature branch has three sloppy, in-progress commits ("wip", "fix typo", "actually fix it") that should become one clean commit before anyone else looks at the history.</p>
+    <p><strong>What to do:</strong> On a throwaway branch, make three small commits with exactly that kind of messy message. Run <code>git rebase -i HEAD~3</code>, mark the last two as <code>squash</code> (or <code>fixup</code>), and write one clean combined commit message. Confirm with <code>git log --oneline</code> that the branch now has one commit instead of three.</p>
+    <p><strong>Suggested approach:</strong> In the interactive rebase editor, only the word at the start of each line needs to change from <code>pick</code> to <code>squash</code>/<code>fixup</code> &mdash; everything else about the commit list stays as-is.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Resolve a conflict where one branch deletes a file and the other modifies it</h3>
+    <p><strong>Scenario:</strong> One branch removes a file entirely; another branch, not knowing that, keeps editing it. Merging them is a different <em>kind</em> of conflict than an edit/edit conflict.</p>
+    <p><strong>What to do:</strong> From <code>main</code>, create two branches. On one, delete <code>README.md</code> and commit. On the other, edit <code>README.md</code> and commit. Merge both into <code>main</code> one at a time and see how git reports a "deleted by us" / "deleted by them" conflict differently from a normal content conflict &mdash; then decide (and act on) whether the file should stay deleted or be kept with the edit.</p>
+    <p><strong>Suggested approach:</strong> <code>git status</code> during this kind of conflict shows the file as "deleted by them" or "modified by us" rather than "both modified" &mdash; read that language carefully, since the resolution commands differ (<code>git rm</code> to confirm a deletion, or <code>git add</code> to keep a modified version).</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on git remotes, fast-forward vs. merge pulls, pull request mergeability, forking vs. cloning, code review states, stale fork updates, issue quality, and the end-to-end collaboration workflow, for Chapter 29: GitHub & Collaboration.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 Coding Challenges</span>
+    <span class="reading-time">40-55 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: GitHub &amp; Collaboration</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. Write your
+    function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+    A real browser can't run actual <code>git</code>/GitHub operations, so
+    every challenge here reasons about or simulates a GitHub collaboration
+    scenario as plain function logic &mdash; but the underlying git
+    behavior each one encodes (fast-forward vs. merge, remote commands,
+    ahead/behind counts) was checked against a real local bare-repo
+    simulation before being written into these test cases.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Pick the Right Remote Command <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>remote_command_for_scenario(scenario)</code> that takes a scenario name (a string) and returns the exact git command (as a string) that solves it. Use this mapping:</p>
+      <ul>
+        <li><code>"add_upstream"</code> &rarr; <code>"git remote add upstream &lt;url&gt;"</code></li>
+        <li><code>"list_remotes_verbose"</code> &rarr; <code>"git remote -v"</code></li>
+        <li><code>"download_without_merging"</code> &rarr; <code>"git fetch origin"</code></li>
+        <li><code>"download_and_merge"</code> &rarr; <code>"git pull origin main"</code></li>
+        <li><code>"first_push_new_branch"</code> &rarr; <code>"git push -u origin &lt;branch&gt;"</code></li>
+      </ul>
+      <p>For any other scenario string, return <code>"unknown scenario"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>scenario</code> is a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>remote_command_for_scenario("download_without_merging")</code> &rarr; <code>"git fetch origin"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def remote_command_for_scenario(scenario):
+    # TODO: return the exact git command string for the given scenario
+    # name, or "unknown scenario" if it doesn't match any known case.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "remote_command_for_scenario",
+  "cases": [
+    { "args": ["add_upstream"], "expected": "git remote add upstream <url>" },
+    { "args": ["list_remotes_verbose"], "expected": "git remote -v" },
+    { "args": ["download_without_merging"], "expected": "git fetch origin" },
+    { "args": ["download_and_merge"], "expected": "git pull origin main" },
+    { "args": ["first_push_new_branch"], "expected": "git push -u origin <branch>" },
+    { "args": ["delete_a_file"], "expected": "unknown scenario" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def remote_command_for_scenario(scenario):
+    mapping = {
+        "add_upstream": "git remote add upstream &lt;url&gt;",
+        "list_remotes_verbose": "git remote -v",
+        "download_without_merging": "git fetch origin",
+        "download_and_merge": "git pull origin main",
+        "first_push_new_branch": "git push -u origin &lt;branch&gt;",
+    }
+    return mapping.get(scenario, "unknown scenario")</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">2</span> Fast-Forward or Merge Required? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>pull_outcome(local_ahead, remote_ahead)</code> that, given how many commits your local branch is ahead of the common ancestor (<code>local_ahead</code>) and how many commits the remote-tracking branch is ahead of the same ancestor (<code>remote_ahead</code>), returns one of four strings describing what <code>git pull</code> would do:</p>
+      <ul>
+        <li><code>"up_to_date"</code> if both are 0</li>
+        <li><code>"fast_forward"</code> if <code>local_ahead</code> is 0 and <code>remote_ahead</code> is greater than 0</li>
+        <li><code>"nothing_to_pull_push_instead"</code> if <code>local_ahead</code> is greater than 0 and <code>remote_ahead</code> is 0</li>
+        <li><code>"merge_required"</code> if both are greater than 0 (the histories have diverged)</li>
+      </ul>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are non-negative ints. This mirrors <code>git status -sb</code>'s real <code>[ahead X, behind Y]</code> reporting, verified against a live bare-repo simulation.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>pull_outcome(0, 3)</code> &rarr; <code>"fast_forward"</code><br>
+        <code>pull_outcome(2, 3)</code> &rarr; <code>"merge_required"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def pull_outcome(local_ahead, remote_ahead):
+    # TODO: return "up_to_date", "fast_forward",
+    # "nothing_to_pull_push_instead", or "merge_required" based on the
+    # rules above.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "pull_outcome",
+  "cases": [
+    { "args": [0, 0], "expected": "up_to_date" },
+    { "args": [0, 3], "expected": "fast_forward" },
+    { "args": [2, 0], "expected": "nothing_to_pull_push_instead" },
+    { "args": [2, 3], "expected": "merge_required" },
+    { "args": [1, 1], "expected": "merge_required" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def pull_outcome(local_ahead, remote_ahead):
+    if local_ahead == 0 and remote_ahead == 0:
+        return "up_to_date"
+    if local_ahead == 0 and remote_ahead &gt; 0:
+        return "fast_forward"
+    if local_ahead &gt; 0 and remote_ahead == 0:
+        return "nothing_to_pull_push_instead"
+    return "merge_required"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> Is This PR Mergeable? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_pr_mergeable(approvals, changes_requested, ci_status, has_conflicts)</code> that returns <code>True</code> only if all of the following hold: <code>approvals</code> is at least 1, <code>changes_requested</code> is exactly 0, <code>ci_status</code> is the string <code>"passing"</code>, and <code>has_conflicts</code> is <code>False</code>. Otherwise return <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>approvals</code>/<code>changes_requested</code> are non-negative ints; <code>ci_status</code> is a string; <code>has_conflicts</code> is a bool.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_pr_mergeable(1, 0, "passing", False)</code> &rarr; <code>True</code><br>
+        <code>is_pr_mergeable(1, 0, "passing", True)</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def is_pr_mergeable(approvals, changes_requested, ci_status, has_conflicts):
+    # TODO: return True only if approvals >= 1, changes_requested == 0,
+    # ci_status == "passing", and has_conflicts is False.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_pr_mergeable",
+  "cases": [
+    { "args": [1, 0, "passing", false], "expected": true },
+    { "args": [0, 0, "passing", false], "expected": false },
+    { "args": [2, 1, "passing", false], "expected": false },
+    { "args": [1, 0, "failing", false], "expected": false },
+    { "args": [1, 0, "passing", true], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def is_pr_mergeable(approvals, changes_requested, ci_status, has_conflicts):
+    return (
+        approvals &gt;= 1
+        and changes_requested == 0
+        and ci_status == "passing"
+        and not has_conflicts
+    )</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Fork or Clone? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>fork_or_clone(has_write_access)</code> that returns <code>"clone"</code> if <code>has_write_access</code> is <code>True</code> (you can clone the repo directly and push branches), or <code>"fork"</code> if <code>False</code> (you need your own fork to push to, then open a PR back to the original).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>has_write_access</code> is a bool.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>fork_or_clone(False)</code> &rarr; <code>"fork"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="12">
+def fork_or_clone(has_write_access):
+    # TODO: return "clone" if has_write_access is True, else "fork".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "fork_or_clone",
+  "cases": [
+    { "args": [true], "expected": "clone" },
+    { "args": [false], "expected": "fork" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def fork_or_clone(has_write_access):
+    return "clone" if has_write_access else "fork"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">5</span> Classify a Review State <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>classify_review(review_state)</code> that takes a GitHub review state string and returns <code>"merge_allowed"</code> if <code>review_state == "APPROVED"</code>, <code>"blocked"</code> if <code>review_state == "CHANGES_REQUESTED"</code>, and <code>"informational"</code> for any other value (e.g. <code>"COMMENTED"</code> or <code>"DISMISSED"</code>).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>review_state</code> is a string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>classify_review("CHANGES_REQUESTED")</code> &rarr; <code>"blocked"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def classify_review(review_state):
+    # TODO: return "merge_allowed" for "APPROVED", "blocked" for
+    # "CHANGES_REQUESTED", and "informational" for anything else.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "classify_review",
+  "cases": [
+    { "args": ["APPROVED"], "expected": "merge_allowed" },
+    { "args": ["CHANGES_REQUESTED"], "expected": "blocked" },
+    { "args": ["COMMENTED"], "expected": "informational" },
+    { "args": ["DISMISSED"], "expected": "informational" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def classify_review(review_state):
+    if review_state == "APPROVED":
+        return "merge_allowed"
+    if review_state == "CHANGES_REQUESTED":
+        return "blocked"
+    return "informational"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Update a Stale Fork Safely <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_stale_fork_update(commits_behind, has_open_pr)</code> for this real scenario: your fork's branch has fallen <code>commits_behind</code> commits behind the upstream default branch. Return:</p>
+      <ul>
+        <li><code>"up_to_date"</code> if <code>commits_behind == 0</code></li>
+        <li><code>"fetch_upstream_rebase_feature_branch_push"</code> if <code>commits_behind &gt; 0</code> and <code>has_open_pr</code> is <code>True</code> (rebasing keeps your PR's commits on top instead of discarding them)</li>
+        <li><code>"fetch_upstream_merge_or_reset_default_branch"</code> if <code>commits_behind &gt; 0</code> and <code>has_open_pr</code> is <code>False</code> (no PR in flight, so simply catching up your default branch is enough)</li>
+      </ul>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>commits_behind</code> is a non-negative int; <code>has_open_pr</code> is a bool. This flow (fetch upstream, then rebase the feature branch, keeping the fork's own PR commits) was verified against a real local bare-repo simulation of a stale fork before being written here.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_stale_fork_update(40, True)</code> &rarr; <code>"fetch_upstream_rebase_feature_branch_push"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def safe_stale_fork_update(commits_behind, has_open_pr):
+    # TODO: return "up_to_date", "fetch_upstream_rebase_feature_branch_push",
+    # or "fetch_upstream_merge_or_reset_default_branch" per the rules above.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_stale_fork_update",
+  "cases": [
+    { "args": [0, true], "expected": "up_to_date" },
+    { "args": [40, true], "expected": "fetch_upstream_rebase_feature_branch_push" },
+    { "args": [40, false], "expected": "fetch_upstream_merge_or_reset_default_branch" },
+    { "args": [5, true], "expected": "fetch_upstream_rebase_feature_branch_push" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def safe_stale_fork_update(commits_behind, has_open_pr):
+    if commits_behind == 0:
+        return "up_to_date"
+    if has_open_pr:
+        return "fetch_upstream_rebase_feature_branch_push"
+    return "fetch_upstream_merge_or_reset_default_branch"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Score an Issue's Quality <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>issue_quality_score(title, has_repro_steps, has_expected_behavior, has_environment_info)</code> that scores a bug report out of 4: if <code>title</code> is empty (falsy), return <code>0</code> immediately. Otherwise start at <code>1</code> point for having a title, then add 1 point each for <code>has_repro_steps</code>, <code>has_expected_behavior</code>, and <code>has_environment_info</code> being <code>True</code>. Return the total (an int from 0 to 4).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>title</code> is a string; the other three arguments are bools.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>issue_quality_score("Login fails", True, True, False)</code> &rarr; <code>3</code><br>
+        <code>issue_quality_score("", False, False, False)</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def issue_quality_score(title, has_repro_steps, has_expected_behavior, has_environment_info):
+    # TODO: return 0 if title is empty. Otherwise 1 point for the
+    # title, plus 1 for each True flag among the other three args.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "issue_quality_score",
+  "cases": [
+    { "args": ["", false, false, false], "expected": 0 },
+    { "args": ["Bug", false, false, false], "expected": 1 },
+    { "args": ["Bug", true, true, true], "expected": 4 },
+    { "args": ["Login fails", true, true, false], "expected": 3 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def issue_quality_score(title, has_repro_steps, has_expected_behavior, has_environment_info):
+    if not title:
+        return 0
+    score = 1
+    if has_repro_steps:
+        score += 1
+    if has_expected_behavior:
+        score += 1
+    if has_environment_info:
+        score += 1
+    return score</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Next Step in the Collaboration Workflow <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>next_workflow_step(current_step)</code> that returns the next step in this fixed, real-world order: <code>"issue_filed"</code> &rarr; <code>"forked"</code> &rarr; <code>"branched"</code> &rarr; <code>"committed"</code> &rarr; <code>"pushed"</code> &rarr; <code>"pr_opened"</code> &rarr; <code>"reviewed"</code> &rarr; <code>"approved"</code> &rarr; <code>"merged"</code>. If <code>current_step</code> is <code>"merged"</code> (the last step), return <code>"done"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>current_step</code> is always one of the nine valid step strings above.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>next_workflow_step("pr_opened")</code> &rarr; <code>"reviewed"</code><br>
+        <code>next_workflow_step("merged")</code> &rarr; <code>"done"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def next_workflow_step(current_step):
+    # TODO: return the next step in the fixed order given above, or
+    # "done" if current_step is already "merged".
+    order = [
+        "issue_filed", "forked", "branched", "committed", "pushed",
+        "pr_opened", "reviewed", "approved", "merged",
+    ]
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "next_workflow_step",
+  "cases": [
+    { "args": ["issue_filed"], "expected": "forked" },
+    { "args": ["pr_opened"], "expected": "reviewed" },
+    { "args": ["approved"], "expected": "merged" },
+    { "args": ["merged"], "expected": "done" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def next_workflow_step(current_step):
+    order = [
+        "issue_filed", "forked", "branched", "committed", "pushed",
+        "pr_opened", "reviewed", "approved", "merged",
+    ]
+    idx = order.index(current_step)
+    if idx == len(order) - 1:
+        return "done"
+    return order[idx + 1]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

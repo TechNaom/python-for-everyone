@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 29: GitHub & Collaboration.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-29" data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 29 Quiz</span>
+  <h1>GitHub &amp; Collaboration</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What is a "remote" in git?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">A branch that only exists on your own machine</button>
+        <button type="button" class="mcq-option" data-correct="true">A named reference to another copy of the repository, usually hosted elsewhere (e.g. GitHub)</button>
+        <button type="button" class="mcq-option" data-correct="false">A file that lists every commit ever made</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> Is <code>origin</code> a special git keyword?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">Yes, git requires the first remote to be named origin</button>
+        <button type="button" class="mcq-option" data-correct="true">No, it's just the conventional name given to the remote you cloned from — it can be renamed or added alongside other remotes</button>
+        <button type="button" class="mcq-option" data-correct="false">Yes, origin refers to the very first commit in a repository</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> What does <code>git fetch origin</code> actually do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">Downloads new commits and immediately merges them into your current branch</button>
+        <button type="button" class="mcq-option" data-correct="true">Downloads new commits and updates remote-tracking branches (like origin/main), without touching your current branch</button>
+        <button type="button" class="mcq-option" data-correct="false">Deletes any local commits not present on the remote</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> How does <code>git pull</code> differ from <code>git fetch</code>?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">They are exactly the same command under different names</button>
+        <button type="button" class="mcq-option" data-correct="true">pull is fetch immediately followed by a merge into the branch you're currently on</button>
+        <button type="button" class="mcq-option" data-correct="false">pull only works on the main branch, fetch works on any branch</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> When should you fork a repository instead of just cloning it?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Forking and cloning are the same operation, so it never matters</button>
+        <button type="button" class="mcq-option" data-correct="true">When you don't have (and won't get) push access to the original repository, and need your own writable copy</button>
+        <button type="button" class="mcq-option" data-correct="false">Only when the repository is private</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> Where does forking a repository actually happen?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">Locally, via a git fork command</button>
+        <button type="button" class="mcq-option" data-correct="true">On GitHub itself — it creates a full copy under your account, which you then clone locally like any other repo</button>
+        <button type="button" class="mcq-option" data-correct="false">Automatically, the first time you push to a repo you don't own</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What's the standard way to keep a fork in sync with the project it came from?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">Delete the fork and create a new one every time the original changes</button>
+        <button type="button" class="mcq-option" data-correct="true">Add the original as an "upstream" remote, fetch and merge (or rebase) from it, then push the result to your fork</button>
+        <button type="button" class="mcq-option" data-correct="false">Forks sync automatically with no action needed</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What is a pull request?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">A raw git object stored in the repository's history</button>
+        <button type="button" class="mcq-option" data-correct="true">A GitHub-hosted request to merge one pushed branch into another, where review and discussion happen</button>
+        <button type="button" class="mcq-option" data-correct="false">A command that pulls the latest changes from a remote</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> What happens to an open pull request when you push more commits to the same branch?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing — you must close the PR and open a brand new one</button>
+        <button type="button" class="mcq-option" data-correct="true">The existing PR updates automatically to show the new commits — no new PR is needed</button>
+        <button type="button" class="mcq-option" data-correct="false">GitHub automatically merges it early</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What is a draft pull request for?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">A PR that has already been merged</button>
+        <button type="button" class="mcq-option" data-correct="true">A PR marked not-ready-to-merge yet — visible for early feedback, but blocked from merging until marked ready</button>
+        <button type="button" class="mcq-option" data-correct="false">A private PR only the author can see</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> Which of these is a reviewer typically checking for?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">Only whether the code technically runs without crashing</button>
+        <button type="button" class="mcq-option" data-correct="true">Correctness, test coverage, readability, consistency with existing code, and focused scope</button>
+        <button type="button" class="mcq-option" data-correct="false">How many lines of code were changed, regardless of content</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> Which review verdict actually blocks a pull request from being merged (under default branch protection)?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">Comment</button>
+        <button type="button" class="mcq-option" data-correct="true">Request changes</button>
+        <button type="button" class="mcq-option" data-correct="false">Approve</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> What's the professional way to receive review feedback that points out a real bug?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">Treat it as a personal attack and defend the original code regardless</button>
+        <button type="button" class="mcq-option" data-correct="true">Treat it as information about the code, ask clarifying questions if needed, and address or discuss it</button>
+        <button type="button" class="mcq-option" data-correct="false">Ignore it unless the reviewer is a project owner</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What is a GitHub issue?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">A branch that contains only bug fixes</button>
+        <button type="button" class="mcq-option" data-correct="true">A standalone, trackable item (bug report, feature request, task) with a title, description, comments, and status — independent of any branch or PR</button>
+        <button type="button" class="mcq-option" data-correct="false">An error message shown when a push fails</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> What does writing "Closes #42" in a pull request description do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">Nothing — it's just a comment with no special behavior</button>
+        <button type="button" class="mcq-option" data-correct="true">Links the PR to issue #42 and automatically closes that issue the moment the PR merges into the default branch</button>
+        <button type="button" class="mcq-option" data-correct="false">Immediately closes issue #42 as soon as the PR is opened</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq16-label"><span class="q-num">16</span> What do labels and milestones do on GitHub?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq16-label">
+        <button type="button" class="mcq-option" data-correct="false">They change how code is compiled or run</button>
+        <button type="button" class="mcq-option" data-correct="true">Labels categorize issues/PRs (e.g. bug, enhancement); milestones group them toward a shared deadline or release</button>
+        <button type="button" class="mcq-option" data-correct="false">They automatically assign reviewers to a pull request</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq17-label"><span class="q-num">17</span> In the end-to-end collaboration workflow, what does a contributor without push access do first?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq17-label">
+        <button type="button" class="mcq-option" data-correct="false">Directly push a new branch to the original repository</button>
+        <button type="button" class="mcq-option" data-correct="true">Fork the repository on GitHub, then clone their fork locally</button>
+        <button type="button" class="mcq-option" data-correct="false">Email the maintainer their code as a file attachment</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> <code>git remote ____ &lt;name&gt; &lt;url&gt;</code> connects your local repository to another one.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="add" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> <code>git push -____ origin main</code> pushes and sets up a tracking branch in one step.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="u,-set-upstream" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> <code>git ____ origin</code> downloads new commits from a remote without touching your current branch.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="fetch" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q21"><span class="q-num">21</span> By convention, the remote pointing at the original project you forked from is named ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q21" class="fib-blank" data-answers="upstream" aria-label="Answer for question 21">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q22"><span class="q-num">22</span> A pull request marked as not-yet-ready-to-merge, but still visible for early feedback, is called a ____ PR.</label>
+      <div class="fib-row">
+        <input type="text" id="q22" class="fib-blank" data-answers="draft" aria-label="Answer for question 22">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q23"><span class="q-num">23</span> The three GitHub review verdicts are Comment, Approve, and Request ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q23" class="fib-blank" data-answers="changes" aria-label="Answer for question 23">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q24"><span class="q-num">24</span> Writing "____ #42" (or Fixes/Resolves #42) in a PR description auto-closes that issue when the PR merges.</label>
+      <div class="fib-row">
+        <input type="text" id="q24" class="fib-blank" data-answers="Closes,closes" aria-label="Answer for question 24">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q25"><span class="q-num">25</span> A colored tag used to categorize issues and PRs (like "bug" or "enhancement") is called a ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q25" class="fib-blank" data-answers="label" aria-label="Answer for question 25">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 29 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

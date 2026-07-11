@@ -265,6 +265,54 @@ pre code {
   border-radius: 10px;
 }
 
+/* Diagram card — illustrative text mockup (e.g. a GitHub UI we can't screenshot) */
+.diagram-card {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 18px 22px 22px;
+  margin: 22px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.diagram-card .diagram-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-blue-dark);
+  background: rgba(46, 108, 255, 0.10);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.diagram-card .diagram-label::before {
+  content: "🖼";
+  font-size: 13px;
+}
+
+.diagram-card .diagram-note {
+  font-size: 13px;
+  color: var(--color-text-muted, #5B6478);
+  margin: 0 0 12px;
+}
+
+.diagram-card pre {
+  background: #F4F6FA;
+  color: #1B2233;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  margin: 0;
+  overflow-x: auto;
+}
+
 /* ---------- Hero (landing page) ---------- */
 .hero {
   background: radial-gradient(circle at 15% 20%, #1E3A66 0%, transparent 45%),

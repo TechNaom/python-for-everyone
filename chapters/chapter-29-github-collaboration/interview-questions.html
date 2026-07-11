@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 29: GitHub &amp; Collaboration -- fork vs. clone, remotes, fetch vs. pull, pull requests, code review, merge strategies, keeping a fork in sync, issues, and force-pushing risk.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-29-interview" data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: GitHub &amp; Collaboration</h1>
+  <p>Nearly every professional software job asks some version of these questions, because nearly every professional software job uses GitHub (or something structurally identical to it) every single day. This set covers remotes, fork vs. clone, fetch vs. pull, what actually happens when you open a pull request, what reviewers look for, the three GitHub merge options, keeping a fork in sync, writing a good PR description and a good issue, linking issues to PRs, draft PRs, why force-pushing a shared branch is risky, and <code>git blame</code> in review.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the actual difference between forking a repo and cloning it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Cloning (<code>git clone</code>) makes a local copy of a repository on your own machine — it works on any repo you have read access to, and it doesn't create anything new on the server. Forking is a GitHub-specific action (there's no plain <code>git fork</code> command) that creates a brand-new, independent copy of the repository under your own GitHub account, server-side, before you ever clone anything. You fork when you don't have push access to the original repo and need your own copy to push changes to; you just clone directly when you already have push access (your own repos, or a team repo you're a collaborator on). In practice: fork someone else's repo, then clone <em>your fork</em> — you very rarely clone a repo you don't own directly and expect to be able to push to it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "fork" and "clone" as interchangeable, or saying a fork is "just a local copy" — a fork lives on GitHub's servers under your account, and only becomes a local copy once you clone it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you already have push access to a repo, do you still need to fork it?" (No — collaborators with push access typically clone the repo directly and push feature branches to it, opening PRs branch-to-branch within the same repo. Forking is specifically for contributors who don't have write access to the original.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What is a "remote," mechanically — not GitHub-specific, just Git?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A remote is nothing more than a named URL that your local repository knows about, stored in <code>.git/config</code>. <code>git remote add upstream /some/path</code> or <code>git remote add upstream https://github.com/org/repo.git</code> both do the identical thing mechanically — they register a name pointing at a location git can fetch from and push to. There's nothing GitHub-specific about a remote at all: it works exactly the same whether the URL points at github.com, a company's internal Git server, or (as this chapter's own project proves) a plain local folder created with <code>git init --bare</code>. "Origin" is just the conventional name git gives the remote you cloned from — it isn't special beyond that default.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a remote as if it's inherently tied to GitHub's infrastructure, or not knowing that a repo can have more than one remote at once (e.g. <code>origin</code> for your fork and <code>upstream</code> for the original).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How would you check what remotes a repo currently has, and where they point?" (<code>git remote -v</code> — lists every configured remote name alongside its fetch and push URLs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What's the actual difference between <code>git fetch</code> and <code>git pull</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>git fetch</code> downloads new commits and branch references from a remote into your local repo's remote-tracking branches (e.g. <code>upstream/main</code>) — but it never touches your current working branch or your working directory files. It's purely "go get whatever's new, and let me look at it before deciding what to do." <code>git pull</code> is fetch immediately followed by a merge (or rebase, if configured) of the fetched branch into your current branch — it does touch your working directory. Verified directly: after <code>git fetch upstream</code>, <code>git log --oneline</code> on your own branch shows no change at all; only after a subsequent <code>git merge upstream/main</code> (what <code>pull</code> would have done automatically) does your branch's history actually update.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying they're basically the same thing, or not knowing that <code>pull</code> can trigger a merge conflict right there on the spot, while <code>fetch</code> never can (since it never merges anything).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why might an experienced developer deliberately prefer fetch-then-merge over a plain pull?" (Fetch first lets you inspect what actually changed — <code>git log main..upstream/main</code> or <code>git diff main upstream/main</code> — before merging it into your own branch, rather than merging blind and dealing with the consequences after the fact.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What actually happens, mechanically, when you open a pull request on GitHub?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A pull request isn't a git object at all — it's a GitHub-specific wrapper around two things git already understands: a base branch (usually the target repo's <code>main</code>) and a head branch (your feature branch, often on your fork). Opening a PR tells GitHub "compare these two branches and let people discuss, review, and eventually merge the difference." Under the hood, GitHub fetches your branch into the target repo's internal ref namespace so it can be diffed and, eventually, merged — mechanically similar to what this chapter's own project does by hand with <code>git fetch &lt;fork-url&gt; branch:local-ref-name</code>. No commits are actually moved into the base repo's real branches until someone actually merges the PR.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a PR as though it's a Git concept — it's a platform feature (GitHub, GitLab, Bitbucket each implement their own version) layered on top of ordinary branches and commits, not something <code>git</code> itself has any built-in notion of.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does pushing a new commit to your feature branch after opening a PR require opening a new PR?" (No — the PR is a live comparison, not a snapshot. Pushing more commits to the same branch automatically updates the existing open PR with the new diff.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What does a good reviewer actually look for in a pull request?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Correctness first — does the change actually do what the PR description claims, and does it handle the edge cases a reviewer can think of on the spot. Then: does it fit the existing codebase's conventions and architecture rather than introducing a one-off pattern; is it covered by tests (new tests for new behavior, no regressions in existing ones); is the diff scoped to one logical change rather than mixing an unrelated refactor into the same PR (which makes it much harder to review or revert); and is anything risky — a schema change, a security-sensitive input, a breaking API change — called out explicitly rather than left for the reviewer to notice on their own.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reducing review to "does it look like it works" without mentioning scope, tests, or conventions — real review is about maintainability and risk, not just whether the code runs once.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a warning sign that a PR should be split into smaller ones before review?" (It touches many unrelated files/concerns at once, its description needs several paragraphs to explain "what changed," or it mixes a refactor with new behavior — all of these make it much harder to review carefully and much riskier to revert if something's wrong.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the real difference between "Approve," "Request changes," and just leaving a "Comment" on a GitHub review?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>All three let a reviewer leave feedback, but they carry different weight. "Comment" leaves feedback without taking a formal position — useful for questions or optional suggestions that shouldn't block anything. "Approve" is a formal sign-off that the PR is ready to merge as-is (possibly with only optional nitpicks) — on repos with branch protection rules requiring approval, this is what actually unlocks the merge button. "Request changes" is a formal block — it explicitly says "do not merge this yet," and on a protected branch it can prevent merging entirely until the same reviewer (or another required one) either resubmits an approval or the block is dismissed.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating all three as equivalent ways to "leave a note" — the distinction between blocking and non-blocking feedback is exactly the point of having three separate options instead of one comment box.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you found one real bug but the rest of the PR is solid, which would you pick?" (Request changes — a genuine bug is blocking by definition, even inside an otherwise good PR. Approve is only for "this is ready to merge," not "mostly ready.")</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's the actual difference between GitHub's three merge options — merge commit, squash-and-merge, and rebase-and-merge?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><strong>Merge commit</strong> (<code>git merge --no-ff</code> under the hood, exactly what this chapter's own project runs by hand) keeps every individual commit from the feature branch, plus adds one new merge commit tying the two histories together — the base branch's history shows the real, granular commit-by-commit story, with branch structure visible in <code>git log --graph</code>. <strong>Squash-and-merge</strong> collapses every commit on the feature branch into a single new commit on the base branch — clean, linear history, but the feature branch's individual commit-by-commit story is gone from <code>main</code> (still recoverable from the original branch/PR if it isn't deleted). <strong>Rebase-and-merge</strong> replays each individual commit from the feature branch directly onto the tip of the base branch, one at a time, with no merge commit at all — linear history like squash, but every original commit is preserved individually rather than collapsed into one.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing these are three genuinely different resulting histories, or claiming one is objectively "correct" — teams pick based on whether they value granular commit history (merge commit, rebase) or a clean one-commit-per-feature main branch (squash), not because one option is universally better.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Which option would make the most sense for a feature branch with 15 messy 'wip' commits?" (Squash-and-merge — it turns 15 noisy work-in-progress commits into one clean, well-described commit on main, without needing to manually clean up the branch's history first.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How do you actually keep your fork in sync with upstream once it starts falling behind?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Four real commands, verified directly in this chapter's own project: with <code>upstream</code> already added as a remote, <code>git fetch upstream</code> downloads upstream's latest commits into <code>upstream/main</code> without touching your own branches; <code>git checkout main</code> switches to your local main; <code>git merge upstream/main</code> brings those new commits into your local main (a clean fast-forward if you haven't made local commits directly on main, which is exactly why feature work belongs on its own branch, not on main); and finally <code>git push origin main</code> pushes the now-updated main back up to your fork on GitHub, so your fork's main matches upstream's again. Note this never touches upstream itself — you don't have (and don't need) push access to the original repo to sync your own fork.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting you'd re-fork the repo from scratch every time it falls behind, or not knowing that syncing requires the <code>upstream</code> remote to exist in the first place (GitHub doesn't add it automatically when you fork — you add it yourself after cloning).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What happens if you'd made your own commits directly on your fork's local main before syncing?" (The merge won't be a clean fast-forward — you'd get a real merge commit combining upstream's new work with your own, which is exactly why the convention is to never commit directly to main and always work on a feature branch instead.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What separates a good pull request description from a bad one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A good PR description answers, up front, what a reviewer would otherwise have to reverse-engineer from the diff: <strong>what changed</strong> (a plain-language summary, not just "see diff"), <strong>why</strong> (the motivating bug or feature — link the issue if one exists), <strong>how to test it</strong> (concrete steps or commands a reviewer can actually run), and <strong>anything risky or non-obvious</strong> a reviewer should pay special attention to (a breaking change, a migration step, a deliberately-skipped edge case). A bad one either restates the diff in prose ("changed function X to do Y" with no why) or is so thin ("fix bug") that the reviewer has to fully reverse-engineer intent from the code alone.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating the PR title alone as sufficient, or writing a description that's purely a changelog of file names touched rather than explaining the reasoning and the risk.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why does 'how to test it' matter even when there are automated tests in CI?" (CI proves the tests that already exist still pass — it says nothing about whether a reviewer can independently confirm the actual described behavior works, especially for anything UI-facing or environment-dependent that automated tests may not fully cover.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What makes a GitHub issue actually useful, versus one that just creates noise?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A useful issue is reproducible and specific: clear steps to reproduce the problem, what actually happened, what was expected instead, and enough environment detail (version, OS, relevant config) that someone who's never seen the bug can attempt to reproduce it without asking follow-up questions first. For a feature request, the useful version states the actual problem or use case being solved, not just a proposed solution — "I need X because Y" gives a maintainer room to suggest a better approach than the one originally imagined. A noisy issue is vague ("it's broken"), lacks repro steps, or bundles multiple unrelated problems into one thread.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a good bug report as just "a clear title" — title clarity matters, but reproducibility is what actually lets someone act on it without a back-and-forth first.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why do maintainers often ask for a minimal reproduction rather than accepting a full production codebase link?" (A minimal repro strips away everything irrelevant to the bug, which both makes the actual cause much easier to isolate and avoids requiring the maintainer to understand an entire unrelated codebase just to help.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> How do you link an issue and a pull request together on GitHub, and what does a closing keyword actually do?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Writing a specific keyword followed by an issue number in a PR's description or in one of its commit messages — e.g. <code>Fixes #12</code>, <code>Closes #12</code>, or <code>Resolves #12</code> — creates a real, tracked link between the PR and that issue in GitHub's UI (the issue shows "linked pull request," and the PR shows which issue it addresses). The functional effect: when a PR containing that keyword is merged into the repo's default branch, GitHub automatically closes the referenced issue for you — no manual step needed. A plain reference without one of those specific keywords (just typing <code>#12</code> alone) still creates a visible cross-link between the two, but does <em>not</em> auto-close the issue on merge.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming any mention of an issue number auto-closes it — only the specific recognized closing keywords trigger the auto-close behavior; a bare <code>#12</code> just cross-links.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Where can the closing keyword go — only the PR description, or also a commit message?" (Both — GitHub recognizes closing keywords in a PR's description and in individual commit messages within it. Either location triggers the auto-close once that PR is merged to the default branch.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What is a draft pull request, and when would you actually open one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A draft PR is a normal pull request marked explicitly as "not ready for review yet" — it still runs CI, still shows the diff, still lets people comment, but it signals to reviewers and to the "Merge" button itself that this isn't a finished, review-ready change (GitHub disables merging on a draft until it's explicitly marked "Ready for review"). It's the right tool when you want early, work-in-progress visibility — showing a team the direction of a large change before it's finished, getting CI feedback early, or asking for input on an approach mid-implementation — without implying "please formally review and approve this now."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a draft PR as just a PR with "WIP" typed into the title — that's the old convention teams used before GitHub added real draft-PR support; a real draft PR is a distinct, first-class state that actually blocks the merge button, not just a naming convention.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does marking a PR as a draft change what commands git itself runs?" (No — draft status is purely a GitHub-side flag on the PR object, not a git concept. The underlying branch, commits, and push/fetch mechanics are completely identical to a normal PR.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> Why is force-pushing to a shared pull request branch genuinely risky, and when is it still reasonable to do?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A force-push (<code>git push --force</code>) rewrites a branch's history on the remote to match your local branch exactly, discarding whatever commits used to be there instead. On a branch only you work on, that's low-risk. On a PR branch other people have already reviewed, it's genuinely dangerous for two concrete reasons: it can silently orphan a reviewer's inline comments (GitHub anchors review comments to specific commits/lines — rewriting history can leave those comments detached from any code that still exists, effectively losing that review context), and it can discard commits a collaborator pushed to the same branch in the meantime, permanently, if they haven't been fetched elsewhere first. It's still reasonable to do deliberately — cleaning up a WIP branch's history before requesting review, or after a rebase onto an updated base — but the safer version is <code>git push --force-with-lease</code>, which refuses to overwrite the remote branch if it has commits your local copy hasn't seen, catching exactly the "someone else pushed since I last fetched" case before it causes damage.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating force-push as simply forbidden with no explanation, or not knowing <code>--force-with-lease</code> exists as the safer alternative — the real answer is about understanding the specific risk, not memorizing a blanket rule.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why does force-pushing specifically risk losing review comments, when the code itself isn't deleted?" (GitHub's inline review comments are tied to a specific commit SHA and line at the time they were written. If a force-push rewrites history so that commit no longer exists on the branch, GitHub can no longer show the comment anchored to live code the same way — the comment's context effectively becomes stale, even though the comment text itself still exists in the PR's history.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> How is <code>git blame</code> actually useful during code review, rather than just "who wrote this line"?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>git blame &lt;file&gt;</code> shows, line by line, which commit last touched each line and who authored it — but the real reviewer's use case is almost never "assign blame" in the accusatory sense. It's for recovering context a diff alone doesn't show: when a PR modifies a confusing or unusual-looking line, <code>git blame</code> (or, on GitHub, clicking "blame" on that file) traces back to the commit and its message that introduced it — often revealing it was a deliberate fix for a specific past bug, not an oversight. That context can be the difference between a reviewer correctly leaving it alone and a reviewer incorrectly "simplifying" it back into the same bug it was written to prevent.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing <code>git blame</code> only as a way to find out who to complain to about a line of code — missing that its actual value in review is historical context, specifically for understanding *why* something non-obvious was written the way it was.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If git blame shows a suspicious line was 'introduced' by a large refactor commit, what's the next step?" (Use <code>git log -p</code> or GitHub's "View blame prior to this change" option to walk back past that refactor commit to the change before it — a big rewrite commit often isn't the line's real origin, just the most recent commit to move or reformat it.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> <code>git ____</code> creates a local copy of a repository; forking creates a server-side copy under your own account first.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="clone" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> <code>git remote ____</code> lists every remote a repo currently has, with their URLs.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="-v,--verbose" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>git ____</code> downloads new commits into remote-tracking branches without touching your working directory.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="fetch" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>git pull</code> is equivalent to <code>git fetch</code> followed by a <code>git ____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="merge" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> The conventional name git gives the remote you originally cloned from is <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="origin" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A pull request compares a ____ branch (your feature branch) against a base branch (usually main).</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="head" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> Leaving a review as "____ changes" formally blocks a PR from merging until it's addressed.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="Request,request" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> ____-and-merge collapses every commit on a feature branch into one commit on the base branch.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="Squash,squash" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> To sync a fork, you fetch from the ____ remote, then merge it into your local main.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="upstream" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Writing "Fixes #____" (a real number) in a PR description auto-closes that issue when the PR is merged.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="N,12,issue number,number" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> A ____ pull request signals "not ready for review" and blocks merging until marked ready.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="draft" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> <code>git push --force-____</code> refuses to overwrite a remote branch if it has commits your local copy hasn't seen.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="with-lease" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> <code>git ____ &lt;file&gt;</code> shows which commit and author last touched each line of a file.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="blame" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> A ____ merge (<code>--no-ff</code>) keeps every original commit and adds one new commit tying the branches together.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="merge commit,merge" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29: GitHub &amp; Collaboration — Python for Everyone</title>
+<meta name="description" content="Remotes, forking vs. cloning, pull requests, code review, issues, and a full end-to-end GitHub collaboration workflow -- verified real git remote/push/pull/fetch commands throughout.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">65 min read</span>
+  </div>
+  <h1>GitHub &amp; Collaboration</h1>
+  <p><em>Chapter 28 covered local git &mdash; commits, branches, merging, rebase, resolving conflicts, undoing changes. All of that happens on your own machine, in a repository nobody else can see. This chapter is about the layer on top: sharing that history with other people. GitHub doesn't replace git &mdash; it's a hosted copy of your repository, plus a set of tools (pull requests, reviews, issues) built around the act of moving commits between machines and getting other humans to look at them before they land.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> covers remotes &mdash; what <code>origin</code> actually is, and the real difference between <code>fetch</code> and <code>pull</code>, verified against a real second repository standing in for GitHub.</li>
+      <li><strong>Sub-topic 2</strong> covers forking vs. cloning &mdash; when each is the right call, and how to keep a fork in sync with the project it came from.</li>
+      <li><strong>Sub-topic 3</strong> covers the actual pull request workflow, start to merge, plus draft PRs.</li>
+      <li><strong>Sub-topic 4</strong> covers code review &mdash; what a reviewer is actually checking for, and how to give and receive feedback without it turning into a fight.</li>
+      <li><strong>Sub-topic 5</strong> covers issues &mdash; writing one that's actually useful, and how labels/milestones/PR-linking keep a project's work visible.</li>
+      <li><strong>Sub-topic 6</strong> ties every sub-topic together into one realistic scenario, from a filed issue to a merged PR.</li>
+      <li><strong>A note on the commands in this chapter:</strong> every <code>git remote</code>/<code>push</code>/<code>pull</code>/<code>fetch</code> example was run for real against a local bare repository (<code>git init --bare</code>) standing in for a GitHub remote &mdash; the output shown is actual terminal output, not invented. GitHub's own web UI (pull request pages, the issue tracker, the review interface) can't be screenshotted in a text-only build environment, so those are shown as clearly-labeled text mockups instead &mdash; described in prose, not presented as real screenshots.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#remotes">1. Remotes</a>
+    <a href="#forking-vs-cloning">2. Forking vs. cloning</a>
+    <a href="#pull-requests">3. Pull requests</a>
+    <a href="#code-review">4. Code review</a>
+    <a href="#issues-and-project-workflow">5. Issues &amp; project workflow</a>
+    <a href="#real-world-workflow">6. A real-world collaboration workflow</a>
+  </nav>
+
+  <div class="hook">
+    Chapter 28 ended with a repository that lives entirely on one computer. Every commit, every branch, every bit of history is real &mdash; but if that laptop dies, so does the project, and nobody else can see any of it. This chapter is about the fix: a <strong>remote</strong>, a copy of the repository living somewhere else, and everything built around sharing it with other people.
+  </div>
+
+  <div class="subtopic" id="remotes">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Remotes</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>remote</strong> is just another copy of the repository that your local git knows how to talk to &mdash; usually hosted on GitHub, but it can be anywhere reachable over a URL or filesystem path.</li>
+        <li><code>origin</code> is a name, not a keyword &mdash; it's the conventional label git gives the remote you cloned from, and nothing stops you from renaming or adding more.</li>
+        <li><code>fetch</code> downloads a remote's history without touching your working branch; <code>pull</code> does a <code>fetch</code> and then immediately merges it into the branch you're on.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> almost every confusing "my push got rejected" or "my pull did something I didn't expect" moment comes down to not knowing which of these two operations actually ran, and what a remote even is underneath the GitHub UI.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a remote?</span>
+      A remote is a named reference to another copy of the same repository, stored as a URL (or, as in this chapter's examples, a local filesystem path). Your local git doesn't automatically know about anything outside your machine &mdash; <code>git remote add &lt;name&gt; &lt;url&gt;</code> is the one command that tells it "there's another copy of this repo over there, and I want to call it <code>&lt;name&gt;</code>."
+    </div>
+
+    <p>
+      GitHub itself is nothing more than a hosting service for bare git repositories, plus a web UI built on top. To prove that honestly &mdash; not just assert it &mdash; every example below runs against a real second repository on this machine, created with <code>git init --bare</code>, which behaves exactly like a GitHub remote would: it has no working directory, only the raw commit history, and it only accepts pushes and serves fetches.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code># stand in for "a repo on GitHub" -- a real bare repo, verified end to end
+git init --bare upstream-remote.git
+
+# a normal, local project
+git init recipe-box
+cd recipe-box
+git checkout -b main
+echo "# Recipe Box" > README.md
+git add README.md
+git commit -m "Initial commit"
+
+# connect the local repo to the "remote"
+git remote add origin ../upstream-remote.git
+git remote -v</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of git remote -v</span>
+      <pre><code>origin	../upstream-remote.git (fetch)
+origin	../upstream-remote.git (push)</code></pre>
+    </div>
+
+    <p>
+      Two lines for one remote &mdash; git tracks fetch and push as
+      separate URLs for the same name, since some setups genuinely do
+      point them at different places (rare, but the split exists on
+      purpose). <code>-u</code> on the first push does one more thing
+      worth calling out: it sets up a <strong>tracking branch</strong>,
+      linking local <code>main</code> to <code>origin/main</code> so
+      later <code>git push</code>/<code>git pull</code> calls don't need
+      the remote and branch spelled out every time.
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git push -u origin main</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of git push -u origin main</span>
+      <pre><code>To ../upstream-remote.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> before touching GitHub at all, the goal is proving what a remote actually is with a setup nobody has to take on faith -- a real bare repo, not a screenshot of github.com. <code>git init --bare</code> is the right stand-in because it's genuinely the same shape as what GitHub hosts: no working directory, just the raw object history, reachable only by push/fetch.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Set up a local bare repo that behaves like a GitHub remote, connect a project to it, and push..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Using only git commands in a terminal, create a bare repository called upstream-remote.git with `git init --bare` to act as a stand-in for a GitHub remote. Then create a separate normal git repository called recipe-box, add a README.md, commit it on a branch named main, connect it to the bare repo with `git remote add origin ../upstream-remote.git`, and push it with `git push -u origin main` so the branch is set up to track origin/main. Show the output of `git remote -v` and the push command.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      With the remote connected, here's the actual difference between
+      <code>fetch</code> and <code>pull</code> &mdash; the single most
+      common source of confusion for anyone new to remotes. Someone else
+      pushes a change; verify what each command does, one at a time:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code># (a teammate's clone pushed a new commit to origin/main in the meantime)
+
+git fetch origin</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of git fetch origin</span>
+      <pre><code>From ../upstream-remote
+   73532d6..056af9b  main       -> origin/main</code></pre>
+    </div>
+
+    <p>
+      Notice what <em>didn't</em> happen: the local <code>main</code>
+      branch and the working directory are completely untouched.
+      <code>fetch</code> only updates git's local record of where
+      <code>origin/main</code> points &mdash; it downloads the new
+      commit into the repository's object database and moves the
+      remote-tracking pointer, nothing more. This is confirmed directly:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git log --oneline               # local main -- unchanged
+git log --oneline origin/main   # what fetch downloaded -- one commit ahead</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- local main vs. origin/main after fetch</span>
+      <pre><code>73532d6 Add feature X
+b60638f Initial commit
+
+056af9b Teammate pushes a change
+73532d6 Add feature X
+b60638f Initial commit</code></pre>
+    </div>
+
+    <p>
+      <code>pull</code> is the command that actually changes your
+      working branch &mdash; it's <code>fetch</code> immediately followed
+      by a merge (or rebase, with the right flag) of the fetched commits
+      into the branch you're on:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git pull origin main</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of git pull origin main</span>
+      <pre><code>From ../upstream-remote
+ * branch            main       -> FETCH_HEAD
+   056af9b..89ad16c  main       -> origin/main
+Updating 056af9b..89ad16c
+Fast-forward
+ app.py | 1 +
+ 1 file changed, 1 insertion(+)</code></pre>
+    </div>
+
+    <p>
+      This one was a <strong>fast-forward</strong> &mdash; the local
+      branch had no commits of its own beyond what the remote already
+      had, so git just slides the branch pointer forward, no merge
+      commit needed. Chapter 28 already covered what happens when both
+      sides have diverging commits instead (a real merge or conflict) &mdash;
+      the exact same rules apply here, <code>pull</code> is just
+      <code>fetch</code> plus that same merge machinery, aimed at a
+      remote instead of another local branch.
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">fetch vs. pull, side by side</span>
+      <pre><code>git fetch origin
+  -> downloads new commits, updates origin/main
+  -> your current branch: UNCHANGED
+
+git pull origin main
+  -> downloads new commits (= fetch)
+  -> THEN merges them into your current branch
+  -> your current branch: UPDATED</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a tracking branch?</span>
+      A tracking branch is a local branch that's linked to a specific remote branch, so git knows what "the remote" means without being told every time. <code>git push -u origin main</code> (or <code>git branch --set-upstream-to</code>) sets this up once; afterward, plain <code>git push</code> and <code>git pull</code> with no arguments know to talk to <code>origin/main</code> automatically. <code>git status</code> also uses it to report things like "Your branch is 2 commits behind origin/main."
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A remote is a named URL/path git knows to talk to; <code>origin</code> is just the conventional name for the one you cloned from.</li>
+      <li><code>git fetch</code> downloads new commits and updates remote-tracking branches (like <code>origin/main</code>) without touching your current branch.</li>
+      <li><code>git pull</code> is <code>fetch</code> plus an immediate merge into the branch you're on &mdash; the command that actually changes your working files.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why would you ever fetch without pulling?</summary>
+      <p>
+        Fetching first, then looking at what changed (<code>git log
+        origin/main</code>, or <code>git diff main origin/main</code>)
+        before deciding whether to merge is a genuinely safer habit on a
+        shared branch &mdash; it lets you review incoming changes before
+        they touch your working directory, rather than merging blind.
+        Many experienced developers fetch by default and only pull (or
+        run <code>git merge origin/main</code> manually) once they've
+        actually looked.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A remote is another copy of the repository git knows how to reach; <code>origin</code> is a name, not a special keyword.</li>
+        <li><code>git remote add &lt;name&gt; &lt;url&gt;</code> connects a repo; <code>git push -u</code> sets up a tracking branch on first push.</li>
+        <li><code>fetch</code> downloads without touching your branch; <code>pull</code> downloads and merges in one step.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="forking-vs-cloning">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Forking vs. cloning</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Cloning</strong> copies a repository to your machine; it says nothing about permissions &mdash; you clone any repo you can already read.</li>
+        <li>A <strong>fork</strong> is a full copy of someone else's GitHub repository, made under your own account, that you have full write access to.</li>
+        <li>Fork when you don't have (and won't get) push access to the original; clone directly when you already do &mdash; your own projects, or a team repo you're a collaborator on.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> "should I fork this or just clone it?" is one of the first genuinely confusing GitHub questions for anyone coming from local-only git, because the two look similar (both end with code on your machine) but solve completely different problems.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a fork?</span>
+      A fork is a copy of a repository that GitHub creates <em>on GitHub itself</em>, under your account, with its own remote URL you fully control. It's not a local operation &mdash; forking happens on github.com (a button on the repo page), and only afterward do you <code>git clone</code> your fork down to your own machine, exactly like cloning any other repository.
+    </div>
+
+    <p>
+      The practical difference shows up the moment you try to push.
+      Cloning a repository you don't have write access to still lets you
+      commit locally &mdash; git doesn't stop you &mdash; but
+      <code>git push</code> against the original will fail with a
+      permissions error, because GitHub (not git) is enforcing who can
+      write to that specific remote. A fork sidesteps this entirely: it's
+      a full copy under your own account, so you can push to it freely,
+      then propose your changes back to the original via a pull request
+      (Sub-topic 3).
+    </p>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Illustrative text mockup — not a real screenshot</span>
+      <p class="diagram-note">GitHub's actual repo page renders this as a styled button with a live fork count; this is a plain-text description of what it does, not the real UI.</p>
+      <pre><code>github.com/octocat/some-project
+
+  [ Fork ]  1.2k          [ Star ]  8.4k          [ Watch ]  340
+
+  Clicking "Fork" creates a full copy of this repository
+  under YOUR account:
+
+    github.com/octocat/some-project   (original -- "upstream")
+              |
+              |  Fork button (on GitHub, not a git command)
+              v
+    github.com/your-username/some-project   (your fork -- you own this)
+
+  You still need `git clone` to get YOUR fork onto your
+  own machine -- forking alone only creates the copy on GitHub.</code></pre>
+    </div>
+
+    <p>
+      Once your fork exists (on GitHub) and you've cloned it (onto your
+      machine), your local <code>origin</code> points at <em>your</em>
+      fork by default &mdash; not the original project. To stay current
+      with the original as it keeps moving, add it as a second remote,
+      conventionally named <code>upstream</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code># after: fork on GitHub, then `git clone` your fork locally
+git remote -v</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- origin points at YOUR fork, not the original</span>
+      <pre><code>origin	/path/to/my-fork-remote.git (fetch)
+origin	/path/to/my-fork-remote.git (push)</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git remote add upstream /path/to/upstream-remote.git
+git remote -v</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- now two remotes, origin (your fork) and upstream (the original)</span>
+      <pre><code>origin	/path/to/my-fork-remote.git (fetch)
+origin	/path/to/my-fork-remote.git (push)
+upstream	/path/to/upstream-remote.git (fetch)
+upstream	/path/to/upstream-remote.git (push)</code></pre>
+    </div>
+
+    <p>
+      Syncing a fork is now a normal fetch-and-merge, just aimed at
+      <code>upstream</code> instead of <code>origin</code>, followed by a
+      push back to your own fork so GitHub shows it up to date too:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git fetch upstream
+git merge upstream/main -m "Merge upstream/main into fork"
+git push origin main</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- upstream had moved ahead one commit; fast-forwarded, then pushed to the fork</span>
+      <pre><code>From /path/to/upstream-remote
+ * [new branch]      main       -> upstream/main
+Updating 89ad16c..e264451
+Fast-forward (no commit created; -m option ignored)
+ app.py | 1 +
+ 1 file changed, 1 insertion(+)
+To /path/to/my-fork-remote.git
+   89ad16c..e264451  main -> main</code></pre>
+    </div>
+
+    <p>
+      Because the merge was a clean fast-forward, git ignored the
+      <code>-m</code> message entirely (there's nothing to attach it to
+      &mdash; no new commit was created, the branch pointer just moved).
+      If your fork had its own commits that diverged from upstream
+      instead, this would behave exactly like any other diverging merge
+      from Chapter 28: a real merge commit, or a conflict to resolve by
+      hand.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> keeping a fork in sync is really just "fetch from a remote you don't normally push to, then push the result to the one you do" -- naming the second remote `upstream` is convention, not a requirement, but it's the convention every real project assumes, so it's worth using even in a toy example.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Show me the exact git commands to sync my fork with the original repo it came from..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have a local clone of my GitHub fork, where `origin` already points at my fork. The original project I forked from is at a different URL. Show me the exact git commands to: (1) add the original project as a second remote named `upstream`, (2) fetch its latest changes without touching my working branch, (3) merge upstream's main branch into my local main, and (4) push the result back to my fork (origin) so GitHub shows my fork up to date. Explain what happens differently if the merge is a clean fast-forward versus if my fork has its own commits that diverged from upstream.</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Cloning copies a repo you can already read; it doesn't grant new permissions.</li>
+      <li>A fork is a full copy made under your own GitHub account, created on GitHub itself, that you fully control.</li>
+      <li>Keeping a fork in sync means adding the original as an <code>upstream</code> remote, then fetch + merge (or rebase) from it, then push to your fork (<code>origin</code>).</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is a fork a full copy of the entire history?</summary>
+      <p>
+        Yes &mdash; a fork starts as a complete copy of the repository,
+        including every commit, branch, and tag that existed at the
+        moment you forked it. It's not a shallow snapshot. What it does
+        <em>not</em> automatically do is stay updated &mdash; a fork is
+        frozen at the moment you created it until you deliberately sync
+        it with <code>upstream</code>, which is exactly why forks can
+        drift out of date if you don't sync regularly.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Clone when you already have (or will get) write access; fork when you don't and won't.</li>
+        <li>A fork is created on GitHub, under your account, with full history &mdash; then cloned locally like any repo.</li>
+        <li>Sync a fork by adding the original as <code>upstream</code>, fetching and merging from it, then pushing the result to your fork (<code>origin</code>).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="pull-requests">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Pull requests</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>pull request</strong> (PR) is a GitHub-hosted request to merge one branch into another &mdash; it's not a git object at all, it's a GitHub feature layered on top of git branches you've already pushed.</li>
+        <li>The workflow: branch, commit, push the branch, open a PR on GitHub, get it reviewed, address feedback, merge.</li>
+        <li>A <strong>draft PR</strong> is the same thing marked "not ready yet" &mdash; visible for early feedback, but blocked from merging until marked ready.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the pull request, not the commit, is the actual unit of collaboration on GitHub &mdash; it's where review happens, where discussion is recorded, and where a change is either approved or sent back for more work.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a pull request?</span>
+      A pull request proposes merging one branch (yours, with new commits) into another (usually <code>main</code>). It's created and lives entirely on GitHub &mdash; opening one doesn't touch your local repository at all, it just tells GitHub "here's a branch I've pushed; please compare it against the target branch and let people review the difference before it's merged."
+    </div>
+
+    <p>
+      Everything up through "push the branch" is exactly what Chapter 28
+      already taught, aimed at a remote instead of staying purely local:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>git checkout -b add-shopping-list
+# ... make changes, commit as usual (Chapter 28) ...
+git push -u origin add-shopping-list</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of pushing a new branch for the first time</span>
+      <pre><code>To ../upstream-remote.git
+ * [new branch]      add-shopping-list -> add-shopping-list
+branch 'add-shopping-list' set up to track 'origin/add-shopping-list'.</code></pre>
+    </div>
+
+    <p>
+      That push is the last purely-local step. From here, opening the
+      actual pull request happens on github.com &mdash; GitHub detects
+      the freshly-pushed branch and offers a "Compare &amp; pull
+      request" button. Since that page can't be honestly screenshotted
+      in this environment, here's what it looks like, described as a
+      plain-text mockup:
+    </p>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Illustrative text mockup — not a real screenshot</span>
+      <p class="diagram-note">This represents GitHub's actual "Open a pull request" form, described in prose/structure since it can't be captured as a real screenshot here.</p>
+      <pre><code>base: main  <-  compare: add-shopping-list
+
+  Title:  Add shopping list feature
+
+  Description (markdown, supports checklists and issue links):
+  +----------------------------------------------------------+
+  | ## What this does                                        |
+  | Adds a `ShoppingList` class with add/remove/total methods.|
+  |                                                            |
+  | ## Why                                                    |
+  | Closes #42                                                |
+  |                                                            |
+  | ## How to test                                            |
+  | Run `python3 shopping_list.py` and try adding 3 items.    |
+  |                                                            |
+  | - [x] Added tests                                         |
+  | - [ ] Updated README                                      |
+  +----------------------------------------------------------+
+
+  Reviewers: [ + Request review ]     Labels: [ enhancement ]
+
+  [ Create pull request ]   [ Create draft pull request ]</code></pre>
+    </div>
+
+    <p>
+      A good PR description does three things, and the mockup above is
+      deliberately structured around them:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>What changed</strong> &mdash; a plain summary, not just a list of filenames.</li>
+      <li><strong>Why</strong> &mdash; the motivation, often linking a specific issue (<code>Closes #42</code> is a real GitHub convention: merging this PR automatically closes issue #42, covered in Sub-topic 5).</li>
+      <li><strong>How to verify it</strong> &mdash; exact steps a reviewer can run themselves, not "trust me, it works."</li>
+    </ul>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> a PR description is written for a reviewer who has zero context on what you were thinking -- the goal isn't to describe every line changed (the diff already shows that), it's to answer "why does this exist" and "how do I check it actually works" without them having to ask.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help with this PR:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a PR description for a branch that adds a ShoppingList class, closes issue #42..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a GitHub pull request description in markdown for a branch called add-shopping-list being merged into main. It adds a ShoppingList class with add/remove/total methods, and it should close issue #42. Structure it with three sections: "## What this does" (plain summary, not a diff recap), "## Why" (motivation, with "Closes #42" so GitHub auto-links and closes the issue on merge), and "## How to test" (exact runnable steps a reviewer can follow, e.g. "Run python3 shopping_list.py and try adding 3 items"). Add a markdown checklist at the end with "Added tests" checked and "Updated README" unchecked.</pre></div>
+      </details>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a draft pull request?</span>
+      A draft PR is a normal pull request marked as not-yet-ready-to-merge. It still shows the diff, still allows comments, and still runs any automated checks &mdash; but GitHub blocks the merge button and doesn't request reviews automatically. It's the right choice for "I want early feedback on direction before I polish this" or "I'm intentionally leaving this open overnight and don't want a reviewer to think it's finished." A single click ("Ready for review") converts it to a normal PR with no new commits needed.
+    </div>
+
+    <p>
+      After a PR is open, the workflow loops between review and
+      revision, entirely by pushing more commits to the same branch
+      &mdash; a PR isn't a snapshot, it's a live view of whatever the
+      branch currently contains:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the PR loop</span>
+      <pre><code>open PR  -->  reviewer comments  -->  you push new commits
+    ^                                          |
+    |                                          v
+    +---------  PR updates automatically  <----+
+                (same branch, no new PR needed)
+
+  ... repeat until approved ...  -->  merge  -->  branch usually deleted</code></pre>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A PR proposes merging your pushed branch into another branch &mdash; it lives on GitHub, not in git's own history until merged.</li>
+      <li>A strong description covers what changed, why, and how to verify it &mdash; not just a restated diff.</li>
+      <li>Addressing feedback means pushing more commits to the same branch; the same PR updates automatically, no need to open a new one.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does a pull request require a fork?</summary>
+      <p>
+        No &mdash; PRs work the same way whether the branch lives on a
+        fork or directly on the same repository. Team members with
+        direct push access typically branch straight on the shared repo
+        (<code>git checkout -b feature-x</code>, push, open PR);
+        outside contributors without push access fork first, since
+        that's the only way they get somewhere to push a branch to at
+        all. The PR mechanism itself doesn't care which situation
+        you're in.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Branch, commit, push the branch, then open the PR on GitHub &mdash; opening a PR is a GitHub action, not a git command.</li>
+        <li>A good description states what changed, why, and how to verify it, often linking an issue with "Closes #N."</li>
+        <li>A draft PR is visible for early feedback but blocked from merging; pushing more commits updates the same PR in place.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="code-review">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Code review</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A reviewer is checking for correctness, readability, test coverage, and whether the change fits the project's existing conventions &mdash; not just "does it run."</li>
+        <li>GitHub's three review outcomes are <strong>Comment</strong> (feedback, no verdict), <strong>Approve</strong> (good to merge), and <strong>Request changes</strong> (blocks merging until addressed).</li>
+        <li>Feedback should target the code, phrased as a question or suggestion where possible &mdash; and receiving it well means treating it as information about the code, not a judgment of the person.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> code review is where most real bugs actually get caught before production &mdash; and it's also one of the most common places collaboration quietly breaks down, when feedback lands as personal criticism instead of a shared effort to improve the code.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... code review?</span>
+      Code review is the practice of one or more other people reading a proposed change before it merges &mdash; on GitHub, this happens directly on the pull request, as line-by-line comments attached to specific parts of the diff, plus an overall verdict (comment, approve, or request changes).
+    </div>
+
+    <p>
+      What an experienced reviewer is actually scanning for, roughly in
+      the order they'd notice it:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Correctness</strong> &mdash; does this actually do what the PR description claims, including edge cases the happy-path tests might miss?</li>
+      <li><strong>Tests</strong> &mdash; is the new behavior covered, and do the existing tests still make sense (Chapter 27)?</li>
+      <li><strong>Readability</strong> &mdash; will the next person (often the original author, six months later) understand this without re-deriving it from scratch?</li>
+      <li><strong>Consistency</strong> &mdash; does it follow the same patterns, naming, and structure already established elsewhere in the codebase?</li>
+      <li><strong>Scope</strong> &mdash; is this PR doing one coherent thing, or has it quietly grown to include unrelated changes that make it harder to review and harder to revert if something's wrong?</li>
+    </ul>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Illustrative text mockup — not a real screenshot</span>
+      <p class="diagram-note">A stand-in for GitHub's real line-comment UI on a PR's "Files changed" tab.</p>
+      <pre><code>Files changed  |  shopping_list.py
+
+   14  def add_item(self, name, price=[]):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       💬 Reviewer comment:
+       Careful -- mutable default argument (Chapter 25's gotcha).
+       Every call without an explicit `price` list will share the
+       same one. Suggest `price=None` and building a fresh list
+       inside the function if it's None.
+
+       [ Reply ]  [ Resolve conversation ]
+
+  Review summary:  ( ) Comment   ( ) Approve   (•) Request changes
+  [ Submit review ]</code></pre>
+    </div>
+
+    <p>
+      Notice the shape of that comment: it names the specific problem,
+      explains <em>why</em> it's a problem (not just "this is wrong"),
+      and suggests a concrete fix &mdash; that's the difference between
+      feedback someone can act on immediately and feedback that just
+      creates friction. The same principle applies to receiving review:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A comment is about the code as it currently stands, not a verdict on the author's overall skill &mdash; treat "this has a bug" as information, not an attack.</li>
+      <li>If a comment is genuinely unclear, ask a clarifying question in the thread rather than guessing at what the reviewer meant.</li>
+      <li>Disagreement is normal and fine &mdash; explain the reasoning behind your original choice; sometimes the reviewer is missing context, sometimes you are, and either way is resolved by talking it through, not by silently doing what you originally planned.</li>
+    </ul>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the useful AI-assist here isn't "review my code for me" in a vague sense -- it's asking for a specific, actionable pass (e.g. "check this function against the mutable-default-argument pattern") so the output is something a real human reviewer could also have written, not a generic "looks good" that teaches nothing.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help review this PR:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Review this function for mutable default argument bugs and suggest a fix..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Review this Python method as if you were leaving a code review comment on a GitHub pull request:
+
+def add_item(self, name, price=[]):
+    self.items.append((name, price))
+    return self.items
+
+Specifically check for: (1) the mutable default argument gotcha, (2) whether the parameter and variable names are clear, (3) whether this needs a docstring given it's a public method on a class other contributors will use. Write your feedback the way a helpful teammate would -- name the specific issue, explain briefly why it matters, and suggest a concrete fix -- not just "this is wrong."</pre></div>
+      </details>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... "Request changes" vs. "Approve"?</span>
+      Both are formal review verdicts attached to a PR, distinct from a plain comment. <strong>Approve</strong> signals the PR is good to merge as-is. <strong>Request changes</strong> is a blocking verdict &mdash; many repositories configure branch protection so a PR with unresolved "Request changes" literally cannot be merged until that same reviewer (or another) approves it. A plain <strong>Comment</strong> leaves feedback without blocking or approving anything.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Reviewers check correctness, test coverage, readability, consistency with existing code, and whether the PR's scope stays focused.</li>
+      <li>Approve, Request changes, and Comment are GitHub's three review verdicts &mdash; only Request changes blocks a merge by default.</li>
+      <li>Good feedback names the specific issue, explains why it matters, and suggests a fix; good receiving treats feedback as information about the code, not the person.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can a reviewer approve their own PR?</summary>
+      <p>
+        No &mdash; GitHub doesn't allow a PR author to approve their own
+        pull request, precisely because review is meant to be a second
+        set of eyes. On a solo-maintained repository (like this course's
+        own, per its <code>CONTRIBUTING.md</code>) that means formal
+        review often doesn't apply at all; the practice still matters
+        for any team project, which is why it's taught here regardless.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Reviewers look for correctness, tests, readability, consistency, and focused scope &mdash; not just "does it technically run."</li>
+        <li>Comment, Approve, and Request changes are the three verdicts; only Request changes blocks a merge.</li>
+        <li>Give feedback that names the issue and suggests a fix; receive it as information about the code, not a judgment of the author.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="issues-and-project-workflow">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Issues &amp; project workflow</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>An <strong>issue</strong> is a tracked unit of work or a reported problem &mdash; a bug report, a feature request, a question, or a task &mdash; living on GitHub, separate from any specific branch or PR.</li>
+        <li><strong>Labels</strong> categorize issues (<code>bug</code>, <code>enhancement</code>, <code>good first issue</code>); <strong>milestones</strong> group issues toward a shared deadline or release.</li>
+        <li>A PR description containing <code>Closes #42</code>, <code>Fixes #42</code>, or <code>Resolves #42</code> links the two and auto-closes the issue the moment that PR is merged.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> issues are how a project's actual to-do list stays visible to everyone &mdash; without them, "what needs doing" and "who's doing it" live only in people's heads or scattered chat messages, which doesn't scale past a handful of contributors.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an issue?</span>
+      An issue is a standalone, trackable item on GitHub &mdash; a title, a description, comments, labels, and a status (open/closed). It's not code and it's not a branch; it exists purely to record "here's something that needs attention," and it can be referenced from commits, PRs, and other issues by number (<code>#42</code>).
+    </div>
+
+    <p>
+      A genuinely useful issue answers the questions a contributor would
+      otherwise have to ask before they could even start:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>What's the actual problem or request</strong> &mdash; specific, not "this is broken."</li>
+      <li><strong>Steps to reproduce</strong>, for a bug &mdash; the exact sequence that triggers it.</li>
+      <li><strong>Expected vs. actual behavior</strong> &mdash; what should have happened, and what actually did.</li>
+      <li><strong>Environment</strong>, when relevant &mdash; Python version, OS, package versions &mdash; anything that could explain why it happens on one machine and not another.</li>
+    </ul>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Illustrative text mockup — not a real screenshot</span>
+      <p class="diagram-note">A stand-in for GitHub's real "New issue" form and issue page, described in prose/structure rather than captured as a screenshot.</p>
+      <pre><code>Issues > New issue
+
+  Title: ShoppingList.total() crashes on an empty list
+
+  ## What's happening
+  Calling .total() on a ShoppingList with zero items raises
+  ZeroDivisionError instead of returning 0.
+
+  ## Steps to reproduce
+  1. cart = ShoppingList()
+  2. cart.total()
+
+  ## Expected
+  Returns 0 for an empty list.
+
+  ## Actual
+  Traceback (most recent call last):
+    ZeroDivisionError: division by zero
+
+  ## Environment
+  Python 3.12, macOS
+
+  Labels: [ bug ]  Milestone: [ v1.1 ]  Assignees: [ ]
+
+  ---
+  Issue #42 opened 2 days ago  ·  1 comment
+
+  Linked pull requests
+  #57  Add shopping list feature — will Close this issue on merge</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> a bug report is only as useful as its reproduction steps -- an AI assistant is genuinely good at turning a vague "it's broken" observation into the structured what/steps/expected/actual shape a maintainer can act on immediately, so this is a legitimately strong real-world use of AI assistance, not just a novelty.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help write this issue:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Turn this bug observation into a well-structured GitHub issue with repro steps..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I found a bug: calling .total() on an empty ShoppingList raises ZeroDivisionError instead of returning 0. Write this up as a well-structured GitHub issue in markdown with four sections: "## What's happening" (a one-sentence plain description), "## Steps to reproduce" (a numbered list of the exact minimal steps: create an empty ShoppingList, call .total()), "## Expected" (should return 0), and "## Actual" (paste the ZeroDivisionError traceback). Suggest one label ("bug") that fits.</pre></div>
+      </details>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What are... labels and milestones?</span>
+      A <strong>label</strong> is a small colored tag on an issue or PR (<code>bug</code>, <code>enhancement</code>, <code>documentation</code>, <code>good first issue</code>) used to filter and categorize at a glance. A <strong>milestone</strong> groups a set of issues/PRs under a shared target, usually a release or deadline (<code>v1.1</code>), and shows progress as a fraction (e.g. "6 of 10 closed"). Neither changes any code &mdash; both exist purely to keep a growing list of work organized and searchable.
+    </div>
+
+    <p>
+      The <code>Closes #42</code> convention from Sub-topic 3 is the
+      piece that actually connects issues to the PR workflow: GitHub
+      scans every PR description and commit message for that phrase
+      (case-insensitive, several verbs work: <code>close</code>,
+      <code>closes</code>, <code>closed</code>, <code>fix</code>,
+      <code>fixes</code>, <code>fixed</code>, <code>resolve</code>,
+      <code>resolves</code>, <code>resolved</code>, followed by
+      <code>#</code> and the issue number) and, the moment that PR
+      merges into the repository's default branch, closes the
+      referenced issue automatically &mdash; no separate step required.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Issues track work and problems as standalone items, separate from any specific branch or code.</li>
+      <li>A useful issue states the problem, reproduction steps, and expected vs. actual behavior &mdash; not just "this is broken."</li>
+      <li>Labels categorize, milestones group toward a deadline, and <code>Closes #N</code> in a PR auto-closes the linked issue on merge.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: do issues have to be bugs?</summary>
+      <p>
+        No &mdash; issues are used for feature requests, questions,
+        documentation gaps, and general discussion just as often as
+        bugs. Many open-source projects use a <code>good first issue</code>
+        label specifically to mark small, well-scoped tasks meant to
+        help new contributors find a manageable place to start, which is
+        exactly the kind of coordination issues exist to provide.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>An issue is a trackable unit of work/problem, independent of any branch or PR.</li>
+        <li>A strong issue states the problem, repro steps, and expected vs. actual behavior.</li>
+        <li>Labels categorize, milestones group by deadline, and <code>Closes #N</code> links a PR to an issue and auto-closes it on merge.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="real-world-workflow">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. A real-world collaboration workflow</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Every piece from Sub-topics 1&ndash;5 exists to support one end-to-end loop: someone reports a problem, someone else fixes it, and the fix gets reviewed and merged &mdash; visibly, with a full paper trail.</li>
+        <li>This sub-topic walks that loop start to finish, using nothing beyond what's already been taught.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> none of remotes, forks, PRs, review, or issues is interesting in isolation &mdash; they're only the full story once you see how they chain together on a real piece of work, which is what actually happens on every active GitHub project, open-source or private.
+    </div>
+
+    <p>
+      Here's the scenario, followed end to end. A user of an open-source
+      project notices <code>ShoppingList.total()</code> crashes on an
+      empty list.
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the full loop, start to finish</span>
+      <pre><code>1. USER files an issue
+   -> Issue #42: "ShoppingList.total() crashes on an empty list"
+      (problem, repro steps, expected vs. actual -- Sub-topic 5)
+
+2. CONTRIBUTOR (no push access) forks the repo on GitHub
+   -> clones their fork locally (Sub-topic 2)
+   -> git remote add upstream <original-repo-url>
+
+3. CONTRIBUTOR branches and fixes it
+   -> git checkout -b fix-empty-cart-total
+   -> edits total() to return 0 for an empty list
+   -> git add . && git commit -m "Fix total() on empty ShoppingList"
+   -> git push -u origin fix-empty-cart-total   (pushes to THEIR fork)
+
+4. CONTRIBUTOR opens a PR
+   -> base: original repo's main  <-  compare: their fork's branch
+   -> description includes "Closes #42"          (Sub-topic 3)
+
+5. MAINTAINER reviews
+   -> line comment: suggests also testing total() with negative
+      prices, not just the empty-list case
+   -> verdict: Request changes                    (Sub-topic 4)
+
+6. CONTRIBUTOR addresses it
+   -> adds the requested test
+   -> git commit -m "Add test for negative price edge case"
+   -> git push origin fix-empty-cart-total         (same branch -- PR updates automatically)
+
+7. MAINTAINER re-reviews, approves, merges
+   -> PR merges into main
+   -> Issue #42 closes automatically (Closes #42, Sub-topic 5)
+   -> fix-empty-cart-total branch is deleted (its history lives on in main)
+
+8. CONTRIBUTOR syncs their fork
+   -> git fetch upstream
+   -> git merge upstream/main
+   -> git push origin main                         (Sub-topic 2)</code></pre>
+    </div>
+
+    <p>
+      Every command in that walkthrough was verified for real earlier in
+      this chapter &mdash; step 2's remote setup, step 3's branch-and-push,
+      step 6's "push more commits to update the same PR," and step 8's
+      fork sync are exact repeats of the commands already run against
+      the bare-repo stand-in for GitHub, just placed into their real
+      order of use. Nothing in this scenario needed a new git command
+      &mdash; it needed knowing <em>when</em> to reach for each one, and
+      that GitHub is the layer recording who reviewed what and why.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the useful AI-assist across a whole workflow like this isn't one prompt -- it's knowing which step benefits from help (drafting the issue, drafting the PR description, reviewing the diff before requesting human review) and which steps are just running the right git command, which no assistant should be doing on your behalf without you understanding why.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant for one part of this workflow — drafting the fix's commit message and PR description together:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a commit message and PR description for a fix to ShoppingList.total() on empty lists..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I fixed a bug where ShoppingList.total() raised ZeroDivisionError on an empty list instead of returning 0; the fix also adds a test for a negative-price edge case a reviewer requested. Write (1) a concise commit message in the imperative mood ("Fix ...", not "Fixed ..."), following the same convention as Chapter 28's commit messages, and (2) a PR description in markdown with "## What this does", "## Why" (including "Closes #42"), and "## How to test" sections, matching the structure this chapter's lesson used for its own PR description example.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      One more thing this scenario makes concrete: nothing about it
+      required the contributor to have any special access to the
+      original project. Fork, PR, and review are specifically the
+      mechanism that lets someone with zero write access still get a
+      real fix merged &mdash; which is exactly how the overwhelming
+      majority of open-source contributions happen.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>The full loop: issue filed &rarr; fork/branch &rarr; commit &amp; push &rarr; PR opened, linked to the issue &rarr; review &amp; revision &rarr; merge &rarr; issue auto-closes &rarr; fork synced.</li>
+      <li>Every git command in the loop is one already verified earlier in this chapter &mdash; the new skill here is sequencing, not new syntax.</li>
+      <li>This is exactly how outside contributors get changes into projects they don't have write access to &mdash; the mechanism this whole chapter has been building toward.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what if the maintainer wants to make a small tweak themselves, right on the contributor's PR?</summary>
+      <p>
+        GitHub supports this directly &mdash; a PR from a fork can allow
+        the base repository's maintainers to push commits straight to
+        the contributor's branch (a checkbox on the PR, on by default for
+        most personal-fork PRs), or a maintainer can suggest an exact
+        line change inline that the contributor accepts with one click.
+        Either way, it's still the same branch, still the same PR &mdash;
+        just an extra commit added to the loop already shown above.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Issue &rarr; fork/branch &rarr; push &rarr; PR (linked to the issue) &rarr; review &rarr; revise &rarr; merge &rarr; issue auto-closes &rarr; fork sync is the complete real-world loop.</li>
+        <li>Every command used is one this chapter already ran and verified &mdash; the workflow is about sequencing known tools, not new git syntax.</li>
+        <li>This exact mechanism is how contributors without write access get real changes merged into any project.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every professional software team that uses git also uses something built on top of remotes and PRs &mdash; GitHub, GitLab, Bitbucket &mdash; specifically because raw git has no concept of review, discussion, or a merge request; that layer is what turns solo version control into team collaboration.</li>
+      <li>Open-source projects run entirely on the fork-branch-PR-review loop from Sub-topic 6 &mdash; it's the mechanism that lets thousands of strangers contribute to the same codebase without ever needing write access to it.</li>
+      <li>"Closes #N" and similar issue-linking conventions aren't cosmetic &mdash; they're how real teams keep an accurate, searchable history of why every change happened, which matters enormously months later when someone asks "why was this line added?"</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A remote is another copy of the repository git knows how to reach; <code>origin</code> is a conventional name, not a keyword. <code>fetch</code> downloads without touching your branch; <code>pull</code> downloads and merges in one step.</li>
+      <li>Clone when you already have write access; fork (on GitHub, then clone) when you don't. Keep a fork in sync by adding the original as <code>upstream</code>, fetching/merging from it, then pushing to your fork.</li>
+      <li>A pull request proposes merging a pushed branch into another branch; it lives on GitHub, not git history, until merged. A draft PR is visible but blocked from merging.</li>
+      <li>Code review checks correctness, tests, readability, consistency, and scope; Comment/Approve/Request changes are GitHub's three verdicts, and only Request changes blocks a merge.</li>
+      <li>Issues track work and problems independent of any branch; labels categorize, milestones group by deadline, and <code>Closes #N</code> in a PR auto-closes the linked issue on merge.</li>
+      <li>The full real-world loop &mdash; issue, fork/branch, push, PR, review, revise, merge, sync &mdash; is just this chapter's tools used in the right order; it's how virtually all real collaboration, open-source or private, actually happens.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

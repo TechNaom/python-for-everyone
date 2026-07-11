@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 28: Git Fundamentals — a Python setup script builds a real git repository with a genuine merge conflict and a 'lost' commit, and you practice real git commands against it in your terminal.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 Exercises</span>
+    <span class="reading-time">45 min, hands-on</span>
+  </div>
+  <h1>Exercises: Git Fundamentals</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    This chapter has no Python functions to write. Download
+    <code>starter.py</code> below and run <code>python3 starter.py</code>
+    from inside the folder you saved it in &mdash; it builds a real git
+    repository in a new <code>git-playground/</code> folder, with a
+    commit history already in place. From there, every task below is a
+    real git command you run in your own terminal against that
+    repository.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Read the history</h3>
+    <p>Run <code>git log --oneline --all --graph</code> inside <code>git-playground/</code>. Find exactly where <code>main</code> and <code>feature/priority</code> diverged.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Check status and diff first</h3>
+    <p><code>starter.py</code> left an uncommitted change in <code>tasks.py</code> on purpose. Run <code>git status</code>, then <code>git diff</code>, and read exactly what changed before doing anything else.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Discard the uncommitted change</h3>
+    <p>Use the correct command to throw away that uncommitted change entirely, restoring <code>tasks.py</code> to its last committed state.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Trigger and resolve a real merge conflict</h3>
+    <p>Run <code>git merge feature/priority</code> from <code>main</code>. It will conflict. Hand-resolve <code>tasks.py</code>'s conflict markers into one correct <code>add_task()</code> that keeps both branches' changes, then <code>git add</code> + <code>git commit</code> to finish the merge.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tasks.py (mid-conflict)</span>
+      </div>
+      <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+def add_task(tasks, description):
+    if not description.strip():
+        raise ValueError("description cannot be empty")
+    tasks.append({"description": description, "done": False})
+=======
+def add_task(tasks, description, priority="normal"):
+    tasks.append({"description": description, "done": False, "priority": priority})
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/priority
+    return tasks</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Verify your resolution actually works</h3>
+    <p>A conflict resolution that "looks right" isn't the same as one that <em>is</em> right. Run the verification snippet from <code>solution.py</code>'s Task 5 comment against your resolved <code>tasks.py</code> and confirm the output matches exactly.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Recover the "lost" commit with reflog</h3>
+    <p><code>starter.py</code> committed a <code>task_count()</code> function and then immediately hard-reset it away, so it's not in <code>git log</code> anymore. Use <code>git reflog</code> to find its hash and bring it back.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> Stash a change, then bring it back</h3>
+    <p>Add a small new function to <code>tasks.py</code> without committing it. Use <code>git stash</code> to shelve it, confirm the working tree is clean, then use <code>git stash pop</code> to bring it back exactly as it was.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3>🐞 Task 8 — Debug the Situation</h3>
+    <p>A teammate says: <em>"I ran <code>git reset --hard</code> on the wrong branch and now my last three commits are just gone from <code>git log</code> — is my work actually lost?"</code></p>
+    <p>Their mistake is assuming <code>git reset --hard</code> deletes commits outright. Explain what actually happened to those three commits, and give the exact command sequence that recovers them.</p>
+  </div>
+
+  <div class="task-card scenario-card">
+    <h3><span class="scenario-tag">💼 Scenario</span> Task 9 — The production hotfix</h3>
+    <p>You're two days into a messy, half-broken feature branch when a production bug needs an urgent fix based on the <strong>current stable</strong> code, not your in-progress feature. Walk through, command by command, exactly what you'd run to fix and ship the hotfix without touching or losing any of your feature branch's in-progress work.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    There's no single "correct" final state to diff against, since this
+    chapter is about the git commands themselves. After Task 4, your
+    merged <code>tasks.py</code> should behave exactly as Task 5's check
+    expects. After Task 6, <code>git log --oneline</code> should show the
+    recovered commit again. After Task 7, <code>git stash list</code>
+    should be empty again. Every command's exact output in
+    <code>solution.py</code> was verified against this course's own build
+    system before being written down &mdash; if your output differs
+    meaningfully (not just commit hashes, which are always unique),
+    re-read the relevant lesson sub-topic.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Cleaning up</span>
+    <code>git-playground/</code> is disposable practice material, not
+    something to keep. When you're done: <code>cd ..</code> then
+    <code>rm -rf git-playground</code>. Running <code>python3
+    starter.py</code> again always rebuilds the exact same starting
+    point, so you can redo any task as many times as you want.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

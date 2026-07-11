@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges that simulate and reason about real git behavior -- fast-forward vs. three-way merges, conflict markers, the staging area, rebase, and safely undoing changes -- for Chapter 28: Git Fundamentals.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 Coding Challenges</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Git Fundamentals</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. This
+    chapter teaches git itself, not Python syntax, so every challenge
+    is a Python function that <strong>simulates or reasons about</strong>
+    real git behavior &mdash; predicting what <code>git log</code>,
+    <code>git merge</code>, or <code>git rebase</code> would actually do,
+    given a history represented as plain data. Write your function in
+    the code box, then click <strong>Run Tests</strong> to check it
+    against a set of test cases (including edge cases). Stuck? Every
+    challenge has a <strong>Show Solution</strong> reveal at the bottom.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere, and no real git
+    is installed or executed. Keep the function name in the stub exactly
+    as given, since the grader calls it by name. Every expected value
+    below was checked against real git's actual behavior in a scratch
+    repository before being written into these tests &mdash; so a
+    genuinely correct git mental model will pass every case.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Is a Fast-Forward Possible? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_fast_forward_merge(target_commits, source_commits)</code>. Both arguments are lists of commit ids representing a branch's full history from the root commit to its tip, in order. A fast-forward merge of <code>source_commits</code> into <code>target_commits</code> is possible only when <code>target_commits</code> is an exact, in-order prefix of <code>source_commits</code> (the target branch hasn't diverged -- every one of its commits also appears, in the same order, at the start of the source branch's history). Return <code>True</code> or <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are non-empty lists of strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_fast_forward_merge(["c1"], ["c1", "c2"])</code> &rarr; <code>True</code><br>
+        <code>is_fast_forward_merge(["c1", "c3"], ["c1", "c2"])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def is_fast_forward_merge(target_commits, source_commits):
+    # TODO: return True only if target_commits is an exact, in-order
+    # prefix of source_commits.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_fast_forward_merge",
+  "cases": [
+    { "args": [["c1"], ["c1", "c2"]], "expected": true },
+    { "args": [["c1", "c2"], ["c1", "c2"]], "expected": true },
+    { "args": [["c1", "c3"], ["c1", "c2"]], "expected": false },
+    { "args": [["c1"], ["c1"]], "expected": true },
+    { "args": [["c1", "c2", "c3"], ["c1", "c2"]], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def is_fast_forward_merge(target_commits, source_commits):
+    n = len(target_commits)
+    if n > len(source_commits):
+        return False
+    return list(source_commits[:n]) == list(target_commits)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Does the Merge Create a New Commit? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>merge_produces_new_commit(is_fast_forward)</code>. A fast-forward merge just moves the target branch's pointer forward -- no new commit object is created. A three-way merge (when the branches have diverged) always creates a new merge commit. Given whether the merge is a fast-forward, return <code>True</code> if it produces a new commit, else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>is_fast_forward</code> is a boolean.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>merge_produces_new_commit(False)</code> &rarr; <code>True</code><br>
+        <code>merge_produces_new_commit(True)</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def merge_produces_new_commit(is_fast_forward):
+    # TODO: return True if a NEW commit is created by this merge.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "merge_produces_new_commit",
+  "cases": [
+    { "args": [false], "expected": true },
+    { "args": [true], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def merge_produces_new_commit(is_fast_forward):
+    return not is_fast_forward</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Build a Conflict Marker Block <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>build_conflict_block(current_branch_line, incoming_branch_line, incoming_branch_name)</code> that returns the 5 lines git would show for a single-line merge conflict, as a list of strings, in git's real order: the <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> marker, the current branch's (HEAD's) content, a <code>=======</code> divider, the incoming branch's content, and a <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; &lt;branch name&gt;</code> marker.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> all three arguments are strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>build_conflict_block("MAIN-CHANGE", "FEATURE-CHANGE", "feature")</code> &rarr;<br>
+        <code>["&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD", "MAIN-CHANGE", "=======", "FEATURE-CHANGE", "&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def build_conflict_block(current_branch_line, incoming_branch_line, incoming_branch_name):
+    # TODO: return the 5 conflict-marker lines in git's real order --
+    # HEAD's content comes FIRST, the incoming branch's content SECOND.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "build_conflict_block",
+  "cases": [
+    { "args": ["MAIN-CHANGE", "FEATURE-CHANGE", "feature"], "expected": ["<<<<<<< HEAD", "MAIN-CHANGE", "=======", "FEATURE-CHANGE", ">>>>>>> feature"] },
+    { "args": ["v1", "v2", "hotfix"], "expected": ["<<<<<<< HEAD", "v1", "=======", "v2", ">>>>>>> hotfix"] },
+    { "args": ["", "", "empty-branch"], "expected": ["<<<<<<< HEAD", "", "=======", "", ">>>>>>> empty-branch"] },
+    { "args": ["same", "same", "identical-content"], "expected": ["<<<<<<< HEAD", "same", "=======", "same", ">>>>>>> identical-content"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def build_conflict_block(current_branch_line, incoming_branch_line, incoming_branch_name):
+    return [
+        "&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD",
+        current_branch_line,
+        "=======",
+        incoming_branch_line,
+        "&gt;&gt;&gt;&gt;&gt;&gt;&gt; " + incoming_branch_name,
+    ]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> What's Staged but Not Committed? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>staged_but_not_committed(added_files, committed_files)</code> that returns the list of filenames that have been <code>git add</code>-ed but not yet included in a commit -- i.e. the filenames present in <code>added_files</code> but not in <code>committed_files</code>, preserving <code>added_files</code>'s order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are lists of strings; <code>added_files</code> may contain names not present in <code>committed_files</code> and vice versa.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>staged_but_not_committed(["a.py", "b.py"], ["a.py"])</code> &rarr; <code>["b.py"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def staged_but_not_committed(added_files, committed_files):
+    # TODO: return filenames in added_files that are not in committed_files.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "staged_but_not_committed",
+  "cases": [
+    { "args": [["a.py", "b.py"], ["a.py"]], "expected": ["b.py"] },
+    { "args": [["a.py"], ["a.py"]], "expected": [] },
+    { "args": [["a.py", "b.py", "c.py"], []], "expected": ["a.py", "b.py", "c.py"] },
+    { "args": [[], []], "expected": [] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def staged_but_not_committed(added_files, committed_files):
+    return [f for f in added_files if f not in committed_files]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Pick the Right Git Command <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>pick_git_command(scenario)</code> that returns the git command (as a plain string) that matches a described scenario. Support exactly these scenario strings, mapped to these commands: <code>"see what changed but not staged yet"</code> &rarr; <code>"git diff"</code>; <code>"see what changed and is staged"</code> &rarr; <code>"git diff --staged"</code>; <code>"undo a commit that has already been pushed and shared"</code> &rarr; <code>"git revert"</code>; <code>"temporarily set aside uncommitted changes"</code> &rarr; <code>"git stash"</code>; <code>"see history of commits"</code> &rarr; <code>"git log"</code>; <code>"create and switch to a new branch in one step"</code> &rarr; <code>"git checkout -b"</code>. For any scenario string not in this list, return <code>"unknown scenario"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>scenario</code> is a string, matched exactly.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>pick_git_command("see history of commits")</code> &rarr; <code>"git log"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def pick_git_command(scenario):
+    # TODO: map each exact scenario string to its git command, per the
+    # list in the problem statement. Return "unknown scenario" for
+    # anything else.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "pick_git_command",
+  "cases": [
+    { "args": ["see what changed but not staged yet"], "expected": "git diff" },
+    { "args": ["see what changed and is staged"], "expected": "git diff --staged" },
+    { "args": ["undo a commit that has already been pushed and shared"], "expected": "git revert" },
+    { "args": ["temporarily set aside uncommitted changes"], "expected": "git stash" },
+    { "args": ["see history of commits"], "expected": "git log" },
+    { "args": ["create and switch to a new branch in one step"], "expected": "git checkout -b" },
+    { "args": ["something not in the mapping"], "expected": "unknown scenario" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def pick_git_command(scenario):
+    mapping = {
+        "see what changed but not staged yet": "git diff",
+        "see what changed and is staged": "git diff --staged",
+        "undo a commit that has already been pushed and shared": "git revert",
+        "temporarily set aside uncommitted changes": "git stash",
+        "see history of commits": "git log",
+        "create and switch to a new branch in one step": "git checkout -b",
+    }
+    return mapping.get(scenario, "unknown scenario")</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Commit Count After a Rebase <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>commit_count_after_rebase(target_commit_count, source_new_commit_count)</code>. When you rebase a feature branch onto a target branch, git replays only the feature branch's commits that aren't already on the target -- one at a time -- on top of the target branch's current tip, producing a single linear history. Given how many commits the target branch has, and how many NEW commits the feature branch added since it diverged, return the total number of commits in the resulting linear history after the rebase.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are non-negative ints.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>commit_count_after_rebase(2, 3)</code> &rarr; <code>5</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def commit_count_after_rebase(target_commit_count, source_new_commit_count):
+    # TODO: return the total linear commit count after rebasing.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "commit_count_after_rebase",
+  "cases": [
+    { "args": [1, 1], "expected": 2 },
+    { "args": [2, 3], "expected": 5 },
+    { "args": [1, 0], "expected": 1 },
+    { "args": [3, 1], "expected": 4 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def commit_count_after_rebase(target_commit_count, source_new_commit_count):
+    return target_commit_count + source_new_commit_count</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> The Safe Undo Choice <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>safe_undo_choice(already_pushed_and_shared)</code>. When a commit is still local and nobody else has it, <code>git reset</code> is a fine way to undo it. Once a commit has already been pushed and other people have pulled it, rewriting history with <code>reset</code> breaks everyone else's copy -- <code>git revert</code> (which adds a new commit instead of erasing history) is the safe choice instead. Return the string <code>"revert"</code> or <code>"reset"</code>, whichever is safe for the given situation.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>already_pushed_and_shared</code> is a boolean.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>safe_undo_choice(True)</code> &rarr; <code>"revert"</code><br>
+        <code>safe_undo_choice(False)</code> &rarr; <code>"reset"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def safe_undo_choice(already_pushed_and_shared):
+    # TODO: return "revert" if already shared with others, else "reset".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "safe_undo_choice",
+  "cases": [
+    { "args": [true], "expected": "revert" },
+    { "args": [false], "expected": "reset" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def safe_undo_choice(already_pushed_and_shared):
+    return "revert" if already_pushed_and_shared else "reset"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Can the Reflog Recover It? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>can_recover_with_reflog(reflog_has_entry, garbage_collected)</code>. After a <code>git reset --hard</code> moves a branch backward, the commits it moved away from stop showing in <code>git log</code> but are NOT deleted right away -- they're still reachable through <code>git reflog</code>, and can be recovered with <code>git reset --hard &lt;reflog-hash&gt;</code>, as long as two things are both true: the reflog still has an entry pointing at them, and git's garbage collector hasn't already cleaned them up. Return <code>True</code> only when recovery is genuinely still possible.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are booleans.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>can_recover_with_reflog(True, False)</code> &rarr; <code>True</code><br>
+        <code>can_recover_with_reflog(True, True)</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def can_recover_with_reflog(reflog_has_entry, garbage_collected):
+    # TODO: return True only if the reflog still has the entry AND it
+    # hasn't been garbage collected.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "can_recover_with_reflog",
+  "cases": [
+    { "args": [true, false], "expected": true },
+    { "args": [true, true], "expected": false },
+    { "args": [false, false], "expected": false },
+    { "args": [false, true], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def can_recover_with_reflog(reflog_has_entry, garbage_collected):
+    return reflog_has_entry and not garbage_collected</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

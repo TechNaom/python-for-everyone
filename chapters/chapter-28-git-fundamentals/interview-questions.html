@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 28: Git Fundamentals — merge vs rebase, detached HEAD, reset --soft/--mixed/--hard, conflict markers, stash, squashing, blame/bisect, reflog, and more.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-28-interview" data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to lesson</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: Git Fundamentals</h1>
+  <p>Every software job assumes you already know git — so interviewers rarely ask "what is git," they ask questions that reveal whether you've actually broken something and fixed it. This set covers merge vs. rebase, the staging area, conflict resolution, resetting safely, stashing, squashing, and the safety nets (reflog, blame, bisect) that separate someone who's memorized commands from someone who can recover from a real mistake.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the difference between <code>git merge</code> and <code>git rebase</code>, and when would you use each?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both combine changes from one branch into another, but they produce different history. <code>git merge</code> creates a new merge commit that ties both branches' histories together exactly as they happened — nothing is rewritten, so it's always safe, even on shared branches. <code>git rebase</code> instead replays your branch's commits one by one on top of the target branch's latest commit, producing a straight line of new commits with new hashes — cleaner-looking history, but it rewrites commits that already existed. Use merge for anything shared (bringing a feature branch into main) since it preserves true history and is non-destructive; use rebase to clean up your own not-yet-shared feature branch before opening a pull request, or to catch it up with a moved-on main without an extra merge commit.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying one is "just better" than the other with no mention of shared vs. local history — that distinction is the entire point of the question.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If two people are already working off your feature branch, is it safe to rebase it?" (No — rebasing rewrites commit hashes, so anyone who already pulled the old commits now has history that's diverged from yours; their next pull or push gets messy. Don't rebase a branch other people have already based work on.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What is a "detached HEAD" state, and how do you get out of it safely?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Normally HEAD points at a branch name (like main), which in turn points at a commit — so committing moves the branch pointer forward along with HEAD. Checking out a specific commit hash directly (git checkout &lt;sha&gt;) instead of a branch name points HEAD straight at that commit, with no branch attached — that's detached HEAD. You can look around and even make experimental commits there, but since no branch name is tracking them, they become unreachable and eligible for garbage collection the moment you switch to another branch, unless you first run git switch -c new-branch-name to give them a real branch to live on.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating detached HEAD as an error state to panic about, rather than understanding it's a normal (if easy to end up in by accident) part of how HEAD works.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You made 3 commits in a detached HEAD, then ran git checkout main — are those commits gone?" (Not immediately — they still exist and are recoverable through git reflog until git's garbage collector eventually cleans them up, but they're not reachable from any branch until you create one pointing at them.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Walk through the difference between <code>git reset --soft</code>, <code>--mixed</code>, and <code>--hard</code>.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>All three move the current branch pointer (and HEAD) to a different commit — they differ only in what happens to the staging area and working directory along the way. --soft moves the branch pointer but leaves everything else untouched: your changes end up staged, ready to re-commit differently. --mixed (the default if you don't pass a flag) also unstages those changes, leaving them as unstaged edits in your working directory. --hard goes furthest: it moves the pointer and overwrites your staging area and working directory to match the target commit exactly, discarding any uncommitted work with no recovery path other than the reflog.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that --hard is the only one of the three that can destroy uncommitted work, or recommending it casually without that warning.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You have uncommitted changes you care about and you want to undo your last commit but keep those changes staged — which flag?" (--soft — it moves HEAD back one commit but leaves the commit's changes staged, ready to fold into a new commit.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How does git represent a merge conflict inside a file, and how do you resolve one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>When the same region of a file was changed differently on both branches, git can't auto-merge it, so it writes both versions directly into the file with conflict markers: <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> starts your current branch's version, <code>=======</code> separates it from the other branch's version, and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; branch-name</code> marks the end. Resolving means opening the file, deciding what the final content should actually be (keep one side, keep both, or write something new entirely), deleting all three marker lines, then running git add on the file to mark it resolved and git commit (or git merge --continue) to finish the merge.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Forgetting that git add is required after editing the file — without it, git still considers the path unresolved even if the markers are gone.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you decide the merge was a mistake entirely, how do you back out?" (git merge --abort — restores the working directory to exactly how it was right before the merge attempt started, as long as you haven't committed yet.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What is the staging area (the "index"), and why does git have one instead of just committing the working directory directly?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The staging area is an intermediate snapshot between your working directory and your next commit — git add copies a file's current state into it, and git commit records whatever is in the staging area at that moment, not necessarily every change sitting in your working directory. That separation lets you build a commit deliberately: stage only some of the files you've changed (or even part of one file with git add -p) so a commit represents one coherent change, instead of being forced to commit literally everything you've touched at once.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing git add as just "saving" a file, with no mention of the staging area being a distinct, inspectable state from either the working directory or the last commit.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between git diff and git diff --staged?" (git diff shows unstaged changes — working directory vs. the staging area. git diff --staged (or --cached) shows staged changes — staging area vs. the last commit. They're comparing different pairs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What does <code>git stash</code> do, and when would you reach for it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>git stash takes your current uncommitted changes (staged and unstaged) and saves them onto a stack, then resets your working directory back to match the last commit — as if the changes never happened, without actually committing or losing them. It's the tool for "I need a clean working directory right now" mid-task: switching branches to fix an urgent bug, pulling in upstream changes that would conflict with your in-progress edits, or just wanting a checkpoint before trying something risky. git stash pop reapplies the most recent stash and removes it from the stack; git stash list shows everything currently stashed, since you can stash more than once.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing stash with a commit — a stash isn't part of branch history and isn't pushed anywhere; it's local, working-directory-only state.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between git stash pop and git stash apply?" (Both reapply a stash's changes to your working directory, but pop also removes it from the stash stack afterward, while apply leaves it there in case you want to apply the same stash again elsewhere.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What does "squashing commits" mean, and why would you do it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Squashing combines several existing commits into one, discarding the individual boundaries between them while keeping their combined changes. It's most often done with an interactive rebase (git rebase -i) — marking commits after the first as "squash" (or "fixup" to also drop their commit messages) folds them into the commit above. The usual reason is cleanup before merging: a feature branch might accumulate a dozen "wip," "fix typo," "actually fix it" commits during development that are useful to you locally but noise to anyone reading history later — squashing them into one well-described commit makes the eventual main-branch history readable.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting squashing commits that have already been pushed and are shared with teammates — same shared-history problem as rebase in general, since squashing is a form of rebase.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between 'squash' and 'fixup' in an interactive rebase?" (squash folds a commit into the one above and lets you edit the combined commit message; fixup does the same fold but silently discards the folded commit's message entirely, keeping only the one it merges into.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How would you use <code>git blame</code> and <code>git bisect</code> to debug a production issue?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>git blame file.py annotates every line of a file with the commit, author, and date that last changed it — the fastest way to answer "who wrote this line and why" when you've already found the suspicious code and just need context (often leading you to the commit message or the linked ticket). git bisect is for when you don't know which commit caused a regression at all: you tell it a known-good commit and a known-bad one, and it binary-searches the commits between them, asking you at each step to mark that commit good or bad (or automate the check with a script via git bisect run) — narrowing hundreds of commits down to the exact one that introduced the bug in roughly log2(n) steps instead of checking every commit one by one.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Only knowing blame and not bisect (or vice versa) — they solve different problems: blame explains a known line, bisect finds an unknown commit.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is bisect a binary search rather than checking commits one at a time from newest to oldest?" (Binary search cuts the remaining range in half every step, so even a range of 1,000 commits resolves in about 10 checks instead of up to 1,000 — critical when each check means actually building and testing the code at that commit.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why is rewriting public/shared git history considered dangerous?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Operations like rebase, commit --amend, or a forced push (git push --force) don't edit existing commits in place — they create new commits with new hashes and move a branch pointer to them, effectively replacing the old commits. If anyone else has already pulled the old commits, their local history now points to commits that no longer exist on the branch's history going forward; their next pull creates a confusing divergent/duplicated history, or their next push can silently overwrite the rewritten work if they force-push back. The damage isn't to the rewriter — it's to everyone downstream who built on the version that just got erased.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating git push --force as a routine fix for "my push was rejected" without first understanding why it was rejected (usually: someone else already pushed commits you don't have locally).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is there a safer alternative to a plain force push?" (git push --force-with-lease — refuses the push if the remote branch has commits you haven't seen locally, which plain --force pushes right over. It's not risk-free, but it catches the most common "someone else pushed in the meantime" accident.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What's the difference between a fast-forward merge and a three-way merge?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A fast-forward merge happens when the branch you're merging in is simply ahead of your current branch, with no new commits on your side since they diverged — git can just move your branch pointer forward to match, with no new commit created and no possibility of a conflict. A three-way merge happens when both branches have new commits since they diverged — git has to look at three points (the common ancestor, and the tip of each branch) to figure out what changed on each side and combine them, producing a new merge commit with two parents. Conflicts are only possible in the three-way case, since fast-forward has nothing to reconcile.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming every merge produces a merge commit — a fast-forward merge deliberately doesn't, unless you explicitly pass --no-ff to force one for history-readability reasons.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why might a team pass --no-ff even when a fast-forward is possible?" (To always leave a visible merge commit marking where a feature branch was integrated, even when the history would technically allow a silent fast-forward — makes it easier to see "this group of commits was one feature" later in the log.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What is the reflog, and how is it a safety net for mistakes like a bad <code>reset --hard</code>?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The reflog (git reflog) is a local, per-repository log of every place HEAD has pointed — every commit, checkout, reset, rebase, and merge that moved it, each with a timestamp and a short description, most recent first. Commits don't actually vanish the instant they become unreachable from any branch (say, after a reset --hard to an earlier commit) — they just sit unreferenced until garbage collection eventually cleans them up, which by default doesn't happen for a while. Since the reflog still lists the commit hash from before the reset, git reset --hard &lt;that-hash&gt; (found via git reflog) restores exactly that state, recovering commits that look "lost" from a normal git log.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing the reflog exists at all, or suggesting a lost commit after reset --hard is unrecoverable.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does the reflog help if you deleted a branch on a teammate's machine, not your own?" (No — the reflog is entirely local, not pushed or shared. It only tracks HEAD movements in your own repository, so it can't recover something that only ever existed in someone else's local reflog.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What does a <code>.gitignore</code> file do, and what's a common mistake people make with it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>.gitignore lists file and directory patterns that git should never track or show as "untracked" in git status — the standard place for build artifacts, dependency folders (node_modules, __pycache__), local environment files (.env), and IDE-specific settings that shouldn't be part of the shared repository. The common mistake: adding a pattern to .gitignore after a matching file has already been committed does nothing — .gitignore only affects untracked files. A file git is already tracking has to be explicitly removed from tracking too (git rm --cached &lt;file&gt;) before the ignore rule takes effect on it going forward.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming adding something to .gitignore retroactively removes it from history or from being tracked — it doesn't do either.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You accidentally committed a .env file with a real secret in it. Is adding .env to .gitignore now enough?" (No — the secret is still in git history in every earlier commit, readable by anyone with access to the repo/its history. It needs actual history rewriting (or, more realistically, treating the secret as compromised and rotating it) — .gitignore only prevents the mistake from happening again going forward.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What's the difference between a local branch and a remote-tracking branch (like <code>origin/main</code>)?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A local branch (main) is a pointer you can move directly — every commit, merge, or rebase on it updates that pointer immediately. A remote-tracking branch (origin/main) is a read-only bookmark recording where that branch was on the remote the last time you talked to it (via fetch, pull, or push) — it only updates when you actually communicate with the remote, not automatically as time passes. This is exactly why local main can drift ahead of or behind origin/main: someone else can push new commits to the real remote main, but your origin/main won't reflect that until you git fetch, even though the branch names look identical.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming origin/main is always in sync with the actual remote — it's a cached snapshot from your last fetch, not a live view.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between git fetch and git pull?" (git fetch updates your remote-tracking branches (origin/main) with what's actually on the remote, without touching your local branches or working directory at all. git pull does that fetch and then immediately merges (or rebases, with --rebase) the result into your current local branch — fetch is the safe "just look" step, pull adds the "and now apply it" step.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> What does <code>git cherry-pick</code> do, and when is it the right tool?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>git cherry-pick &lt;commit-hash&gt; applies the changes from one specific commit somewhere else onto your current branch, creating a new commit with the same changes (and message, by default) but a new hash and a new parent — without bringing along any of that commit's surrounding history. It's the right tool when you need exactly one fix from another branch without merging or rebasing everything else on it — the classic case is a hotfix: a bug got fixed on a feature branch that isn't ready to merge yet, but the fix itself needs to land on main right away, so you cherry-pick just that one commit onto main instead of waiting for the whole feature.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Reaching for cherry-pick as a routine way to move work between branches instead of a normal merge — cherry-picking many commits from the same branch tends to create duplicate, conflicting history once that branch eventually does get merged too.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can a cherry-pick conflict, the same way a merge can?" (Yes — if the target branch has diverged enough that the surrounding code the commit's diff expects to find isn't there anymore, git presents the same conflict markers and resolution process as a merge conflict.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> Unlike merge, <code>git ____</code> replays your branch's commits on top of another branch, creating new commits with new hashes.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="rebase" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Checking out a specific commit hash instead of a branch name puts you in <code>____</code> HEAD state.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="detached" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> <code>git reset --____</code> is the only one of the three reset modes that can discard uncommitted working-directory changes.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="hard" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> <code>git reset --____</code> moves the branch pointer but leaves changes staged, ready to re-commit.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="soft" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A conflicted file's two versions are separated by a line of seven <code>____</code> characters.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="=,equals,equal signs" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> After manually resolving a conflicted file, you must run <code>git ____</code> on it before committing.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="add" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>git ____</code> saves uncommitted changes onto a stack and restores a clean working directory.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="stash" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Combining several commits into one, usually via interactive rebase, is called <code>____</code>ing commits.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="squash" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> <code>git ____</code> annotates each line of a file with the commit that last changed it.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="blame" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>git ____</code> binary-searches commit history between a known-good and known-bad commit to find a regression.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="bisect" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> A merge with no new commits on your side since diverging can complete as a <code>____</code>-forward merge, with no merge commit created.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="fast" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> <code>git ____</code> is a local log of every place HEAD has pointed, used to recover commits after a bad reset.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="reflog" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A <code>.____</code> file lists patterns git should never track as part of the repository.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="gitignore" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> <code>git ____-pick &lt;hash&gt;</code> applies one specific commit's changes onto your current branch as a new commit.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="cherry" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Lesson</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

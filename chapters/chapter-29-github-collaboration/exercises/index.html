@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 29 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 29: GitHub & Collaboration -- real git remote/fetch/pull commands against a real scratch scenario, plus a Debug the Code task diagnosing a rejected push.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-29">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 29 Exercises</span>
+    <span class="reading-time">40 min, hands-on</span>
+  </div>
+  <h1>Exercises: GitHub &amp; Collaboration</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Unlike most chapters, there's no Python function to write here --
+    the "code" is real <code>git</code> commands, run by hand in your
+    own terminal. Download <code>starter.py</code> below, run
+    <code>python3 starter.py</code> from the folder you saved it in,
+    and it builds a real <code>scenario/</code> folder on disk: a bare
+    repository standing in for a GitHub remote, plus a working clone
+    already connected to it. Every task below happens inside that
+    <code>scenario/my-local-work/</code> folder.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="diagram-card">
+    <span class="diagram-label">What starter.py builds</span>
+    <p class="diagram-note">This is a description of the real folder structure starter.py creates on disk -- not a GitHub screenshot.</p>
+    <pre><code>scenario/
+├── upstream-remote.git/     <- real bare repo (git init --bare),
+│                               standing in for "the project on GitHub"
+└── my-local-work/           <- your working clone
+    ├── README.md
+    ├── app.py
+    └── (origin already points at ../upstream-remote.git,
+         and it starts ONE COMMIT BEHIND origin/main --
+         a teammate "pushed" before you looked)</code></pre>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Confirm your remote</h3>
+    <p><code>cd</code> into <code>scenario/my-local-work</code> and run <code>git remote -v</code>. Confirm <code>origin</code> points at <code>../upstream-remote.git</code> for both fetch and push.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Fetch, and prove it doesn't touch your branch</h3>
+    <p>Run <code>git fetch origin</code>, then compare <code>git log --oneline</code> (local <code>main</code>) against <code>git log --oneline origin/main</code>. Confirm local <code>main</code> is unchanged even though <code>origin/main</code> moved.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Pull, and watch your branch actually update</h3>
+    <p>Run <code>git pull origin main</code>, then <code>git log --oneline</code> again. This time local <code>main</code> fast-forwards to match <code>origin/main</code>.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 4 — Debug the Code: your push was rejected</h3>
+    <p>
+      After Task 3, a second teammate pushes another change directly to
+      <code>upstream-remote.git</code>. Meanwhile, without fetching
+      first, you make your own local commit and try to push it:
+    </p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git push origin main
+To ../upstream-remote.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to '../upstream-remote.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.</code></pre>
+    </div>
+    <p><strong>Diagnose it, then fix it for real:</strong></p>
+    <ul class="lesson-bullets">
+      <li>Run <code>git fetch origin</code>, then <code>git log --oneline --graph --all</code> to see exactly how the history diverged.</li>
+      <li>Run <code>git rebase origin/main</code> to replay your commit on top of the teammate's. If both changes touched the same lines, resolve the resulting conflict the same way Chapter 28 taught (edit out the conflict markers, <code>git add</code> the file, then <code>git rebase --continue</code>).</li>
+      <li>Push again — it now succeeds.</li>
+    </ul>
+    <p>This exact sequence (rejection, fetch, graph, rebase, conflict, resolution, successful push) was verified for real while building this exercise — run <code>python3 solution.py</code> to see it happen end to end, with real command output at every step.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

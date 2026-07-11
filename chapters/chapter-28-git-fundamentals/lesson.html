@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 28: Git Fundamentals — Python for Everyone</title>
+<meta name="description" content="The essential git workflow every professional developer uses: init, add, commit, status, diff, log, branching, merging, resolving conflicts, rebase, and safely undoing mistakes with restore, reset, revert, stash, and reflog.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-28">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 28 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">75 min read</span>
+  </div>
+  <h1>Git Fundamentals</h1>
+  <p><em>Every chapter so far has been about writing Python. This one is different on purpose: it's about the tool nearly every professional developer uses to track, share, and recover that code &mdash; <strong>git</strong>. There's no new Python syntax here. Instead, you'll run real shell and git commands against a small Python project, and every command sequence and output shown in this chapter was actually run, not invented, so what you see here is exactly what git will show you too.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> covers why version control exists at all &mdash; the real problems it solves.</li>
+      <li><strong>Sub-topic 2</strong> covers the core workflow: <code>init</code>, <code>add</code>, <code>commit</code>, <code>status</code>, <code>diff</code>, <code>log</code>, and the staging area.</li>
+      <li><strong>Sub-topic 3</strong> covers branching &mdash; git's lightweight, pointer-based model, and a realistic feature-branch workflow.</li>
+      <li><strong>Sub-topic 4</strong> covers merging &mdash; fast-forward vs. three-way merges, and resolving a real conflict by hand.</li>
+      <li><strong>Sub-topic 5</strong> covers rebase &mdash; what it does differently from merge, and the rule about not rebasing shared history.</li>
+      <li><strong>Sub-topic 6</strong> covers undoing things safely: <code>restore</code>, <code>reset</code>, <code>revert</code>, stashing, and recovering a "lost" commit with <code>reflog</code>.</li>
+      <li><strong>A note on every command and output shown in this chapter:</strong> all of it was captured by actually running git, against a small sample project (a task-list command-line tool), in a scratch directory. Commit hashes will differ if you run the same commands yourself &mdash; git generates a fresh hash from the commit's exact content and timestamp every time &mdash; but the <em>shape</em> of the output (what git prints, in what format) will match.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#why-version-control">1. Why version control matters</a>
+    <a href="#core-workflow">2. The core git workflow</a>
+    <a href="#branching">3. Branching</a>
+    <a href="#merging">4. Merging</a>
+    <a href="#rebase">5. Rebase</a>
+    <a href="#undoing-things">6. Undoing things safely</a>
+  </nav>
+
+  <div class="hook">
+    Picture this: you've been mid-way through a new feature for two days &mdash; half-finished, half-broken, code deliberately in a messy state while you figure it out. Then a customer reports a bug in production that needs a fix <em>today</em>, built on top of the <em>last stable version</em>, not your half-broken feature. Without version control, those two states of the code &mdash; "stable, needs a quick fix" and "in-progress, currently broken" &mdash; live in the same files, tangled together, with no way to cleanly separate them. This chapter is about the tool that makes that a non-problem.
+  </div>
+
+  <div class="subtopic" id="why-version-control">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Why version control matters</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Without version control, "undo" only goes back as far as your editor's in-memory history &mdash; close the file, and that history is gone.</li>
+        <li>There's no reliable way to see <em>when</em> a change was made, <em>why</em>, or <em>by whom</em> &mdash; especially once more than one person touches the same code.</li>
+        <li>There's no safe way to try something risky and back out cleanly if it doesn't work.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every one of these problems compounds the moment more than one person &mdash; or even one person working on more than one thing at once &mdash; touches the same codebase. Git exists because "just keep careful copies of your folder" stops working almost immediately in real, collaborative software work.
+    </div>
+
+    <p>
+      Before git, a surprisingly common (and surprisingly recent, in some teams) way to "version" a project looked like this:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">a familiar, git-free folder listing</span>
+      <pre><code>project/
+project_final/
+project_final_v2/
+project_final_ACTUALLY_final/
+project_final_ACTUALLY_final_fixed/</code></pre>
+    </div>
+
+    <p>
+      Each folder is a full, separate copy of the entire project, made by hand, whenever someone remembered to save one before making a risky change. There's no record of <em>what</em> changed between any two of these folders &mdash; only a full diff, done manually, file by file, if anyone ever needs to know. And if two people are both editing copies of the same project, there's no way to combine their work except by hand, comparing files and re-typing changes into a merged version.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a repository?</span>
+      A <strong>repository</strong> (or "repo") is a project folder that git is tracking. It contains your actual files, plus a hidden <code>.git</code> folder holding the entire history of every tracked change &mdash; every commit, branch, and the data needed to reconstruct any past version. A folder becomes a repository the moment you run <code>git init</code> inside it.
+    </div>
+
+    <p>
+      Git solves the three problems above directly. Every meaningful change is recorded as a <strong>commit</strong> &mdash; a permanent, timestamped, authored snapshot you can always return to. Multiple people (or multiple lines of work by the same person) can proceed independently on <strong>branches</strong> and be combined later without hand-editing anything. And because every commit is kept forever by default, "try something risky" is close to free &mdash; the real starting point is never actually at risk. The rest of this chapter builds up exactly how, starting with the core workflow every other git feature is built on top of.
+    </p>
+
+    <div class="real-world-inline">
+      <p>
+        The production-hotfix scenario from the hook is the single most common real-world reason teams reach for branching specifically (covered in full in Sub-topic 3): the fix branches off the last known-stable commit, gets tested and shipped completely independently of the in-progress feature work, and the feature branch is untouched and unaffected the whole time.
+      </p>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Without version control, undo history is temporary, there's no reliable record of who changed what and when, and there's no clean way to isolate risky or in-progress work.</li>
+      <li>A git <strong>repository</strong> is a project folder with a hidden <code>.git</code> folder tracking its full history.</li>
+      <li>Git's core building blocks &mdash; commits and branches &mdash; are designed specifically to solve these problems, and the rest of this chapter covers each one in turn.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is git the only version control system?</summary>
+      <p>
+        No &mdash; git is the dominant one today (and what GitHub, GitLab, and Bitbucket are all built around), but older systems like Subversion (SVN) and Mercurial exist and are still used in some organizations. What makes git specifically well-suited to modern collaborative work is that it's <strong>distributed</strong>: every clone of a repository has the entire history, not just a pointer to a central server, which is part of why branching and merging in git are fast, local operations rather than something that requires a network round-trip.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Manual folder-copying as "version control" loses history, has no audit trail, and makes combining independent work a manual, error-prone process.</li>
+        <li>A repository is a project folder git is tracking, via a hidden <code>.git</code> folder holding its full history.</li>
+        <li>Commits and branches are git's answer to isolating risky/in-progress work from stable, shippable work.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="core-workflow">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. The core git workflow</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>git init</code> turns a folder into a repository.</li>
+        <li><code>git add</code> stages changes; <code>git commit</code> permanently records the staged changes as a snapshot.</li>
+        <li><code>git status</code>, <code>git diff</code>, and <code>git log</code> are how you constantly check what's changed, what's staged, and what's already been committed.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> these six commands &mdash; <code>init</code>, <code>add</code>, <code>commit</code>, <code>status</code>, <code>diff</code>, <code>log</code> &mdash; are what you'll type more than any other git commands, by far. Branching and merging (Sub-topics 3-4) are built entirely on top of the commits this workflow creates.
+    </div>
+
+    <p>
+      Every example in this chapter uses the same small sample project: a task-list command-line tool, <code>tasks.py</code>. Starting from an empty folder, <code>git init</code> creates the repository:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git init -b main
+$ git status</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Initialized empty Git repository in /path/to/task-cli/.git/
+On branch main
+
+No commits yet
+
+nothing to commit (create/copy files and use "git add" to track)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the staging area?</span>
+      The <strong>staging area</strong> (also called "the index") is a holding zone between your working files and a commit. <code>git add</code> copies a file's current state into the staging area; <code>git commit</code> then takes <em>only</em> what's staged and turns it into a permanent snapshot. This two-step split exists so you can build a commit out of exactly the changes you want &mdash; even if your working folder currently has other, unrelated edits sitting alongside them, unstaged.
+    </div>
+
+    <p>
+      With the repo created, here's <code>tasks.py</code> written for the first time, and <code>git add</code> staging it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tasks.py</span>
+      </div>
+      <pre><code>def add_task(tasks, description):
+    tasks.append({"description": description, "done": False})
+    return tasks
+
+
+def list_tasks(tasks):
+    for i, task in enumerate(tasks, start=1):
+        mark = "x" if task["done"] else " "
+        print(f"[{mark}] {i}. {task['description']}")</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py
+$ git status</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached &lt;file&gt;..." to unstage)
+	new file:   tasks.py</code></pre>
+    </div>
+
+    <p>
+      Notice <code>git status</code> is doing exactly the job it's meant for: reporting <em>where things stand</em> right now, without changing anything. <code>tasks.py</code> is staged ("Changes to be committed") but not yet part of any permanent history. That happens with <code>git commit</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git commit -m "Add basic task add/list functions"
+$ git log</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>[main (root-commit) 5d9184b] Add basic task add/list functions
+ 1 file changed, 9 insertions(+)
+ create mode 100644 tasks.py
+commit 5d9184b3f9ef2bf67fca4240d18c87a449e3fa5e
+Author: Dev &lt;dev@example.com&gt;
+Date:   Sat Jul 11 09:56:39 2026 +0000
+
+    Add basic task add/list functions</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> before touching git at all, the actual engineering decision is what belongs in <em>this</em> commit versus a later one &mdash; a good commit is one coherent, reviewable change with a message describing the "why," not a dump of everything that happened to be edited that day. Here, "add basic task add/list functions" is deliberately scoped to just those two functions, so the history stays readable later.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help resolve this git situation:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I just wrote two related functions in a new file inside a fresh git repo — what commands do I run to get this into a clean first commit?"></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it tells you against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I just ran `git init -b main` in a new project folder and wrote a file called tasks.py containing two related functions, add_task() and list_tasks(). Walk me through the exact git commands to check what git currently sees as changed, stage the new file, and commit it with a clear, descriptive commit message — and explain what "staging" actually does here versus committing directly.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      <code>git commit</code>'s own output already summarizes the change (1 file, 9 insertions); <code>git log</code> then shows the permanent record: a unique commit <strong>hash</strong> (<code>5d9184b3f9...</code>, git's built-in shorthand for it is the first 7 characters, <code>5d9184b</code>), the author, the timestamp, and the message. That hash is git's real identity for this commit &mdash; two commits are considered "the same" only if their hash matches exactly.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a commit, actually?</span>
+      A <strong>commit</strong> is a permanent, complete snapshot of every tracked file at the moment it was made &mdash; not just a diff. Each commit also stores a pointer to its parent commit (the one before it), which is how git reconstructs the entire history as a chain, and how <code>git log</code> can walk backward through it. A commit's hash is calculated from its exact content, its parent, its author, and its timestamp, which is why even a one-character difference produces a completely different hash.
+    </div>
+
+    <p>
+      Now watch <code>git diff</code> and <code>git status</code> work together as changes are made, before anything is staged. Here, <code>tasks.py</code> gets a new function added:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git diff</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output, after adding a complete_task() function to tasks.py</span>
+      <pre><code>diff --git a/tasks.py b/tasks.py
+index 1c1b568..515188f 100644
+--- a/tasks.py
++++ b/tasks.py
+@@ -7,3 +7,8 @@ def list_tasks(tasks):
+     for i, task in enumerate(tasks, start=1):
+         mark = "x" if task["done"] else " "
+         print(f"[{mark}] {i}. {task['description']}")
++
++
++def complete_task(tasks, index):
++    tasks[index - 1]["done"] = True
++    return tasks</code></pre>
+    </div>
+
+    <p>
+      <code>git diff</code> with no arguments shows exactly this: unstaged changes, line by line, with <code>+</code> for additions and <code>-</code> for removals &mdash; the map of what would be staged next, if you ran <code>git add</code>. After staging and committing this change too, <code>git log --oneline</code> gives a compact, one-line-per-commit view that's far more useful than the full <code>git log</code> once history grows past a couple of commits:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py
+$ git commit -m "Add complete_task function"
+$ git log --oneline</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>[main c8e706b] Add complete_task function
+ 1 file changed, 5 insertions(+)
+c8e706b Add complete_task function
+5d9184b Add basic task add/list functions</code></pre>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>git init</code> creates a repository; <code>git add &lt;file&gt;</code> stages a change; <code>git commit -m "..."</code> permanently records everything currently staged.</li>
+      <li><code>git status</code> shows what's staged, unstaged, and untracked, right now &mdash; it never changes anything itself.</li>
+      <li><code>git diff</code> shows the exact line-by-line content of unstaged changes; <code>git log</code> (or the more compact <code>git log --oneline</code>) shows the permanent commit history.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what does git diff --staged show?</summary>
+      <p>
+        Plain <code>git diff</code> only shows <em>unstaged</em> changes &mdash; the difference between your working files and what's staged. Once you run <code>git add</code>, those changes disappear from <code>git diff</code>'s output (there's no unstaged difference anymore) and instead show up under <code>git diff --staged</code> (also spelled <code>git diff --cached</code>), which compares what's staged against the last commit. This distinction matters most once you're staging changes incrementally, a few files at a time, rather than all at once.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>git init</code>, <code>git add</code>, <code>git commit</code> are how a change becomes a permanent snapshot, via the staging area in between.</li>
+        <li>A commit is a full snapshot plus a pointer to its parent, identified by a unique hash calculated from its content.</li>
+        <li><code>git status</code>/<code>git diff</code>/<code>git log</code> are read-only tools for seeing exactly where things stand &mdash; use them constantly, not just when something looks wrong.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="branching">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Branching</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>branch</strong> is just a movable pointer to a commit &mdash; creating one is instant and nearly free, unlike copying an entire project folder.</li>
+        <li><code>git branch &lt;name&gt;</code> creates a branch; <code>git switch &lt;name&gt;</code> moves to it; <code>git switch -c &lt;name&gt;</code> does both at once.</li>
+        <li>Branches let independent lines of work &mdash; a feature, a hotfix, an experiment &mdash; proceed without touching each other until you explicitly combine them.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the direct mechanism behind the hook's hotfix scenario &mdash; a branch made from main's last stable commit is completely isolated from whatever's in progress on a feature branch, right up until someone chooses to merge them.
+    </div>
+
+    <p>
+      Here's the sample project with two commits on <code>main</code> so far. <code>git branch</code> (no arguments) lists existing branches, with a <code>*</code> marking the current one:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git branch feature/delete-task
+$ git branch</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>  feature/delete-task
+* main</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a branch, actually?</span>
+      A branch is nothing more than a lightweight, movable label pointing at one specific commit. When you make a new commit while on a branch, git just moves that branch's pointer forward to the new commit &mdash; it doesn't duplicate any files. This "pointer" model is exactly why creating a branch in git is instant, regardless of how large the project is, unlike copying an entire project folder by hand.
+    </div>
+
+    <p>
+      <code>git switch</code> moves your working files to match a different branch's latest commit:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git switch feature/delete-task
+$ git branch</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Switched to branch 'feature/delete-task'
+* feature/delete-task
+  main</code></pre>
+    </div>
+
+    <p>
+      Now a commit made here only moves <code>feature/delete-task</code>'s pointer forward &mdash; <code>main</code> stays exactly where it was:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py
+$ git commit -m "Add delete_task function"
+$ git log --oneline --all --graph</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- two branch pointers, one shared history so far</span>
+      <pre><code>* a16051c Add delete_task function
+* c8e706b Add complete_task function
+* 5d9184b Add basic task add/list functions</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the decision that matters isn't the branch command syntax, it's <em>when</em> to branch at all &mdash; any change that isn't trivial and one-line deserves its own branch, named after what it does, so it can be reviewed, tested, and merged (or abandoned) independently of whatever else is happening on main.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help resolve this git situation:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I'm about to start a new feature in a repo that already has commits on main — what's the right way to create and switch to a branch for it, and how do I name it well?"></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it tells you against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have a git repo on the main branch with a couple of existing commits. I want to start work on a new function, delete_task(), without touching main until it's done. What's the exact git command to create a new branch called feature/delete-task and switch to it in one step, versus creating it and switching separately? Also explain what actually happens internally when I commit while on that branch — does main's pointer move too?</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Real feature-branch work almost never happens with two separate commands, though &mdash; <code>git switch -c &lt;name&gt;</code> creates and switches in a single step, which is the version you'll use most often:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git switch -c feature/priority</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Switched to a new branch 'feature/priority'</code></pre>
+    </div>
+
+    <p>
+      This is exactly the hotfix scenario from the hook, mapped onto real commands: if a production bug appeared right now, <code>git switch main</code> followed by <code>git switch -c hotfix/urgent-fix</code> would branch off <code>main</code>'s current, stable commit &mdash; totally unaffected by whatever's half-finished on <code>feature/priority</code>, because that work only exists on <code>feature/priority</code>'s own commits.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A branch is a movable pointer to a commit, not a copy of the project &mdash; creating one is instant.</li>
+      <li><code>git branch &lt;name&gt;</code> creates without switching; <code>git switch &lt;name&gt;</code> switches; <code>git switch -c &lt;name&gt;</code> does both.</li>
+      <li>Committing while on a branch only moves that branch's own pointer forward &mdash; other branches are completely unaffected until explicitly merged.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's git checkout, and why does this chapter use git switch instead?</summary>
+      <p>
+        <code>git checkout</code> is the older, original command for switching branches &mdash; and it still works. But <code>checkout</code> is also overloaded to do several unrelated things (switching branches, restoring files, checking out specific commits), which made it a common source of mistakes. Git 2.23 introduced <code>git switch</code> (for branches) and <code>git restore</code> (for files, covered in Sub-topic 6) specifically to split those responsibilities into two clearer, harder-to-misuse commands. You'll still see <code>git checkout</code> in a lot of existing tutorials and older codebases' documentation, so it's worth recognizing, even though <code>switch</code>/<code>restore</code> is the more precise modern choice.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Branches are cheap, movable pointers to commits &mdash; not full copies of the project.</li>
+        <li><code>git switch -c &lt;name&gt;</code> is the common one-step way to start a new line of work.</li>
+        <li>Work on one branch never affects another branch's commits until they're explicitly merged &mdash; the exact mechanism behind isolating a hotfix from in-progress feature work.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="merging">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Merging</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>fast-forward merge</strong> happens when the target branch hasn't moved since the branch being merged split off &mdash; git just moves the pointer forward, no new commit needed.</li>
+        <li>A <strong>three-way merge</strong> happens when both branches have new commits &mdash; git creates a new <strong>merge commit</strong> with two parents, combining both histories.</li>
+        <li>A <strong>merge conflict</strong> happens when both branches changed the same lines differently &mdash; git can't guess which version is correct, so it stops and asks you to decide.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> merging is how the isolated work from Sub-topic 3 actually gets back together &mdash; and conflicts are not a sign something went wrong; they're git correctly refusing to silently guess at a decision only you can make.
+    </div>
+
+    <p>
+      First, the simple case. <code>feature/delete-task</code> has one commit main doesn't have yet, and main hasn't moved since they split &mdash; merging it in is a pure fast-forward:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git switch main
+$ git merge feature/delete-task</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Switched to branch 'main'
+Updating c8e706b..a16051c
+Fast-forward
+ tasks.py | 5 +++++
+ 1 file changed, 5 insertions(+)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a fast-forward merge?</span>
+      When the branch you're merging <em>into</em> hasn't gained any commits since the branch you're merging <em>from</em> split off, there's nothing to actually combine &mdash; the feature branch's history is already a direct, unbroken continuation of main's. Git just slides main's pointer forward to match, with no merge commit created at all. It's called "fast-forward" because that's literally all that happens.
+    </div>
+
+    <p>
+      With the merge done, the feature branch's job is finished &mdash; deleting it is routine cleanup, not a risk, since its commits now live permanently on <code>main</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git branch -d feature/delete-task</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Deleted branch feature/delete-task (was a16051c).</code></pre>
+    </div>
+
+    <p>
+      Now the more common real-world case: both <code>main</code> and a feature branch pick up new commits, editing the <em>same function</em> in different ways. On <code>feature/priority</code>, <code>add_task()</code> gains a priority parameter; on <code>main</code> at the same time, <code>add_task()</code> gains input validation:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git switch main
+$ git merge feature/priority</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Auto-merging tasks.py
+CONFLICT (content): Merge conflict in tasks.py
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a merge conflict?</span>
+      A <strong>merge conflict</strong> happens when both branches being merged changed the <em>same lines</em> of the <em>same file</em> in different, incompatible ways. Git can automatically combine changes to different parts of a file (or different files entirely) without any trouble &mdash; a conflict only happens on the specific overlapping lines where it genuinely can't tell which version you want, or whether you want both.
+    </div>
+
+    <p>
+      Opening <code>tasks.py</code> now shows git's conflict markers, sitting directly in the file:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tasks.py (mid-conflict)</span>
+      </div>
+      <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+def add_task(tasks, description):
+    if not description.strip():
+        raise ValueError("description cannot be empty")
+    tasks.append({"description": description, "done": False})
+=======
+def add_task(tasks, description, priority="normal"):
+    tasks.append({"description": description, "done": False, "priority": priority})
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/priority
+    return tasks</code></pre>
+    </div>
+
+    <p>
+      This reads as two competing versions of the same lines: everything between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is what's currently on <code>main</code> (the branch you're merging <em>into</em>); everything between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/priority</code> is what's coming in from the branch you're merging <em>from</em>. Resolving a conflict by hand means editing the file back to one final, correct version and deleting the markers &mdash; here, both changes are genuinely worth keeping:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">tasks.py (resolved)</span>
+      </div>
+      <pre><code>def add_task(tasks, description, priority="normal"):
+    if not description.strip():
+        raise ValueError("description cannot be empty")
+    tasks.append({"description": description, "done": False, "priority": priority})
+    return tasks</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> resolving a conflict is a code decision, not a git decision &mdash; git can't know that keeping both the validation check and the priority parameter is correct here. The actual judgment call is reading both versions, understanding what each one was trying to achieve, and writing a version of the function that honors both intents rather than blindly picking one side.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help resolve this git situation:</p>
+        <textarea class="genai-user-attempt" rows="4" placeholder="e.g. I have a merge conflict in tasks.py — paste the conflict markers and ask what a correct resolution looks like..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it tells you against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I'm mid-merge in git and have a conflict in tasks.py. Here are the conflict markers:
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+def add_task(tasks, description):
+    if not description.strip():
+        raise ValueError("description cannot be empty")
+    tasks.append({"description": description, "done": False})
+=======
+def add_task(tasks, description, priority="normal"):
+    tasks.append({"description": description, "done": False, "priority": priority})
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/priority
+    return tasks
+
+The HEAD side added input validation; the feature/priority side added a priority parameter. Write a single resolved version of add_task() that keeps both changes correctly, then tell me the exact git commands to mark the file resolved and finish the merge.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Once the file looks right, <code>git add</code> tells git the conflict is resolved for that file (the same command as normal staging &mdash; there's no special "resolve" command), and <code>git commit</code> finishes the merge, creating a <strong>merge commit</strong>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py
+$ git commit -m "Merge feature/priority into main"
+$ git log --oneline --graph --all</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- note the merge commit has two parents</span>
+      <pre><code>*   7a0e1c6 Merge feature/priority into main
+|\
+| * c2a1f02 Add priority field to add_task
+* | e488a27 Validate description is not empty in add_task
+|/
+* a16051c Add delete_task function
+* c8e706b Add complete_task function
+* 5d9184b Add basic task add/list functions</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a merge commit?</span>
+      A normal commit has exactly one parent. A <strong>merge commit</strong> is the one exception &mdash; it has <em>two</em> parents (the tip of each branch being merged), and its snapshot is the combined result of both histories, including any conflict resolutions made by hand. <code>git log --graph</code> visualizes this directly: the branching and rejoining lines (<code>|\</code> and <code>|/</code>) show exactly where history split and came back together.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A fast-forward merge just moves a pointer forward &mdash; no new commit, no conflict possible, since one branch's history is a strict continuation of the other's.</li>
+      <li>A three-way merge creates a merge commit with two parents, combining genuinely divergent history.</li>
+      <li>A merge conflict happens only on lines both branches changed differently; resolving it means hand-editing the file to a single correct version, then <code>git add</code> + <code>git commit</code> to finish.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what if you want to back out of a conflicted merge entirely?</summary>
+      <p>
+        <code>git merge --abort</code> cancels an in-progress merge and returns everything to exactly how it was right before <code>git merge</code> was run &mdash; conflict markers gone, no merge commit made. It's the safe escape hatch for "I started this merge and realized I'm not ready to resolve it right now," and it's completely safe to use any time before the final <code>git commit</code> that finishes the merge.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Fast-forward: target branch hasn't moved, so git just advances the pointer &mdash; no merge commit.</li>
+        <li>Three-way merge: both branches have new commits, so git creates a merge commit with two parents.</li>
+        <li>A conflict marks the exact overlapping lines git can't auto-resolve; fix by hand, <code>git add</code>, then <code>git commit</code> (or <code>git merge --abort</code> to cancel entirely).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="rebase">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Rebase</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>git rebase</code> replays your branch's commits one by one on top of another branch's latest commit, instead of merging the two histories together.</li>
+        <li>The result is a straight, linear history &mdash; no merge commit, no <code>|\</code>/<code>|/</code> lines in the graph.</li>
+        <li><strong>Never rebase commits that other people already have</strong> &mdash; rebase rewrites commit hashes, which breaks history for anyone who already pulled the originals.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> rebase and merge solve the same underlying problem (combining diverged branches) with genuinely different trade-offs &mdash; and the "don't rebase shared history" rule is one of the few git rules that causes real, team-wide pain when broken, not just a style preference.
+    </div>
+
+    <p>
+      Starting from a branch that's diverged from <code>main</code> &mdash; <code>feature/tags</code> has one commit main doesn't have, and main has since gained one commit of its own:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git log --oneline --graph --all</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- diverged history</span>
+      <pre><code>* 5ac2893 Add clear_completed function
+| * 09713a7 Add tag_task function
+|/
+*   7a0e1c6 Merge feature/priority into main
+...</code></pre>
+    </div>
+
+    <p>
+      A merge here would create another merge commit, same as Sub-topic 4. Rebase takes a different approach &mdash; while on <code>feature/tags</code>, <code>git rebase main</code> replays its one commit as if it had been written starting from main's current tip:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git switch feature/tags
+$ git rebase main</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- a conflict during rebase, then resolving it</span>
+      <pre><code>Rebasing (1/1)
+Auto-merging tasks.py
+CONFLICT (content): Merge conflict in tasks.py
+error: could not apply 09713a7... Add tag_task function
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm &lt;conflicted_files&gt;", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the state before "git rebase", run "git rebase --abort".</code></pre>
+    </div>
+
+    <p>
+      Rebase conflicts look and resolve identically to merge conflicts &mdash; same <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>/<code>=======</code>/<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> markers, same fix-by-hand-then-<code>git add</code> process. The one difference is the command that continues afterward:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py
+$ git rebase --continue
+$ git log --oneline --graph --all</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- a straight line, no merge commit</span>
+      <pre><code>[detached HEAD 5c3d617] Add tag_task function
+Successfully rebased and updated refs/heads/feature/tags.
+* 5c3d617 Add tag_task function
+* 5ac2893 Add clear_completed function
+*   7a0e1c6 Merge feature/priority into main
+...</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... "replaying" a commit?</span>
+      Rebase doesn't move the original commit &mdash; it can't, since a commit's hash is fixed by its content and parent (Sub-topic 2). Instead, for each commit being rebased, git computes the same <em>change</em> that commit represents, and applies it fresh on top of the new base, creating a brand-new commit with a new hash and a new parent. The code ends up the same; the commit's identity in git's history does not.
+    </div>
+
+    <p>
+      Rebase can also be used <strong>interactively</strong> to clean up a branch's own commits before sharing them &mdash; combining two "work in progress" commits into one clean commit, for example. Here, two rough commits get squashed into one:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git log --oneline -2
+f1d489f wip 2
+bb70699 wip
+$ git rebase -i HEAD~2
+# in the editor that opens, change the second commit's
+# "pick" to "squash" (or its shorthand, "s"), then save</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output after squashing and rewording the combined message</span>
+      <pre><code>Rebasing (2/2)
+[detached HEAD 67cd467] wip
+Successfully rebased and updated refs/heads/main.
+$ git commit --amend -m "Add task_count and pending_count helpers"
+$ git log --oneline -3
+abaf902 Add task_count and pending_count helpers
+5c3d617 Add tag_task function
+5ac2893 Add clear_completed function</code></pre>
+    </div>
+
+    <p>
+      Two messy commits ("wip", "wip 2") became one clean, well-described commit &mdash; exactly the kind of history cleanup interactive rebase is for, when it's done <em>before</em> a branch is shared with anyone else.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the judgment call here isn't "how do I run rebase" &mdash; it's "should I rebase this at all." The rule that decides it: has anyone else already pulled or based work on these exact commits? If yes, rebasing rewrites hashes they already have, and their next pull turns into a confusing mess of duplicated, conflicting history. If the commits are still purely local and unpushed (or on a solo feature branch nobody else has touched), rebasing to clean up history before sharing it is exactly the right move.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help resolve this git situation:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I have two messy 'wip' commits on a local branch nobody else has seen yet — how do I combine them into one clean commit before I push?"></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it tells you against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have two commits on my local feature branch, "wip" and "wip 2", that nobody else has pulled or seen. I want to combine them into one clean commit with a descriptive message before I push and open a pull request. Walk me through git rebase -i HEAD~2 step by step: what the interactive editor shows, how "squash" works, and how to reword the final combined commit message. Also confirm this is safe specifically because these commits are still unpushed and local-only.</pre></div>
+      </details>
+    </div>
+
+    <div class="lesson-note">
+      <strong>The rule, stated plainly:</strong> never rebase commits that have already been pushed and could be in someone else's local history. If a commit only exists on your machine, rebasing it is safe cleanup. The instant it's shared (pushed, pulled by a teammate, merged into a shared branch), rewriting it with rebase creates two different versions of "the same" commit under different hashes &mdash; and everyone who already has the old version now has a diverging, conflicting history to untangle.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>git rebase &lt;branch&gt;</code> replays your branch's commits on top of another branch's tip, producing a linear history with no merge commit.</li>
+      <li>Rebase conflicts resolve the same way as merge conflicts, just followed by <code>git rebase --continue</code> instead of a plain commit.</li>
+      <li>Interactive rebase (<code>git rebase -i</code>) can reorder, reword, or squash local commits &mdash; genuinely useful for cleaning up history, but only before it's shared with anyone else.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: how do you back out of a rebase gone wrong?</summary>
+      <p>
+        <code>git rebase --abort</code>, at any point before it finishes, returns the branch to exactly where it was before the rebase started &mdash; same safety net as <code>git merge --abort</code>. And even after a rebase completes, <code>git reflog</code> (covered next, in Sub-topic 6) still has a record of where the branch pointed beforehand, so a completed-but-regretted rebase is still recoverable, as long as it hasn't been pushed and garbage-collected elsewhere.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Rebase replays commits on a new base instead of merging two histories, producing a straight line with no merge commit.</li>
+        <li>Every replayed commit gets a new hash &mdash; rebase doesn't move commits, it recreates them.</li>
+        <li>Rule: rebase only local, unshared commits. Once a commit is shared, use merge (or, for undoing, <code>revert</code> &mdash; next up).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="undoing-things">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Undoing things safely</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>git status</code>/<code>git diff</code> are always the first step &mdash; know exactly what state you're in before undoing anything.</li>
+        <li><code>git restore</code> discards uncommitted file changes; <code>git reset</code> moves your branch pointer (with three modes controlling what happens to the changes); <code>git revert</code> undoes a commit by creating a new, opposite commit.</li>
+        <li><code>git stash</code> temporarily shelves uncommitted work; <code>git reflog</code> can recover a commit that looks "lost" after a hard reset.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> these commands look similar and are frequently confused, but they have real, different consequences &mdash; picking the wrong one can quietly discard work that <code>git status</code> would have warned you about, if you'd checked first.
+    </div>
+
+    <p>
+      <code>git restore &lt;file&gt;</code> discards <em>uncommitted</em> changes to a file, resetting it back to its last committed state. It's the safe tool for "I started editing this and want to throw the edit away entirely":
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git status
+$ git restore tasks.py
+$ git status</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- before and after restore</span>
+      <pre><code>On branch main
+Changes not staged for commit:
+	modified:   tasks.py
+
+On branch main
+nothing to commit, working tree clean</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... HEAD?</span>
+      <code>HEAD</code> is git's name for "the commit you're currently on" &mdash; almost always the tip of whatever branch is checked out. Commands throughout this section reference it directly: <code>HEAD~1</code> means "one commit before HEAD," which is how you address specific past commits without knowing their hash.
+    </div>
+
+    <p>
+      <code>git reset</code> is more powerful and more commonly misunderstood &mdash; it moves your branch's pointer to a different commit, and has three modes controlling what happens to the difference. Starting from a commit that turned out to be a mistake:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git reset --soft HEAD~1
+$ git status</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- commit undone, changes kept staged</span>
+      <pre><code>On branch main
+Changes to be committed:
+	modified:   tasks.py</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git commit -m "Add broken_feature (bug)"
+$ git reset HEAD~1
+$ git status</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- default (--mixed): commit undone, changes unstaged but kept</span>
+      <pre><code>Unstaged changes after reset:
+M	tasks.py
+On branch main
+Changes not staged for commit:
+	modified:   tasks.py</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py &amp;&amp; git commit -m "Add broken_feature (bug)"
+$ git reset --hard HEAD~1
+$ git status</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- commit AND the changes both gone</span>
+      <pre><code>HEAD is now at abaf902 Add task_count and pending_count helpers
+On branch main
+nothing to commit, working tree clean</code></pre>
+    </div>
+
+    <p>
+      Laid out side by side, the pattern is exactly what the flag names suggest:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">git reset's three modes</span>
+      <pre><code>              commit undone?   changes staged?   changes in working files?
+--soft        yes              yes               yes
+--mixed (default)  yes         no                yes
+--hard        yes              no                no -- gone</code></pre>
+    </div>
+
+    <p>
+      <code>--hard</code> is the only one of the three that can genuinely discard work &mdash; and it's exactly why <code>git status</code> before running it matters: if there are changes you actually wanted, <code>--hard</code> deletes them with no confirmation prompt.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... the real difference between reset and revert?</span>
+      <code>git reset</code> moves your branch pointer <em>backward</em>, and (depending on mode) can erase commits from the branch's history entirely. <code>git revert</code> never removes anything &mdash; it moves your branch pointer <em>forward</em>, adding a brand-new commit whose change is the exact opposite of the one being undone. This is why <code>revert</code> is the safe choice for anything already shared: the original mistaken commit stays in history (so nobody's pulled history breaks), and everyone who pulls afterward just sees the fix as a new, ordinary commit.
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git add tasks.py &amp;&amp; git commit -m "Add broken_feature (bug)"
+$ git revert --no-edit HEAD
+$ git log --oneline -3</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- a new commit undoing the last one, original still in history</span>
+      <pre><code>[main b2351e5] Revert "Add broken_feature (bug)"
+ 1 file changed, 4 deletions(-)
+b2351e5 Revert "Add broken_feature (bug)"
+54f6b44 Add broken_feature (bug)
+abaf902 Add task_count and pending_count helpers</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the decision tree here is short and worth memorizing: is this change even committed yet? If not, restore (or reset --mixed to unstage first). Is the commit still purely local, never pushed or shared? Reset is fine. Has it already been pushed, or could someone else already have it? Revert, always — reset on shared history is the single most common way git history gets genuinely, painfully broken for a whole team.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help resolve this git situation:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I already pushed a commit that introduced a bug and my teammates may have pulled it — what's the safe way to undo it without breaking their history?"></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it tells you against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I pushed a commit called "Add broken_feature (bug)" to a shared branch, and I think a teammate may have already pulled it. I need to undo the change safely without rewriting history they already have. Explain why git revert HEAD is the right tool here instead of git reset --hard HEAD~1, what revert actually does to the commit history (does it delete the original commit?), and give me the exact command including how to skip the default commit-message editor.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      For a shorter interruption &mdash; uncommitted work you're not ready to commit, but need to set aside to switch tasks &mdash; <code>git stash</code> is the tool:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git status
+$ git stash
+$ git status
+$ git stash list</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>On branch main
+Changes not staged for commit:
+	modified:   tasks.py
+
+Saved working directory and index state WIP on main: b2351e5 Revert "Add broken_feature (bug)"
+On branch main
+nothing to commit, working tree clean
+stash@{0}: WIP on main: b2351e5 Revert "Add broken_feature (bug)"</code></pre>
+    </div>
+
+    <p>
+      The working tree is clean again, but nothing was lost &mdash; <code>git stash pop</code> brings the exact same change back and removes it from the stash list:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git stash pop</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>On branch main
+Changes not staged for commit:
+	modified:   tasks.py
+
+Dropped refs/stash@{0} (733fd7639926cab2ec521e93108af0e4a77a410f)</code></pre>
+    </div>
+
+    <p>
+      Finally, the safety net behind all of this: <code>git reflog</code> keeps a record of every place <code>HEAD</code> has pointed, including commits a <code>--hard</code> reset just made unreachable from any branch. Here, a real commit gets hard-reset away, then recovered:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git commit -m "Add important_feature: sort tasks"
+$ git reset --hard HEAD~1
+$ git log --oneline -1</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- the commit no longer shows in the log</span>
+      <pre><code>HEAD is now at b2351e5 Revert "Add broken_feature (bug)"
+b2351e5 Revert "Add broken_feature (bug)"</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git reflog</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- the "lost" commit's hash is still right there</span>
+      <pre><code>b2351e5 HEAD@{0}: reset: moving to HEAD~1
+e230a4a HEAD@{1}: commit: Add important_feature: sort tasks
+b2351e5 HEAD@{2}: reset: moving to HEAD
+...</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ git reset --hard e230a4a
+$ git log --oneline -1</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- fully recovered</span>
+      <pre><code>HEAD is now at e230a4a Add important_feature: sort tasks
+e230a4a Add important_feature: sort tasks</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... reflog, precisely?</span>
+      <code>git reflog</code> is a local, personal log of every point <code>HEAD</code> has moved to on your machine &mdash; every commit, checkout, reset, and rebase step. It's separate from your project's actual commit history, isn't shared when you push, and by default entries expire after about 90 days. What it means in practice: a commit is essentially never truly "lost" the moment after a mistaken <code>reset --hard</code>, as long as you catch it before the reflog entry expires and check <code>git reflog</code> for its hash.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li><code>git restore &lt;file&gt;</code> discards uncommitted changes to that file; check <code>git status</code>/<code>git diff</code> first, since it can't be undone once run.</li>
+      <li><code>git reset</code> moves your branch pointer, with <code>--soft</code>/<code>--mixed</code> (default)/<code>--hard</code> controlling whether changes stay staged, stay unstaged, or are discarded entirely.</li>
+      <li><code>git revert</code> is the safe undo for shared history &mdash; it adds a new commit rather than rewriting anything.</li>
+      <li><code>git stash</code> temporarily shelves uncommitted work; <code>git stash pop</code> brings it back.</li>
+      <li><code>git reflog</code> can recover a commit that a hard reset made unreachable, as long as it hasn't expired from the reflog yet.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does reflog protect you forever?</summary>
+      <p>
+        No &mdash; reflog entries eventually expire (90 days for reachable commits by default, 30 for unreachable ones), and at that point git's garbage collector can permanently delete commits nothing references anymore. In practice, this is almost never a problem: most "I lost a commit" panics happen minutes after the mistake, well within the reflog's window. It's also worth knowing reflog is entirely local &mdash; it never gets pushed, so it can't help recover a mistake made only on a remote repository, only ones made on your own machine.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>git status</code>/<code>git diff</code> first, always &mdash; know what you're about to undo before undoing it.</li>
+        <li><code>restore</code> for uncommitted file changes; <code>reset</code> (soft/mixed/hard) for moving your branch pointer with different consequences for staged/working changes; <code>revert</code> for safely undoing anything already shared.</li>
+        <li><code>stash</code> shelves work temporarily; <code>reflog</code> is the recovery net for a commit that looks lost after a hard reset.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every professional software team uses git (or a system built on it, like GitHub/GitLab) as the backbone of how code gets written, reviewed, and shipped &mdash; the branch/commit/merge workflow in this chapter is not optional professional knowledge, it's table stakes.</li>
+      <li>The "isolate a hotfix from in-progress feature work" scenario from this chapter's hook happens constantly on real teams, and it's specifically branching (Sub-topic 3) that makes it routine instead of a crisis.</li>
+      <li>Teams that allow rebasing local, unshared commits but require <code>revert</code> for anything already merged to a shared branch are applying exactly the rule from Sub-topic 5/6 &mdash; it's one of the most common actual team git policies, not a theoretical distinction.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>Version control replaces manual folder-copying with permanent, queryable commit history and a clean way to isolate independent lines of work.</li>
+      <li>The core workflow &mdash; <code>init</code>, <code>add</code>, <code>commit</code>, <code>status</code>, <code>diff</code>, <code>log</code> &mdash; is built around the staging area: a deliberate holding zone between working files and a permanent snapshot.</li>
+      <li>Branches are cheap, movable pointers to commits, not copies of the project &mdash; this is what makes isolating a hotfix from in-progress feature work fast and routine.</li>
+      <li>Merging combines diverged branches: a fast-forward when possible, a two-parent merge commit otherwise, and a conflict exactly where both sides changed the same lines differently.</li>
+      <li>Rebase replays commits onto a new base for a linear history, but rewrites commit hashes &mdash; safe only for commits nobody else has already pulled.</li>
+      <li><code>restore</code>, <code>reset</code> (soft/mixed/hard), and <code>revert</code> each undo something different, with different safety guarantees; <code>stash</code> shelves work temporarily; <code>reflog</code> is the recovery net when a hard reset removes more than intended.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
