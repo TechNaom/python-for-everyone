@@ -294,7 +294,14 @@ window.PFE_MODULES = [
         { id: "packaging", title: "Packaging basics" },
         { id: "putting-it-together", title: "Putting it together: a shippable CLI tool" }
       ] },
-      { id: "chapter-32", num: 32, title: "Capstone Projects", path: null },
+      { id: "chapter-32", num: 32, title: "Capstone Projects", path: "chapters/chapter-32-capstone-projects/lesson.html", subtopics: [
+        { id: "what-makes-it-worth-showing", title: "What makes a portfolio project worth showing" },
+        { id: "scoping-a-capstone", title: "Scoping a capstone" },
+        { id: "combining-skills", title: "Combining skills from multiple chapters" },
+        { id: "writing-the-readme", title: "Writing a capstone README that gets you hired" },
+        { id: "the-5-capstones", title: "The 5 capstones in this course" },
+        { id: "picking-a-capstone", title: "How to pick which capstone(s) to build" }
+      ] },
       { id: "chapter-33", num: 33, title: "Interview & Career Prep", path: null }
     ]
   }

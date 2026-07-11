@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 32 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 32: Capstone Projects -- how to talk about a portfolio project in an interview, technology-choice justification, honest scoping, testing decisions, and MVP/scope-creep/technical-debt vocabulary.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-32-interview" data-active-chapter="chapter-32">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to lesson</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 32 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: Talking About Your Capstone</h1>
+  <p>Every other interview-questions page in this course drills syntax and standard-library behavior. This one is different on purpose: by Chapter 32 you've built five real, multi-chapter projects, and the actual interview skill left to practice isn't "do you know Python" &mdash; it's whether you can talk about what you built like an engineer instead of reciting a feature list. These questions are the ones interviewers actually ask about a portfolio project, and how to answer them without rambling, over-claiming, or under-selling real work.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> "Walk me through a project you built." How do you structure that answer so it doesn't ramble?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Five beats, in order, each a sentence or two: the <strong>problem</strong> (what real need this solved, not "I wanted to practice X"), your <strong>approach</strong> (the shape of the solution and why that shape), one real <strong>decision</strong> you made and why (a genuine fork in the road where you picked A over B, not a trivial detail), a <strong>mistake</strong> you made and what you learned from it, and the <strong>outcome</strong> (what it does today, concretely &mdash; not "it works," but "it's a CLI that does X, Y, Z" or "it's deployed and passes N tests"). This structure works because it front-loads the parts an interviewer actually cares about (judgment and self-awareness) instead of a chronological feature-by-feature walkthrough that buries the interesting parts under setup detail nobody asked for.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Starting with "so first I set up my virtual environment, then I..." &mdash; a chronological build-log answer signals you haven't thought about what's actually worth telling a listener versus what was just the mechanical order you did things in.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How long should that answer take?" (60-90 seconds for the unprompted version. Long enough to cover all five beats, short enough that the interviewer can jump in with a follow-up on whichever beat they want to go deeper on &mdash; which is the actual goal, since the follow-up conversation is where you show more depth than a scripted answer ever could.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> "Why did you choose Flask/FastAPI/SQLite/[technology X] for this project?"</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Name the real constraint that drove the choice, not just the tool's reputation. For the Full-Stack Task API capstone, a strong answer isn't "Flask is popular" &mdash; it's "the project needed a small number of REST endpoints with request validation and no built-in async requirement, so a lightweight framework was enough; I picked [Flask/FastAPI] specifically because [it has the least ceremony for a project this size / its built-in request validation matched what the API needed]." The best version of this answer also names what you considered and didn't pick, and why &mdash; that's the part that actually demonstrates you made a decision instead of just using whatever the course handed you.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>"Because that's what the tutorial used" or "because it's popular" &mdash; both answers are honest but reveal you copied a default rather than reasoned about fit. It's fine if the real answer <em>is</em> "the course chapter used it and I didn't have a strong reason to deviate" &mdash; but then say that honestly rather than inventing a technical justification after the fact.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What would you use instead if this had to handle 10x the traffic?" (A good answer names a real next step &mdash; connection pooling, a production WSGI/ASGI server instead of the dev server, caching, or a different database engine &mdash; and explains what specifically about the current setup wouldn't hold up, rather than a vague "I'd optimize it.")</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> "What would you do differently if you rebuilt this today?"</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>This question is a trap for two opposite failure modes, and the strong answer avoids both: it's not "nothing, I'm happy with it" (reads as either dishonest or a lack of self-critique), and it's not a laundry list of everything you'd change (reads as if you don't actually believe in what you shipped). One or two specific, genuine improvements &mdash; ideally ones that show you understand a real tradeoff, like "I'd add proper database migrations from day one instead of hand-editing the schema, because by the third schema change I was manually patching data and that doesn't scale past a toy project." Tie each one to something you learned building it, not something you'd have known from the start &mdash; that's what makes it read as genuine hindsight instead of a rehearsed line.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>An answer that's actually a criticism of the assignment/course rather than your own decisions ("the project spec should have required X") &mdash; that deflects ownership instead of demonstrating it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Would that change be worth the time it'd cost, for a project at this scale?" (A strong candidate can say "no, honestly, for a portfolio project of this size it wouldn't have been worth it" &mdash; that's not a contradiction of the first answer, it shows you can separate "what's technically better" from "what's the right call given the actual constraints," which is the real skill being tested.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> How do you decide what to test in a personal project versus what you'd test on a work project?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>On a work project, test coverage is often driven by risk to other people &mdash; a bug ships to real users, breaks a teammate's code that depends on yours, or costs the business money, so coverage decisions weigh blast radius and how often that code path changes. On a personal capstone, the honest calculus is different: you're the only stakeholder, so testing is worth doing where it (a) protects against silent data corruption (the Finance Tracker's balance calculations, the Task API's persistence layer) or (b) documents expected behavior so you can safely refactor later without re-verifying everything by hand. It's reasonable to skip exhaustive edge-case coverage on a throwaway CLI flag and instead concentrate tests on the core logic that everything else depends on &mdash; naming that tradeoff explicitly is more convincing than claiming "I tested everything," which is rarely true and rarely necessary.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming 100% coverage on a portfolio project without being able to say what those tests actually check &mdash; a number without substance behind it invites a follow-up you can't answer.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"In the Task API capstone, which endpoint would you prioritize testing first, and why?" (Whatever writes/mutates persistent data &mdash; create/update/delete &mdash; over a read-only list endpoint, because a bug in a read path shows a wrong result once, while a bug in a write path can corrupt stored data that every subsequent read then serves back incorrectly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What's the difference between a tutorial project and a portfolio project on your resume?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A tutorial project is built by following someone else's exact steps to a known destination &mdash; the value is in the doing, but the artifact itself doesn't demonstrate independent judgment because every decision was already made for you. A portfolio project earns that name when it required decisions with no single correct answer: what to build, how to scope it, which tradeoffs to accept, what to test, how to structure the code. The five capstones in this course are explicitly built to cross that line &mdash; combining chapters, requiring real scoping decisions (what does "done" mean for this project?), and, in the Open-Source Contribution Simulation, requiring you to extend your own past work rather than follow a spec at all. What makes something resume-worthy isn't complexity, it's that you can defend the decisions in it under questioning.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Listing a project on a resume that you can't explain a single non-obvious decision from &mdash; that's the tell that it was closely followed rather than genuinely built, and a competent interviewer finds this out in under two follow-up questions.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is it dishonest to list a project you built by closely following a course's starter/solution structure, like these capstones?" (No &mdash; as long as you can speak honestly to what you understood, what you'd change, and what decisions were genuinely yours versus scaffolded by the course. The dishonesty risk isn't in using structured learning material, it's in overstating independence you didn't actually have if asked directly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> How do you talk about an unfinished or partially-scoped project honestly, without it sounding like an excuse?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>State what's done, plainly, before what isn't &mdash; "the core CRUD API and test suite are complete and the CI pipeline runs on every push; I scoped out authentication because the goal was demonstrating the database and testing layers, not building a full auth system" reads as a deliberate scope decision, not an abandoned project. The failure mode to avoid is either hiding the gap (an interviewer who digs in and finds it unprompted will trust the rest of your answers less) or apologizing for it at length (which makes a reasonable scoping call sound like a failure). Naming <em>why</em> something was left out &mdash; time, deliberate focus, or a real blocker you'd solve differently next time &mdash; is what separates "unfinished" from "scoped."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming a project is "basically done" when a core feature described in your own pitch doesn't actually work &mdash; this is discoverable the moment an interviewer asks to see it run, and the credibility cost is much higher than just saying "I scoped that out."</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If I asked you to run this project right now, would it run?" (Know your own honest answer to this before the interview, for every project on your resume &mdash; if the answer is no, either fix it beforehand or have a specific, factual explanation ready, not a vague "it should mostly work.")</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What's your process for scoping a new project before writing any code?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Start from the smallest version that's still genuinely useful &mdash; a minimum viable version, not a wish list &mdash; then explicitly write down what's out of scope for version one, so "out of scope" is a decision you made on purpose rather than something that got quietly dropped under time pressure. For a capstone like the Data Insights CLI, that might mean: version one reads a single CSV format and supports three analysis commands, with multi-format support and a config file explicitly deferred. The habit worth having is writing the out-of-scope list down somewhere, even informally, before starting &mdash; it's the difference between a project that stops in a controlled, plannable way and one that just runs out of time mid-feature.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Starting to code before deciding what "done" looks like &mdash; this is the single most common cause of the scope creep and unfinished-feature problems that show up later in the answer to question 6.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How do you know when a project is 'done enough' to stop?" (When it does everything in the version-one scope you wrote down at the start, reliably, and any remaining ideas are genuinely version-two material rather than things that were secretly required all along &mdash; if you find yourself unable to answer without listing new features, that's a sign the original scope was never actually written down.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How would you explain a specific architecture decision &mdash; say, splitting the Task API into a persistence layer and a route layer &mdash; to a non-technical interviewer versus a technical one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>To a non-technical listener (a recruiter, a hiring manager outside engineering): describe the <em>consequence</em>, not the mechanism &mdash; "I organized the code so the part that talks to the database is separate from the part that handles web requests, which means I can change how data is stored later without having to rewrite how the API responds, and I can test the data logic without needing a running server." To a technical interviewer: name the actual pattern and its tradeoff &mdash; "I separated the data-access layer from the route handlers so route functions stay thin and the persistence logic is unit-testable in isolation from Flask/FastAPI's request-response cycle, at the cost of an extra layer of indirection for what's currently a small API." Same decision, two altitudes &mdash; the skill being tested is recognizing which altitude the question needs, not memorizing two scripts.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Giving the technical-jargon version to a non-technical interviewer (or the reverse: an oversimplified answer to someone who clearly wants engineering depth) &mdash; both signal you're not reading the room, which is itself a communication skill interviewers are evaluating.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a real cost of that separation, not just a benefit?" (More files and indirection to navigate for a project this small &mdash; a single-file script would arguably be easier to read start to finish for something this size. A strong answer can name the real cost honestly rather than presenting the decision as strictly better with no tradeoff.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> In the Personal Finance Tracker capstone, why model transactions and accounts as classes instead of dictionaries?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A class bundles data with the behavior and invariants that should always hold for it &mdash; an <code>Account</code> class can guarantee its balance is only ever changed through a method that also validates the change (rejecting a withdrawal that would overdraw, for instance), where a dictionary has no way to stop any code anywhere from mutating <code>account["balance"]</code> directly and skipping that check. Inheritance also lets shared behavior (e.g. every transaction type needing a timestamp and a category) live in one base class instead of being copy-pasted across every dict-construction site. The real payoff isn't "classes are more professional" &mdash; it's that invariants become enforceable in one place instead of relying on every caller remembering to check them.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>"Because OOP is what real companies use" with no mention of what invariant or behavior the class actually protects &mdash; that's citing the pattern's reputation, not its mechanism.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"When would a dictionary have been the better choice here instead?" (For genuinely simple, throwaway data with no behavior attached to it &mdash; a class with no methods beyond `__init__` is often just a dictionary with more ceremony. Recognizing that not every piece of data needs to be a class is part of showing real judgment, not blanket OOP enthusiasm.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> In the Ops Toolkit capstone, why bundle a log analyzer, a resume scanner, and an API fetcher into one CLI instead of three separate scripts?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The honest technical answer: they don't share business logic, so bundling them is mostly about delivery and discoverability, not code reuse &mdash; one installable tool with subcommands (<code>ops logs</code>, <code>ops scan</code>, <code>ops fetch</code>) is easier to install, document, and remember than three separately-named scripts a user has to track independently. What they <em>do</em> share is infrastructure: argument parsing conventions, error handling style, and logging setup, which a shared subcommand structure lets you write once instead of three times. Naming this honestly &mdash; "these are unrelated tools sharing a delivery mechanism, not a cohesive domain" &mdash; is a stronger answer than inventing a false narrative that they're deeply related.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Overselling the three subcommands as a unified "ops platform" with invented synergy between unrelated tools &mdash; interviewers who ask a follow-up on the specific shared logic will notice there isn't much.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the actual argument for a single argparse-subcommand tool versus three files someone runs individually?" (Distribution and discoverability &mdash; one `pip install` and `ops --help` shows every capability in one place, versus three separately-installed, separately-documented scripts a user has to already know exist. It's a packaging/UX argument, not a code-architecture one.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> The Open-Source Contribution Simulation capstone has you fork, branch, and PR against your own earlier project instead of a new codebase. Why is that a legitimate interview talking point?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>It demonstrates a real, distinct skill that building something from scratch doesn't: reading and safely extending <em>someone else's</em> (in this case, your own past) code without breaking what already works &mdash; understanding existing structure before changing it, writing a focused branch and PR instead of a sprawling one, and going through review-style scrutiny of a diff rather than just shipping. That's genuinely closer to day-one-on-the-job reality than any greenfield capstone, since almost all professional engineering work is extending an existing codebase, not starting one. Framed honestly in an interview: "I simulated the fork/branch/PR/review workflow by meaningfully extending my own Task API capstone with a new feature, through a real PR with a description and a self-review, to practice the collaboration mechanics separately from the coding."</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing it as "real open-source contribution" without the honest caveat that it's a simulation against your own project &mdash; the value is genuine, but overstating it as contributing to an actual external OSS project is a claim that falls apart under a specific follow-up question about which project and who reviewed it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's genuinely different about writing a PR against your own old code versus a stranger's?" (Less unfamiliar-code archaeology since you wrote it, but the review discipline &mdash; a focused diff, a clear PR description, resisting the urge to rewrite unrelated things while you're in there &mdash; is the same skill either way, and that discipline, not the code-reading difficulty, is what the exercise is actually practicing.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What's the difference between "scope creep" and a project legitimately growing as you learn more?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Scope creep is unplanned growth &mdash; features added because they seemed easy or interesting in the moment, without revisiting whether they still serve the original goal, usually at the cost of ever finishing the original scope. Legitimate growth is a deliberate re-scoping: you learned something that changed what "done" should mean, you consciously decided the new goal is worth the added time, and you can still say clearly what's in and out of the new scope. The practical test: if you can't say why a feature is in the project beyond "I added it while I was in there," that's scope creep; if you can name the specific reason the original plan turned out to be wrong, that's a real scope revision.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>A project with no finished core because every sub-feature is "almost done" &mdash; the giveaway pattern of scope creep is breadth without depth: many things half-built instead of the originally-scoped thing fully working.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Which of your five capstones was most at risk of scope creep, and why?" (Whichever had the vaguest original goal &mdash; the Data Insights CLI and Ops Toolkit, which bundle multiple sub-tools, are naturally more exposed than the single-purpose Task API, simply because "which analyses/subcommands count as core" is a fuzzier line than a fixed CRUD API surface.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What does "disclosing technical debt" mean in an interview context, and why would you ever volunteer it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Technical debt is a shortcut taken deliberately to move faster now, at a known cost paid later &mdash; e.g. the Finance Tracker capstone storing all data in a single unindexed SQLite table because a normalized multi-table schema wasn't needed yet at this scale. Disclosing it well means naming the shortcut, why it was reasonable given the project's actual scale and timeline, and what would trigger revisiting it (a specific future condition, like "if this needed multi-user support" or "past a few thousand rows"). Volunteering this &mdash; rather than waiting to be asked, or hoping it isn't noticed &mdash; signals you understand the difference between a shortcut and a mistake, which is exactly the judgment a senior engineer is expected to have and a junior one is being screened for.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Presenting every shortcut as a deliberate, well-reasoned tradeoff after the fact when it was actually just something you didn't know how to do better at the time &mdash; interviewers can generally tell the difference through a follow-up question, and honesty ("I didn't know the better pattern yet, I'd do X now") reads better than a retrofitted justification.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give a concrete example of technical debt in one of your five capstones." (A specific, real one is much stronger than a generic answer &mdash; e.g. "the Ops Toolkit's API fetcher capstone doesn't cache responses, so re-running it re-fetches everything; fine for occasional manual runs, would need caching or rate-limit handling if it were scheduled to run frequently.")</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> An interviewer asks you to pick your strongest of the five capstones to discuss in depth. How do you decide which one, and how do you use the other four?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Pick the one where you made the most genuine decisions and can go deepest under follow-up questioning &mdash; not necessarily the most visually impressive or the one that took longest. A CLI tool you deeply understand beats a fancier project you can only describe at the surface level, because the interview is testing depth of understanding, not project scope. Use the other four as backup material for specific follow-up angles: the Task API for questions about testing and CI/CD, the Finance Tracker for OOP-design questions, the Ops Toolkit for CLI/UX and file-handling questions, the Data Insights CLI for questions about turning exploratory data work into a shippable tool, and the Open-Source Simulation for collaboration-workflow questions &mdash; each capstone maps to a different cluster of interview questions, and knowing which one to reach for when the conversation shifts is itself a sign of preparation.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Picking a project to lead with purely because it "sounds impressive" when you can't actually defend its decisions under a follow-up &mdash; this backfires immediately once the conversation goes past the rehearsed summary.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What if the interviewer asks about a capstone you're less confident on?" (Answer honestly at the depth you actually have, and it's fine to say plainly "that one I scoped more lightly and I'm less deep on the internals than the Task API" &mdash; that's a more credible answer than faking depth you don't have and getting caught by the next question.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check. This chapter's rapid-fire covers portfolio/interview vocabulary, not code output.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> The smallest version of a project that's still genuinely useful is called the ____ (often abbreviated MVP).</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="minimum viable product,minimum viable project" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> Unplanned feature growth that happens without revisiting the original goal is called scope ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="creep" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> A deliberate shortcut taken now, at a known cost to be paid later, is called technical ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="debt" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> A strong "walk me through a project" answer covers problem, approach, a real ____ and why, a mistake and what you learned, and the outcome.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="decision" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> Explaining an architecture decision by its consequence rather than its mechanism is the right approach for a ____-technical interviewer.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="non" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> A project built by closely following someone else's exact steps to a known destination is a ____ project, not a portfolio project.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="tutorial" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> When discussing an unfinished project, you should state what's ____ before what isn't.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="done,complete,finished" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> On a personal project, testing is often prioritized around what protects against silent data ____ rather than blast radius to other people.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="corruption" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> The Open-Source Contribution Simulation capstone practices the fork/branch/PR/____ workflow against your own earlier project.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="review" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Choosing a technology because "the tutorial used it" instead of stating a real constraint is a common interview red ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="flag" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> Writing down what's explicitly out of ____ before writing code is what turns an unplanned gap into a deliberate decision.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="scope" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> "What would you do differently if you rebuilt this today?" is best answered with one or two ____ improvements, not a long list.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="specific" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A tutorial project becomes a real portfolio project once it requires decisions with no single correct ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="answer" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> Picking which capstone to lead with should be based on which one you understand most ____, not which sounds most impressive.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="deeply,deeply.,in depth,thoroughly" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about your capstones in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Lesson</a>
+    <a href="capstones/README.md">Browse the Capstones &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

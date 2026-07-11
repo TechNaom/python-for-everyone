@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 32: Capstone Projects — Python for Everyone</title>
+<meta name="description" content="How to scope, plan, and execute a portfolio-worthy capstone project -- MVP-first roadmaps, combining skills across chapters, writing a README that gets you hired, and the 5 capstones in this course.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-32">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 32 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">45 min read</span>
+  </div>
+  <h1>Capstone Projects</h1>
+  <p><em>Every chapter so far has ended with a project you could finish in an hour or two. That was deliberate &mdash; each one was scoped tightly around that chapter's own skill. A capstone is different on purpose: it's bigger, it takes days instead of hours, and nobody hands you a starter file with the shape already decided. This chapter doesn't teach new Python syntax at all &mdash; it teaches the planning skill that actually determines whether a multi-day project ships or stalls out half-finished: how to scope it, how to combine skills from chapters you've already learned, and how to write it up so it's genuinely worth putting in front of an employer.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> covers what actually makes a portfolio project worth showing &mdash; and what doesn't, even if it works.</li>
+      <li><strong>Sub-topic 2</strong> covers scoping: breaking a big idea into an MVP plus stretch goals, and the specific trap of over-scoping a first capstone.</li>
+      <li><strong>Sub-topic 3</strong> covers identifying which earlier chapters' skills compose into a bigger idea.</li>
+      <li><strong>Sub-topic 4</strong> covers the anatomy of a capstone README that actually gets read by a hiring manager.</li>
+      <li><strong>Sub-topic 5</strong> introduces the 5 capstones built for this course, and links to each one's own roadmap doc.</li>
+      <li><strong>Sub-topic 6</strong> covers how to choose which capstone(s) to build, and how to scope your own README honestly if you only finish part of one.</li>
+      <li><strong>A note on this chapter's shape:</strong> there's no <code>exercises/</code>, no <code>practice/</code>, and no <code>challenges.html</code> here &mdash; those formats are built for auto-graded, single-sitting problems, and a multi-day capstone build doesn't fit that mold. This lesson, the quiz, and the interview questions are the whole chapter; the real work happens in the 5 capstone roadmap docs it links to.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#what-makes-it-worth-showing">1. What makes a portfolio project worth showing</a>
+    <a href="#scoping-a-capstone">2. Scoping a capstone</a>
+    <a href="#combining-skills">3. Combining skills from multiple chapters</a>
+    <a href="#writing-the-readme">4. Writing a capstone README that gets you hired</a>
+    <a href="#the-5-capstones">5. The 5 capstones in this course</a>
+    <a href="#picking-a-capstone">6. How to pick which capstone(s) to build</a>
+  </nav>
+
+  <div class="hook">
+    Two candidates both submit a GitHub link with a working Python project. One is a to-do list app that looks exactly like every to-do list tutorial on YouTube &mdash; same features, same structure, no tests, a README that says "A simple to-do app built with Python." The other is a smaller, rougher project, but its README explains why it stores data the way it does, admits what it would change for production, and has a handful of tests proving the tricky parts actually work. A reviewer spends thirty seconds on each. Only one of them proves the candidate can think, not just follow instructions. This chapter is about deliberately becoming the second candidate.
+  </div>
+
+  <div class="subtopic" id="what-makes-it-worth-showing">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. What makes a portfolio project worth showing</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>"It works" is the minimum bar, not the goal &mdash; a reviewer assumes your code runs; what they're actually evaluating is the decisions behind it.</li>
+        <li>A project that looks identical to a well-known tutorial signals "I followed instructions," not "I can build something."</li>
+        <li>The signal that actually reads as hireable: real scope decisions, a real (or realistic) use case, some tests, and a README that explains <em>why</em>, not just <em>what</em>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> most self-taught portfolios are full of technically-working projects that all fail the same way &mdash; they prove you can type code someone else already designed, not that you can make the calls a working developer makes every day: what to build first, what to leave out, and how to explain a trade-off honestly.
+    </div>
+
+    <p>
+      "I followed a tutorial" and "I made real decisions" can produce visually
+      similar code &mdash; the difference is invisible in a screenshot and only
+      shows up when you look closer:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Scope was chosen, not copied.</strong> The feature list matches a real problem the builder cared about, not a fixed checklist from a course.</li>
+      <li><strong>The data or use case is real, or realistically framed.</strong> Not three rows of placeholder <code>"foo"</code>/<code>"bar"</code> data &mdash; a dataset, input format, or workflow that resembles something an actual user would hit.</li>
+      <li><strong>Something is tested.</strong> Not necessarily exhaustive coverage &mdash; but the tricky logic (the part most likely to have a bug) has at least a few tests proving it, the way Chapter 27 covered.</li>
+      <li><strong>The README explains reasoning, not just usage.</strong> "Here's how to run it" is necessary but not sufficient &mdash; "here's why I stored data this way instead of the obvious alternative" is what actually differentiates the project.</li>
+    </ul>
+
+    <div class="what-is">
+      <span class="label">What is... a portfolio project?</span>
+      In a hiring context, a <strong>portfolio project</strong> is any piece of work a candidate points to as evidence of real ability &mdash; distinct from a resume bullet point, which is just a claim. Its entire value is that it's <em>checkable</em>: a reviewer can open the repo, read the code, and see for themselves whether the claims on the resume hold up. That's also exactly why a copy-of-a-tutorial project undercuts itself &mdash; the moment a reviewer recognizes the tutorial, the "checkable evidence" becomes evidence of the tutorial's quality, not yours.
+    </div>
+
+    <p>
+      None of this means a capstone has to be original in some grand sense &mdash;
+      almost every project idea has been built before, many times. What has to
+      be original is the specific set of decisions: which features made the
+      cut, which data shape you chose, which trade-off you accepted and can
+      explain. Two people can build "a task API" from the exact same course
+      and end up with genuinely different, individually defensible projects.
+    </p>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>"It works" is table stakes &mdash; what actually gets evaluated is the decisions behind the code.</li>
+        <li>Real scope, a realistic use case, some tests, and a reasoning-first README are what separate a capstone from a copied tutorial.</li>
+        <li>Originality lives in the decisions, not in inventing a never-before-built idea.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="scoping-a-capstone">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Scoping a capstone</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A capstone needs a roadmap before it needs code: a small, genuinely finishable core (the <strong>MVP</strong>), plus an explicit list of stretch goals you're allowed to skip.</li>
+        <li><strong>Time-boxing</strong> &mdash; deciding up front how many days or hours a phase gets &mdash; is what stops "just one more feature" from eating the whole project.</li>
+        <li>Over-scoping a first capstone is the single most common way an ambitious learner ends up with nothing finished to show at all.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> an unfinished, over-scoped project is worth less in a portfolio than a small, finished one &mdash; a reviewer can't evaluate decisions in code that doesn't run yet.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an MVP?</span>
+      <strong>MVP</strong> (Minimum Viable Product) is the smallest version of an idea that's genuinely usable end-to-end &mdash; every core feature present, nothing polished, nothing "extra." For a task API, that's create/read/update/delete on one resource with real persistence, not five resources with three half-built. The point of naming it explicitly is that it becomes a real checkpoint: "is the MVP done?" has a yes/no answer, while "am I making good progress?" doesn't.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... time-boxing?</span>
+      <strong>Time-boxing</strong> means assigning a fixed amount of time to a phase of work in advance, and moving on when that time is up &mdash; whether or not the phase feels "done." Applied to a capstone: "MVP gets 3 days, stretch goal 1 gets 1 day, README and tests get 1 day" &mdash; not "I'll build until it feels finished," which for a perfectionist rarely arrives on schedule.
+    </div>
+
+    <p>
+      A roadmap that actually works has three tiers, in this order, and the
+      order matters &mdash; the MVP has to be genuinely runnable before any
+      stretch goal is touched:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>MVP</strong> &mdash; the smallest end-to-end slice. It should be boring to describe: "users can add, view, update, and delete a task." No auth, no extra endpoints, no nice-to-haves yet.</li>
+      <li><strong>Stretch goals</strong> &mdash; a ranked list of what you'd add next, if time allows. Ranked matters: if only one stretch goal gets built, it should be the one at the top, not whichever one happened to sound fun that day.</li>
+      <li><strong>Explicitly out of scope</strong> &mdash; things a capstone in this space could plausibly include but that you're deliberately not attempting (e.g. "no user authentication system, no deployment to a live server"). Writing this list down does real work: it's what turns "I didn't get to it" into "I chose not to," which reads very differently in a README.</li>
+    </ul>
+
+    <p>
+      The over-scoping trap is specific and predictable: a first capstone
+      idea almost always starts as "a full app with users, auth, a
+      database, a REST API, a frontend, deployment, and tests" &mdash; six
+      chapters' worth of skills, attempted simultaneously, with no MVP
+      checkpoint along the way. The fix isn't to want less &mdash; it's to
+      sequence the same ambition: build the MVP first, get it fully working
+      and tested, and only then decide whether there's still time left for
+      the rest.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> an AI assistant is genuinely useful here, but only if you give it your actual constraints (time available, skills you have vs. don't) &mdash; asking it to just "help me plan this project" tends to produce an idealized roadmap with no MVP checkpoint at all, the exact failure mode this sub-topic is warning about.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help scope your capstone:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Help me break this project idea into an MVP and a ranked list of stretch goals..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it proposes against this sub-topic's three-tier structure &mdash; does it actually separate MVP from stretch goals, or does it hand back one flat feature list with no sequencing at all?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I'm scoping a capstone project: [describe your idea in 2-3 sentences]. I have roughly [X days / hours] total to work on it, and I already know [list the skills/chapters you're comfortable with]. Break this into three tiers: (1) a genuinely minimal MVP that's usable end-to-end with no extras -- describe exactly what it can and can't do, (2) a ranked list of 3-5 stretch goals, ordered by which would add the most value if I only have time for one, (3) an explicit "out of scope" list of things this kind of project could plausibly include that I should deliberately skip. Also suggest a rough time-box for the MVP phase alone, given my total time budget.</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Every capstone roadmap needs three tiers: MVP, ranked stretch goals, explicit out-of-scope.</li>
+      <li>Time-boxing each phase (a fixed number of days, decided up front) is what actually protects the schedule from scope creep.</li>
+      <li>Over-scoping is the default first instinct &mdash; the fix is sequencing the same ambition behind an MVP checkpoint, not shrinking the ambition itself.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what if I finish the MVP faster than expected?</summary>
+      <p>
+        Move straight to stretch goal 1, in ranked order &mdash; don't restart
+        planning from scratch. A roadmap finishing ahead of schedule is a
+        good problem to have, but it's still worth resisting the urge to
+        add an unranked, unplanned feature just because there's time; if it's
+        genuinely valuable, it belongs on the stretch-goal list, ranked
+        against the others, not slipped in as an afterthought.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A roadmap has three tiers: MVP, ranked stretch goals, explicit out-of-scope.</li>
+        <li>MVP = the smallest genuinely end-to-end version; time-boxing keeps each phase from running long.</li>
+        <li>Over-scoping a first capstone is the most common reason ambitious learners finish nothing.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="combining-skills">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Combining skills from multiple chapters</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A capstone is defined less by a single new technique than by which earlier chapters' skills it <em>composes</em> into one working system.</li>
+        <li>A useful way to scope an idea: name the 3-5 chapters it draws from, and check that each one is actually load-bearing, not just mentioned.</li>
+        <li>If an idea only really uses one chapter's skill, it's a regular project, not a capstone &mdash; capstones exist specifically to prove skills work together.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a real job rarely uses one skill in isolation &mdash; a backend feature touches a database, an API layer, error handling, and tests all in the same pull request. A capstone is the first time this course asks you to hold that many moving pieces at once on purpose.
+    </div>
+
+    <p>
+      A simple way to find a capstone-worthy idea: list a few earlier
+      chapters whose skills genuinely go together, and see what they add
+      up to.
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">example skill combinations</span>
+      <pre><code>Databases (Ch 20-21) + Web APIs (Ch 22) + Testing (Ch 27)
+    -&gt; a real backend service with persistence, an HTTP layer, and a
+       test suite proving both work together
+
+File/CSV handling (Ch 19) + Data structures (Ch 8-9) + CLI design (Ch 31)
+    -&gt; a command-line tool that ingests real data files and reports on
+       them, packaged the way a real CLI tool ships
+
+Error handling (Ch 13) + Logging (Ch 31) + Automation/scripting
+    -&gt; an "ops toolkit" that behaves safely when things go wrong and
+       leaves a trace of what it did
+
+OOP (Ch 14-16) + File persistence (Ch 19) + Testing (Ch 27)
+    -&gt; a stateful application (tracker, simulator, small game) that
+       saves and reloads its own state reliably</code></pre>
+    </div>
+
+    <p>
+      The check that matters isn't "did I mention four chapters in my
+      README" &mdash; it's whether each one is actually <strong>load-bearing</strong>:
+      if you deleted that chapter's skill from the project, would something
+      genuinely break or disappear? A task API that happens to store data in
+      a file it never really needs isn't "combining file handling and web
+      APIs" &mdash; it's a web API with an incidental file next to it. A task
+      API whose tests specifically catch a bug in how concurrent requests
+      touch that file <em>is</em> combining them for real.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a "load-bearing" skill?</span>
+      Borrowed from construction: a load-bearing wall can't be removed without the structure failing. Applied to a capstone, a chapter's skill is load-bearing if removing it would break something the project actually depends on &mdash; as opposed to a skill that's technically present but doesn't do real work. Naming which chapters are load-bearing in your own project (and being honest when one isn't) is itself part of the planning skill this chapter is teaching.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A capstone idea should draw on 3-5 earlier chapters' skills, not one.</li>
+      <li>Each named skill should be load-bearing &mdash; genuinely necessary, not just present.</li>
+      <li>This is exactly how the 5 capstones in this course (Sub-topic 5) were each designed: around a specific, named skill combination.</li>
+    </ul>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Capstones are defined by which chapters' skills they compose, not one standout technique.</li>
+        <li>List the 3-5 chapters an idea draws from, and check each is load-bearing.</li>
+        <li>An idea using only one chapter's skill is a regular project, not a capstone.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="writing-the-readme">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Writing a capstone README that gets you hired</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A README that only explains <em>how to run</em> a project answers the least interesting question a reviewer has.</li>
+        <li>The README sections that actually move a hiring decision: the problem, the architecture decisions and why, honest limitations, and what you'd change for production.</li>
+        <li>An honest limitations section reads as more senior, not less capable &mdash; it's evidence you know what "production-ready" actually requires.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a hiring reviewer skims dozens of repos; "how to run it" is scannable in five seconds from the code itself, but "why did you build it this way" only exists if you write it down &mdash; and it's the part that actually differentiates candidates.
+    </div>
+
+    <p>
+      Here's the anatomy, roughly in the order a reviewer actually reads it:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Problem statement.</strong> One or two sentences: what real situation does this solve, for whom? Not "a task manager" &mdash; "a task API for a small team that needed status tracking without paying for a project-management SaaS."</li>
+      <li><strong>Architecture &amp; decisions.</strong> The choices that weren't obvious, and why you made them &mdash; "used SQLite instead of a hosted database because this runs locally and doesn't need concurrent multi-user writes," not a restated list of the tech stack.</li>
+      <li><strong>How to run it.</strong> Exact commands, in order, that actually work if copy-pasted &mdash; the boring-but-necessary section.</li>
+      <li><strong>What you'd do differently in production.</strong> Name the corners you cut on purpose to hit scope &mdash; no auth, no rate limiting, in-memory instead of a real queue &mdash; and what you'd add if this were shipping for real.</li>
+      <li><strong>Honest limitations.</strong> What doesn't work yet, what's untested, what edge cases you know are unhandled. This is the section most learners are tempted to skip, and it's the one that most reads as senior when it's there.</li>
+    </ul>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Example</span>
+      <p class="diagram-note">A directory layout that matches this anatomy &mdash; the README sits at the root, not buried where a reviewer has to go looking for it:</p>
+      <pre><code>task-api/
+├── README.md              &lt;- problem, architecture, how to run,
+│                              production notes, limitations
+├── requirements.txt
+├── app/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── routes.py
+│   └── db.py
+├── tests/
+│   └── test_routes.py
+└── .gitignore</code></pre>
+    </div>
+
+    <p>
+      Notice what's <em>not</em> in that anatomy: a wall of badges, a
+      feature list copied from the code's docstrings, or a "future work"
+      section that vaguely gestures at "add more features." Every section
+      above answers a specific question a reviewer actually has &mdash;
+      "what problem," "why built this way," "does it run," "do you know
+      what's missing," in that order.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> asking an AI assistant to "write my README" tends to produce generic boilerplate padded around a feature list &mdash; the useful move is asking it to interview you, or to critique a draft you already wrote against this specific five-part anatomy, so the reasoning stays yours and the AI's job is catching gaps, not inventing content.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to get feedback on your capstone README:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Review my README against these five sections and tell me what's missing or too vague..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, along with your actual draft README, and compare its critique against your own gut sense of what's weak &mdash; a good critique should point at specific missing reasoning, not just suggest generic additions like badges or a table of contents.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Here's my capstone README draft: [paste it]. Review it against this five-part anatomy: (1) a one-to-two-sentence problem statement naming a real situation and audience, (2) an architecture/decisions section explaining WHY non-obvious choices were made, not just listing the tech stack, (3) exact, copy-pasteable run instructions, (4) an honest "what I'd do differently in production" section naming corners cut on purpose, (5) an honest limitations section naming what's untested or unhandled. Tell me which of these five sections is missing or too vague, and for each weak section, ask me a specific question that would help me write a stronger version -- don't just write the content for me.</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A README's most valuable sections are the ones code alone can't answer: why, not just what.</li>
+      <li>Anatomy: problem statement, architecture decisions, how to run, production trade-offs, honest limitations.</li>
+      <li>An honest limitations section is a signal of seniority, not a confession of failure.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: how long should a capstone README actually be?</summary>
+      <p>
+        Long enough to cover all five sections with real content, short
+        enough that a reviewer reads the whole thing in under two minutes
+        &mdash; usually somewhere between half a page and a full page of
+        rendered Markdown. A ten-page README is nearly as bad a signal as a
+        two-line one: it usually means padding, not depth. If a section has
+        nothing substantive to say (a truly trivial project might have no
+        real "production trade-offs"), it's fine to say so briefly rather
+        than stretching it.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>"How to run it" is necessary but not the section that differentiates a capstone.</li>
+        <li>Cover problem statement, architecture decisions, how to run, production trade-offs, and honest limitations.</li>
+        <li>Admitting what's unfinished or untested reads as senior judgment, not a weakness to hide.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="the-5-capstones">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. The 5 capstones in this course</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>This course ships 5 full capstone roadmaps, each combining a different set of earlier chapters' skills.</li>
+        <li>Each one is a full standalone doc &mdash; problem framing, MVP, stretch goals, and structure &mdash; not just an idea in a paragraph.</li>
+        <li>You're not expected to build all 5 &mdash; Sub-topic 6 covers how to choose.</li>
+      </ul>
+    </div>
+
+    <p>
+      Each capstone below has its own roadmap doc with the full MVP /
+      stretch-goal / structure breakdown &mdash; this is just the pitch for
+      each, and the chapters it leans on hardest.
+    </p>
+
+    <div class="task-card">
+      <h3><span class="task-num">1</span> Full-Stack Task API</h3>
+      <p>A real backend service &mdash; a Flask/FastAPI Task API backed by a real SQLite database instead of an in-memory dict, a pytest suite proving the two work together correctly (not just individually), and a GitHub Actions pipeline that runs that suite on every push. This is the closest of the five to a standard "backend engineer" portfolio piece, and the one most directly transferable to a junior backend or full-stack role.</p>
+      <p><strong>Leans on:</strong> Ch21 (databases), Ch22 (web APIs/Flask &amp; FastAPI), Ch27 (testing), Ch30 (CI/CD).</p>
+      <p><a href="capstones/capstone-1-task-api.md">Open the Full-Stack Task API roadmap &rarr;</a></p>
+    </div>
+
+    <div class="task-card">
+      <h3><span class="task-num">2</span> Data Insights CLI</h3>
+      <p>Takes the pandas analysis pipeline from an earlier chapter's sales-data dashboard and repackages it as a real, installable command-line tool &mdash; proper package structure, subcommands, a working <code>pyproject.toml</code> &mdash; something someone else could <code>pip install</code> and run against their own CSV, not a script with hardcoded values.</p>
+      <p><strong>Leans on:</strong> Ch23 (NumPy), Ch24 (Pandas), Ch31 (argparse &amp; packaging).</p>
+      <p><a href="capstones/capstone-2-data-cli.md">Open the Data Insights CLI roadmap &rarr;</a></p>
+    </div>
+
+    <div class="task-card">
+      <h3><span class="task-num">3</span> Ops Toolkit</h3>
+      <p>Takes three separate tools you already built &mdash; a log-file analyzer, a resume/keyword scanner, and an API data fetcher &mdash; and unifies them into one multi-subcommand CLI with consistent conventions across all three: shared output formatting, shared error handling, one <code>--help</code> system. The point isn't any single tool; it's proving you can take three scripts that don't feel related and make them feel like one coherent product.</p>
+      <p><strong>Leans on:</strong> Ch13 (file/CSV handling), Ch18 (regex), Ch19 (APIs/JSON), Ch31 (packaging pattern).</p>
+      <p><a href="capstones/capstone-3-ops-toolkit.md">Open the Ops Toolkit roadmap &rarr;</a></p>
+    </div>
+
+    <div class="task-card">
+      <h3><span class="task-num">4</span> Personal Finance Tracker</h3>
+      <p>A genuinely new build, not a repackaging of an earlier project &mdash; a real polymorphic <code>Transaction</code>/<code>Income</code>/<code>Expense</code> class hierarchy, persisted to SQLite, with a full pytest suite and a packaged CLI. This is the "prove you can design real OOP, not just follow a template" capstone &mdash; getting the data model right (inheritance that's actually load-bearing, not forced) matters more than any single feature.</p>
+      <p><strong>Leans on:</strong> Ch14&ndash;16 (OOP &amp; inheritance), Ch21 (databases), Ch27 (testing), Ch31 (packaging).</p>
+      <p><a href="capstones/capstone-4-finance-tracker.md">Open the Personal Finance Tracker roadmap &rarr;</a></p>
+    </div>
+
+    <div class="task-card">
+      <h3><span class="task-num">5</span> Open-Source Contribution Simulation</h3>
+      <p>Not a from-scratch build &mdash; a simulated version of the actual workflow of contributing to someone else's codebase: reading unfamiliar code, finding and fixing a real bug, writing a test that proves the fix, and opening the kind of pull request description a maintainer would actually want to review. This is the capstone most directly aimed at proving you can work inside code you didn't write, which is most of what a real engineering job actually is.</p>
+      <p><strong>Leans on:</strong> Git/GitHub workflow, testing, reading/debugging unfamiliar code, professional communication.</p>
+      <p><a href="capstones/capstone-5-oss-simulation.md">Open the Open-Source Contribution Simulation roadmap &rarr;</a></p>
+    </div>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>5 capstones, each combining a different set of earlier chapters' skills: Task API, Data CLI, Ops Toolkit, Finance Tracker, OSS Simulation.</li>
+        <li>Each has its own full roadmap doc &mdash; this section is the pitch, not the plan.</li>
+        <li>Sub-topic 6 covers choosing which one(s) to actually build.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="picking-a-capstone">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. How to pick which capstone(s) to build</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Build at least one capstone all the way to a finished MVP; two, with genuinely different skill combinations, makes a stronger portfolio than one.</li>
+        <li>Choose based on the job or domain you're actually targeting, not which one sounds most impressive in the abstract.</li>
+        <li>Partially completing one is fine &mdash; as long as your README is honest about what's done versus planned, per Sub-topic 4.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> five finished capstones would obviously make the strongest portfolio, but "obviously strongest, unrealistic to finish" is worse advice than "genuinely finishable" &mdash; this course would rather you ship one honestly-scoped capstone than start five and finish none.
+    </div>
+
+    <p>
+      A simple way to choose: match the capstone's skill combination to the
+      kind of role you're targeting.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Targeting backend/full-stack roles?</strong> The Full-Stack Task API is the most directly relevant &mdash; it's the closest match to what an actual junior backend ticket looks like.</li>
+      <li><strong>Targeting data/analytics-adjacent roles?</strong> The Data Insights CLI demonstrates comfort with real datasets and turning them into something usable, without needing a full data-science stack this course hasn't covered.</li>
+      <li><strong>Targeting DevOps/SRE/infrastructure-adjacent roles?</strong> The Ops Toolkit is the most on-theme &mdash; it's literally the category of script that role writes daily.</li>
+      <li><strong>Want to show sustained, careful modeling of a real domain?</strong> The Personal Finance Tracker rewards getting a data model right over time, which reads well for roles that care about correctness and data integrity.</li>
+      <li><strong>Want to prove you can work inside someone else's code, not just your own?</strong> The Open-Source Contribution Simulation is unique among the five for testing exactly that &mdash; genuinely valuable no matter what role you're targeting, since almost every real job is mostly this.</li>
+    </ul>
+
+    <p>
+      If you can't decide, build two with deliberately different skill
+      combinations &mdash; say, the Task API (backend-heavy) and the OSS
+      Simulation (code-reading-heavy) &mdash; rather than two that mostly
+      overlap. Two capstones that each prove a different kind of
+      competence tell a reviewer more than two that both prove the same
+      one twice.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a "scoped-down" capstone?</span>
+      A <strong>scoped-down capstone</strong> is a capstone whose README honestly narrows its own MVP claim to match what actually got built &mdash; e.g. "this README originally planned full CRUD plus authentication; what's actually finished is CRUD without auth, documented below as a stretch goal I ran out of time for." This is not a failure state. A capstone that's honestly scoped down and fully working beats one that claims everything from Sub-topic 5's pitch but has broken or missing pieces a reviewer discovers by actually running it.
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the useful AI-assisted move at this stage isn't "which capstone should I pick" in the abstract &mdash; it's giving the assistant your actual constraints (time available, target role, current comfort with each chapter) so the suggestion is grounded, then treating its answer as one input to your own decision, not the decision itself.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help you choose:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Given my target role and time budget, which of these 5 capstones should I build first, and why..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and weigh its suggestion against your own read of Sub-topic 5's five pitches &mdash; a good answer should reference your actual constraints, not just restate the generic pitch for whichever capstone it picks.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I'm choosing between 5 capstone projects from a Python course: a Full-Stack Task API (backend/REST/testing), a Data Insights CLI (file handling/CLI/data structures), an Ops Toolkit (error handling/logging/automation), a Personal Finance Tracker (OOP/persistence/data modeling), and an Open-Source Contribution Simulation (Git workflow/reading unfamiliar code/testing). I'm targeting [describe the role/domain you want], I have roughly [X days/weeks], and I'm most comfortable with [list chapters/skills]. Recommend which one (or which two, if I have time for two with different skill combinations) I should build, and explain specifically why it fits my target role better than the others -- not just a generic description of the capstone itself.</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Build at least one capstone to a finished MVP; two with different skill combinations is stronger than one.</li>
+      <li>Choose based on the role/domain you're targeting, using each capstone's skill combination as the match criterion.</li>
+      <li>A partially finished capstone is fine if the README honestly scopes down its claims to match what's actually built and working.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: should I list all 5 pitches in my resume, or just what I built?</summary>
+      <p>
+        Only list what you actually built and can defend in an interview.
+        Naming a capstone you didn't finish (even "in progress") invites a
+        question you can't answer well. It's completely fine, and often a
+        good sign, to mention in an interview that you deliberately scoped
+        down or chose one capstone over another for time reasons &mdash;
+        that's the same honest-scoping judgment this whole chapter is
+        teaching, just spoken instead of written.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Aim for at least one finished capstone; two with different skill combinations is a stronger portfolio than one.</li>
+        <li>Pick based on the role/domain you're targeting, matched against each capstone's skill combination.</li>
+        <li>A scoped-down, honestly-documented partial capstone beats an over-claimed one that doesn't hold up when run.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every real engineering project starts as a scoping exercise before a single line of code is written &mdash; sprint planning, RFCs, and design docs are all the professional version of the MVP/stretch-goal/out-of-scope roadmap this chapter teaches.</li>
+      <li>Hiring managers and technical interviewers routinely ask "walk me through a project you built and why you made the decisions you did" &mdash; a capstone with a strong README is quite literally rehearsed material for that exact question.</li>
+      <li>"What would you do differently in production" is one of the most common interview questions asked about a candidate's own portfolio project &mdash; because it tests whether you actually understand the gap between "works on my machine" and "ready to ship," not just whether the code runs.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>A portfolio project is judged on the decisions behind it, not just whether it runs &mdash; real scope, a realistic use case, some tests, and reasoning in the README are what separate it from a copied tutorial.</li>
+      <li>Scope every capstone in three tiers: a genuinely minimal MVP, a ranked list of stretch goals, and an explicit out-of-scope list &mdash; time-box each phase to protect against over-scoping, the most common reason ambitious first capstones go unfinished.</li>
+      <li>A capstone is defined by which earlier chapters' skills it composes together, not one standout technique &mdash; each named skill should be load-bearing, genuinely necessary to the project, not just present.</li>
+      <li>A hireable README covers five things a reviewer actually wants to know: the problem, the architecture decisions and why, how to run it, what you'd change in production, and an honest limitations section.</li>
+      <li>This course ships 5 capstones &mdash; Full-Stack Task API, Data Insights CLI, Ops Toolkit, Personal Finance Tracker, and Open-Source Contribution Simulation &mdash; each with its own roadmap doc and a different skill combination.</li>
+      <li>Build at least one capstone to a finished MVP, ideally two with different skill combinations, chosen based on the role or domain you're targeting. A partially finished, honestly-scoped-down capstone is a stronger portfolio piece than an over-claimed one that doesn't hold up when run.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

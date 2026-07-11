@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 32 Quiz — Python for Everyone</title>
+<meta name="description" content="Fill-in-the-blank quiz for Chapter 32: Capstone Projects -- scoping, MVPs, time-boxing, combining skills, README anatomy, and choosing a capstone.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-32" data-active-chapter="chapter-32">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 32 Quiz</span>
+  <h1>Capstone Projects</h1>
+  <p>Fill in each blank and press its <strong>Check</strong> button (or press Enter). This quiz tests planning and scoping judgment, not code output &mdash; the same skill Sub-topics 1-6 covered.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="q1"><span class="q-num">1</span> A project that just proves the code runs, without explaining the reasoning behind its decisions, is not enough on its own &mdash; a reviewer is really evaluating the ____ behind the code, not just whether it works.</label>
+      <div class="fib-row">
+        <input type="text" id="q1" class="fib-blank" data-answers="decisions" aria-label="Answer for question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> A project that looks identical to a well-known tutorial signals "I followed instructions" rather than "I can ____ something."</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="build" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q3"><span class="q-num">3</span> The smallest version of an idea that's genuinely usable end-to-end, with every core feature present but nothing polished or extra, is called the ____ (a three-letter acronym).</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="MVP,mvp" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q4"><span class="q-num">4</span> Assigning a fixed amount of time to a phase of work in advance, and moving on when that time is up whether or not it feels finished, is called ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q4" class="fib-blank" data-answers="time-boxing,timeboxing,time boxing" aria-label="Answer for question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q5"><span class="q-num">5</span> A capstone roadmap should have three tiers: MVP, a ranked list of stretch goals, and an explicit ____ list of things deliberately not attempted.</label>
+      <div class="fib-row">
+        <input type="text" id="q5" class="fib-blank" data-answers="out-of-scope,out of scope" aria-label="Answer for question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> The single most common way an ambitious learner ends up with nothing finished to show is ____-scoping a first capstone.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="over" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q7"><span class="q-num">7</span> A capstone is best scoped around 3-5 earlier chapters' skills that genuinely ____ into one working system, rather than a single new technique.</label>
+      <div class="fib-row">
+        <input type="text" id="q7" class="fib-blank" data-answers="compose,combine" aria-label="Answer for question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q8"><span class="q-num">8</span> A chapter's skill is ____ if removing it would break something the project genuinely depends on, rather than just being present without doing real work.</label>
+      <div class="fib-row">
+        <input type="text" id="q8" class="fib-blank" data-answers="load-bearing,load bearing" aria-label="Answer for question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q9"><span class="q-num">9</span> An idea that only really uses one chapter's skill is a regular project, not a ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q9" class="fib-blank" data-answers="capstone" aria-label="Answer for question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> A capstone README's most valuable sections answer questions the code alone can't &mdash; ____ a decision was made, not just what the code does.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="why" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q11"><span class="q-num">11</span> A README section naming what doesn't work yet or what's untested is called the ____ section, and it reads as senior judgment rather than a weakness to hide.</label>
+      <div class="fib-row">
+        <input type="text" id="q11" class="fib-blank" data-answers="limitations,honest limitations" aria-label="Answer for question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q12"><span class="q-num">12</span> "What would you do differently in ____" is a standard README section explaining which corners were cut on purpose to hit scope.</label>
+      <div class="fib-row">
+        <input type="text" id="q12" class="fib-blank" data-answers="production" aria-label="Answer for question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> This course ships ____ full capstone roadmaps, each combining a different set of earlier chapters' skills.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="5,five" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> The capstone built around persistent storage, an API layer, and a test suite proving they work together is the Full-Stack Task ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="API,Api,api" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q15"><span class="q-num">15</span> The capstone that isn't a from-scratch build, but simulates reading unfamiliar code, fixing a real bug, and opening a pull request, is the Open-Source Contribution ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q15" class="fib-blank" data-answers="Simulation,simulation" aria-label="Answer for question 15">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> When choosing a capstone, it's recommended to build at least one to a finished MVP, ideally two with ____ skill combinations, rather than two that mostly overlap.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="different" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> Which capstone(s) to build should be chosen based on the ____ or domain you're targeting, not which one sounds most impressive in the abstract.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="role,job" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A capstone whose README honestly narrows its own claims to match what actually got built, rather than claiming an unfinished feature list, is called a ____-down capstone.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="scoped" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 32 is marked complete &mdash; on to the interview questions.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
