@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 30: CI/CD Pipelines -- validating real GitHub Actions workflow YAML with pyyaml, plus a Debug the Code task diagnosing a structurally broken workflow file.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 Exercises</span>
+    <span class="reading-time">40 min, hands-on</span>
+  </div>
+  <h1>Exercises: CI/CD Pipelines</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    These exercises validate real GitHub Actions workflow YAML using
+    Python's <code>yaml</code> module (<code>pip install pyyaml</code>
+    if you don't already have it). Download <code>starter.py</code>
+    below, run <code>python3 starter.py</code> from the folder you
+    saved it in, and it builds a real <code>scenario/</code> folder on
+    disk: a tiny sample project with its own
+    <code>.github/workflows/</code> folder, containing one valid
+    workflow and one intentionally broken one.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="diagram-card">
+    <span class="diagram-label">What starter.py builds</span>
+    <p class="diagram-note">This is a description of the real folder structure starter.py creates on disk -- not a GitHub screenshot.</p>
+    <pre><code>scenario/
+└── sample_project/
+    ├── requirements.txt
+    ├── app.py
+    ├── test_app.py
+    └── .github/
+        └── workflows/
+            ├── ci.yml           &lt;- a real, VALID lint + test workflow
+            └── ci-broken.yml    &lt;- Task 4's broken workflow</code></pre>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Parse a workflow file for real</h3>
+    <p>Use the already-implemented <code>load_workflow()</code> in <code>starter.py</code> to parse <code>scenario/sample_project/.github/workflows/ci.yml</code> with <code>yaml.safe_load()</code>. Confirm it comes back as a normal Python dict, and that <code>workflow["jobs"]</code> contains one job: <code>lint-and-test</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Validate a workflow's structure</h3>
+    <p>Fill in <code>validate_workflow_structure(workflow)</code> (TODO 1). Given an already-parsed workflow dict, return a list of problem strings for anything structurally wrong: a missing <code>on</code> key, a missing or empty <code>jobs</code> dict, or any job missing <code>runs-on</code> or a non-empty <code>steps</code> list. An empty list means the workflow is structurally valid.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Combine parsing and validation</h3>
+    <p>Fill in <code>validate_workflow_file(path)</code> (TODO 2): load the file, catch a real YAML syntax error with <code>yaml.YAMLError</code> instead of crashing, then run <code>validate_workflow_structure()</code> and return <code>(is_valid, problems)</code>. Run it against <code>ci.yml</code> — it should report <code>(True, [])</code>.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 4 — Debug the Code: a workflow with a missing key</h3>
+    <p>
+      <code>ci-broken.yml</code> looks almost identical to the valid
+      <code>ci.yml</code> — same trigger, same job name, same steps —
+      but one required key is missing from its one job:
+    </p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/ci-broken.yml</span>
+      </div>
+      <pre><code>jobs:
+  lint-and-test:
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest
+      - name: Lint with ruff
+        run: ruff check .
+      - name: Run tests with pytest
+        run: pytest</code></pre>
+    </div>
+    <p><strong>Diagnose it, then fix it for real:</strong></p>
+    <ul class="lesson-bullets">
+      <li>Read it against Sub-topic 2 of the lesson: every job needs both <code>runs-on</code> (which runner it executes on) and <code>steps</code>. Compare this job to <code>ci.yml</code>'s and spot exactly what's missing.</li>
+      <li>Run your <code>validate_workflow_file()</code> from Task 3 against this file — it should report the exact missing key, by name, not just "something's wrong."</li>
+      <li>Fix the file by hand (add <code>runs-on: ubuntu-latest</code> back in, indented as a sibling of <code>steps</code>) and re-validate — it should now report <code>(True, [])</code>.</li>
+    </ul>
+    <p>This file's bug — a job with no <code>runs-on</code> — is exactly the kind of mistake GitHub Actions itself rejects before a workflow ever runs, not a hypothetical: run <code>python3 solution.py</code> to see the working validator catch it end to end, with the real problem message printed.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -278,8 +278,22 @@ window.PFE_MODULES = [
         { id: "issues-and-project-workflow", title: "Issues & project workflow" },
         { id: "real-world-workflow", title: "A real-world collaboration workflow" }
       ] },
-      { id: "chapter-30", num: 30, title: "CI/CD Pipelines", path: null },
-      { id: "chapter-31", num: 31, title: "Professional Python", path: null },
+      { id: "chapter-30", num: 30, title: "CI/CD Pipelines", path: "chapters/chapter-30-cicd-pipelines/lesson.html", subtopics: [
+        { id: "why-cicd-matters", title: "Why CI/CD matters" },
+        { id: "github-actions-basics", title: "GitHub Actions basics" },
+        { id: "lint-test-workflow", title: "Building a lint + test workflow" },
+        { id: "matrix-and-caching", title: "Workflow matrix and caching" },
+        { id: "status-checks-branch-protection", title: "Status checks and branch protection" },
+        { id: "beyond-tests", title: "Beyond tests: the wider pipeline" }
+      ] },
+      { id: "chapter-31", num: 31, title: "Professional Python", path: "chapters/chapter-31-professional-python/lesson.html", subtopics: [
+        { id: "virtual-environments", title: "Virtual environments" },
+        { id: "project-structure", title: "Project structure" },
+        { id: "logging", title: "Logging" },
+        { id: "argparse", title: "Building a CLI with argparse" },
+        { id: "packaging", title: "Packaging basics" },
+        { id: "putting-it-together", title: "Putting it together: a shippable CLI tool" }
+      ] },
       { id: "chapter-32", num: 32, title: "Capstone Projects", path: null },
       { id: "chapter-33", num: 33, title: "Interview & Career Prep", path: null }
     ]

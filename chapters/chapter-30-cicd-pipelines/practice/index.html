@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 30: CI/CD Pipelines, including interview-style scenario problems on why CI/CD matters, GitHub Actions basics, lint+test workflows, matrix strategy and caching, status checks and branch protection, and pipelines beyond tests.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: CI/CD Pipelines</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This
+    chapter teaches GitHub Actions (YAML-based CI/CD), not Python syntax,
+    so every problem here is a Python function that <strong>parses,
+    validates, or reasons about</strong> a CI/CD concept using plain data
+    standing in for a workflow file or pipeline state. Standard library
+    only &mdash; no installs needed.
+  </p>
+
+  <div class="what-is">
+    <span class="label">Why reason about YAML instead of running real workflows?</span>
+    This site runs your code in a browser sandbox with no GitHub Actions
+    runner and no <code>yaml</code> package available, so every problem
+    models a workflow as plain Python data (a list of strings standing
+    in for YAML lines, dicts for matrix dimensions, booleans for
+    pass/fail state) instead of literally executing a pipeline. Every
+    behavior these problems describe was checked against real GitHub
+    Actions semantics first &mdash; the mental model is genuinely
+    correct, just expressed in Python so it can be auto-graded. To
+    practice for real, create a repo, add a workflow file under
+    <code>.github/workflows/</code>, and watch it run in the Actions tab.
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#why-cicd">1. Why CI/CD Matters</a>
+    <a href="#actions-basics">2. GitHub Actions Basics</a>
+    <a href="#lint-test-workflow">3. Building a Lint + Test Workflow</a>
+    <a href="#matrix-caching">4. Matrix Strategy and Caching</a>
+    <a href="#status-checks">5. Status Checks and Branch Protection</a>
+    <a href="#beyond-tests">6. Beyond Tests</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder. Standard
+    library only &mdash; nothing to install.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="why-cicd">Topic 1: Why CI/CD Matters</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Counting manual-deploy outages</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>count_broken_by_manual_deploys(deploy_log)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Does CI catch bugs before merge?</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>catches_bug_before_merge(runs_tests_on_every_push)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This wrongly claims CI only benefits large teams. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>choose_deploy_strategy(team_size, deploys_per_week)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why CI/CD matters</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_why_cicd_matters()</code>.</p>
+  </div>
+
+  <h2 id="actions-basics">Topic 2: GitHub Actions Basics (workflow files, triggers, jobs, steps, runners)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Parsing top-level YAML keys</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>parse_top_level_keys(yaml_lines)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Does it trigger on pull_request?</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>triggers_on_pull_request(yaml_lines)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. This wrongly claims workflow files can live anywhere in the repo. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>choose_trigger_for_scenario(scenario)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Runner vs. your local machine</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_runner_vs_local()</code>.</p>
+  </div>
+
+  <h2 id="lint-test-workflow">Topic 3: Building a Lint + Test Workflow</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Steps run top to bottom</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>steps_in_order(step_names)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Is the workflow green?</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>workflow_fails_fast(lint_passed, test_passed)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This wrongly claims the checkout step is optional. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>choose_lint_or_test_first(lint_is_fast, tests_are_slow)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why lint before tests</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_why_lint_before_test()</code>.</p>
+  </div>
+
+  <h2 id="matrix-caching">Topic 4: Matrix Strategy and Caching</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Total job runs from a matrix</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>matrix_job_count(dimensions)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Does the cache key match?</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>cache_key_matches(current_key, cached_key)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This wrongly adds matrix dimensions instead of multiplying them. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>prevents_version_mismatch(uses_matrix_strategy)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>CI passes locally, fails in the pipeline</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_matrix_prevents_version_bugs()</code>.</p>
+  </div>
+
+  <h2 id="status-checks">Topic 5: Status Checks and Branch Protection</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Can this PR merge?</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>can_merge_pr(required_checks, passed_checks)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Are direct pushes to main blocked?</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>blocks_direct_push_to_main(branch_protection_enabled, requires_pr)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This wrongly claims a pending check unblocks merging. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>An urgent merge with a failing check</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>handle_urgent_broken_check(check_is_flaky_confirmed, has_admin_override)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why not skip a required check</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_skip_check_temptation()</code>.</p>
+  </div>
+
+  <h2 id="beyond-tests">Topic 6: Beyond Tests (linting, type checking, security scanning, deployment stages)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Canonical pipeline stage order</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>pipeline_stage_order(stage_names)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Is it safe to deploy to production?</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>deploy_requires_staging_first(deploys_to_production, passed_staging)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This wrongly claims a staging deployment adds nothing if tests pass. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>choose_next_pipeline_addition(has_tests, has_lint, has_type_check, has_security_scan)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why tests alone aren't enough</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_defense_in_depth_pipeline()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match on the explanation-style tasks
+    &mdash; the goal is that your program runs without errors and does
+    what each TODO asks. Every data-driven task's output is exactly
+    reproducible.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

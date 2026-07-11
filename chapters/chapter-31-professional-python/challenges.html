@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on real logging and argparse code, plus venv/packaging reasoning problems, for Chapter 31: Professional Python.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 Coding Challenges</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Professional Python</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. Most of
+    these are real, runnable <code>logging</code> and <code>argparse</code>
+    code, since those are genuine gradeable Python logic; a few reason
+    about venv/pip/packaging behavior using plain data, the same way
+    Chapter 28's git challenges worked, since those topics are mostly
+    command-line and config-file skills rather than Python logic. Write
+    your function in the code box, then click <strong>Run Tests</strong>
+    to check it against a set of test cases (including edge cases).
+    Stuck? Every challenge has a <strong>Show Solution</strong> reveal
+    at the bottom.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the
+    function name in the stub exactly as given, since the grader calls it
+    by name. The logging/argparse challenges use the real standard
+    library modules; the venv/packaging challenges' expected values were
+    checked against real <code>pip</code>/<code>venv</code> behavior in a
+    scratch directory before being written into these tests.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Log Level Number to Name <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>level_name_for_number(level_number)</code> that returns the standard logging level name for a given numeric level, using Python's <code>logging</code> module. The standard mapping is: <code>10</code> &rarr; <code>"DEBUG"</code>, <code>20</code> &rarr; <code>"INFO"</code>, <code>30</code> &rarr; <code>"WARNING"</code>, <code>40</code> &rarr; <code>"ERROR"</code>, <code>50</code> &rarr; <code>"CRITICAL"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>level_number</code> is one of <code>10, 20, 30, 40, 50</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>level_name_for_number(30)</code> &rarr; <code>"WARNING"</code><br>
+        <code>level_name_for_number(10)</code> &rarr; <code>"DEBUG"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import logging
+
+def level_name_for_number(level_number):
+    # TODO: return the standard logging level name for level_number,
+    # using logging.getLevelName().
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "level_name_for_number",
+  "cases": [
+    { "args": [10], "expected": "DEBUG" },
+    { "args": [20], "expected": "INFO" },
+    { "args": [30], "expected": "WARNING" },
+    { "args": [40], "expected": "ERROR" },
+    { "args": [50], "expected": "CRITICAL" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>import logging
+
+def level_name_for_number(level_number):
+    return logging.getLevelName(level_number)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Would This Message Be Emitted? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>would_message_be_emitted(logger_level, message_level)</code>. A logger only emits (handles) a message if the message's numeric level is greater than or equal to the logger's configured threshold level -- e.g. a logger set to <code>30</code> (WARNING) emits a <code>40</code> (ERROR) message but suppresses a <code>20</code> (INFO) message. Return <code>True</code> if the message would be emitted, else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are ints among <code>10, 20, 30, 40, 50</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>would_message_be_emitted(30, 20)</code> &rarr; <code>False</code><br>
+        <code>would_message_be_emitted(30, 40)</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def would_message_be_emitted(logger_level, message_level):
+    # TODO: return True if message_level >= logger_level.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "would_message_be_emitted",
+  "cases": [
+    { "args": [30, 20], "expected": false },
+    { "args": [30, 40], "expected": true },
+    { "args": [20, 20], "expected": true },
+    { "args": [10, 50], "expected": true },
+    { "args": [50, 10], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def would_message_be_emitted(logger_level, message_level):
+    return message_level >= logger_level</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">3</span> Parse Real CLI Arguments <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>parse_cli_args(argv)</code> that builds an <code>argparse.ArgumentParser</code> with one required positional argument <code>"filename"</code>, one optional flag <code>"--verbose"</code> (<code>action="store_true"</code>), and one optional flag <code>"--output"</code> that takes a value (default <code>None</code>). Parse the list <code>argv</code> with it and return a dict with keys <code>"filename"</code>, <code>"verbose"</code>, and <code>"output"</code> holding the parsed values.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>argv</code> is a list of strings that always includes exactly one filename and zero or more of the optional flags.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>parse_cli_args(["data.csv"])</code> &rarr; <code>{"filename": "data.csv", "verbose": False, "output": None}</code><br>
+        <code>parse_cli_args(["data.csv", "--verbose"])</code> &rarr; <code>{"filename": "data.csv", "verbose": True, "output": None}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+import argparse
+
+def parse_cli_args(argv):
+    # TODO: build a parser with a required "filename" positional, an
+    # optional "--verbose" store_true flag, and an optional "--output"
+    # flag (default None) that takes a value. Parse argv and return a
+    # dict with keys "filename", "verbose", "output".
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "parse_cli_args",
+  "cases": [
+    { "args": [["data.csv"]], "expected": {"filename": "data.csv", "verbose": false, "output": null} },
+    { "args": [["data.csv", "--verbose"]], "expected": {"filename": "data.csv", "verbose": true, "output": null} },
+    { "args": [["data.csv", "--output", "out.txt"]], "expected": {"filename": "data.csv", "verbose": false, "output": "out.txt"} },
+    { "args": [["data.csv", "--verbose", "--output", "out.txt"]], "expected": {"filename": "data.csv", "verbose": true, "output": "out.txt"} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>import argparse
+
+def parse_cli_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename")
+    parser.add_argument("--verbose", action="store_true")
+    parser.add_argument("--output", default=None)
+    ns = parser.parse_args(argv)
+    return {"filename": ns.filename, "verbose": ns.verbose, "output": ns.output}</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> A Count-Style Verbosity Flag <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_verbosity(argv)</code> that builds an <code>argparse.ArgumentParser</code> with one optional flag <code>"--verbose"</code> using <code>action="count"</code> and <code>default=0</code>, so passing the flag multiple times increases a count. Parse <code>argv</code> with it and return the resulting count as an int.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>argv</code> is a list of strings containing zero or more <code>"--verbose"</code> entries and nothing else.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_verbosity([])</code> &rarr; <code>0</code><br>
+        <code>count_verbosity(["--verbose", "--verbose"])</code> &rarr; <code>2</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+import argparse
+
+def count_verbosity(argv):
+    # TODO: build a parser with an optional "--verbose" flag using
+    # action="count" and default=0. Parse argv and return the count.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_verbosity",
+  "cases": [
+    { "args": [[]], "expected": 0 },
+    { "args": [["--verbose"]], "expected": 1 },
+    { "args": [["--verbose", "--verbose"]], "expected": 2 },
+    { "args": [["--verbose", "--verbose", "--verbose"]], "expected": 3 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>import argparse
+
+def count_verbosity(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verbose", action="count", default=0)
+    ns = parser.parse_args(argv)
+    return ns.verbose</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Count Emitted Messages <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_emitted_messages(logger_level, message_levels)</code>. Given a logger's numeric threshold level and a list of numeric levels for messages that code attempted to log, return how many of those messages would actually be emitted (i.e. how many have a level greater than or equal to <code>logger_level</code>).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>logger_level</code> is an int; <code>message_levels</code> is a list of ints (may be empty).
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_emitted_messages(30, [10, 20, 30, 40, 50])</code> &rarr; <code>3</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def count_emitted_messages(logger_level, message_levels):
+    # TODO: return how many message_levels are >= logger_level.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_emitted_messages",
+  "cases": [
+    { "args": [30, [10, 20, 30, 40, 50]], "expected": 3 },
+    { "args": [10, [10, 20, 30, 40, 50]], "expected": 5 },
+    { "args": [50, [10, 20, 30, 40]], "expected": 0 },
+    { "args": [20, []], "expected": 0 },
+    { "args": [40, [40, 40, 10, 50]], "expected": 3 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def count_emitted_messages(logger_level, message_levels):
+    return sum(1 for lvl in message_levels if lvl >= logger_level)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">6</span> Classify a Dependency Pin Style <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>dependency_pin_style(version_spec)</code> that classifies a dependency version specifier string's pin style. Return <code>"exact"</code> if it contains <code>"=="</code>, <code>"compatible"</code> if it contains <code>"~="</code>, <code>"minimum"</code> if it contains <code>">="</code> (and neither of the above), or <code>"unpinned"</code> if it's an empty string or matches none of these (no version constraint at all, just the bare package name).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>version_spec</code> is a string; check in this priority order: exact, then compatible, then minimum, else unpinned.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>dependency_pin_style("==2.34.2")</code> &rarr; <code>"exact"</code><br>
+        <code>dependency_pin_style("")</code> &rarr; <code>"unpinned"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def dependency_pin_style(version_spec):
+    # TODO: classify version_spec as "exact", "compatible", "minimum",
+    # or "unpinned", per the rules in the problem statement.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "dependency_pin_style",
+  "cases": [
+    { "args": ["==2.34.2"], "expected": "exact" },
+    { "args": [">=2.0"], "expected": "minimum" },
+    { "args": ["~=2.0"], "expected": "compatible" },
+    { "args": [""], "expected": "unpinned" },
+    { "args": ["==1.0.0"], "expected": "exact" },
+    { "args": [">=1.0,<2.0"], "expected": "minimum" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def dependency_pin_style(version_spec):
+    if version_spec == "":
+        return "unpinned"
+    if "==" in version_spec:
+        return "exact"
+    if "~=" in version_spec:
+        return "compatible"
+    if ">=" in version_spec:
+        return "minimum"
+    return "unpinned"</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Parse pip freeze Output <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>parse_pip_freeze(freeze_output)</code> that takes the multi-line string output of <code>pip freeze</code> (one <code>"package==version"</code> per line) and returns a dict mapping each package name to its version string. Ignore blank lines.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>freeze_output</code> is a string; each non-blank line has exactly one <code>"=="</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>parse_pip_freeze("requests==2.34.2\nidna==3.18")</code> &rarr; <code>{"requests": "2.34.2", "idna": "3.18"}</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def parse_pip_freeze(freeze_output):
+    # TODO: parse each non-blank "package==version" line into a dict
+    # mapping package name -> version.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "parse_pip_freeze",
+  "cases": [
+    { "args": ["requests==2.34.2\nidna==3.18"], "expected": {"requests": "2.34.2", "idna": "3.18"} },
+    { "args": [""], "expected": {} },
+    { "args": ["flask==3.0.0"], "expected": {"flask": "3.0.0"} },
+    { "args": ["a==1.0\n\nb==2.0\n"], "expected": {"a": "1.0", "b": "2.0"} }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def parse_pip_freeze(freeze_output):
+    result = {}
+    for line in freeze_output.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        name, version = line.split("==")
+        result[name] = version
+    return result</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">8</span> Build a CLI Entry-Point Line <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>cli_entry_point_line(package_name, module_name, function_name)</code> that returns the exact line format used inside a <code>pyproject.toml</code>'s <code>[project.scripts]</code> table to register a CLI command: <code>{package_name} = "{module_name}:{function_name}"</code> (e.g. <code>mycli = "mycli.cli:main"</code>).</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> all three arguments are non-empty strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>cli_entry_point_line("mycli", "mycli.cli", "main")</code> &rarr; <code>'mycli = "mycli.cli:main"'</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def cli_entry_point_line(package_name, module_name, function_name):
+    # TODO: return f'{package_name} = "{module_name}:{function_name}"'
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "cli_entry_point_line",
+  "cases": [
+    { "args": ["mycli", "mycli.cli", "main"], "expected": "mycli = \"mycli.cli:main\"" },
+    { "args": ["wordcount", "wordcount.app", "run"], "expected": "wordcount = \"wordcount.app:run\"" },
+    { "args": ["tool", "tool", "main"], "expected": "tool = \"tool:main\"" },
+    { "args": ["taskrunner", "taskrunner.cli", "start"], "expected": "taskrunner = \"taskrunner.cli:start\"" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def cli_entry_point_line(package_name, module_name, function_name):
+    return f'{package_name} = "{module_name}:{function_name}"'</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

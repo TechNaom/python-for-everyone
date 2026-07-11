@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30 Project: Lint + Test + Ship — Python for Everyone</title>
+<meta name="description" content="A real multi-module Python package, a real 22-test pytest suite, one intentional lint violation, and a real multi-job matrix-strategy GitHub Actions workflow -- plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 Project</span>
+    <span class="reading-time">70 min build</span>
+  </div>
+  <h1>Lint + Test + Ship</h1>
+
+  <p>A real, multi-piece CI/CD setup &mdash; not a single <code>calculator.py</code> with a one-job workflow bolted on. You'll work with an actual installable Python package (<code>expense_tracker</code>, three modules plus a real pytest suite of 22 tests), find and fix one genuine lint violation in it, and read through a real multi-job, matrix-strategy GitHub Actions workflow that lints and tests that package across two Python versions.</p>
+
+  <div class="what-is">
+    <span class="label">No live GitHub Actions run happens here</span>
+    This course/site has no way to push to GitHub or trigger a real Actions run from this environment. What you're building and verifying instead is <strong>everything a live run would actually do</strong>, run for real, locally: <code>ruff check .</code> (the exact command the lint job runs), <code>pytest</code> (the exact command the test job runs, once per matrix Python version), and <code>yaml.safe_load()</code> on <code>ci.yml</code> to confirm the workflow file itself is valid, well-formed YAML. If this folder were pushed to a real GitHub repo with Actions enabled, <code>ci.yml</code> would run these exact same commands on GitHub's own runners.
+  </div>
+
+  <div class="what-is">
+    <span class="label">What's in sample_project/</span>
+    <code>expense_tracker/</code> &mdash; a real installable package: <code>models.py</code> (an <code>Expense</code> class), <code>tracker.py</code> (an <code>ExpenseTracker</code> class with add/total/filter/budget logic), and <code>report.py</code> (builds a human-readable summary &mdash; and contains the one intentional lint violation). <code>tests/</code> &mdash; 22 real pytest tests across three files, covering happy paths and edge cases. <code>.github/workflows/ci.yml</code> &mdash; the real multi-job workflow this project is built around.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (verifier &mdash; run after you finish)</a>
+  </div>
+
+  <h2>How to run</h2>
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">terminal</span>
+    </div>
+    <pre><code>cd chapters/chapter-30-cicd-pipelines/project
+python3 starter.py</code></pre>
+  </div>
+  <p>This installs <code>pytest</code> and <code>ruff</code> if you don't already have them, then runs both against <code>sample_project/</code> as shipped &mdash; you'll see ruff catch exactly one violation and pytest pass all 22 tests.</p>
+
+  <h2>Your job</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Fix the lint violation</h3>
+    <p>Open <code>sample_project/expense_tracker/report.py</code>. Near the top:</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">report.py</span>
+      </div>
+      <pre><code>import sys  # unused import -- intentionally left in for the lint job to catch</code></pre>
+    </div>
+    <p><code>sys</code> is never actually used anywhere in the file. Delete that import line, then re-run ruff and confirm it reports zero violations:</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>cd sample_project
+ruff check .</code></pre>
+    </div>
+    <div class="output-block">
+      <span class="output-label">Output before the fix</span>
+      <pre><code>F401 [*] `sys` imported but unused
+  --&gt; expense_tracker/report.py:8:8
+   |
+ 8 | import sys  # unused import -- intentionally left in for the lint job to catch
+   |        ^^^
+help: Remove unused import: `sys`
+
+Found 1 error.</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> an unused import is harmless at runtime &mdash; the code still works &mdash; but it's exactly the kind of small drift a linter exists to catch before it accumulates: dead imports make it harder to tell what a module actually depends on, and can hide a real bug (importing the wrong name and never noticing because nothing ever used it to fail loudly).</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to fix this and confirm nothing else broke:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Remove this unused import and check nothing else in the file depends on it..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare its fix against what you did &mdash; does it just delete the line, or does it also explain how to confirm nothing else in the file secretly relied on that import?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>ruff flagged `import sys` in report.py as unused (rule F401). Confirm `sys` really isn't referenced anywhere else in this file, remove the import line, and tell me the exact `ruff check .` command I should run afterward to confirm the violation is gone.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Read through ci.yml</h3>
+    <p>Open <code>sample_project/.github/workflows/ci.yml</code>. It has two jobs:</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/ci.yml</span>
+      </div>
+      <pre><code>name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -v</code></pre>
+    </div>
+    <ul>
+      <li><strong>lint</strong> &mdash; checks out the code, sets up Python 3.12 with pip caching, installs <code>requirements-dev.txt</code>, and runs <code>ruff check .</code>.</li>
+      <li><strong>test</strong> &mdash; same setup, but under a <code>strategy: matrix:</code> with two Python versions, so the whole job (checkout, setup, install, <code>pytest -v</code>) runs twice, in parallel, once per version.</li>
+      <li>Both jobs trigger on <code>push</code> and <code>pull_request</code> targeting <code>main</code>. Neither has a <code>needs:</code> key, so in a real run they'd start and run at the same time on separate runners.</li>
+    </ul>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> before trusting any generated workflow YAML, it's worth being able to answer, line by line, "what triggers this, how many jobs run, does anything depend on anything else, and what exact shell command does each step actually run" &mdash; a workflow that "looks right" but was never traced through this carefully is exactly how subtle mistakes (see this project's <a href="ai-paired.html">AI-paired page</a>) slip past review.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build a workflow like this from scratch:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write me a GitHub Actions workflow that lints and tests my Python project..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it generates against ci.yml above &mdash; then go read this project's <a href="ai-paired.html">AI-paired page</a>, which plants three realistic flaws in a plausible AI response to this exact kind of prompt.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write me a GitHub Actions workflow (.github/workflows/ci.yml) for a Python package called expense_tracker, with a tests/ directory using pytest and dev dependencies in requirements-dev.txt. Requirements: a separate lint job that runs `ruff check .` once, and a separate test job that runs `pytest -v` across a matrix of Python 3.11 and 3.12. Both jobs should trigger on push and pull_request targeting main, use actions/checkout@v4 and actions/setup-python@v5 with pinned versions (not @main), and use pip caching via setup-python's built-in cache option so dependency installs are fast on repeat runs.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Re-run everything and verify</h3>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>cd sample_project
+ruff check .
+pytest -v
+cd ..
+python3 solution.py</code></pre>
+    </div>
+    <p><code>solution.py</code> runs <code>ruff check .</code> and <code>pytest</code> for real against your edited copy, and re-parses <code>ci.yml</code> with <code>yaml.safe_load()</code> to confirm the workflow itself is still structurally sound: valid YAML, both triggers present, both jobs present, the matrix has 2+ Python versions, and pip caching is configured. All 7 checks should pass once you've fixed the lint violation.</p>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>A workflow YAML file is worthless if the commands inside it don't actually behave the way you think they do &mdash; the single most common real-world CI mistake is a workflow that looks correct but was never actually run locally first, so a typo in a script name or a missing dependency only surfaces after a push, wasting a full round trip. This project forces the habit the rest of your CI/CD career depends on: run the exact commands your workflow runs, locally, before you ever trust what GitHub reports back.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>No starter/solution files are provided for these on purpose &mdash; each one is meant to be built and verified by editing <code>ci.yml</code> (and re-running the underlying commands) yourself.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Add a third Python version to the matrix, and think through the tradeoff</h3>
+    <p><strong>Scenario:</strong> Your team wants to officially support Python 3.10 in addition to 3.11 and 3.12.</p>
+    <p><strong>What to do:</strong> Add <code>"3.10"</code> to the <code>python-version</code> matrix list in <code>ci.yml</code>. Actually run <code>pytest</code> locally under a Python 3.10 interpreter if you have one available (or reason through the code &mdash; does <code>expense_tracker</code> use any syntax newer than 3.10?) to confirm it would actually pass.</p>
+    <p><strong>Suggested approach:</strong> Every extra matrix version is a real tradeoff: more confidence the package works everywhere it claims to, at the direct cost of more total CI runtime and more runner-minutes consumed on every single push. Write down, in your own words, how you'd decide where to draw the line for a real team's project.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Only run the expensive test job on pull_request, not every push</h3>
+    <p><strong>Scenario:</strong> The lint job is fast and cheap, but imagine the test job were much slower (a large integration suite hitting a real database) &mdash; running it on every single push to every branch would be wasteful.</p>
+    <p><strong>What to do:</strong> Change the <code>test</code> job so it only runs on pull requests, while <code>lint</code> still runs on both push and pull_request. (Hint: a job-level <code>on:</code> doesn't exist &mdash; the trigger lives at the workflow level, so this actually requires either two separate workflow files, or an <code>if:</code> condition on the job.)</p>
+    <p><strong>Suggested approach:</strong> Look up GitHub Actions' <code>github.event_name</code> context variable and add <code>if: github.event_name == 'pull_request'</code> to the <code>test</code> job, then validate the resulting YAML with <code>yaml.safe_load()</code> the same way <code>solution.py</code> does.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Add a status badge to the README showing CI pass/fail</h3>
+    <p><strong>Scenario:</strong> Anyone visiting the repo on GitHub should be able to see at a glance whether the latest commit on <code>main</code> is passing CI, without clicking into the Actions tab.</p>
+    <p><strong>What to do:</strong> GitHub generates a badge URL for any workflow: <code>https://github.com/&lt;owner&gt;/&lt;repo&gt;/actions/workflows/ci.yml/badge.svg</code>. Add that as a Markdown image at the top of <code>sample_project/README.md</code>.</p>
+    <p><strong>Suggested approach:</strong> Since this workflow was never actually pushed to a real GitHub repo, the badge URL won't resolve to real data here &mdash; write the correct badge Markdown anyway and explain, in a comment, exactly what <code>&lt;owner&gt;/&lt;repo&gt;</code> would need to be replaced with for it to work for real.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Add a job that builds a distributable package artifact</h3>
+    <p><strong>Scenario:</strong> Beyond lint and test, a real Python package's pipeline usually also builds the actual installable artifact (a wheel) so it can be published or deployed without rebuilding from source again.</p>
+    <p><strong>What to do:</strong> Add a third job, <code>build</code>, that checks out the code, sets up Python, installs the <code>build</code> package, runs <code>python -m build</code> inside <code>sample_project/</code> to produce a <code>.whl</code> and <code>.tar.gz</code> in <code>dist/</code>, then uses <code>actions/upload-artifact@v4</code> to save them. Actually run <code>python -m build</code> locally yourself to confirm it produces real files.</p>
+    <p><strong>Suggested approach:</strong> Since <code>pyproject.toml</code> already declares <code>[build-system]</code> and <code>[tool.setuptools.packages.find]</code>, <code>python -m build</code> should work as-is once the <code>build</code> package is installed &mdash; inspect the resulting <code>dist/*.whl</code> filename and explain what each part of it encodes (package name, version, Python tag).</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

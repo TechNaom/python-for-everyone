@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31: Professional Python — Python for Everyone</title>
+<meta name="description" content="Virtual environments, project structure, logging, argparse, and packaging basics -- the practices that turn a working script into a shippable, professional Python tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">80 min read</span>
+  </div>
+  <h1>Professional Python</h1>
+  <p><em>Every script so far in this course has lived in one file, run with <code>print()</code> statements telling you what's happening, and assumed whatever packages were already installed on your machine. That's fine for learning. It falls apart the moment a script needs to run unattended, get shared with someone else's machine, or be installed instead of copy-pasted. This chapter covers the five practices that close that gap: isolating dependencies with virtual environments, organizing a project so it scales past one file, replacing <code>print()</code> with real logging, building a command-line interface with <code>argparse</code> instead of hand-parsing <code>sys.argv</code>, and packaging the result so it's genuinely <code>pip install</code>-able. Git and GitHub (Chapters 28-29) round out the picture but aren't retaught here.</em></p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#virtual-environments">1. Virtual environments</a>
+    <a href="#project-structure">2. Project structure</a>
+    <a href="#logging">3. Logging</a>
+    <a href="#argparse">4. Building a CLI with argparse</a>
+    <a href="#packaging">5. Packaging basics</a>
+    <a href="#putting-it-together">6. Putting it together: a shippable CLI tool</a>
+  </nav>
+
+  <div class="hook">
+    You finish a script on your machine and it works perfectly. You send it to a teammate, and it crashes on line 1 with <code>ModuleNotFoundError</code> — they don't have the package you installed eight months ago and forgot about. You fix that, then it fails silently in production at 3 AM with no log anywhere explaining why, because every diagnostic was a <code>print()</code> statement that nobody was watching a terminal to see. You fix that too, then a user runs it with the wrong arguments and gets a raw Python traceback instead of a helpful error message. None of these are bugs in your logic — they're the difference between a script that works "on my machine" and a tool built the way professionals actually ship Python. That gap is this entire chapter.
+  </div>
+
+  <div class="subtopic" id="virtual-environments">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Virtual environments</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Installing packages globally (<code>pip install</code> with no virtual environment active) means every project on your machine shares the exact same package versions.</li>
+        <li>A virtual environment gives one project its own private copy of Python and its own installed packages, isolated from every other project.</li>
+        <li><code>requirements.txt</code> records exactly what a project needs, so anyone (including future you) can recreate the same environment elsewhere.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> the <code>ModuleNotFoundError</code>-on-a-teammate's-machine scenario from the hook, and its uglier cousin — two of your own projects needing two different, incompatible versions of the same package — are both solved by the same fix: never install project dependencies globally.
+    </div>
+
+    <p>
+      Here's the trap in concrete terms. Say Project A needs <code>requests</code> version 2.28, and six months later Project B needs <code>requests</code> version 2.34 for a feature that only exists in the newer release. If both projects install packages globally, there is only ever <em>one</em> installed copy of <code>requests</code> on your machine — installing the version Project B needs silently breaks Project A the next time you run it.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a virtual environment?</span>
+      A <strong>virtual environment</strong> is a self-contained folder holding its own copy of the Python interpreter and its own <code>site-packages</code> directory for installed libraries, completely separate from your system-wide Python. Activating one tells your shell "use <em>this</em> Python and <em>these</em> packages until further notice" — every <code>pip install</code> you run while it's active goes into that folder, not your global install.
+    </div>
+
+    <p>
+      Python's standard library includes everything needed to create one — no extra install required. From inside a project folder:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 -m venv .venv
+$ ls .venv/bin</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Activate.ps1  activate  activate.csh  activate.fish  pip  pip3  pip3.14  python  python3  python3.14</code></pre>
+    </div>
+
+    <p>
+      <code>python3 -m venv .venv</code> creates the environment in a folder named <code>.venv</code> (the leading dot is convention, not a requirement — it keeps the folder out of the way in file listings, and it's the name most <code>.gitignore</code> templates already exclude). Nothing changes yet, though — the environment exists but isn't active. Activating it is the step that actually redirects <code>python3</code> and <code>pip</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ source .venv/bin/activate
+$ which python3
+$ python3 -m pip --version</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>/path/to/project/.venv/bin/python3
+pip 25.1.1 from /path/to/project/.venv/lib/python3.14/site-packages/pip (python 3.14)</code></pre>
+    </div>
+
+    <p>
+      <code>which python3</code> now points <em>inside</em> the project folder, not at the system Python — every package installed from here on is scoped to this project alone. On Windows, the equivalent is <code>.venv\Scripts\activate</code> instead of <code>source .venv/bin/activate</code>; the rest of the workflow is identical.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the decision here isn't really "how do I run venv" — it's recognizing that global installs are a trap the moment a second project exists on the same machine. The habit to build is: every new project folder gets its own <code>.venv</code> before the first <code>pip install</code>, not after something breaks.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I'm starting a new Python project and want to avoid installing packages globally -- walk me through creating and activating a virtual environment..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I'm starting a new Python project in an empty folder and want every dependency isolated from my system-wide Python from day one. Give me the exact commands to create a virtual environment named .venv using the standard library's venv module, activate it on both macOS/Linux (bash) and Windows, and confirm it's active by checking which python3 is being used. Also explain in plain terms why installing packages without an active virtual environment is risky once I have more than one Python project on the same machine.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      With the environment active, installing a package puts it only here:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 -m pip install requests
+$ python3 -m pip freeze</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>certifi==2026.6.17
+charset-normalizer==3.4.9
+idna==3.18
+requests==2.34.2
+urllib3==2.7.0</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... requirements.txt?</span>
+      <code>requirements.txt</code> is a plain text file listing a project's dependencies, one per line, usually with an exact version (<code>requests==2.34.2</code>). It's the file that lets anyone — a teammate, a server, future you on a new laptop — recreate the exact same environment with one command, instead of guessing which packages and versions a project needs by trial and error.
+    </div>
+
+    <p>
+      <code>pip freeze</code> prints every installed package in that exact format, which is why the standard workflow is to redirect it straight into the file:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 -m pip freeze > requirements.txt
+$ cat requirements.txt</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>certifi==2026.6.17
+charset-normalizer==3.4.9
+idna==3.18
+requests==2.34.2
+urllib3==2.7.0</code></pre>
+    </div>
+
+    <p>
+      On a different machine, one command reinstalls everything at those exact pinned versions:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 -m venv .venv
+$ source .venv/bin/activate
+$ python3 -m pip install -r requirements.txt</code></pre>
+    </div>
+
+    <p>
+      That three-command sequence is the entire reason <code>requirements.txt</code> exists — it's what makes "clone the repo and get it running" take thirty seconds instead of a support ticket about missing packages.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Global installs mean every project shares one set of package versions — a recipe for one project quietly breaking another.</li>
+      <li><code>python3 -m venv .venv</code> creates an isolated environment; activating it redirects <code>python3</code>/<code>pip</code> to that environment until deactivated.</li>
+      <li><code>requirements.txt</code>, generated with <code>pip freeze</code>, is how a project's exact dependencies travel with it to any other machine.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what does deactivate do, and is .venv committed to git?</summary>
+      <p>
+        Running <code>deactivate</code> (a command the activation script adds to your shell) exits the virtual environment and restores your normal system <code>python3</code>/<code>pip</code>. And no — <code>.venv/</code> should never be committed to git: it's often hundreds of megabytes, entirely machine-specific (it contains an actual copy of the interpreter), and completely reproducible from <code>requirements.txt</code> alone. Add <code>.venv/</code> to <code>.gitignore</code>; commit <code>requirements.txt</code> instead.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Virtual environments isolate a project's Python packages from every other project on the same machine.</li>
+        <li><code>python3 -m venv .venv</code> creates one; <code>source .venv/bin/activate</code> activates it.</li>
+        <li><code>pip freeze > requirements.txt</code> records exact dependencies; <code>pip install -r requirements.txt</code> recreates them anywhere.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="project-structure">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Project structure</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A one-file script doesn't scale — a real project separates source code, tests, and config into their own places.</li>
+        <li>A <strong>package</strong> is a folder of Python files with an <code>__init__.py</code>, importable as a single unit.</li>
+        <li>There's a widely recognized standard shape most Python projects converge on, which this section lays out directly.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every practice in the rest of this chapter — packaging, a real CLI entry point, organized logging — assumes code lives in a package, not a single loose <code>.py</code> file. This is the shape everything else in the chapter builds on top of.
+    </div>
+
+    <p>
+      Here's a genuine project layout for a small task-management tool, shown as a real directory tree:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">a standard Python project layout</span>
+      <pre><code>tasktool/
+├── .venv/                  (not committed -- see Sub-topic 1)
+├── .gitignore
+├── pyproject.toml          (Sub-topic 5)
+├── requirements.txt
+├── README.md
+├── src/
+│   └── tasktool/
+│       ├── __init__.py
+│       ├── cli.py          (argparse entry point, Sub-topic 4)
+│       ├── storage.py       (business logic)
+│       └── logging_config.py
+└── tests/
+    ├── __init__.py
+    └── test_storage.py</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a package?</span>
+      A Python <strong>package</strong> is a folder containing an <code>__init__.py</code> file, which tells Python "treat this folder as one importable unit." A folder <em>without</em> <code>__init__.py</code> is just a folder — Python won't let you <code>import</code> it as a package. Inside a package, <code>src/tasktool/cli.py</code> becomes reachable as <code>tasktool.cli</code>, and <code>src/tasktool/storage.py</code> as <code>tasktool.storage</code>, from anywhere the package is installed or importable.
+    </div>
+
+    <p>
+      A few of the choices in that tree are deliberate, not arbitrary:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>The actual package lives under <code>src/tasktool/</code>, not directly at the project root — this is the "src layout," and it exists specifically to stop accidental imports of an un-installed, half-finished package during testing.</li>
+      <li><code>tests/</code> is a sibling of <code>src/</code>, not mixed inside it — test code is never something an installed user of the package needs, so it stays out of what actually ships.</li>
+      <li><code>cli.py</code> holds only argument parsing and wiring; <code>storage.py</code> holds the actual logic. Splitting "how the user invokes this" from "what it actually does" means the logic in <code>storage.py</code> can be tested directly, without going through the command line at all.</li>
+    </ul>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the judgment call in laying out a project is what to put in a separate module versus what to leave inline — the rule of thumb is: anything that could reasonably be unit-tested on its own (parsing, calculations, storage) gets its own module; anything that's just "glue" wiring the pieces together (the CLI entry point) stays thin and mostly delegates.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I have a single-file task manager script and want to restructure it into a proper installable package -- what folder layout should I use..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have a single-file Python script called tasktool.py that mixes argument parsing and task-storage logic in one file. I want to restructure it into a proper installable package using the "src layout" convention: a src/tasktool/ package directory with __init__.py, a cli.py for argument parsing only, and a storage.py for the actual task logic, plus a separate tests/ directory at the project root. Show me the exact folder tree and explain why storage logic should be separated from the CLI entry point specifically for testability.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Config also gets a defined home rather than being scattered through the code. For a small tool, that's usually either a dedicated module (like <code>logging_config.py</code> above) or a single settings file read once at startup — the goal is one obvious place to look, not one setting hardcoded in <code>cli.py</code> and another hardcoded three files away in <code>storage.py</code>.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A package is a folder with <code>__init__.py</code>, making it importable as a single unit.</li>
+      <li>The "src layout" (<code>src/yourpackage/</code>) keeps the installable package separate from tests, config, and project metadata at the root.</li>
+      <li>Splitting CLI wiring (<code>cli.py</code>) from actual logic (<code>storage.py</code>) makes the logic testable independent of the command line.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is the src/ layout mandatory?</summary>
+      <p>
+        No — plenty of real projects put the package directly at the project root instead of under <code>src/</code>, and both are common in the wild. The <code>src/</code> layout's specific advantage shows up once a project has both a package <em>and</em> a test suite: without it, it's easy for tests to accidentally import the local, uninstalled source folder instead of the actually-installed package, hiding bugs that would only appear after a real <code>pip install</code>. For small personal tools this risk is minor; for anything meant to be installed by others, <code>src/</code> layout is the safer default.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A package needs <code>__init__.py</code>; without it, a folder can't be imported as one unit.</li>
+        <li>The standard shape: <code>src/yourpackage/</code> for code, <code>tests/</code> as a sibling, config in one obvious place, metadata files at the root.</li>
+        <li>Separate "how it's invoked" (CLI) from "what it does" (logic) so the logic is testable on its own.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="logging">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Logging</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>print()</code> has no levels, no timestamps, and no way to turn it off without editing code — the standard library's <code>logging</code> module has all three.</li>
+        <li>Five standard <strong>log levels</strong> — DEBUG, INFO, WARNING, ERROR, CRITICAL — let you filter what's shown without deleting any code.</li>
+        <li>A configured logger can send different levels to different places at once: warnings and errors to the console, everything to a file.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the second failure from the hook — a script that fails silently at 3 AM because its only diagnostics were <code>print()</code> statements nobody was watching. Logging is what makes an unattended script's behavior reconstructable after the fact.
+    </div>
+
+    <p>
+      <code>print()</code> sends text to the console and nothing else. It can't be filtered by severity, it can't be redirected to a file without extra work, and turning it off means finding and deleting (or commenting out) every call by hand. The <code>logging</code> module, part of the standard library, solves all three:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">logging_basic.py</span>
+      </div>
+      <pre><code>import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger("inventory")
+
+def restock(item, qty):
+    logger.info("Restocking %s by %d units", item, qty)
+    if qty &lt; 0:
+        logger.error("Negative restock quantity for %s: %d", item, qty)
+        raise ValueError("quantity cannot be negative")
+    return qty
+
+restock("widgets", 50)
+try:
+    restock("gadgets", -5)
+except ValueError:
+    logger.warning("Restock rejected, notifying supply team")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output (python3 logging_basic.py)</span>
+      <pre><code>2026-07-11 15:54:45 [INFO] inventory: Restocking widgets by 50 units
+2026-07-11 15:54:45 [INFO] inventory: Restocking gadgets by -5 units
+2026-07-11 15:54:45 [ERROR] inventory: Negative restock quantity for gadgets: -5
+2026-07-11 15:54:45 [WARNING] inventory: Restock rejected, notifying supply team</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a logger?</span>
+      A <strong>logger</strong> is a named object you get from <code>logging.getLogger(name)</code> and call <code>.info()</code>, <code>.error()</code>, etc. on, instead of calling <code>print()</code> directly. The name (here, <code>"inventory"</code>) shows up in every message it produces, which matters once a project has multiple modules each logging their own events — you can tell at a glance which part of the program a message came from. Note the messages also use <code>%s</code>/<code>%d</code> placeholders rather than an f-string — logging only builds the final string if the message actually gets emitted, which avoids wasted work for messages a low log level would filter out anyway.
+    </div>
+
+    <p>
+      Notice each call above used a different method — <code>.info()</code>, <code>.error()</code>, <code>.warning()</code> — rather than one generic "log this" call. That's the level system:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the five standard log levels, low to high severity</span>
+      <pre><code>DEBUG     detailed diagnostic info, useful only while actively debugging
+INFO      confirmation that things are working as expected
+WARNING   something unexpected happened, but the program can continue
+ERROR     something failed -- a specific operation could not complete
+CRITICAL  a serious error -- the program itself may be unable to continue</code></pre>
+    </div>
+
+    <p>
+      A logger is configured with a minimum level, and only messages at that level or higher actually get shown — lower-severity calls are silently skipped, not deleted, so they're still there the moment you need them again:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">log_levels.py</span>
+      </div>
+      <pre><code>import logging
+
+logging.basicConfig(level=logging.WARNING, format="%(levelname)s: %(message)s")
+logger = logging.getLogger("demo")
+
+logger.debug("Debug detail: cache hit for key=42")
+logger.info("Job started")
+logger.warning("Disk usage at 85 percent")
+logger.error("Failed to connect to database")
+logger.critical("Out of memory, shutting down")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- level=WARNING hides debug and info entirely</span>
+      <pre><code>WARNING: Disk usage at 85 percent
+ERROR: Failed to connect to database
+CRITICAL: Out of memory, shutting down</code></pre>
+    </div>
+
+    <p>
+      Both <code>logger.debug(...)</code> and <code>logger.info(...)</code> ran, but produced no output — they're below the configured <code>WARNING</code> threshold. Change one line, <code>level=logging.DEBUG</code>, and all five lines print; no code needs to be touched or deleted either way.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the design decision that matters is choosing the right level per message, not just calling logger.info() for everything — routine progress is INFO, something recoverable-but-suspicious is WARNING, and something that actually broke an operation is ERROR. Getting this right is what makes filtering by level (DEBUG during development, WARNING+ in production) actually useful instead of arbitrary.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Replace the print() statements in my inventory script with the logging module, using appropriate levels for each message..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have a Python function restock(item, qty) that currently uses print() for every message, including an error case when qty is negative (which raises ValueError). Rewrite it to use the logging module instead: configure logging.basicConfig with level=logging.INFO and a format that includes a timestamp, level name, and logger name, get a named logger called "inventory", and choose the correct log level (info/warning/error) for each message based on its actual severity. Explain why the log messages should use %s-style placeholders instead of an f-string.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      A single <code>basicConfig()</code> call only sends output to the console. Real production code often needs both — warnings and errors visible immediately in the terminal, but a complete record of everything (including DEBUG) saved to a file for later. That needs two <strong>handlers</strong> on the same logger, each with its own level:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">logger_config.py</span>
+      </div>
+      <pre><code>import logging
+
+
+def configure_logger(name, log_file="app.log"):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+    return logger
+
+
+logger = configure_logger("orders")
+logger.debug("Order payload validated")
+logger.info("Order #4521 placed")
+logger.error("Payment gateway timeout for order #4521")</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual console output (python3 logger_config.py)</span>
+      <pre><code>INFO: Order #4521 placed
+ERROR: Payment gateway timeout for order #4521</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual contents of app.log after running -- includes the DEBUG line the console skipped</span>
+      <pre><code>2026-07-11 15:57:45,071 DEBUG orders: Order payload validated
+2026-07-11 15:57:45,072 INFO orders: Order #4521 placed
+2026-07-11 15:57:45,072 ERROR orders: Payment gateway timeout for order #4521</code></pre>
+    </div>
+
+    <p>
+      The logger itself is set to <code>DEBUG</code> (accept everything), and each handler applies its own, stricter filter on top — the console only shows <code>INFO</code> and up, while the file keeps everything including <code>DEBUG</code>. This is exactly the shape a real unattended script needs: a clean console for a human watching it run, and a complete file record for reconstructing what happened after the fact.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>print()</code> can't be filtered or redirected without editing code; <code>logging</code> can, via levels and handlers.</li>
+      <li>DEBUG &lt; INFO &lt; WARNING &lt; ERROR &lt; CRITICAL — a logger's configured level hides everything below it, without deleting the calls.</li>
+      <li>Multiple handlers on one logger send different levels to different destinations (console vs. file) at the same time.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why %s placeholders instead of an f-string in a log call?</summary>
+      <p>
+        <code>logger.info("Restocking %s by %d units", item, qty)</code> only formats the final string if the message actually passes the logger's level filter — the arguments are kept separate and merged in lazily. An f-string, by contrast, is evaluated immediately, every time the line runs, even if the logger is configured to discard DEBUG or INFO messages entirely. For a single log call this difference is invisible; inside a hot loop logging thousands of DEBUG messages that are mostly filtered out in production, it's the difference between negligible overhead and real, measurable slowdown.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>logging.getLogger(name)</code> gives you a named logger; call <code>.debug()</code>/<code>.info()</code>/<code>.warning()</code>/<code>.error()</code>/<code>.critical()</code> based on actual severity.</li>
+        <li>A logger's configured level filters out anything below it, without deleting the calls — flip one setting to see everything again.</li>
+        <li>Separate handlers let one logger send different levels to the console and to a file simultaneously.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="argparse">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Building a CLI with argparse</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>argparse</code> turns command-line arguments into a clean, validated object instead of hand-parsing <code>sys.argv</code>.</li>
+        <li><strong>Positional arguments</strong> are required and identified by order; <strong>optional arguments</strong> use a flag (<code>-f</code>/<code>--flag</code>) and can have defaults.</li>
+        <li><strong>Subcommands</strong> (like <code>git add</code> vs. <code>git commit</code>) let one program expose several distinct actions, each with its own arguments.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the third failure from the hook — a raw Python traceback instead of a helpful error message when a user gets the arguments wrong. <code>argparse</code> generates both validation and help text for free, from the same declarations.
+    </div>
+
+    <p>
+      A minimal parser declares its arguments, then <code>parse_args()</code> reads them and returns a namespace object with one attribute per argument:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">argparse_basic.py</span>
+      </div>
+      <pre><code>import argparse
+
+parser = argparse.ArgumentParser(
+    prog="wordcount",
+    description="Count words in a text file."
+)
+parser.add_argument("filename", help="path to the text file")
+parser.add_argument("-l", "--lines", action="store_true", help="also count lines")
+parser.add_argument("-e", "--encoding", default="utf-8", help="file encoding (default: utf-8)")
+
+args = parser.parse_args(["report.txt", "--lines"])
+print(args)
+print(args.filename, args.lines, args.encoding)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Namespace(filename='report.txt', lines=True, encoding='utf-8')
+report.txt True utf-8</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a positional vs. optional argument?</span>
+      <code>filename</code> is <strong>positional</strong> — no flag, required, and identified purely by where it appears (<code>wordcount report.txt</code> means <code>report.txt</code> <em>is</em> the filename). <code>--lines</code> and <code>--encoding</code> are <strong>optional</strong> — they start with <code>-</code>/<code>--</code>, can appear in any order or not at all, and (unlike positionals) can define a <code>default</code> for when they're omitted. <code>action="store_true"</code> makes <code>--lines</code> a flag with no value of its own — its mere presence sets <code>args.lines</code> to <code>True</code>.
+    </div>
+
+    <p>
+      <code>parse_args()</code> was called here with an explicit list (<code>["report.txt", "--lines"]</code>) rather than reading real command-line input — useful for testing a parser directly in code. In a real script, calling <code>parser.parse_args()</code> with no argument reads from <code>sys.argv</code> automatically. Either way, <code>argparse</code> also generates help text for free, straight from the <code>help=</code> strings already written above:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 argparse_basic.py --help</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>usage: wordcount [-h] [-l] [-e ENCODING] filename
+
+Count words in a text file.
+
+positional arguments:
+  filename              path to the text file
+
+options:
+  -h, --help            show this help message and exit
+  -l, --lines           also count lines
+  -e, --encoding ENCODING
+                        file encoding (default: utf-8)</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the design decision is which arguments genuinely have to be positional (the thing the whole command is about, usually exactly one) versus which are optional settings with sensible defaults -- forcing something into a positional slot that's really an optional tweak makes the command harder to remember and easier to get wrong.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Build an argparse CLI for a word-count tool that takes a filename and optional flags for counting lines and setting encoding..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Build a Python CLI tool called "wordcount" using argparse. It needs one required positional argument, filename (the path to a text file), plus two optional arguments: -l/--lines as a boolean flag (default False) to also count lines, and -e/--encoding as a string with default "utf-8". Give every argument a clear help= string, set prog and description on the ArgumentParser, and show me what python3 wordcount.py --help prints.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Real CLI tools usually do more than one thing — git has <code>add</code>, <code>commit</code>, <code>push</code>; pip has <code>install</code>, <code>freeze</code>, <code>list</code>. <code>argparse</code> supports this with <strong>subparsers</strong>, each one a fully independent parser with its own arguments:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">task_cli.py</span>
+      </div>
+      <pre><code>import argparse
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog="taskcli", description="Manage a simple task list.")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    add_parser = subparsers.add_parser("add", help="add a new task")
+    add_parser.add_argument("description", help="what the task is")
+    add_parser.add_argument("-p", "--priority", type=int, default=3,
+                             help="priority 1 (high) to 5 (low), default 3")
+
+    done_parser = subparsers.add_parser("done", help="mark a task complete")
+    done_parser.add_argument("task_id", type=int, help="the task's numeric id")
+
+    return parser
+
+
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    if args.command == "add":
+        print(f"Added task: {args.description!r} (priority {args.priority})")
+    elif args.command == "done":
+        print(f"Marked task {args.task_id} as done")
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 task_cli.py add "Write chapter 31" --priority 1
+$ python3 task_cli.py done 7</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output</span>
+      <pre><code>Added task: 'Write chapter 31' (priority 1)
+Marked task 7 as done</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... argparse, precisely?</span>
+      <code>argparse</code> is the standard library module that turns a declared set of arguments into parsing, type-conversion, validation, and help-text generation — all from the same <code>add_argument()</code> calls. <code>type=int</code> above means <code>argparse</code> itself converts <code>"7"</code> to <code>7</code> and rejects anything that isn't a valid integer, before your code ever sees it.
+    </div>
+
+    <p>
+      That validation is not optional or best-effort — it's enforced automatically, with a real error message and a nonzero exit code, exactly like a professional CLI tool should behave:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 task_cli.py done notanumber</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- exit code 2, no traceback</span>
+      <pre><code>usage: taskcli done [-h] task_id
+taskcli done: error: argument task_id: invalid int value: 'notanumber'</code></pre>
+    </div>
+
+    <div class="lesson-note">
+      <strong>A gotcha worth knowing before it costs you debugging time:</strong> if a parser has both a top-level optional argument (say, a global <code>-v</code>/<code>--verbose</code> flag) and subcommands, the top-level flag must come <em>before</em> the subcommand name on the command line — <code>taskcli -v add "task"</code> works, but <code>taskcli add "task" -v</code> fails with <code>unrecognized arguments: -v</code>, because once <code>argparse</code> hands off to the <code>add</code> subparser, it no longer recognizes arguments that belong to the parent parser.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Positional arguments are required and order-based; optional arguments use a flag and can define a default.</li>
+      <li><code>type=</code> gives free validation and conversion; a bad value produces a clean error and exit code 2, not a traceback.</li>
+      <li>Subparsers (<code>add_subparsers()</code>) give one program multiple independent subcommands, each with its own arguments — but a parent parser's own flags must be given before the subcommand name.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what does required=True on add_subparsers() actually do?</summary>
+      <p>
+        Without <code>required=True</code>, running the program with no subcommand at all silently leaves <code>args.command</code> as <code>None</code> instead of raising an error — a script that then tries to compare <code>args.command == "add"</code> would just do nothing, with no explanation to the user about what went wrong. Setting <code>required=True</code> makes <code>argparse</code> itself reject a missing subcommand with a clear "the following arguments are required: command" error, the same way a missing positional argument is rejected.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>argparse</code> replaces hand-parsing <code>sys.argv</code> with declared arguments, automatic validation, and generated help text.</li>
+        <li>Positional = required, order-based; optional = flag-based, can have a default.</li>
+        <li>Subparsers give a program multiple subcommands; global flags must precede the subcommand name on the command line.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="packaging">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Packaging basics</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>pyproject.toml</code> is the single, standard file that describes a Python project's metadata and how to build it.</li>
+        <li>A project is <code>pip install</code>-able the moment it has a valid <code>pyproject.toml</code> alongside a proper package — no separate registration step needed for a local or private install.</li>
+        <li><code>[project.scripts]</code> (also called <strong>entry points</strong>) turns a function into a real terminal command after install.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is what turns "clone this repo and run <code>python3 cli.py</code> from inside it" into "run <code>pip install .</code> once, then type <code>tasktool</code> from anywhere" — the difference between a script and an actual installed tool.
+    </div>
+
+    <p>
+      For the <code>tasktool</code> project structure from Sub-topic 2, here's a real, minimal <code>pyproject.toml</code> at the project root:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">pyproject.toml</span>
+      </div>
+      <pre><code>[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tasktool"
+version = "1.0.0"
+description = "A simple command-line task manager."
+requires-python = ">=3.9"
+
+[project.scripts]
+tasktool = "tasktool.cli:main"</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... pyproject.toml?</span>
+      <code>pyproject.toml</code> is the modern, standardized file (replacing the older <code>setup.py</code>) that tells pip everything it needs to build and install a project: what build tool to use (<code>[build-system]</code>), the project's own metadata like name and version (<code>[project]</code>), and any command-line entry points it should create (<code>[project.scripts]</code>). It's plain TOML — Python's own standard library can read it directly with <code>tomllib</code>, no third-party parser required.
+    </div>
+
+    <p>
+      The <code>[project.scripts]</code> table is the piece that makes a package genuinely feel like a real CLI tool rather than "a script you have to remember the path to." Each entry is <code>command-name = "module.path:function_name"</code>:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">reading the entry point line</span>
+      <pre><code>tasktool = "tasktool.cli:main"
+  ^            ^         ^
+  |            |         `-- the function to call
+  |            `-- the module it lives in
+  `-- the command a user types in their terminal</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... an entry point?</span>
+      An <strong>entry point</strong> is a named hook, declared in <code>pyproject.toml</code>, that pip uses to generate a real executable command when the package is installed. After <code>pip install .</code>, typing <code>tasktool</code> in any terminal (with the environment activated) runs the <code>main()</code> function from <code>tasktool/cli.py</code> — exactly as if you'd typed <code>python3 -m tasktool.cli</code>, but as its own standalone command.
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the thing to get right here isn't TOML syntax, it's picking a stable entry-point function signature — main() taking no required arguments (reading from sys.argv internally, same as Sub-topic 4's main(argv=None) pattern) — since that's what both pip's generated script and a plain "python3 -m yourpackage.cli" invocation both need to call identically.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a pyproject.toml for my tasktool package so that after pip install ., typing 'tasktool' in the terminal runs its main() function..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>I have a package at src/tasktool/ with a cli.py containing a function main(argv=None) that parses arguments with argparse. Write a minimal, valid pyproject.toml using the setuptools build backend that: sets project name "tasktool", version "1.0.0", a one-line description, requires-python ">=3.9", and declares a console entry point so that after `pip install .`, running `tasktool` in the terminal calls tasktool.cli:main. Explain what each of the three top-level tables ([build-system], [project], [project.scripts]) is responsible for.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      With <code>pyproject.toml</code> in place and the <code>src/tasktool/</code> package it points to actually existing, installing locally is one command, run from the project root with a virtual environment active:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ pip install .
+$ tasktool add "Ship v1.0"</code></pre>
+    </div>
+
+    <p>
+      That's the whole leap from "script" to "installed tool": before, running it meant remembering the exact file path and typing <code>python3 path/to/cli.py</code>; after, it's a real command, callable from any directory, exactly like any other tool installed with pip.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>pyproject.toml</code> is the single standard file describing a project's build system and metadata.</li>
+      <li>A valid <code>pyproject.toml</code> alongside a real package is all that's needed for <code>pip install .</code> to work — no publishing step required for a local install.</li>
+      <li><code>[project.scripts]</code> entry points turn a Python function into a real terminal command after install.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's the difference between pip install . and publishing to PyPI?</summary>
+      <p>
+        <code>pip install .</code> builds and installs directly from a local folder — perfect for your own machine, a teammate's clone of the repo, or a CI pipeline, and everything covered in this chapter is enough to make that work. Publishing to PyPI (so anyone in the world can run <code>pip install tasktool</code> without cloning anything) is an additional step on top: building a distributable artifact with a tool like <code>build</code>, then uploading it with <code>twine</code>. That publishing workflow is genuinely useful for open-source libraries but is a step beyond what most internal or personal tools ever need.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>pyproject.toml</code> has three key tables: <code>[build-system]</code>, <code>[project]</code>, and <code>[project.scripts]</code>.</li>
+        <li>A valid <code>pyproject.toml</code> plus a real package is enough for <code>pip install .</code> to work locally.</li>
+        <li>Entry points map a terminal command name to a specific function, turning an installed package into a real CLI tool.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="putting-it-together">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Putting it together: a shippable CLI tool</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>None of the previous five sub-topics are independent — a shippable tool needs all of them working together, not any one in isolation.</li>
+        <li>The same <code>cli.py</code> can wire up argparse <em>and</em> logging configuration in one place, keeping both concerns close to the entry point.</li>
+        <li>This is the shape of the professional project brief this chapter builds toward: a packaged CLI tool.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> each earlier sub-topic solved one piece of the hook's three failures in isolation. This section shows they compose into one coherent tool, which is the actual point of the chapter — not five separate tricks, one shippable result.
+    </div>
+
+    <p>
+      Here's every piece from Sub-topics 1-5 assembled into the real <code>tasktool</code> project, starting from <code>src/tasktool/cli.py</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">src/tasktool/cli.py</span>
+      </div>
+      <pre><code>import argparse
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog="tasktool", description="Manage a simple task list.")
+    parser.add_argument("-v", "--verbose", action="store_true", help="show debug-level logging")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    add_parser = subparsers.add_parser("add", help="add a new task")
+    add_parser.add_argument("description")
+
+    return parser
+
+
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
+
+    if args.command == "add":
+        logger.debug("Validating description before saving")
+        logger.info("Added task: %s", args.description)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 -m tasktool.cli -v add "Ship v1.0"
+$ python3 -m tasktool.cli add "Ship v1.0"</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output -- -v exposes the DEBUG line, otherwise it's filtered out</span>
+      <pre><code>DEBUG: Validating description before saving
+INFO: Added task: Ship v1.0
+---
+INFO: Added task: Ship v1.0</code></pre>
+    </div>
+
+    <p>
+      Notice logging is configured <em>inside</em> <code>main()</code>, after arguments are parsed — not at import time. That ordering is deliberate: the <code>-v</code>/<code>--verbose</code> flag itself decides the logging level, so parsing has to happen first. This is also the same subparser gotcha from Sub-topic 4 in action: <code>-v</code> is declared on the top-level parser, so it must come before <code>add</code> on the command line.
+    </p>
+
+    <p>
+      With <code>__init__.py</code> in place and the <code>pyproject.toml</code> from Sub-topic 5 pointing <code>[project.scripts]</code> at <code>tasktool.cli:main</code>, the entire chapter collapses into one clean setup-to-ship sequence:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">terminal</span>
+      </div>
+      <pre><code>$ python3 -m venv .venv                 # Sub-topic 1: isolate dependencies
+$ source .venv/bin/activate
+$ pip install .                         # Sub-topic 5: install via pyproject.toml
+$ tasktool -v add "Ship v1.0"           # Sub-topic 4: real CLI, Sub-topic 3: real logging</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the integration decision -- not any single piece's syntax -- is where to configure logging relative to argument parsing. Configuring it too early (at import time) means it can't react to a --verbose flag that hasn't been parsed yet; configuring it inside main(), right after parse_args(), is what lets a command-line flag control logging behavior at all.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Combine argparse and logging in one CLI entry point so a --verbose flag controls the logging level..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python CLI entry point, main(argv=None), for a package called tasktool. It needs: a top-level -v/--verbose flag, one subcommand "add" taking a required "description" positional argument, and logging configured via logging.basicConfig with level=DEBUG if --verbose was passed else level=INFO. Configure logging AFTER parsing arguments, not at import time, and explain why that ordering specifically matters for a --verbose flag to work. The add subcommand should log the description at DEBUG level (as a validation step) and INFO level (confirming it was added).</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>A shippable CLI tool needs a virtual environment, a real package structure, logging, argparse, and packaging metadata working together, not any single piece alone.</li>
+      <li>Logging configuration that depends on a command-line flag must happen after <code>parse_args()</code>, inside the entry point function, not at import time.</li>
+      <li>The full path from source to shipped tool: <code>venv</code> → package structure → <code>pip install .</code> → a real installed command.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's an "editable install," and when would you want one?</summary>
+      <p>
+        <code>pip install -e .</code> (the <code>-e</code> flag means "editable") installs the package as a live link to the source folder instead of copying it — edits to <code>src/tasktool/cli.py</code> take effect immediately, without reinstalling. This is the standard workflow while actively developing a package: install it once with <code>-e</code>, then iterate on the code and re-run the <code>tasktool</code> command to see changes instantly, exactly the workflow this chapter's exercises use.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>All five earlier sub-topics compose into one tool — venv isolates it, structure organizes it, logging observes it, argparse drives it, packaging ships it.</li>
+        <li>Logging that depends on a parsed argument (like <code>--verbose</code>) must be configured after <code>parse_args()</code> runs.</li>
+        <li><code>pip install -e .</code> is the standard workflow for developing a package you're actively editing.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every professional Python project you'll encounter — at a company, in open source, in a serious side project — uses a virtual environment and a <code>requirements.txt</code> or <code>pyproject.toml</code>; skipping this is one of the fastest ways to mark code as amateur in a code review.</li>
+      <li>Production systems live or die by their logs — when something breaks in an unattended script or server process at 3 AM, the log file (not a debugger, since nobody's watching) is the only record of what happened, which is exactly why "just use print()" doesn't scale past a personal script.</li>
+      <li>Internal company tools are overwhelmingly built exactly this way: a small, well-structured Python package with an argparse-driven CLI, installed with <code>pip install -e .</code> on a teammate's machine — this chapter's shape, not a special case.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>Virtual environments (<code>python3 -m venv .venv</code>) isolate a project's dependencies; <code>requirements.txt</code> (via <code>pip freeze</code>) lets that environment be recreated anywhere.</li>
+      <li>A standard project layout separates installable source code (<code>src/yourpackage/</code>, with <code>__init__.py</code>) from tests, config, and project metadata.</li>
+      <li>The <code>logging</code> module replaces <code>print()</code> with leveled, filterable, redirectable diagnostics — DEBUG through CRITICAL — essential for anything unattended.</li>
+      <li><code>argparse</code> declares positional and optional arguments (and subcommands) once, and gets validation, type conversion, and help text generated for free.</li>
+      <li><code>pyproject.toml</code> is the standard file that makes a project <code>pip install</code>-able, with <code>[project.scripts]</code> entry points turning a function into a real terminal command.</li>
+      <li>A genuinely shippable CLI tool needs all five working together — venv, structure, logging, argparse, and packaging aren't separate tricks, they're one coherent workflow.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

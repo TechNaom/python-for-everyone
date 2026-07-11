@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30: CI/CD Pipelines — Python for Everyone</title>
+<meta name="description" content="GitHub Actions from first principles: workflow YAML structure, a real lint + pytest workflow, matrix testing and pip caching across Python versions, status checks and branch protection, and the wider pipeline beyond tests.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">70 min read</span>
+  </div>
+  <h1>CI/CD Pipelines</h1>
+  <p><em>Chapters 27&ndash;29 gave you three separate pieces: automated tests (Chapter 27), local git (Chapter 28), and pull requests hosted on GitHub (Chapter 29). This chapter wires them together so they run themselves. There's no new Python syntax here &mdash; the new language is YAML, and the new tool is <strong>GitHub Actions</strong>, which runs your pytest suite automatically, on GitHub's own servers, every time someone pushes or opens a PR, without anyone having to remember to run it by hand.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> covers why CI/CD exists at all &mdash; the real failure modes it closes off.</li>
+      <li><strong>Sub-topic 2</strong> covers the anatomy of a GitHub Actions workflow file &mdash; <code>on</code>, <code>jobs</code>, <code>steps</code>, and the two most common building-block actions.</li>
+      <li><strong>Sub-topic 3</strong> builds one complete, working workflow that installs dependencies, lints with <code>ruff</code>, and runs <code>pytest</code> &mdash; the workflow this chapter's own exercises are built around.</li>
+      <li><strong>Sub-topic 4</strong> extends it with a build matrix (testing across several Python versions at once) and pip caching, so runs stay fast as a project grows.</li>
+      <li><strong>Sub-topic 5</strong> covers how CI results actually show up on a pull request, and how branch protection turns a passing check from "nice to see" into a real merge gate.</li>
+      <li><strong>Sub-topic 6</strong> zooms out to the wider pipeline &mdash; linting, type checking, security scanning, build artifacts, and deployment stages &mdash; that "CI/CD" covers beyond just running tests.</li>
+      <li><strong>A note on every YAML example in this chapter:</strong> every workflow file shown was parsed with Python's <code>yaml.safe_load()</code> to confirm it's valid YAML before being written into this lesson &mdash; the same way Chapters 28&ndash;29 verified every git command by actually running it. Action names and versions (<code>actions/checkout@v4</code>, <code>actions/setup-python@v5</code>) are GitHub's real, current official actions.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#why-cicd-matters">1. Why CI/CD matters</a>
+    <a href="#github-actions-basics">2. GitHub Actions basics</a>
+    <a href="#lint-test-workflow">3. Building a lint + test workflow</a>
+    <a href="#matrix-and-caching">4. Workflow matrix and caching</a>
+    <a href="#status-checks-branch-protection">5. Status checks and branch protection</a>
+    <a href="#beyond-tests">6. Beyond tests: the wider pipeline</a>
+  </nav>
+
+  <div class="hook">
+    Chapter 27 gave your project a real test suite. Chapter 29 gave it pull requests. Now picture the gap between them: a contributor opens a PR, their laptop happens to have a slightly different package version installed, and their tests passed locally &mdash; but they never actually ran <code>pytest</code> before pushing, because remembering to is easy to skip under a deadline. The PR gets reviewed on the diff alone, looks fine, and merges. Two days later, <code>main</code> is broken for everyone. This chapter is about removing "did someone remember to run the tests" from that story entirely &mdash; by having a machine run them, automatically, on every single push, whether anyone remembers or not.
+  </div>
+
+  <div class="subtopic" id="why-cicd-matters">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Why CI/CD matters</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>"Works on my machine" is a real, common failure &mdash; different installed package versions, different OS, different environment variables, all invisible until code runs somewhere else.</li>
+        <li>Without automation, tests only get run when a human remembers to &mdash; and under time pressure, that's exactly when they get skipped.</li>
+        <li>Manual deploys repeat the same class of mistake at a higher cost: a forgotten step, a stale build, a file deployed from the wrong branch.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every failure mode below has the same root cause &mdash; a correctness check that exists, but only runs when a human remembers to trigger it by hand. CI/CD's entire value proposition is turning "remember to" into "automatically, every time."
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... CI/CD?</span>
+      <strong>CI</strong> (Continuous Integration) means automatically building and testing every change as soon as it's pushed, so problems surface within minutes, not after they've piled up. <strong>CD</strong> (Continuous Delivery/Deployment) extends that automation further, to packaging and shipping a change once it passes. This chapter focuses mostly on the CI half &mdash; an automated lint + test workflow &mdash; since that's the part every project benefits from immediately, and touches on CD conceptually in Sub-topic 6.
+    </div>
+
+    <p>
+      "Works on my machine" is the most common version of this problem. It happens for reasons that have nothing to do with whether the code is actually correct:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A different version of a dependency is installed locally than what's pinned in <code>requirements.txt</code>.</li>
+      <li>A test quietly depends on a file, environment variable, or timezone that happens to be set up on one machine and not another.</li>
+      <li>The contributor is on a different operating system than the one the project actually deploys to.</li>
+    </ul>
+
+    <p>
+      None of these are hypothetical &mdash; they're the ordinary, daily reality of more than one person touching the same codebase. The fix isn't "be more careful"; it's running every check in one identical, disposable environment, every time, regardless of whose machine the change came from.
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">the gap this chapter closes</span>
+      <pre><code>Without CI/CD:                      With CI/CD:
+
+  write code                          write code
+  (maybe) run tests locally           push
+  push                                   |
+  open PR                                v
+  reviewed on the diff alone       GitHub Actions runs the
+  merged                           full test suite automatically,
+  ...bug discovered later,         on a clean machine, in minutes
+  after it's already shared           |
+                                       v
+                                  PR shows pass/fail BEFORE
+                                  a human ever has to guess</code></pre>
+    </div>
+
+    <p>
+      The same logic applies to deployment. A manual deploy is a human running a checklist by hand &mdash; build the project, copy the right files, restart the right service &mdash; and every one of those steps is a place a tired or rushed human can skip something or run it against the wrong branch. An automated deploy pipeline runs the exact same steps, in the exact same order, every time, with no step silently forgotten.
+    </p>
+
+    <div class="real-world-inline">
+      <p>
+        This is precisely the scenario from the hook: a contributor's local pytest run (Chapter 27) and their pushed branch (Chapter 28) are only useful to the team once something confirms they actually agree &mdash; and that confirmation needs to happen automatically, on GitHub, not rely on the contributor's memory or the reviewer's trust.
+      </p>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>CI/CD replaces "a human remembered to check" with "a machine checks automatically, every time."</li>
+      <li>"Works on my machine" bugs come from environment differences invisible until code runs somewhere else, identically, every time.</li>
+      <li>Manual deploys fail the same way manual testing does &mdash; a skipped or misordered step, not a code defect.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is GitHub Actions the only CI/CD tool?</summary>
+      <p>
+        No &mdash; Jenkins, GitLab CI/CD, CircleCI, and Travis CI are all widely used alternatives, and the underlying ideas (trigger on a push, run in a clean environment, report pass/fail) are shared across all of them. GitHub Actions is covered here specifically because it's built directly into GitHub (Chapter 29's platform), needs no separate account or service, and is free for public repositories &mdash; making it the lowest-friction way to add real CI to a project you're already hosting there.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>"Works on my machine" bugs come from environment differences that only a clean, identical, automated environment reliably catches.</li>
+        <li>Tests and deploy steps that only run when a human remembers eventually get skipped under pressure &mdash; automation removes that dependency.</li>
+        <li>CI automatically builds/tests every change; CD extends that automation to packaging and shipping it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="github-actions-basics">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. GitHub Actions basics</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A GitHub Actions <strong>workflow</strong> is a YAML file in <code>.github/workflows/</code> describing when to run, and what to do.</li>
+        <li><code>on</code> defines the trigger; <code>jobs</code> defines what runs; each job's <code>steps</code> define, in order, the individual commands or actions to execute.</li>
+        <li>A <strong>runner</strong> is the actual machine (a fresh virtual machine GitHub provisions per run) that executes a job's steps.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every workflow file, no matter how complex, is built from exactly these three concepts &mdash; trigger, jobs, steps &mdash; nested inside one YAML file. Sub-topic 3 builds a real one from these same pieces.
+    </div>
+
+    <p>
+      A workflow file lives at a specific, required path: <code>.github/workflows/&lt;anything&gt;.yml</code>. GitHub scans that folder in every repository and treats every <code>.yml</code> file inside it as a workflow definition. The simplest possible one is barely more than its trigger and one command:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/hello.yml</span>
+      </div>
+      <pre><code>name: Basic CI
+
+on: push
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print a greeting
+        run: echo "Hello from GitHub Actions"</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a workflow?</span>
+      A <strong>workflow</strong> is one YAML file describing an automated process: what event should trigger it (<code>on</code>), and what work to do when it fires (<code>jobs</code>). A repository can have many workflow files at once &mdash; one for tests, a separate one for deployment, another for a scheduled nightly task &mdash; each triggered independently.
+    </div>
+
+    <p>
+      Reading that file top to bottom: <code>name</code> is just a human-readable label, shown in GitHub's UI. <code>on: push</code> is the trigger &mdash; this workflow runs on every push, to any branch. Real projects are almost always more specific than that, scoping the trigger to particular branches and events:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">a more realistic trigger</span>
+      </div>
+      <pre><code>on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]</code></pre>
+    </div>
+
+    <p>
+      This runs the workflow in two situations: a direct push to <code>main</code>, and any pull request whose <em>target</em> branch is <code>main</code> &mdash; which is exactly the moment a PR from Chapter 29 needs a pass/fail result attached to it, before anyone reviews the diff by eye.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the decision that matters isn't YAML syntax, it's scoping the trigger correctly &mdash; running a workflow on every push to every branch wastes runner minutes on throwaway branches, while running it only on <code>main</code> misses the whole point of catching problems before they merge. Triggering on both a push to main and any PR targeting main is the standard shape almost every real project uses.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write the on: block for a GitHub Actions workflow that runs on pushes to main and on pull requests targeting main..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write just the `on:` trigger section of a GitHub Actions workflow YAML file. It should run the workflow in two cases: (1) a direct push to the `main` branch, and (2) any pull request that targets `main` as its base branch. Use the `branches:` filter under both `push` and `pull_request` so it doesn't fire on every branch. Show the YAML and briefly explain why scoping the trigger this way avoids wasting CI minutes on unrelated branches.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Inside <code>jobs</code>, each named entry (<code>say-hello</code> above) is one independent unit of work. <code>runs-on</code> picks the machine it executes on:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a runner?</span>
+      A <strong>runner</strong> is the actual virtual machine GitHub provisions to execute a job. <code>runs-on: ubuntu-latest</code> is by far the most common choice &mdash; a fresh Ubuntu Linux VM, spun up from scratch for that one run and destroyed afterward, so nothing from a previous run (leftover files, cached state, environment drift) ever leaks in. GitHub also offers Windows (<code>windows-latest</code>) and macOS (<code>macos-latest</code>) runners for projects that need to test on those platforms specifically.
+    </div>
+
+    <p>Each job gets its own fresh runner. That distinction matters once a workflow has more than one job:</p>
+
+    <div class="what-is">
+      <span class="label">What is... a job?</span>
+      A <strong>job</strong> is a set of steps that run together, in order, on the same runner. Jobs run in <em>parallel</em> by default unless one explicitly depends on another (via <code>needs</code>, covered in Sub-topic 6) &mdash; which is why splitting unrelated work (say, linting and a security scan) into separate jobs can finish faster than cramming everything into one.
+    </div>
+
+    <p>
+      Finally, <code>steps</code> is an ordered list, and each step is one of exactly two things: a shell command (<code>run</code>), or a reusable, pre-built action (<code>uses</code>). The two actions almost every Python workflow starts with are <code>actions/checkout</code> and <code>actions/setup-python</code>:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/checkout-setup.yml</span>
+      </div>
+      <pre><code>name: Checkout and set up Python
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Confirm Python is available
+        run: python --version</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a step?</span>
+      A <strong>step</strong> is one action within a job, run in order top to bottom. A step either runs a shell command directly (<code>run: pytest</code>) or invokes a reusable, versioned <strong>action</strong> published by GitHub or the community (<code>uses: actions/checkout@v4</code>), optionally passing it inputs via <code>with</code>. The <code>@v4</code>/<code>@v5</code> suffix pins a specific major version of that action &mdash; the same reason Chapter 27's <code>requirements.txt</code> pins dependency versions, so a workflow doesn't silently break when an action publishes a breaking change.
+    </div>
+
+    <p>
+      A fresh runner starts completely empty &mdash; it does not automatically have your repository's code on it. <code>actions/checkout@v4</code> is the step that clones your repository onto the runner (the same clone operation Chapter 29 covered, just run by GitHub instead of you). <code>actions/setup-python@v5</code> then installs the requested Python version and puts it on the runner's <code>PATH</code>, so every step after it can run <code>python</code> and <code>pip</code> normally. Almost every job in this chapter starts with these same two steps, in this same order &mdash; checkout has to come first, since there's nothing to set up Python <em>for</em> otherwise.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A workflow is a YAML file in <code>.github/workflows/</code>, made of a trigger (<code>on</code>), one or more <code>jobs</code>, and each job's ordered <code>steps</code>.</li>
+      <li>A runner is a fresh, disposable VM (usually <code>ubuntu-latest</code>) that executes a job's steps; jobs run in parallel unless one depends on another.</li>
+      <li><code>actions/checkout@v4</code> clones your repo onto the runner; <code>actions/setup-python@v5</code> installs and configures Python &mdash; almost every Python workflow's first two steps.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what other events can trigger a workflow besides push and pull_request?</summary>
+      <p>
+        Plenty &mdash; <code>schedule</code> (a cron expression, for a nightly or weekly run), <code>workflow_dispatch</code> (a manual "Run workflow" button in GitHub's UI, useful for deploys you want to trigger deliberately rather than automatically), <code>release</code> (when a GitHub release is published), and <code>issues</code> (when an issue from Chapter 29 is opened or labeled) are all common ones. A single workflow's <code>on</code> block can list several of these together, each with its own filters.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A workflow file lives at <code>.github/workflows/*.yml</code> and is built from a trigger, jobs, and each job's steps.</li>
+        <li>A runner is a fresh, disposable VM; a job is an ordered list of steps that run on one runner.</li>
+        <li><code>actions/checkout@v4</code> then <code>actions/setup-python@v5</code> is the standard opening pair of steps for a Python workflow.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="lint-test-workflow">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Building a lint + test workflow</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A real CI workflow, put together from Sub-topic 2's pieces: check out the code, set up Python, install dependencies, lint, then test.</li>
+        <li><code>ruff</code> is a fast, widely-used Python linter; <code>pytest</code> (Chapter 27) is the test runner.</li>
+        <li>The job fails &mdash; and blocks, once branch protection is set up in Sub-topic 5 &mdash; the moment any single step exits with a non-zero status.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> this is the one workflow every project should have from day one &mdash; everything else in this chapter (matrix testing, caching, the wider pipeline) is an enhancement on top of exactly this shape, not a replacement for it.
+    </div>
+
+    <p>
+      Here's the complete, working workflow this chapter's own exercises are built around &mdash; nothing in it goes beyond what Sub-topic 2 already introduced:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/ci.yml</span>
+      </div>
+      <pre><code>name: Lint and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest
+
+      - name: Lint with ruff
+        run: ruff check .
+
+      - name: Run tests with pytest
+        run: pytest</code></pre>
+    </div>
+
+    <p>
+      Two things worth noticing about the <code>run</code> steps. First, the <code>|</code> after <code>run:</code> in "Install dependencies" is plain YAML syntax for a multi-line string &mdash; each line becomes its own command, run in sequence, in the same shell. Second, the order of the last two steps is deliberate: lint before test. Linting is far faster than running a full test suite, so catching a trivial style or syntax issue there means the workflow fails fast, before spending runner time on tests that were never going to matter if the lint step was going to fail anyway.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a linter, in this context?</span>
+      A linter statically analyzes code for issues without running it &mdash; unused imports, undefined names, inconsistent style, common bug patterns (like Chapter 25's mutable-default-argument gotcha). <code>ruff</code> is a modern, extremely fast linter for Python (a single <code>ruff check .</code> scans an entire project in milliseconds); it's used here as the concrete example, but the same workflow shape applies with <code>flake8</code> or any other linter &mdash; only the install line and the one <code>run</code> command change.
+    </div>
+
+    <p>
+      Running <code>ruff check .</code> against a file with an actual issue makes the pass/fail behavior concrete:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">app.py (has an unused import)</span>
+      </div>
+      <pre><code>import os
+import json
+
+def load_config(path):
+    with open(path) as f:
+        return json.load(f)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">ruff check . output</span>
+      <pre><code>app.py:1:8: F401 [*] `os` imported but unused
+Found 1 error.
+[*] 1 fixable with the `--fix` option.</code></pre>
+    </div>
+
+    <p>
+      That non-zero exit status is exactly what makes the whole workflow useful: any step that fails stops the job right there and marks it red, and every subsequent step in that job is skipped. GitHub Actions doesn't need any special "did it pass" logic &mdash; it's using the same success/failure convention every command-line tool already follows, the same one that makes <code>pytest</code>'s own exit code meaningful when you run it locally.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the actual engineering decision in this workflow is step ordering and scope, not YAML mechanics &mdash; lint before test because it's cheaper and fails faster; one job, not several, because lint and test share the same installed dependencies and there's no benefit to paying for a second runner setup just to split them apart here (Sub-topic 6 shows when splitting into separate jobs does pay off).</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="4" placeholder="e.g. Write a GitHub Actions workflow that runs on push and pull_request to main, checks out the repo, sets up Python 3.12, installs requirements.txt plus ruff and pytest, then lints with ruff before running pytest..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a GitHub Actions workflow file, .github/workflows/ci.yml, for a Python project. Requirements: (1) trigger on push to main and on any pull_request targeting main, (2) one job named lint-and-test running on ubuntu-latest, (3) steps in this exact order: actions/checkout@v4, actions/setup-python@v5 configured for Python 3.12, a step that upgrades pip and installs both requirements.txt and the packages ruff and pytest, a step that runs `ruff check .`, and a final step that runs `pytest`. Explain why lint should run before pytest in the step order, and confirm the YAML is valid by describing how you'd check it with yaml.safe_load() in Python.</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>The standard shape: checkout, setup-python, install dependencies, lint, test &mdash; in that order, lint before test to fail fast and cheap.</li>
+      <li><code>ruff check .</code> statically analyzes the project without running it; a non-zero exit status fails the step (and the job) exactly like any other command-line tool.</li>
+      <li>Any failed step stops the job immediately and skips everything after it &mdash; the same success/failure convention Chapter 27's <code>pytest</code> exit code already relies on.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why pip install ruff pytest instead of putting them in requirements.txt?</summary>
+      <p>
+        Many real projects do exactly that &mdash; but a common convention is keeping <code>requirements.txt</code> limited to what the application itself needs to run, and listing dev-only tools (linters, test frameworks, formatters) either directly in the workflow, or in a separate file like <code>requirements-dev.txt</code> installed only in CI. Either approach is valid; what matters is that whichever one a project picks, the workflow installs everything the lint and test steps actually need before running them.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A complete lint + test workflow is just Sub-topic 2's building blocks in a deliberate order: checkout, setup-python, install, lint, test.</li>
+        <li>Lint runs before test because it's faster and fails cheaper.</li>
+        <li>A non-zero exit from any step fails that step, stops the job, and skips whatever comes after &mdash; the same convention as any other CLI tool's exit code.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="matrix-and-caching">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Workflow matrix and caching</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>matrix strategy</strong> runs the same job multiple times, once per combination of values (e.g. one run per Python version) &mdash; in parallel, not one after another.</li>
+        <li>This catches version-specific bugs Sub-topic 3's single-version workflow can't &mdash; "works on 3.12" isn't the same claim as "works on every Python version this project supports."</li>
+        <li><strong>Caching</strong> pip's downloaded packages between runs cuts install time, since the same dependencies rarely change from one run to the next.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topic 3's workflow only proves the code works on one specific Python version &mdash; for any project that supports (or claims to support) more than one, that's an unverified claim, not a tested fact, until a matrix actually runs it on each.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a matrix strategy?</span>
+      A <strong>matrix strategy</strong> tells GitHub Actions to run one job multiple times, substituting a different value into it each time, from a list you define. The most common use is testing several Python versions, but a matrix can vary any combination of values at once (Python version <em>and</em> operating system, for example) &mdash; GitHub runs every combination as its own separate, parallel job.
+    </div>
+
+    <p>
+      Adding a matrix to Sub-topic 3's workflow needs exactly two additions: a <code>strategy.matrix</code> block, and a reference to that matrix's value wherever the single, hardcoded version used to be:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/ci.yml (with a matrix and caching)</span>
+      </div>
+      <pre><code>name: Lint and Test (matrix)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest
+
+      - name: Lint with ruff
+        run: ruff check .
+
+      - name: Run tests with pytest
+        run: pytest</code></pre>
+    </div>
+
+    <p>
+      <code>${{ matrix.python-version }}</code> is GitHub Actions' expression syntax &mdash; it substitutes in whichever value from the matrix list this particular parallel run is handling. With three versions listed, this one job definition produces three independent runs: <code>lint-and-test (3.10)</code>, <code>lint-and-test (3.11)</code>, <code>lint-and-test (3.12)</code>, each on its own fresh runner, all starting at the same time:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">what the matrix produces -- three parallel runs from one job definition</span>
+      <pre><code>jobs.lint-and-test  (matrix: python-version)
+  |
+  +-- lint-and-test (3.10)  -- own runner, runs independently
+  +-- lint-and-test (3.11)  -- own runner, runs independently
+  +-- lint-and-test (3.12)  -- own runner, runs independently
+
+All three run in parallel -- total time is roughly the SLOWEST
+one, not the sum of all three.</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the version list itself is the real decision, not the matrix syntax &mdash; it should match whatever a project actually claims to support (often documented in <code>pyproject.toml</code>'s <code>python_requires</code> or a README), not an arbitrary "add a few versions." Listing versions the project doesn't actually support wastes CI time testing combinations no user will ever run.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Add a matrix strategy to my existing lint-and-test workflow that runs it against Python 3.10, 3.11, and 3.12, plus pip caching..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Here is my existing GitHub Actions workflow (paste the ci.yml from Sub-topic 3). Modify it to: (1) add a strategy.matrix block that runs the job against Python 3.10, 3.11, and 3.12, (2) reference the matrix value with ${{ matrix.python-version }} in both the job's setup-python step name and its python-version input, and (3) enable pip caching via actions/setup-python's built-in cache: "pip" option rather than a separate caching action. Explain what "each matrix combination runs on its own runner, in parallel" actually means for total workflow time versus running the three versions one after another.</pre></div>
+      </details>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... caching, in a workflow?</span>
+      Every runner starts completely empty, so without caching, "Install dependencies" downloads every package from scratch on every single run &mdash; even when <code>requirements.txt</code> hasn't changed since yesterday. <code>cache: "pip"</code> on <code>actions/setup-python@v5</code> is the simplest way to fix this: it automatically saves pip's download cache after a run and restores it at the start of the next one (keyed on a hash of your dependency file), so unchanged dependencies are pulled from the cache instead of re-downloaded from the internet.
+    </div>
+
+    <p>
+      The effect compounds with the matrix above: three parallel jobs each installing the same dependencies would otherwise mean three full, repeated downloads every single run; with caching enabled, only the very first run (or any run after <code>requirements.txt</code> changes) pays that full cost.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A matrix runs one job multiple times with different substituted values, in parallel &mdash; <code>${{ matrix.python-version }}</code> is the substitution syntax.</li>
+      <li>Total time for a matrixed job is roughly its slowest single combination, not the sum of all of them, since they run at the same time.</li>
+      <li><code>cache: "pip"</code> on <code>actions/setup-python@v5</code> saves and restores pip's download cache between runs, keyed on your dependency file's contents.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what invalidates the pip cache?</summary>
+      <p>
+        By default, <code>actions/setup-python</code>'s built-in caching keys the cache to a hash of your dependency file (<code>requirements.txt</code>, or <code>pyproject.toml</code>/<code>poetry.lock</code> for other setups). Change one character in <code>requirements.txt</code> &mdash; bump a version pin, add a new package &mdash; and the hash changes, so the next run gets a fresh cache miss and rebuilds it once. This is exactly the right invalidation rule: dependencies genuinely did change, so a stale cache would be actively wrong to reuse.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A matrix strategy tests every version combination as its own parallel run, from one job definition.</li>
+        <li>Matrixed runs happen in parallel &mdash; total time tracks the slowest one, not the sum.</li>
+        <li>Pip caching (<code>cache: "pip"</code>) skips re-downloading unchanged dependencies, keyed on your dependency file's hash.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="status-checks-branch-protection">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Status checks and branch protection</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>Every workflow run against a PR shows up directly on that PR as a <strong>status check</strong> &mdash; pass, fail, or still running.</li>
+        <li>By default, a status check is purely informational &mdash; a red X doesn't stop anyone from merging.</li>
+        <li><strong>Branch protection</strong> with <strong>required status checks</strong> is what actually turns a passing workflow into a hard requirement before a merge button becomes clickable.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> Sub-topics 3&ndash;4 built a workflow that reports pass/fail accurately &mdash; but a report nobody is required to look at doesn't actually prevent the hook's broken-merge scenario. Branch protection is the piece that closes that gap for real.
+    </div>
+
+    <p>
+      Once a workflow like Sub-topic 3's is committed to <code>.github/workflows/</code>, GitHub runs it automatically on every matching push and PR &mdash; no extra setup needed to make it <em>run</em>. What it looks like on a real pull request:
+    </p>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Illustrative text mockup — not a real screenshot</span>
+      <p class="diagram-note">A stand-in for GitHub's real PR "Checks" section, described in prose/structure since it can't be captured as a real screenshot here.</p>
+      <pre><code>Pull Request #57 — Add shopping list feature
+
+  Some checks haven't completed yet
+  1 pending, 0 failing, 2 successful checks
+
+    ✓ lint-and-test (3.10)          38s
+    ✓ lint-and-test (3.11)          41s
+    ⏳ lint-and-test (3.12)         running...
+
+  [ Merge pull request ]  (still clickable -- not required yet)</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a status check?</span>
+      A <strong>status check</strong> is the pass/fail (or still-running) result of one workflow job, attached directly to the specific commit it ran against and shown on any PR containing that commit. Each matrix combination from Sub-topic 4 reports as its own separate check (<code>lint-and-test (3.10)</code>, <code>lint-and-test (3.11)</code>, etc.), so a reviewer can see exactly which Python version, if any, actually failed &mdash; not just one combined red/green result.
+    </div>
+
+    <p>
+      Notice the mockup's merge button: still clickable, even with a check pending. That's the default, and it's a real gap &mdash; a red X or a still-running check is only useful information if someone is required to wait for it. <strong>Branch protection</strong> is the GitHub repository setting that closes that gap:
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... branch protection?</span>
+      <strong>Branch protection</strong> is a set of rules attached to a specific branch (almost always <code>main</code>) that GitHub enforces regardless of who's pushing or merging. <strong>Required status checks</strong> is one such rule: it names specific checks (like <code>lint-and-test (3.12)</code>) that must report success before the merge button becomes clickable at all &mdash; turning Sub-topic 3's workflow from a report into an actual gate.
+    </div>
+
+    <div class="diagram-card">
+      <span class="diagram-label">Illustrative text mockup — not a real screenshot</span>
+      <p class="diagram-note">A stand-in for GitHub's real branch protection settings page and its effect on a PR, described in prose/structure.</p>
+      <pre><code>Settings > Branches > Branch protection rule for "main"
+
+  [x] Require status checks to pass before merging
+      [x] Require branches to be up to date before merging
+
+      Status checks that are required:
+        [x] lint-and-test (3.10)
+        [x] lint-and-test (3.11)
+        [x] lint-and-test (3.12)
+
+  ---------------------------------------------------------
+
+  Pull Request #58 — Fix off-by-one in total()
+
+    ✗ lint-and-test (3.11)          FAILED — 1 test failed
+
+  Merge blocked
+  Required status check "lint-and-test (3.11)" is failing.
+  [ Merge pull request ]  (button disabled, greyed out)</code></pre>
+    </div>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the judgment call in branch protection isn't "should I turn it on" (almost always yes, for any shared branch) &mdash; it's exactly which checks to mark required. Marking a flaky or still-experimental check as required blocks every future merge on something unreliable; the right default is requiring only checks that are both stable and genuinely meaningful, like every matrix combination of the lint-and-test job.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to help with this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. I have a matrix workflow with three Python version checks — walk me through setting up branch protection on main so a PR can't merge unless all three pass..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>My repository has a GitHub Actions workflow, lint-and-test, that runs as a matrix across Python 3.10, 3.11, and 3.12 -- so it reports three separate status checks per PR (lint-and-test (3.10), (3.11), (3.12)). Walk me through the exact steps in GitHub's Settings > Branches to add a branch protection rule for main that: (1) requires all three of those specific checks to pass before the merge button is enabled, and (2) requires the branch to be up to date with main before merging. Explain what "require branches to be up to date" actually prevents that requiring the checks alone doesn't.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      "Require branches to be up to date before merging" is worth calling out specifically: it forces a PR branch to have the latest <code>main</code> merged or rebased in (Chapter 28's territory again) before its checks count, closing one more real gap &mdash; a PR that passed CI a week ago, before <code>main</code> changed underneath it, isn't proof it still passes today.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Every workflow run against a PR shows up as a status check &mdash; per matrix combination, attached to the exact commit it ran against.</li>
+      <li>A status check alone is informational only &mdash; nothing stops a merge unless branch protection says otherwise.</li>
+      <li>Required status checks under branch protection is what actually blocks the merge button until the named checks pass.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: can an admin bypass a required status check?</summary>
+      <p>
+        By default, repository admins can still merge past a failing required check &mdash; branch protection has a separate "Do not allow bypassing the above settings" option that closes even that door, applying the rule to everyone including admins. Most real teams leave admins able to bypass in a genuine emergency, but treat doing so as rare and notable, not routine &mdash; if bypassing a required check becomes normal, the check has effectively stopped meaning anything.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A status check is a workflow run's pass/fail result, shown directly on the PR that triggered it.</li>
+        <li>Status checks alone don't block anything &mdash; branch protection's "required status checks" is what does.</li>
+        <li>"Require branches to be up to date" closes the gap where a PR passed CI before <code>main</code> changed underneath it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="beyond-tests">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Beyond tests: the wider pipeline</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>"CI/CD" covers far more than running pytest &mdash; type checking, security scanning, building distributable artifacts, and deploying are all common pipeline stages.</li>
+        <li>Independent checks (lint/test, type checking, security scanning) are usually split into separate parallel jobs; a build or deploy stage that depends on all of them uses <code>needs</code> to wait until they succeed.</li>
+        <li>This sub-topic is conceptual &mdash; each stage is a real, runnable pattern, but going deep on any one of them (a full deployment pipeline, a specific security scanner) is beyond this chapter's scope.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> every prior sub-topic built one job. A real production pipeline is usually several jobs working together, some in parallel, some gated on others &mdash; this is the shape that connects everything else in this chapter into one coherent picture.
+    </div>
+
+    <p>
+      Beyond lint and test, four more stages show up constantly in real pipelines:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Type checking</strong> &mdash; tools like <code>mypy</code> statically check type hints for consistency, catching a class of bug neither a linter nor a test necessarily will (a function called with the wrong argument type, but never actually exercised by a test with that specific bad input).</li>
+      <li><strong>Security scanning</strong> &mdash; tools like <code>pip-audit</code> check installed dependencies against known vulnerability databases, flagging a package version with a published CVE before it ships.</li>
+      <li><strong>Build artifacts</strong> &mdash; packaging the project into its distributable form (a wheel, a Docker image, a zip) and uploading it so later stages, or a human, can retrieve exactly what was built from this specific commit.</li>
+      <li><strong>Deployment stages</strong> &mdash; taking a build artifact that passed every prior stage and actually shipping it, often to a staging environment first, then production, frequently gated behind a manual approval step.</li>
+    </ul>
+
+    <p>
+      Put together, with lint-and-test's matrix from Sub-topic 4 alongside three new jobs:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">.github/workflows/pipeline.yml</span>
+      </div>
+      <pre><code>name: Full Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+      - run: pip install -r requirements.txt
+      - run: ruff check .
+      - run: pytest
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install mypy -r requirements.txt
+      - run: mypy .
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit
+      - run: pip-audit -r requirements.txt
+
+  build:
+    needs: [lint-and-test, type-check, security-scan]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build distribution
+        run: python -m build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>needs</code>?</span>
+      <code>needs</code> makes a job wait for one or more other jobs to succeed before it starts, instead of running immediately in parallel with everything else. Here, <code>build</code> lists all three earlier jobs in its <code>needs</code> &mdash; it only runs once <code>lint-and-test</code> (all three matrix combinations), <code>type-check</code>, and <code>security-scan</code> have all reported success. If any of them fails, <code>build</code> is skipped entirely, so a broken or vulnerable commit never gets packaged in the first place.
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">the shape of this pipeline</span>
+      <pre><code>lint-and-test (3.10)  \
+lint-and-test (3.11)   |-- all run in PARALLEL, independent of
+lint-and-test (3.12)  /    each other and of the two jobs below
+type-check            |
+security-scan         /
+        |
+        | needs: [lint-and-test, type-check, security-scan]
+        v
+      build   -- only runs if EVERY job above succeeded</code></pre>
+    </div>
+
+    <p>
+      <code>actions/upload-artifact@v4</code> is the last new piece: it saves whatever's in the given path (here, <code>dist/</code>, where Python's standard <code>build</code> tool puts a built wheel and source distribution) as a downloadable artifact attached to that specific workflow run &mdash; retrievable later from GitHub's UI, or by a following deployment job. A real deployment stage would typically follow this same <code>needs</code> pattern one level further: a <code>deploy</code> job that <code>needs: [build]</code>, downloads the artifact, and ships it &mdash; often restricted to only run on pushes to <code>main</code> (not every PR) via an <code>if</code> condition, and frequently requiring a manual approval through GitHub's <strong>environments</strong> feature before it's allowed to touch production.
+    </p>
+
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the real design decision across a multi-job pipeline is what runs in parallel versus what's gated &mdash; lint/type-check/security-scan share no dependency on each other's results, so there's no reason to force them to run in sequence and waste time; build genuinely does depend on all three passing, so it's the one place `needs` belongs. Getting this wrong either wastes CI time (unnecessary sequencing) or wastes compute on doomed work (building an artifact from code that fails its own tests).</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="4" placeholder="e.g. Add a type-check job with mypy and a security-scan job with pip-audit to my existing matrix lint-and-test workflow, running in parallel, then a build job that only runs if all three pass and uploads the dist/ folder as an artifact..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Extend my existing matrix lint-and-test workflow (paste the Sub-topic 4 YAML) into a full pipeline with these additional jobs, all in the same workflow file: (1) a type-check job on ubuntu-latest with Python 3.12 that installs mypy plus requirements.txt and runs `mypy .`, (2) a security-scan job that installs pip-audit and runs `pip-audit -r requirements.txt`, (3) a build job that uses `needs: [lint-and-test, type-check, security-scan]` so it only runs after all three succeed, checks out the repo, runs `python -m build`, and uploads the resulting dist/ folder using actions/upload-artifact@v4. Explain why lint-and-test, type-check, and security-scan should run in parallel rather than one after another, and why build specifically needs the `needs` key when the others don't.</pre></div>
+      </details>
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Type checking (<code>mypy</code>) and security scanning (<code>pip-audit</code>) are common pipeline stages beyond lint + test, each catching a different class of problem.</li>
+      <li>Independent checks run as separate parallel jobs; <code>needs</code> gates a later job (like a build) on all of them succeeding first.</li>
+      <li><code>actions/upload-artifact@v4</code> saves a built package from one job, retrievable later or by a downstream deploy job &mdash; the connecting piece between "tests passed" and "this exact, verified build gets shipped."</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's the difference between Continuous Delivery and Continuous Deployment?</summary>
+      <p>
+        Both build on the same automated pipeline; they differ only in the very last step. <strong>Continuous Delivery</strong> means every change that passes the pipeline is automatically packaged and ready to ship, but a human still clicks the button that actually releases it (matching the manual-approval environment mentioned above). <strong>Continuous Deployment</strong> goes one step further and removes even that click &mdash; a change that passes every stage ships to production automatically, with no human gate at all. Most teams start with delivery and only move to full deployment once they trust their pipeline's coverage enough to remove the last manual checkpoint.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Real pipelines extend lint + test with type checking, security scanning, build artifacts, and deployment stages.</li>
+        <li>Independent stages run as parallel jobs; <code>needs</code> gates a job (like a build) on one or more others succeeding first.</li>
+        <li>Continuous Delivery automates everything up to a human-approved release; Continuous Deployment removes that last manual step too.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Virtually every professional software team with a shared repository runs some form of this chapter's pipeline &mdash; a red status check on a PR blocking merge is one of the most common daily experiences of working on a real codebase.</li>
+      <li>The matrix strategy from Sub-topic 4 is exactly how open-source libraries credibly claim to "support Python 3.10&ndash;3.12" &mdash; not as an unverified README claim, but as a badge backed by a workflow that actually runs the full suite on each version, every single commit.</li>
+      <li>The needs-gated pipeline from Sub-topic 6 (test, type-check, security-scan, then build, then deploy) is the same fundamental shape used at companies of every size, from a single-maintainer open-source project to teams shipping to millions of users &mdash; only the specific tools and the number of stages change.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>CI/CD replaces "a human remembered to run this" with a machine running it automatically, on every push, in a clean and identical environment.</li>
+      <li>A GitHub Actions workflow is a YAML file in <code>.github/workflows/</code>: a trigger (<code>on</code>), one or more <code>jobs</code>, and each job's ordered <code>steps</code>, executed on a fresh, disposable runner.</li>
+      <li>A real lint + test workflow chains <code>actions/checkout@v4</code>, <code>actions/setup-python@v5</code>, dependency install, a linter (<code>ruff</code>), and <code>pytest</code> &mdash; lint before test, to fail fast and cheap.</li>
+      <li>A <code>strategy.matrix</code> runs a job once per listed value (e.g. every supported Python version) in parallel; <code>cache: "pip"</code> on <code>actions/setup-python@v5</code> skips re-downloading unchanged dependencies.</li>
+      <li>Every workflow run shows up on its PR as a status check, but only blocks merging once branch protection marks it as a <strong>required</strong> status check.</li>
+      <li>Real pipelines extend beyond tests to type checking, security scanning, build artifacts, and deployment, with <code>needs</code> gating later stages on earlier ones succeeding &mdash; Continuous Delivery automates up to a human release click; Continuous Deployment removes even that.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

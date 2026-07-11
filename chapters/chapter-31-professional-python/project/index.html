@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31 Project: taskbox (Packaged CLI Tool) — Python for Everyone</title>
+<meta name="description" content="Build taskbox, a real multi-file, pip-installable command-line task manager with subcommands, argparse, logging, and a correct pyproject.toml -- plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 Project</span>
+    <span class="reading-time">70 min build</span>
+  </div>
+  <h1>taskbox: a Packaged CLI Tool</h1>
+
+  <p>A real, multi-file, pip-installable command-line task manager &mdash; not a single-file script. <code>taskbox</code> has four subcommands (<code>add</code>, <code>list</code>, <code>done</code>, <code>delete</code>), persists tasks to a JSON file, uses real <code>logging</code> instead of <code>print()</code> for its diagnostic output, and ships with a correct <code>pyproject.toml</code> so it can be installed with <code>pip install -e .</code> and run as a plain <code>taskbox</code> command from anywhere on your machine.</p>
+
+  <div class="what-is">
+    <span class="label">Project layout</span>
+    <pre><code>project/
+├── starter/            &lt;- you work here
+│   └── taskbox/
+│       ├── __init__.py
+│       ├── core.py      (TODOs 1-14 -- the task logic)
+│       └── cli.py       (TODOs 15-26 -- the argparse wiring)
+├── solution/            &lt;- complete, working reference
+│   ├── taskbox/
+│   │   ├── __init__.py
+│   │   ├── core.py
+│   │   └── cli.py
+│   ├── pyproject.toml
+│   ├── requirements.txt
+│   └── README.md</code></pre>
+  </div>
+
+  <div class="download-links">
+    <a href="starter/taskbox/__init__.py">starter/taskbox/__init__.py</a>
+    <a href="starter/taskbox/core.py">starter/taskbox/core.py</a>
+    <a href="starter/taskbox/cli.py">starter/taskbox/cli.py</a>
+    <a href="solution/taskbox/__init__.py">solution/taskbox/__init__.py</a>
+    <a href="solution/taskbox/core.py">solution/taskbox/core.py</a>
+    <a href="solution/taskbox/cli.py">solution/taskbox/cli.py</a>
+    <a href="solution/pyproject.toml">solution/pyproject.toml</a>
+    <a href="solution/requirements.txt">solution/requirements.txt</a>
+  </div>
+
+  <h2>What you're building</h2>
+  <ul>
+    <li><code>taskbox add "&lt;title&gt;" [--priority low|normal|high]</code> &mdash; add a task.</li>
+    <li><code>taskbox list [--all] [--priority ...]</code> &mdash; list tasks (pending only by default; <code>--all</code> includes completed ones).</li>
+    <li><code>taskbox done &lt;id&gt;</code> &mdash; mark a task complete.</li>
+    <li><code>taskbox delete &lt;id&gt;</code> &mdash; delete a task.</li>
+    <li>A top-level <code>--file &lt;path&gt;</code> flag on every subcommand, pointing at which JSON file to read/write (defaults to <code>~/.taskbox/tasks.json</code>).</li>
+    <li>A top-level <code>-v/--verbose</code> flag that raises the tool's own log level from INFO to DEBUG &mdash; without flooding the terminal with debug noise from any library the tool might import.</li>
+  </ul>
+
+  <div class="what-is">
+    <span class="label">Why two files, not one script</span>
+    <code>core.py</code> holds the actual task logic &mdash; loading/saving the JSON file, adding/listing/completing/deleting tasks. It never imports <code>argparse</code>, never touches <code>sys.argv</code>, and never calls <code>print()</code>. <code>cli.py</code> holds the argparse parser and is the only place that talks to the terminal. This split means <code>core.py</code> could be reused by a future web API or test suite with zero changes, because it doesn't know a terminal exists.
+  </div>
+
+  <h2>Build it: core.py first</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Load and save tasks (TODOs 1-8)</h3>
+    <p><code>load_tasks</code> reads the JSON file (returning <code>[]</code> if it doesn't exist yet &mdash; that's a normal first run, not an error) and raises <code>TaskboxError</code> with a clear message if the file is unreadable or corrupted. <code>save_tasks</code> writes the list back, creating the parent folder if needed.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">taskbox/core.py (solution)</span>
+      </div>
+      <pre><code>def load_tasks(tasks_file: Path) -> list[dict]:
+    if not tasks_file.exists():
+        logger.debug("Tasks file %s does not exist yet -- starting empty", tasks_file)
+        return []
+
+    try:
+        raw = tasks_file.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise TaskboxError(f"Could not read tasks file {tasks_file}: {exc}") from exc
+
+    if not raw.strip():
+        return []
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise TaskboxError(
+            f"Tasks file {tasks_file} is not valid JSON (corrupted?): {exc}"
+        ) from exc
+
+    if not isinstance(data, list):
+        raise TaskboxError(f"Tasks file {tasks_file} does not contain a JSON list.")
+
+    return data</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> a file-loading function has three separate failure modes that all need distinct handling &mdash; missing file (normal, return empty), unreadable file (OS-level problem, wrap it), and corrupted contents (bad JSON, wrap it separately). Catching a bare <code>Exception</code> around the whole thing would hide which of the three actually happened, making the error message useless for debugging.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that loads a JSON list from a file..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example -- does it distinguish "file doesn't exist yet" from "file exists but is corrupted," or does it collapse both into one generic error?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python function load_tasks(tasks_file: Path) -> list[dict] that reads a JSON list of task dicts from a file. Requirements: (1) if the file doesn't exist, return an empty list -- this is the normal first-run case, not an error; (2) if the file can't be read (permissions, etc.), raise a custom TaskboxError with a clear message, chained from the original OSError; (3) if the file's contents aren't valid JSON, raise TaskboxError with a "corrupted?" message, chained from the original JSONDecodeError; (4) if the parsed JSON isn't a list, also raise TaskboxError. Use the logging module (not print) to log a debug message when the file doesn't exist yet.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Add, list, complete, delete (TODOs 9-14)</h3>
+    <p><code>add_task</code> validates the title and priority, computes the next id, and appends a new task dict. <code>list_tasks</code> filters by completion state and priority. <code>complete_task</code> and <code>delete_task</code> both reuse a small <code>_find_task</code> helper that raises <code>TaskboxError</code> if the id doesn't exist &mdash; one place to get "no task with that id" right, instead of repeating the check four times.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">taskbox/core.py (solution)</span>
+      </div>
+      <pre><code>def add_task(tasks_file: Path, title: str, priority: str = "normal") -> dict:
+    title = title.strip()
+    if not title:
+        raise TaskboxError("Task title cannot be empty.")
+
+    valid_priorities = {"low", "normal", "high"}
+    if priority not in valid_priorities:
+        raise TaskboxError(
+            f"Invalid priority {priority!r}. Choose from: {', '.join(sorted(valid_priorities))}."
+        )
+
+    tasks = load_tasks(tasks_file)
+    next_id = (max((t["id"] for t in tasks), default=0)) + 1
+    task = {
+        "id": next_id,
+        "title": title,
+        "priority": priority,
+        "done": False,
+        "created_at": _now_iso(),
+        "completed_at": None,
+    }
+    tasks.append(task)
+    save_tasks(tasks_file, tasks)
+    logger.info("Added task #%d: %s", next_id, title)
+    return task</code></pre>
+    </div>
+  </div>
+
+  <h2>Build it: cli.py</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Build the argparse parser with subcommands (TODOs 15-20)</h3>
+    <p>One top-level parser owns the shared <code>--file</code> and <code>-v/--verbose</code> flags. <code>add_subparsers(dest="command", required=True)</code> creates the <code>add</code>/<code>list</code>/<code>done</code>/<code>delete</code> subcommands, each with its own arguments &mdash; <code>title</code> is positional (required) on <code>add</code>, while <code>--priority</code> is optional with a default.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">taskbox/cli.py (solution)</span>
+      </div>
+      <pre><code>def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="taskbox",
+        description="A small command-line task manager backed by a JSON file.",
+    )
+    parser.add_argument("--file", type=Path, default=DEFAULT_TASKS_FILE,
+        help=f"path to the tasks JSON file (default: {DEFAULT_TASKS_FILE})")
+    parser.add_argument("-v", "--verbose", action="store_true",
+        help="show debug-level logging (task file paths, filtering details, etc.)")
+
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    add_parser = subparsers.add_parser("add", help="add a new task")
+    add_parser.add_argument("title", help="the task's title (required, positional)")
+    add_parser.add_argument("--priority", choices=["low", "normal", "high"],
+        default="normal", help="task priority (default: normal)")
+
+    list_parser = subparsers.add_parser("list", help="list tasks")
+    list_parser.add_argument("--all", action="store_true",
+        help="include already-completed tasks (default: only show pending)")
+    list_parser.add_argument("--priority", choices=["low", "normal", "high"],
+        default=None, help="only show tasks with this priority")
+
+    done_parser = subparsers.add_parser("done", help="mark a task complete")
+    done_parser.add_argument("id", type=int, help="the task's numeric id")
+
+    delete_parser = subparsers.add_parser("delete", help="delete a task")
+    delete_parser.add_argument("id", type=int, help="the task's numeric id")
+
+    return parser</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the difference between a positional argument (<code>title</code>) and an optional flag (<code>--priority</code>) is a judgment call about what's always required for a command to make sense &mdash; you can't "add" a task with no title, but priority has a sensible default. Getting this backwards (making title optional, or priority positional) is a common AI mistake worth checking for explicitly.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write an argparse parser with subcommands for..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare against this example -- did it make `title` a required positional argument, or did it sneak in a default that would let `taskbox add` silently succeed with no title at all?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write an argparse.ArgumentParser for a CLI tool called "taskbox" with a top-level --file (Path, default ~/.taskbox/tasks.json) and -v/--verbose (store_true) flag, plus four subcommands using add_subparsers(dest="command", required=True): "add" (required positional "title" string, optional --priority with choices low/normal/high defaulting to "normal"), "list" (--all store_true flag, optional --priority filter defaulting to None), "done" (required positional "id" as int), and "delete" (required positional "id" as int). Return the built parser from a build_parser() function -- don't call parse_args() inside it.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Configure logging correctly (TODO 21)</h3>
+    <p>This is the part that's easy to get subtly wrong: <code>logging.basicConfig()</code> configures the <strong>root</strong> logger, which every imported library's logger flows into by default. If <code>--verbose</code> called <code>basicConfig(level=logging.DEBUG)</code>, it would flood the terminal with debug output from every dependency this tool imports too &mdash; not just taskbox's own messages. Attaching a handler to the <code>"taskbox"</code> logger specifically, and setting <code>propagate = False</code>, keeps <code>--verbose</code> scoped to this tool.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">taskbox/cli.py (solution)</span>
+      </div>
+      <pre><code>logger = logging.getLogger("taskbox")
+
+def configure_logging(verbose: bool) -> None:
+    level = logging.DEBUG if verbose else logging.INFO
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(level)
+    logger.propagate = False</code></pre>
+    </div>
+    <p>Real output &mdash; without <code>-v</code>, only <code>INFO</code> lines show:</p>
+    <div class="output-block">
+      <span class="output-label">terminal</span>
+      <pre><code>$ taskbox --file /tmp/demo_tasks.json add "Ship chapter 31"
+INFO: Added task #1: Ship chapter 31
+Added task #1: Ship chapter 31</code></pre>
+    </div>
+    <p>With <code>-v</code>, the <code>DEBUG</code> lines from <code>core.py</code>'s <code>logger.debug(...)</code> calls appear too &mdash; nothing had to be deleted or commented out to quiet them down normally, one flag controls it:</p>
+    <div class="output-block">
+      <span class="output-label">terminal</span>
+      <pre><code>$ taskbox --file /tmp/demo_tasks.json -v add "Debug this"
+DEBUG: Loading tasks from /tmp/demo_tasks.json
+DEBUG: Saving 3 task(s) to /tmp/demo_tasks.json
+INFO: Added task #3: Debug this
+Added task #3: Debug this</code></pre>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Wire subcommands to core.py, handle errors (TODOs 22-26)</h3>
+    <p><code>main()</code> dispatches on <code>args.command</code>, calling into the matching <code>core.py</code> function and printing the result. Everything is wrapped in <code>try/except TaskboxError</code> &mdash; a caught error logs a clear message and returns exit code <code>1</code>, instead of a raw Python traceback reaching the user.</p>
+    <div class="output-block">
+      <span class="output-label">terminal &mdash; a real error, not invented for the docs</span>
+      <pre><code>$ taskbox --file /tmp/demo_tasks.json done 999
+ERROR: No task with id 999.
+$ echo $?
+1</code></pre>
+    </div>
+    <p>A missing required argument never even reaches this code &mdash; argparse catches it before <code>main()</code>'s body runs:</p>
+    <div class="output-block">
+      <span class="output-label">terminal</span>
+      <pre><code>$ taskbox add
+usage: taskbox add [-h] [--priority {low,normal,high}] title
+taskbox add: error: the following arguments are required: title
+$ echo $?
+2</code></pre>
+    </div>
+  </div>
+
+  <h2>Install it for real</h2>
+  <p>This is the part that makes it a genuinely "packaged" CLI tool, not just a script &mdash; installing it with <code>pip</code> so <code>taskbox</code> becomes a normal command on your <code>PATH</code>, runnable from any directory.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">solution/pyproject.toml</span>
+    </div>
+    <pre><code>[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taskbox"
+version = "1.0.0"
+description = "A small command-line task manager backed by a JSON file."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Your Name" }
+]
+
+[project.scripts]
+taskbox = "taskbox.cli:main"
+
+[tool.setuptools]
+packages = ["taskbox"]</code></pre>
+  </div>
+  <p><code>[project.scripts]</code> is what actually creates the <code>taskbox</code> command: it tells pip "install an executable named <code>taskbox</code> that calls <code>main()</code> in <code>taskbox/cli.py</code>." This is the same mechanism (called <code>console_scripts</code> under the hood) that gives you the <code>pip</code>, <code>black</code>, and <code>pytest</code> commands after installing those packages.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">terminal</span>
+    </div>
+    <pre><code>cd chapters/chapter-31-professional-python/project/solution
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e .</code></pre>
+  </div>
+  <p><code>-e</code> (editable) installs the package in a way that still reads from this source folder &mdash; changes to <code>taskbox/*.py</code> take effect immediately, no reinstall needed. This is real output from actually running that install:</p>
+  <div class="output-block">
+    <span class="output-label">terminal</span>
+    <pre><code>$ pip install -e .
+Obtaining file:///.../chapter-31-professional-python/project/solution
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  ...
+Building wheels for collected packages: taskbox
+  Building editable for taskbox (pyproject.toml): finished with status 'done'
+  Created wheel for taskbox: filename=taskbox-1.0.0-0.editable-py3-none-any.whl ...
+Successfully built taskbox
+Installing collected packages: taskbox
+Successfully installed taskbox-1.0.0</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why requirements.txt is (correctly) empty</span>
+    <code>taskbox</code> only imports from the standard library: <code>argparse</code>, <code>logging</code>, <code>json</code>, <code>pathlib</code>, <code>datetime</code>. There is nothing to pin. The file is kept &mdash; not deleted &mdash; with a comment explaining that. An empty <code>requirements.txt</code> that says "nothing needed" is a deliberate, documented design choice; a <em>missing</em> <code>requirements.txt</code> just looks like someone forgot to write one.
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Every real Python tool you've used from a terminal &mdash; <code>pip</code>, <code>black</code>, <code>pytest</code>, <code>git</code> itself &mdash; is exactly this shape: subcommands parsed by something like <code>argparse</code>, logic separated from the argument-parsing layer, <code>logging</code> instead of scattered <code>print()</code>s so verbosity is a flag instead of a code edit, and a packaging file that makes <code>pip install</code> turn a folder of <code>.py</code> files into a real command. This project is a small, honest version of that shape &mdash; the same one you'd scale up for a real internal tool at a job.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>No starter/solution files are provided for these on purpose &mdash; building and verifying each one yourself is the point. Each is solvable with only what this chapter (and earlier chapters) have taught.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Wrap an earlier project's logic in a proper CLI</h3>
+    <p><strong>Scenario:</strong> You already built a menu-driven tool in an earlier chapter (e.g. the inventory tracker or a similar loop-based project) that reads input with <code>input()</code> in a <code>while True:</code> loop.</p>
+    <p><strong>What to do:</strong> Rewrite it as a package with subcommands instead &mdash; <code>inventory add</code>, <code>inventory list</code>, <code>inventory remove</code>, etc. &mdash; using the same <code>core.py</code>/<code>cli.py</code> split this project uses. The underlying logic barely changes; only how a user reaches it does.</p>
+    <p><strong>Suggested approach:</strong> Start by writing down what your old <code>while True:</code> menu options were &mdash; each menu option usually maps to exactly one subcommand.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Add a <code>--config</code> flag that reads defaults from a file</h3>
+    <p><strong>Scenario:</strong> Typing <code>--priority high</code> on every single <code>taskbox add</code> call gets old if you mostly add high-priority tasks.</p>
+    <p><strong>What to do:</strong> Add a <code>--config</code> flag pointing at a small JSON (or <code>.ini</code>, using <code>configparser</code>) file with a <code>default_priority</code> key. Load it (if present) before parsing args, and use its value as the <code>--priority</code> default instead of the hardcoded <code>"normal"</code>.</p>
+    <p><strong>Suggested approach:</strong> <code>argparse</code> lets you build the parser's defaults dynamically before calling <code>add_argument</code> &mdash; read the config file first, then pass its value as <code>default=</code> for that argument.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Add a <code>--dry-run</code> flag</h3>
+    <p><strong>Scenario:</strong> Before deleting a task (or running any destructive command), it's useful to preview what <em>would</em> happen without actually changing anything.</p>
+    <p><strong>What to do:</strong> Add a top-level <code>--dry-run</code> flag. When set, <code>delete</code> and <code>done</code> should print what they <em>would</em> do (<code>"Would delete: #2 Buy groceries"</code>) without calling <code>save_tasks</code>.</p>
+    <p><strong>Suggested approach:</strong> Thread the flag from <code>args.dry_run</code> down into <code>core.py</code>'s functions as a parameter, and add an <code>if dry_run: return ...</code> early-exit right before the <code>save_tasks</code> call in each.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Publish it as a real installable package with a second entry point</h3>
+    <p><strong>Scenario:</strong> <code>taskbox</code> currently has one console script. Real CLI tools sometimes ship a second, shorter alias.</p>
+    <p><strong>What to do:</strong> Add a second entry under <code>[project.scripts]</code> in <code>pyproject.toml</code> &mdash; e.g. <code>tb = "taskbox.cli:main"</code> &mdash; reinstall with <code>pip install -e .</code>, and confirm both <code>taskbox</code> and <code>tb</code> work identically. Then try <code>pip uninstall taskbox</code> and confirm both commands disappear.</p>
+    <p><strong>Suggested approach:</strong> <code>[project.scripts]</code> is just a mapping of command-name &rarr; <code>module:function</code> &mdash; add as many keys as you want, they all point at the same <code>main()</code>.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to generate a lint+test GitHub Actions workflow, then critique its plausible-but-flawed output -- a missing pull_request trigger, unpinned action versions, and a lint step whose failure gets silently swallowed.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">25 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just worked through the <a href="index.html">Lint + Test + Ship</a> project yourself, unaided &mdash; you fixed a real lint violation, read through a real multi-job workflow line by line, and ran the exact commands that workflow would run, for real, against a real package. That project is unchanged; this page is additive. Now imagine a more realistic shortcut: instead of hand-writing <code>ci.yml</code> and reading every line, you just ask an AI assistant to generate the whole thing &mdash; the way developers actually do this on real teams, constantly.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant to build a workflow like the one in this chapter's project:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>Write me a GitHub Actions workflow that lints and tests my Python
+project across multiple versions. It's a package called
+expense_tracker with a tests/ folder using pytest, and dev
+dependencies listed in requirements-dev.txt. I want it to run
+ruff for linting and pytest for tests, and test against a couple
+different Python versions since I want to support more than one.</code></pre>
+  </div>
+
+  <p>And here's a plausible response &mdash; the kind of workflow an AI assistant might hand back on the first try, confident and syntactically clean. Read it the way you'd read a pull request from a teammate, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">ci.yml (AI-generated)</span>
+    </div>
+    <pre><code>name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@main
+
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint and test
+        run: |
+          ruff check . || echo "Lint check complete"
+          pytest -v
+
+    </code></pre>
+  </div>
+
+  <p>It's clean, uses real syntax correctly, tests two Python versions like you asked, and would genuinely run without erroring out. It also has three separate problems that would only become obvious once someone actually relied on it.</p>
+
+  <h2>Step 3: Where did the AI's workflow lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 &mdash; only triggers on push, so a broken pull request never gets checked before merge</span>
+      <p><strong>What it looks like it does:</strong> a normal, minimal <code>on:</code> block &mdash; "run when code changes," which sounds like it covers the obvious case.</p>
+      <p><strong>What it actually risks:</strong> <code>on: push</code> alone only runs the workflow when commits land directly on a branch that's pushed &mdash; it does <em>not</em> run when someone opens or updates a pull request from a fork, or in many team setups, even a same-repo branch PR, depending on how status checks are wired to branch protection. The prompt asked for a workflow to "lint and test my project," and the whole practical value of that in a team setting is catching a broken change <em>before</em> it merges into <code>main</code> &mdash; which requires the check to run on the pull request itself, visibly attached to it, not just after the fact once it's already been pushed to main.</p>
+      <p><strong>Why it matters:</strong> without <code>pull_request</code> as a trigger, a reviewer looking at a PR sees no CI status at all &mdash; no green check, no red X, nothing to require via branch protection. Broken code can be reviewed, approved, and merged with zero automated verification, and the workflow only "catches" the problem after it's already on <code>main</code>, which is exactly the late, expensive kind of discovery CI is supposed to prevent (see this chapter's "shift left" concept).</p>
+      <p><strong>The fix:</strong> add a <code>pull_request:</code> trigger alongside <code>push:</code>, both targeting <code>main</code> &mdash; exactly what this project's own <code>ci.yml</code> does. Now every PR gets a real status check before anyone can merge it.</p>
+
+      <span class="qa-section-label flags">Flaw 2 &mdash; unpinned action versions (<code>@main</code>) are a real supply-chain risk, not just a style nitpick</span>
+      <p><strong>What it looks like it does:</strong> <code>uses: actions/checkout@main</code> and <code>actions/setup-python@main</code> look like they're just pointing at "the latest version" &mdash; convenient, always up to date, nothing to maintain.</p>
+      <p><strong>What it actually risks:</strong> <code>@main</code> points at whatever the actual latest commit on that action repository's default branch is <em>at the moment the workflow runs</em> &mdash; not a fixed, reviewed release. If the action's maintainers ship a breaking change, an accidental bug, or (in a worst case) if the action's repository itself is ever compromised and malicious code is pushed to its default branch, every workflow using <code>@main</code> picks it up automatically and silently, with no warning and no diff to review. This isn't a hypothetical: it's the exact mechanism behind real supply-chain attacks that have hit widely-used GitHub Actions in the past.</p>
+      <p><strong>Why it matters:</strong> a workflow that behaves one way today can behave differently tomorrow with zero changes to your own repository &mdash; and because it's an upstream action's code actually executing on your runner with access to your repo's checkout (and potentially your secrets), an unpinned reference is a real, not theoretical, attack surface.</p>
+      <p><strong>The fix:</strong> pin to a specific released major-version tag &mdash; <code>actions/checkout@v4</code>, <code>actions/setup-python@v5</code> &mdash; as this project's own <code>ci.yml</code> does. Major-version tags still get patch/security updates from the maintainer, but only within that reviewed major version, not an arbitrary unreviewed commit. (Security-conscious teams go further and pin to a full commit SHA, but a major-version tag is the realistic minimum.)</p>
+
+      <span class="qa-section-label flags">Flaw 3 &mdash; the lint step's failure is silently swallowed by <code>|| echo</code>, so a real lint error never fails the build</span>
+      <p><strong>What it looks like it does:</strong> <code>ruff check . || echo "Lint check complete"</code> reads like a harmless status message &mdash; printing a friendly confirmation after the lint step runs.</p>
+      <p><strong>What it actually risks:</strong> in a shell, <code>A || B</code> runs <code>B</code> only if <code>A</code> fails, and critically, the <em>overall</em> exit code of that combined command becomes <code>B</code>'s exit code &mdash; and <code>echo</code> always succeeds (exit code 0). So if <code>ruff check .</code> finds a real violation and exits non-zero, this line catches that failure and replaces it with a successful <code>echo</code>, meaning the step (and therefore the whole job) reports success regardless of what ruff actually found. The lint job would show a green check on every single run, forever, even with genuine lint errors present &mdash; there's no scenario in which this step fails.</p>
+      <p><strong>Why it matters:</strong> this is worse than having no lint step at all, because it actively displays a false signal of health &mdash; a reviewer sees a green "Lint and test" check and reasonably trusts it, with no way to tell from the PR itself that the check can never fail. This exact `|| echo` / `|| true` pattern is a real, easy-to-miss mistake precisely because the workflow doesn't error out; it just quietly stops meaning anything.</p>
+      <p><strong>The fix:</strong> let <code>ruff check .</code> run as its own step with no fallback (<code>run: ruff check .</code>), exactly as this project's own <code>ci.yml</code> does &mdash; a failing command's non-zero exit code should propagate and fail the step/job, which is the entire mechanism a status check relies on to mean anything.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself &mdash; it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 30?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Always check the on: block includes pull_request, not just push' or 'Search generated YAML for @main and swap in a pinned version tag' or 'Watch for || echo / || true silently swallowing a real failure'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

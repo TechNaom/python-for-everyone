@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges that parse and reason about real GitHub Actions YAML behavior -- triggers, matrix strategy, job structure, required checks, caching, and pipeline stage order -- for Chapter 30: CI/CD Pipelines.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 Coding Challenges</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: CI/CD Pipelines</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. This
+    chapter teaches GitHub Actions (YAML-based CI/CD), not new Python
+    syntax, so every challenge is a Python function that <strong>parses,
+    validates, or reasons about</strong> real GitHub Actions behavior
+    &mdash; predicting what a workflow file's triggers do, how many job
+    runs a matrix strategy produces, or whether a set of required checks
+    allows a merge &mdash; given the workflow represented as plain data.
+    Write your function in the code box, then click <strong>Run
+    Tests</strong> to check it against a set of test cases (including
+    edge cases). Stuck? Every challenge has a <strong>Show Solution</strong>
+    reveal at the bottom.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere, and no real
+    GitHub Actions runner is used. These challenges represent workflow
+    YAML as a plain list of Python strings (one per line) and parse it
+    with basic string operations, not the <code>yaml</code> package,
+    since pyyaml isn't available in this browser sandbox. Keep the
+    function name in the stub exactly as given, since the grader calls
+    it by name. Every expected value below was checked against real
+    GitHub Actions semantics before being written into these tests
+    &mdash; so a genuinely correct CI/CD mental model will pass every
+    case.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Does It Trigger on pull_request? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>triggers_on_pull_request(yaml_lines)</code>. <code>yaml_lines</code> is a list of strings, each one line of a workflow YAML file. The trigger appears either as a single line like <code>"on: pull_request"</code>, or as a multi-line block where <code>"on:"</code> is followed by indented lines like <code>"  push:"</code> and <code>"  pull_request:"</code>. Return <code>True</code> if the workflow triggers on <code>pull_request</code> in either form, else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>yaml_lines</code> is a non-empty list of strings; at most one <code>"on:"</code> section is present.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>triggers_on_pull_request(["name: CI", "on: pull_request", "jobs:"])</code> &rarr; <code>True</code><br>
+        <code>triggers_on_pull_request(["name: CI", "on: push", "jobs:"])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def triggers_on_pull_request(yaml_lines):
+    # TODO: return True if the "on:" trigger includes pull_request,
+    # whether written as a single-line value or an indented block entry.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "triggers_on_pull_request",
+  "cases": [
+    { "args": [["name: CI", "on: pull_request", "jobs:", "  build:"]], "expected": true },
+    { "args": [["name: CI", "on: push", "jobs:", "  build:"]], "expected": false },
+    { "args": [["name: CI", "on:", "  push:", "  pull_request:", "jobs:"]], "expected": true },
+    { "args": [["name: CI", "on:", "  push:", "  schedule:", "jobs:"]], "expected": false },
+    { "args": [["name: CI", "jobs:", "  build:"]], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def triggers_on_pull_request(yaml_lines):
+    in_on_block = False
+    for line in yaml_lines:
+        if line.startswith("on:"):
+            rest = line.split(":", 1)[1].strip()
+            if rest == "pull_request":
+                return True
+            in_on_block = True
+            continue
+        if in_on_block:
+            stripped = line.strip()
+            if line.startswith((" ", "\t")):
+                if stripped in ("pull_request:", "pull_request"):
+                    return True
+                continue
+            else:
+                in_on_block = False
+    return False</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Matrix Job Count <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>matrix_job_count(dimensions)</code>. <code>dimensions</code> is a dict where each key is a matrix dimension name (like <code>"python-version"</code> or <code>"os"</code>) and each value is a list of options for that dimension. A matrix strategy runs the job once for every combination across all dimensions. Return the total number of job runs produced.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>dimensions</code> is a dict with 0 or more keys; every value is a non-empty list.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>matrix_job_count({"python-version": ["3.9", "3.10", "3.11"]})</code> &rarr; <code>3</code><br>
+        <code>matrix_job_count({"python-version": ["3.9", "3.10"], "os": ["ubuntu-latest", "windows-latest", "macos-latest"]})</code> &rarr; <code>6</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def matrix_job_count(dimensions):
+    # TODO: return the product of the lengths of every dimension's list.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "matrix_job_count",
+  "cases": [
+    { "args": [{"python-version": ["3.9", "3.10", "3.11"]}], "expected": 3 },
+    { "args": [{"python-version": ["3.9", "3.10"], "os": ["ubuntu-latest", "windows-latest", "macos-latest"]}], "expected": 6 },
+    { "args": [{"python-version": ["3.11"], "os": ["ubuntu-latest"]}], "expected": 1 },
+    { "args": [{"a": [1, 2], "b": [1, 2], "c": [1, 2, 3]}], "expected": 12 },
+    { "args": [{}], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def matrix_job_count(dimensions):
+    total = 1
+    for values in dimensions.values():
+        total *= len(values)
+    return total</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Extract Job Names <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>extract_job_names(yaml_lines)</code> that returns the list of job names defined under the workflow's <code>"jobs:"</code> section, in order. Job names are the first indentation level under <code>jobs:</code> (e.g. <code>"  lint:"</code> and <code>"  test:"</code> both start a job at 2 spaces of indent); deeper-indented lines like <code>runs-on</code> or step lines are not job names.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>yaml_lines</code> contains exactly one <code>"jobs:"</code> line; job name lines end with <code>":"</code> and are indented with spaces.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>extract_job_names(["jobs:", "  lint:", "    runs-on: ubuntu-latest", "  test:", "    runs-on: ubuntu-latest"])</code> &rarr; <code>["lint", "test"]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def extract_job_names(yaml_lines):
+    # TODO: return the job names at the first indentation level under
+    # "jobs:", in order, without their trailing colon.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "extract_job_names",
+  "cases": [
+    { "args": [["name: CI", "on: push", "jobs:", "  lint:", "    runs-on: ubuntu-latest", "    steps:", "      - run: echo lint", "  test:", "    runs-on: ubuntu-latest", "    steps:", "      - run: echo test"]], "expected": ["lint", "test"] },
+    { "args": [["name: CI", "on: push", "jobs:", "  build:", "    runs-on: ubuntu-latest"]], "expected": ["build"] },
+    { "args": [["name: CI", "on: push", "jobs:", "  lint:", "    runs-on: ubuntu-latest", "  test:", "    runs-on: ubuntu-latest", "  deploy:", "    runs-on: ubuntu-latest"]], "expected": ["lint", "test", "deploy"] },
+    { "args": [["jobs:", "  build:", "    runs-on: ubuntu-latest", "    steps:", "      - uses: actions/checkout@v4"]], "expected": ["build"] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def extract_job_names(yaml_lines):
+    names = []
+    in_jobs_block = False
+    jobs_indent = None
+    for line in yaml_lines:
+        if line.startswith("jobs:"):
+            in_jobs_block = True
+            continue
+        if in_jobs_block:
+            if not line.strip():
+                continue
+            indent = len(line) - len(line.lstrip(" "))
+            if jobs_indent is None and line.startswith(" ") and line.rstrip().endswith(":"):
+                jobs_indent = indent
+            if jobs_indent is not None and indent == jobs_indent and line.rstrip().endswith(":"):
+                names.append(line.strip().rstrip(":"))
+            elif jobs_indent is not None and indent < jobs_indent:
+                break
+    return names</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">4</span> Are All Required Checks Passed? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>all_required_checks_passed(required_checks, passed_checks)</code> that returns <code>True</code> only if every check name in <code>required_checks</code> also appears in <code>passed_checks</code> &mdash; this is what GitHub actually checks before allowing a PR to merge with branch protection enabled.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> both arguments are lists of strings; <code>passed_checks</code> may contain extra checks not in <code>required_checks</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>all_required_checks_passed(["lint", "test"], ["lint", "test", "build"])</code> &rarr; <code>True</code><br>
+        <code>all_required_checks_passed(["lint", "test"], ["lint"])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def all_required_checks_passed(required_checks, passed_checks):
+    # TODO: return True only if every required check is in passed_checks.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "all_required_checks_passed",
+  "cases": [
+    { "args": [["lint", "test"], ["lint", "test", "build"]], "expected": true },
+    { "args": [["lint", "test"], ["lint"]], "expected": false },
+    { "args": [[], []], "expected": true },
+    { "args": [["test"], []], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def all_required_checks_passed(required_checks, passed_checks):
+    return all(check in passed_checks for check in required_checks)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Find the Missing Checkout Step <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>missing_checkout_step(step_names)</code>. Every job that runs commands against repo files needs an <code>"actions/checkout"</code> step, or the runner's workspace is empty. Given a list of step names/actions used in a job, return <code>True</code> if <code>"actions/checkout"</code> is NOT among them (a bug), else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>step_names</code> is a list of strings, possibly empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>missing_checkout_step(["setup-python", "install", "test"])</code> &rarr; <code>True</code><br>
+        <code>missing_checkout_step(["actions/checkout", "setup-python", "test"])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def missing_checkout_step(step_names):
+    # TODO: return True if "actions/checkout" is missing from step_names.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "missing_checkout_step",
+  "cases": [
+    { "args": [["setup-python", "install", "test"]], "expected": true },
+    { "args": [["actions/checkout", "setup-python", "install", "test"]], "expected": false },
+    { "args": [[]], "expected": true },
+    { "args": [["actions/checkout"]], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def missing_checkout_step(step_names):
+    return "actions/checkout" not in step_names</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Should This Cache Be Reused? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>should_reuse_cache(current_key, available_cache_keys)</code>. GitHub Actions only restores a dependency cache when its exact key (typically built from the OS, Python version, and a hash of the lockfile) matches one already stored. Return <code>True</code> if <code>current_key</code> is present in <code>available_cache_keys</code>, else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>current_key</code> is a string; <code>available_cache_keys</code> is a list of strings.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>should_reuse_cache("py3.11-pip-abc123", ["py3.10-pip-xyz", "py3.11-pip-abc123"])</code> &rarr; <code>True</code><br>
+        <code>should_reuse_cache("py3.11-pip-abc123", ["py3.10-pip-xyz"])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def should_reuse_cache(current_key, available_cache_keys):
+    # TODO: return True if current_key is one of the available cache keys.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "should_reuse_cache",
+  "cases": [
+    { "args": ["py3.11-pip-abc123", ["py3.10-pip-xyz", "py3.11-pip-abc123"]], "expected": true },
+    { "args": ["py3.11-pip-abc123", ["py3.10-pip-xyz"]], "expected": false },
+    { "args": ["py3.11-pip-abc123", []], "expected": false },
+    { "args": ["", []], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def should_reuse_cache(current_key, available_cache_keys):
+    return current_key in available_cache_keys</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Is This a Valid Pipeline Stage Order? <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_valid_stage_order(stages)</code>. A well-formed pipeline runs its stages in this canonical order: <code>lint</code>, <code>type_check</code>, <code>test</code>, <code>security_scan</code>, <code>build</code>, <code>deploy_staging</code>, <code>deploy_production</code> (a stage can be skipped, but present stages must appear in this relative order). Given a list of stage names in the order they actually run, return <code>True</code> if that order is consistent with the canonical order, else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>stages</code> is a list of strings, each one of the 7 canonical stage names; no duplicates.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_valid_stage_order(["lint", "test", "deploy_staging", "deploy_production"])</code> &rarr; <code>True</code><br>
+        <code>is_valid_stage_order(["deploy_production", "lint", "test"])</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def is_valid_stage_order(stages):
+    # TODO: return True if stages appear in an order consistent with the
+    # canonical order: lint, type_check, test, security_scan, build,
+    # deploy_staging, deploy_production.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_valid_stage_order",
+  "cases": [
+    { "args": [["lint", "test", "deploy_staging", "deploy_production"]], "expected": true },
+    { "args": [["deploy_production", "lint", "test"]], "expected": false },
+    { "args": [["lint", "security_scan", "test"]], "expected": false },
+    { "args": [["test"]], "expected": true },
+    { "args": [[]], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def is_valid_stage_order(stages):
+    order = ["lint", "type_check", "test", "security_scan", "build",
+             "deploy_staging", "deploy_production"]
+    positions = [order.index(s) for s in stages if s in order]
+    return positions == sorted(positions)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Pick the Right Trigger <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>pick_trigger_for_scenario(scenario)</code> that returns the GitHub Actions trigger keyword (as a plain string) matching a described scenario. Support exactly these mappings: <code>"run on every push to any branch"</code> &rarr; <code>"push"</code>; <code>"run before merging a pull request"</code> &rarr; <code>"pull_request"</code>; <code>"run on a schedule every night"</code> &rarr; <code>"schedule"</code>; <code>"let a developer trigger it manually from the Actions tab"</code> &rarr; <code>"workflow_dispatch"</code>. For any scenario string not in this list, return <code>"unknown scenario"</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>scenario</code> is a string, matched exactly.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>pick_trigger_for_scenario("run on a schedule every night")</code> &rarr; <code>"schedule"</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def pick_trigger_for_scenario(scenario):
+    # TODO: map each exact scenario string to its GitHub Actions trigger,
+    # per the list in the problem statement. Return "unknown scenario"
+    # for anything else.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "pick_trigger_for_scenario",
+  "cases": [
+    { "args": ["run on every push to any branch"], "expected": "push" },
+    { "args": ["run before merging a pull request"], "expected": "pull_request" },
+    { "args": ["run on a schedule every night"], "expected": "schedule" },
+    { "args": ["let a developer trigger it manually from the Actions tab"], "expected": "workflow_dispatch" },
+    { "args": ["something not in the mapping"], "expected": "unknown scenario" }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def pick_trigger_for_scenario(scenario):
+    mapping = {
+        "run on every push to any branch": "push",
+        "run before merging a pull request": "pull_request",
+        "run on a schedule every night": "schedule",
+        "let a developer trigger it manually from the Actions tab": "workflow_dispatch",
+    }
+    return mapping.get(scenario, "unknown scenario")</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>

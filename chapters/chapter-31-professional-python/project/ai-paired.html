@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to turn a script into a packaged CLI tool, then critique its plausible-but-flawed output -- a global logging.basicConfig() that floods output, a silently-optional required argument, and a pyproject.toml missing a required field.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">25 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just built <a href="index.html">taskbox</a> yourself, unaided &mdash; a packaged CLI tool with subcommands, real logging, and a working <code>pip install -e .</code>. That project is unchanged; this page is additive. Now imagine a more common real-world starting point: you already have a plain, working script (no argparse, no logging, no packaging) and you ask an AI assistant to "professionalize" it in one pass &mdash; the way developers actually reach for an assistant on a Friday afternoon, wanting the boring wiring done fast.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant, starting from a plain script instead of from scratch:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>I have a single-file Python script that manages a to-do list in a
+JSON file using print() statements and a few hardcoded if/elif
+branches on sys.argv. Add argparse and logging to it and make it a
+proper CLI tool with subcommands (add, list, done, delete), a
+--verbose flag, and package it with a pyproject.toml so I can
+`pip install -e .` it and get a `taskbox` command. Please just
+give me the full working files.</code></pre>
+  </div>
+
+  <p>And here's a plausible response &mdash; the kind of complete, confident-looking output an AI assistant might hand back on the first try. Read it the way you'd review a pull request from a teammate who moved fast, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">taskbox/cli.py (AI output)</span>
+    </div>
+    <pre><code>import argparse
+import logging
+from taskbox.core import add_task, list_tasks, complete_task, delete_task
+
+# Set up logging for the whole app
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(levelname)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog="taskbox")
+    parser.add_argument("--file", default="tasks.json")
+    parser.add_argument("-v", "--verbose", action="store_true",
+        help="enable verbose output")
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    add_parser = subparsers.add_parser("add", help="add a new task")
+    add_parser.add_argument("--title", default="Untitled task",
+        help="the task title")
+    add_parser.add_argument("--priority", default="normal")
+
+    list_parser = subparsers.add_parser("list", help="list tasks")
+    list_parser.add_argument("--all", action="store_true")
+
+    done_parser = subparsers.add_parser("done", help="mark a task done")
+    done_parser.add_argument("id", type=int)
+
+    delete_parser = subparsers.add_parser("delete", help="delete a task")
+    delete_parser.add_argument("id", type=int)
+
+    return parser
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if args.command == "add":
+        task = add_task(args.file, args.title, args.priority)
+        print(f"Added task #{task['id']}: {task['title']}")
+    elif args.command == "list":
+        for task in list_tasks(args.file, show_done=args.all):
+            print(task)
+    elif args.command == "done":
+        complete_task(args.file, args.id)
+    elif args.command == "delete":
+        delete_task(args.file, args.id)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+  </div>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">pyproject.toml (AI output)</span>
+    </div>
+    <pre><code>[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taskbox"
+description = "A small command-line task manager backed by a JSON file."
+requires-python = ">=3.9"
+
+[project.scripts]
+taskbox = "taskbox.cli:main"
+
+[tool.setuptools]
+packages = ["taskbox"]</code></pre>
+  </div>
+
+  <p>It's complete, imports cleanly, and looks like exactly the kind of fast, thorough answer you asked for &mdash; subcommands, a <code>--verbose</code> flag, a real <code>pyproject.toml</code>. It's also wrong in three separate, genuinely subtle ways.</p>
+
+  <h2>Step 3: Where did the AI's code lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 &mdash; <code>logging.basicConfig(level=logging.DEBUG)</code> is global, not scoped to taskbox, and hardcodes DEBUG regardless of <code>--verbose</code></span>
+      <p><strong>What it looks like it does:</strong> "set up logging for the whole app" reads like a reasonable one-time setup step &mdash; and the <code>-v/--verbose</code> flag is right there in the parser, so it looks wired up.</p>
+      <p><strong>What it actually does:</strong> two separate problems in one call. First, <code>logging.basicConfig()</code> configures the <strong>root</strong> logger &mdash; every library taskbox imports (or ever will import) that uses <code>logging.getLogger(__name__)</code> without its own handler flows into this same root configuration. The moment taskbox depends on anything with its own internal debug logging, <code>--verbose</code> was never even necessary to see it: DEBUG is hardcoded at import time, so <em>everything's</em> debug output prints, always, whether the user asked for verbose or not. Second, the <code>args.verbose</code> flag the parser collects is never actually read anywhere &mdash; the flag exists in <code>--help</code> and does genuinely nothing.</p>
+      <p><strong>Why it matters:</strong> confirmed by actually running an equivalent setup against a small fake dependency with its own debug-level logger: <code>basicConfig(level=logging.DEBUG)</code> at import time printed that dependency's internal "opened connection pool" / "retry loop" debug lines right alongside taskbox's own, with no way to turn them off short of editing code. On a real tool with real dependencies (a database driver, an HTTP client), this is exactly how a "quiet" default run turns into an unreadable wall of unrelated internal noise.</p>
+      <p><strong>The fix:</strong> configure a named logger (<code>logging.getLogger("taskbox")</code>), attach a handler to it directly, set <code>propagate = False</code> so its records don't also flow to the root logger, and actually branch the level on <code>args.verbose</code> (<code>DEBUG</code> if true, else <code>INFO</code>) instead of hardcoding it &mdash; see this chapter's own <code>solution/taskbox/cli.py</code> for the working version.</p>
+
+      <span class="qa-section-label flags">Flaw 2 &mdash; <code>add</code>'s task title became an optional <code>--title</code> flag with a silent wrong default, instead of a required positional argument</span>
+      <p><strong>What it looks like it does:</strong> <code>add_parser.add_argument("--title", default="Untitled task", ...)</code> looks like a helpful convenience &mdash; a default so the command "just works" even if you forget to type a title.</p>
+      <p><strong>What it actually does:</strong> the prompt never asked for an optional title with a fallback &mdash; a to-do item genuinely has no meaningful default. Confirmed by actually running it: <code>taskbox add</code> with no title at all parses successfully and silently creates a real task named <code>"Untitled task"</code> &mdash; no error, no warning, exit code 0. The user who forgot <code>--title "Buy milk"</code> gets a task list quietly polluted with a placeholder entry instead of an argparse error telling them what they forgot.</p>
+      <p><strong>Why it matters:</strong> this is the exact inversion CONTRIBUTING.md's argparse guidance warns about &mdash; something that should be a <strong>required positional argument</strong> (there's no sensible default for "what is this task called") became an optional flag with a default that's wrong for every real use, and the failure is silent rather than loud. A learner skimming <code>--help</code> output would see <code>--title TITLE</code> and assume it's optional the same way <code>--priority</code> genuinely is, with no way to tell the two apart from the help text alone.</p>
+      <p><strong>The fix:</strong> make it a required positional argument &mdash; <code>add_parser.add_argument("title", help="the task's title (required, positional)")</code>, with no <code>default</code> at all. Then <code>taskbox add</code> with nothing after it fails loudly with argparse's own "the following arguments are required: title" message and exit code 2, which is what should happen.</p>
+
+      <span class="qa-section-label flags">Flaw 3 &mdash; <code>pyproject.toml</code> is missing the required <code>version</code> field, so <code>pip install -e .</code> fails non-obviously</span>
+      <p><strong>What it looks like it does:</strong> the file has <code>[build-system]</code>, <code>[project]</code> with a name and description, <code>[project.scripts]</code> wiring the entry point, and <code>[tool.setuptools]</code> &mdash; it reads as complete and standard-shaped.</p>
+      <p><strong>What it actually does:</strong> confirmed by actually running <code>pip install -e .</code> against this exact file &mdash; it fails during the build step with <code>ValueError: invalid pyproject.toml config: \`project\`. configuration error: \`project\` must contain ['version'] properties</code>. The <code>[project]</code> table requires either a static <code>version</code> key or an explicit <code>dynamic = ["version"]</code> declaration (paired with a way to compute it, like <code>[tool.setuptools.dynamic]</code>) &mdash; a bare <code>[project]</code> table with no version at all is invalid per the packaging spec, not optional-but-recommended.</p>
+      <p><strong>Why it matters:</strong> the error is thrown by a build subprocess several layers down (<code>setuptools.config.pyprojecttoml</code>), with a message that doesn't say "you forgot version" in plain language &mdash; it says "configuration error" and names the field in spec terminology. A learner pasting this <code>pyproject.toml</code> in good faith, trusting that AI-generated packaging config is correct because it "looks standard," hits a wall of subprocess traceback with no obvious next step.</p>
+      <p><strong>The fix:</strong> add <code>version = "1.0.0"</code> (or whatever version) directly under <code>[project]</code>. This chapter's own <code>solution/pyproject.toml</code> has it — verified with a real <code>pip install -e .</code> that completed successfully and produced a working <code>taskbox</code> command.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself &mdash; it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 31?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Check whether logging.basicConfig() is scoped to my app or the whole root logger' or 'Actually run pip install -e . before trusting a generated pyproject.toml'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

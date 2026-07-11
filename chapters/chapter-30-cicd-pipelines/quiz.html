@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30 Quiz — Python for Everyone</title>
+<meta name="description" content="Interactive multiple-choice and fill-in-the-blank quiz for Chapter 30: CI/CD Pipelines.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-30" data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 30 Quiz</span>
+  <h1>CI/CD Pipelines</h1>
+  <p>Answer each question — click an option for multiple choice, or fill in the blank and press its <strong>Check</strong> button (or press Enter).</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question mcq-question">
+      <label id="mcq1-label"><span class="q-num">1</span> What's the main problem CI/CD is designed to solve?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq1-label">
+        <button type="button" class="mcq-option" data-correct="false">Python code running too slowly</button>
+        <button type="button" class="mcq-option" data-correct="true">Checks (tests, deploys) that only happen when a human remembers to run them by hand</button>
+        <button type="button" class="mcq-option" data-correct="false">Git merge conflicts between branches</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq2-label"><span class="q-num">2</span> Where must a GitHub Actions workflow file live in a repository?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq2-label">
+        <button type="button" class="mcq-option" data-correct="false">Anywhere, as long as the file ends in .yml</button>
+        <button type="button" class="mcq-option" data-correct="true">In the .github/workflows/ folder</button>
+        <button type="button" class="mcq-option" data-correct="false">In a top-level file named actions.yml</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq3-label"><span class="q-num">3</span> In a workflow file, what does the <code>on</code> key define?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq3-label">
+        <button type="button" class="mcq-option" data-correct="false">Which runner operating system to use</button>
+        <button type="button" class="mcq-option" data-correct="true">The event(s) that trigger the workflow, such as a push or a pull request</button>
+        <button type="button" class="mcq-option" data-correct="false">Whether the workflow is currently enabled or disabled</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq4-label"><span class="q-num">4</span> What is a runner?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq4-label">
+        <button type="button" class="mcq-option" data-correct="false">A person who manually triggers a workflow</button>
+        <button type="button" class="mcq-option" data-correct="true">A fresh, disposable virtual machine GitHub provisions to execute a job's steps</button>
+        <button type="button" class="mcq-option" data-correct="false">A script that automatically fixes failing tests</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq5-label"><span class="q-num">5</span> What does <code>actions/checkout@v4</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq5-label">
+        <button type="button" class="mcq-option" data-correct="false">Installs Python on the runner</button>
+        <button type="button" class="mcq-option" data-correct="true">Clones the repository's code onto the runner, since a fresh runner starts with nothing on it</button>
+        <button type="button" class="mcq-option" data-correct="false">Checks out a specific git branch and deletes all others</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq6-label"><span class="q-num">6</span> In a well-ordered lint + test workflow, why does linting typically run before pytest?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq6-label">
+        <button type="button" class="mcq-option" data-correct="false">Linting must always run last by GitHub's design</button>
+        <button type="button" class="mcq-option" data-correct="true">Linting is faster, so the job fails fast and cheap before spending time on a full test run</button>
+        <button type="button" class="mcq-option" data-correct="false">pytest cannot run unless ruff has already passed on the same runner</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq7-label"><span class="q-num">7</span> What happens to a workflow job when one of its steps exits with a non-zero status?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq7-label">
+        <button type="button" class="mcq-option" data-correct="false">GitHub ignores it and continues to the next step automatically</button>
+        <button type="button" class="mcq-option" data-correct="true">The job stops immediately, is marked failed, and every subsequent step is skipped</button>
+        <button type="button" class="mcq-option" data-correct="false">The workflow automatically retries the entire job up to 3 times</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq8-label"><span class="q-num">8</span> What does a matrix strategy do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq8-label">
+        <button type="button" class="mcq-option" data-correct="false">Runs a job once, then repeats its output multiple times in the logs</button>
+        <button type="button" class="mcq-option" data-correct="true">Runs the same job multiple times, once per listed value (e.g. per Python version), in parallel</button>
+        <button type="button" class="mcq-option" data-correct="false">Splits one long test file into smaller files automatically</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq9-label"><span class="q-num">9</span> Roughly how long does a matrixed job with 3 parallel combinations take compared to running them one after another?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq9-label">
+        <button type="button" class="mcq-option" data-correct="false">Exactly 3 times as long, since GitHub bills per combination</button>
+        <button type="button" class="mcq-option" data-correct="true">Roughly as long as the single slowest combination, since they run at the same time</button>
+        <button type="button" class="mcq-option" data-correct="false">Exactly the same total time either way</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq10-label"><span class="q-num">10</span> What does <code>cache: "pip"</code> on <code>actions/setup-python@v5</code> do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq10-label">
+        <button type="button" class="mcq-option" data-correct="false">Permanently installs your dependencies on GitHub's servers for every future project</button>
+        <button type="button" class="mcq-option" data-correct="true">Saves and restores pip's download cache between runs, keyed on your dependency file, so unchanged dependencies aren't re-downloaded</button>
+        <button type="button" class="mcq-option" data-correct="false">Speeds up pytest itself by skipping already-passing tests</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq11-label"><span class="q-num">11</span> By default, does a failing status check block a pull request from being merged?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq11-label">
+        <button type="button" class="mcq-option" data-correct="false">Yes, GitHub always blocks merging on any failing check</button>
+        <button type="button" class="mcq-option" data-correct="true">No — a status check is informational only until branch protection marks it as a required check</button>
+        <button type="button" class="mcq-option" data-correct="false">Only if the repository has fewer than 10 contributors</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq12-label"><span class="q-num">12</span> What does branch protection's "required status checks" setting actually do?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq12-label">
+        <button type="button" class="mcq-option" data-correct="false">Automatically fixes any failing check</button>
+        <button type="button" class="mcq-option" data-correct="true">Disables the merge button until the named checks report success</button>
+        <button type="button" class="mcq-option" data-correct="false">Deletes any pull request whose checks fail after 24 hours</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq13-label"><span class="q-num">13</span> Why do lint-and-test, type-check, and security-scan typically run as separate parallel jobs rather than one combined job?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq13-label">
+        <button type="button" class="mcq-option" data-correct="false">GitHub Actions requires every distinct tool to have its own job</button>
+        <button type="button" class="mcq-option" data-correct="true">They're independent of each other's results, so running them in parallel is faster than forcing them to run in sequence</button>
+        <button type="button" class="mcq-option" data-correct="false">Separate jobs are the only way to use more than one Python version</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq14-label"><span class="q-num">14</span> What does the <code>needs</code> key do in a job definition?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq14-label">
+        <button type="button" class="mcq-option" data-correct="false">Lists the Python packages that job's steps require</button>
+        <button type="button" class="mcq-option" data-correct="true">Makes the job wait until the listed jobs succeed before it starts, instead of running immediately in parallel</button>
+        <button type="button" class="mcq-option" data-correct="false">Specifies the minimum number of runners required</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+    <div class="quiz-question mcq-question">
+      <label id="mcq15-label"><span class="q-num">15</span> What's the difference between Continuous Delivery and Continuous Deployment?</label>
+      <div class="mcq-options" role="group" aria-labelledby="mcq15-label">
+        <button type="button" class="mcq-option" data-correct="false">They're two names for exactly the same process</button>
+        <button type="button" class="mcq-option" data-correct="true">Delivery automates everything up to a human-approved release click; deployment removes that last manual step and ships automatically</button>
+        <button type="button" class="mcq-option" data-correct="false">Delivery only applies to mobile apps, deployment only applies to web apps</button>
+      </div>
+      <span class="mcq-feedback" aria-live="polite"></span>
+    </div>
+
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> A GitHub Actions workflow file must live inside the ____/workflows/ folder of a repository.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers=".github,github" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> The most common runner value, <code>runs-on: ubuntu-____</code>, gives every job a fresh Ubuntu Linux virtual machine.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="latest" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> <code>actions/setup-____@v5</code> installs a requested version of Python on the runner and puts it on PATH.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="python" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q19"><span class="q-num">19</span> Within a job, each individual command or reusable action is called a ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q19" class="fib-blank" data-answers="step" aria-label="Answer for question 19">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q20"><span class="q-num">20</span> A step that runs a reusable, versioned action (rather than a raw shell command) uses the ____ key, e.g. <code>uses: actions/checkout@v4</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="q20" class="fib-blank" data-answers="uses" aria-label="Answer for question 20">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q21"><span class="q-num">21</span> To run the same job across multiple Python versions in parallel, add a <code>strategy.____</code> block listing the versions.</label>
+      <div class="fib-row">
+        <input type="text" id="q21" class="fib-blank" data-answers="matrix" aria-label="Answer for question 21">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q22"><span class="q-num">22</span> Inside a matrixed step, <code>${{ matrix.python-____ }}</code> substitutes in whichever value this particular parallel run is handling.</label>
+      <div class="fib-row">
+        <input type="text" id="q22" class="fib-blank" data-answers="version" aria-label="Answer for question 22">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q23"><span class="q-num">23</span> On a pull request, the pass/fail result of a single workflow job is shown as a ____ check.</label>
+      <div class="fib-row">
+        <input type="text" id="q23" class="fib-blank" data-answers="status" aria-label="Answer for question 23">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q24"><span class="q-num">24</span> The repository setting that can block the merge button until named checks pass is called ____ protection.</label>
+      <div class="fib-row">
+        <input type="text" id="q24" class="fib-blank" data-answers="branch" aria-label="Answer for question 24">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q25"><span class="q-num">25</span> A job that lists <code>____: [lint-and-test, type-check, security-scan]</code> only runs after all three of those jobs succeed.</label>
+      <div class="fib-row">
+        <input type="text" id="q25" class="fib-blank" data-answers="needs" aria-label="Answer for question 25">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 30 is marked complete &mdash; on to the exercises.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="exercises/index.html">Exercises &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

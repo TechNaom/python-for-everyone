@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 31: Professional Python -- virtual environments, requirements.txt, logging vs print(), log levels, argparse, pyproject.toml, packaging, and console_scripts entry points.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-31-interview" data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to lesson</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: Professional Python</h1>
+  <p>Writing Python that runs on your machine and shipping Python other people can install, run, and debug are different skills &mdash; this is where interviewers start probing for the second one. This set covers virtual environments, dependency management, why real tools use <code>logging</code> instead of <code>print()</code>, structuring a command-line interface with <code>argparse</code>, and what actually makes a folder of <code>.py</code> files an installable package.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> Why do virtual environments matter? What actually goes wrong without one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A virtual environment is an isolated Python installation with its own <code>site-packages</code> folder, separate from the system Python and from every other project's environment. Without one, every project on a machine installs its dependencies into the same global Python, which means two projects that need different versions of the same package (say, one needs <code>requests==2.20</code> and another needs <code>requests==2.31</code>) can't both work at once &mdash; installing one silently breaks the other. It also means "works on my machine" stops being reproducible: someone else's global Python has a different accumulated pile of packages installed over time, so a project that quietly depended on some unlisted package being globally present breaks the moment it's cloned onto a clean machine.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing venvs as just "a folder" with no mention of the actual failure mode (version conflicts between projects, or non-reproducible installs) they solve.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you `pip install` something without activating a venv first, where does it go?" (Into the global/system Python's site-packages -- exactly the shared space a venv exists to avoid touching, which is why it's easy to accidentally pollute a system Python by forgetting to activate first.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What specifically can go wrong if you install packages globally instead of per-project?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Three concrete failure modes: version conflicts (two projects need incompatible versions of the same library, and only one can be installed globally at a time), silent hidden dependencies (a project runs fine locally because some unrelated tool already installed a package it happens to need, but that dependency is missing from <code>requirements.txt</code> and the project breaks for anyone else), and harder cleanup (uninstalling one project's dependencies risks breaking another project or the OS's own Python-based tooling, since some operating systems use system Python for their own scripts). All three are avoidable by giving every project its own venv and only ever installing into an activated one.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating this as a purely hypothetical/academic risk rather than something that actually happens on real teams within weeks of skipping venvs.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Some Linux distributions actively block `pip install` into the system Python now -- why?" (Because the OS itself relies on specific package versions for its own tooling; a stray global pip install can silently break OS-level scripts, so modern distros require an explicit override flag or a venv to prevent exactly this class of damage.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What does <code>requirements.txt</code> actually do, and what are its limitations?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>requirements.txt</code> is a plain list of packages (optionally with version constraints) that <code>pip install -r requirements.txt</code> reads and installs in one command -- it's how a project communicates "here's everything you need to run this" to anyone who clones it. Its main limitation: an unpinned entry like <code>requests</code> (no version) installs whatever the latest version happens to be at install time, which can differ between two people installing on different days -- reintroducing the exact "works on my machine" problem venvs were supposed to fix, just one layer up. It also doesn't pin the transitive dependencies of your dependencies (the packages your packages depend on), so even a pinned top-level list can still resolve differently over time unless something more like a lockfile is used.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "has a requirements.txt" and "has reproducible installs" as the same thing -- an unpinned requirements.txt gives you neither reproducibility nor a record of what actually got installed and tested.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between requirements.txt and a lockfile (like poetry.lock or a pip-compile output)?" (requirements.txt is usually hand-written and loosely or fully unpinned; a lockfile is generated, pins every package -- including transitive dependencies -- to an exact version and often a hash, and is meant to be regenerated by tooling rather than edited by hand, giving byte-for-byte reproducible installs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> Why does professional code use the <code>logging</code> module instead of scattering <code>print()</code> statements?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>print()</code> always writes to stdout, always shows every message, and has no concept of severity or where it should go -- every call has to be manually added or deleted to change verbosity. <code>logging</code> gives every message a severity level (DEBUG, INFO, WARNING, ERROR, CRITICAL), and one runtime setting (the logger's configured level) controls which of those actually get emitted -- so a tool can ship dozens of `logger.debug(...)` calls that stay silent by default and only appear when a user passes `--verbose`, with zero code changes. `logging` also supports multiple destinations at once (console, a log file, a remote log-aggregation service) and structured, consistent formatting (timestamps, logger name, level) applied automatically to every message -- none of which `print()` gives you without hand-rolling it yourself.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying "logging is just fancier print()" -- the actual point is that severity and destination become configuration, not code you have to add/remove/comment out.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is `print()` ever still the right choice in a CLI tool?" (Yes -- for the tool's actual output, the result the user asked for, like `taskbox list` printing the task list itself. `logging` is for diagnostic/operational messages about what the program is doing internally; `print()` is fine for the program's actual product output that the user wants piped, redirected, or read directly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> Walk through Python's standard log levels and when you'd use each.</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>From least to most severe: DEBUG (detailed internal state useful only while diagnosing a problem -- file paths being read, loop iteration counts, exact values being compared), INFO (confirmation that something expected happened -- "task added," "file saved," the normal narrative of a successful run), WARNING (something unexpected or worth noting, but the program can still continue -- "config file missing, using defaults," "task was already marked done"), ERROR (something failed and the current operation couldn't complete, but the program itself can keep running -- a single bad request in a loop of many), and CRITICAL (the program itself likely can't continue -- a required resource is completely unavailable). The default level if you don't configure anything is WARNING, meaning INFO and DEBUG are silent until explicitly enabled.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using ERROR or CRITICAL for routine, expected conditions (or the reverse -- logging a genuine failure at INFO where it'll be missed) -- the whole point of levels is that someone scanning only WARNING and above should see everything that actually needs attention.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you don't call logging.basicConfig() or attach any handler at all, what happens when you call logger.warning(...)?" (It still prints -- Python's logging module has a "handler of last resort" that outputs WARNING and above to stderr even with zero configuration, which is also exactly why the default level is WARNING and not something noisier.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> What's the difference between the root logger and a module-level logger (<code>logging.getLogger(__name__)</code>)?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Every logger created with <code>logging.getLogger("some.name")</code> sits in a hierarchy and has a parent -- by default, every named logger's ultimate parent is the root logger (<code>logging.getLogger()</code>, no name). <code>logging.basicConfig()</code> configures the root logger specifically. Because log records propagate upward through the hierarchy by default (a child logger's message also flows to its parent's handlers, all the way to root), configuring the root logger affects every module and every imported library that uses <code>logging.getLogger(__name__)</code> without its own separate configuration -- not just your own code. Using <code>logging.getLogger("yourtool")</code> and attaching a handler directly to that named logger (with <code>propagate = False</code> if you don't want it also hitting root's handlers) scopes your configuration to your own tool's messages only.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that <code>basicConfig()</code> configures root, not "logging in general" -- this is the single most common real-world logging mistake, and it silently affects every dependency's log output, not just your own.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You call basicConfig(level=logging.DEBUG) in your CLI tool. A library you imported also uses logging.getLogger(__name__) with no config of its own. What happens when your tool runs?" (That library's DEBUG-level messages print too, mixed in with yours -- confirmed by actually running this: a fake dependency's internal "opened connection pool" / "retry loop" debug lines appeared right alongside the tool's own debug output, with no way to separate them without editing code, since both loggers propagate to the same globally-configured root.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> In argparse, what's the difference between a positional and an optional argument, and how do you decide which to use?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A positional argument (<code>parser.add_argument("title")</code> -- no leading dashes) is identified by its position in the command and is required by default; leaving it out is an argparse error. An optional argument (<code>parser.add_argument("--priority")</code> -- leading dashes) can appear anywhere, in any order, and is optional by default unless you explicitly pass <code>required=True</code>. The decision is about whether the command means anything without it: a task's title is meaningless to omit (there's no sensible default for "what is this task called"), so it should be positional and required; a task's priority has a sensible fallback ("normal"), so it belongs as an optional flag with a default. Making something optional with a plausible-looking default when it should actually be required lets a user accidentally omit critical information with zero warning.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating the choice as purely stylistic rather than a real correctness decision -- an optional argument that should have been required fails silently (wrong default used) instead of loudly (argparse's own clear error), which is a genuinely different user experience.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can an optional-style argument (with dashes) still be required?" (Yes -- add_argument("--priority", required=True) makes a dashed flag mandatory. It still has to be passed with its flag name (order doesn't matter), unlike a positional, but omitting it is now an argparse error instead of silently falling back to a default.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> How do you add subcommands to an argparse CLI (like `git commit` or `taskbox add`)?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>parser.add_subparsers(dest="command", required=True)</code> creates a subparsers object; calling <code>.add_parser("add")</code> on it returns a brand-new, independent ArgumentParser scoped to just that subcommand, with its own positional/optional arguments that don't leak into other subcommands. <code>dest="command"</code> stores which subcommand name was chosen into <code>args.command</code>, so the main function can branch on it (<code>if args.command == "add": ...</code>). <code>required=True</code> makes choosing a subcommand mandatory -- without it, running the program with no subcommand at all silently does nothing instead of showing a clear "you must pick one" error.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Forgetting <code>required=True</code> and not noticing the tool silently no-ops when no subcommand is given -- a real usability bug that's easy to miss during casual testing since "run with valid args" is what gets tested most.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can a top-level flag like --verbose be shared across all subcommands without repeating add_argument for each one?" (Yes -- add it to the top-level parser before creating subparsers; argparse requires it to appear before the subcommand name on the command line (`tool --verbose add ...`, not `tool add --verbose ...`) unless you also add it individually to each subparser.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> What does <code>pyproject.toml</code> replace, and why did Python packaging move to it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>pyproject.toml</code> replaces the legacy combination of <code>setup.py</code> (an executable Python script that had to run arbitrary code just to report a package's metadata -- a real security and reproducibility problem, since installing a package meant executing its author's code before you'd even decided to trust it) plus <code>setup.cfg</code> for static config. <code>pyproject.toml</code> is a static, declarative TOML file -- a build tool can read a package's name, version, and dependencies without executing anything. It's also become the single shared config file for the whole Python tooling ecosystem beyond just packaging (pytest, black, ruff, mypy, and others all read their own settings from `pyproject.toml` sections), rather than every tool inventing its own separate config file format.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming <code>setup.py</code> is entirely gone/unsupported -- some projects (especially older ones, or ones needing genuinely dynamic build logic) still use it or a hybrid approach; <code>pyproject.toml</code> is the modern standard and default, not a hard requirement enforced everywhere yet.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does pyproject.toml eliminate setup.py entirely, or can they coexist?" (They can coexist -- a project can have both a pyproject.toml (for standard metadata/build-system declaration) and a setup.py (for genuinely dynamic build steps that can't be expressed declaratively), though for most projects pyproject.toml alone is sufficient and setup.py isn't needed at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What actually makes a folder of Python files "pip-installable"?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Three things together: (1) a <code>pyproject.toml</code> declaring a <code>[build-system]</code> (which build backend, like <code>setuptools</code>, should turn the source into an installable distribution) and a <code>[project]</code> table with at minimum a <code>name</code> and <code>version</code>; (2) the actual package -- a directory containing an <code>__init__.py</code> file, which is what makes Python treat that directory as an importable package rather than just a folder of loose scripts; (3) enough structure for the build backend to find that package -- either a conventional layout it auto-detects, or an explicit <code>[tool.setuptools] packages = [...]</code> declaration. Missing any of the three produces a real, reproducible failure: no `[project]` table with a `version` fails the build outright with a configuration error; no `__init__.py` means nothing is importable even if the install technically succeeds.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying "just add a pyproject.toml" without mentioning that a genuinely missing required field (like `version`, with no `dynamic` declaration either) fails the build -- confirmed by actually running `pip install -e .` against a `pyproject.toml` missing `version`: it fails with `ValueError: invalid pyproject.toml config: 'project'. configuration error: 'project' must contain ['version'] properties`, thrown from a build subprocess several layers deep, not from pip's own top-level error handling.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the difference between `pip install .` and `pip install -e .`?" (Plain `pip install .` copies the package into site-packages as a snapshot -- editing the source afterward has no effect until you reinstall. `pip install -e .` (editable/development install) installs a link back to the source directory instead, so changes to the `.py` files take effect immediately on the next run, no reinstall needed -- the standard choice while actively developing a package.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What is a <code>console_scripts</code> entry point (<code>[project.scripts]</code> in <code>pyproject.toml</code>), and what does it actually do at install time?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>[project.scripts]</code> maps a command name to a Python function, in the form <code>command-name = "module.path:function_name"</code> -- e.g. <code>taskbox = "taskbox.cli:main"</code>. At install time, pip reads that mapping and generates a small executable wrapper script (placed in the environment's `bin`/`Scripts` folder, which is on `PATH` while the venv is active) that imports the given module and calls the given function. That's the entire mechanism behind being able to type `taskbox` in a terminal instead of `python3 -m taskbox.cli` or `python3 path/to/cli.py` -- it's the exact same mechanism that gives you the `pip`, `black`, and `pytest` commands after installing those packages.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Thinking the command name has to match the package name -- it doesn't; `[project.scripts]` can define multiple entries pointing at the same function (a short alias plus a full name), or a command name entirely different from the package.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If you uninstall the package with pip uninstall, does the console_scripts command disappear too?" (Yes -- the generated wrapper script is tracked as part of the package's installed files, so uninstalling the package removes the command along with everything else pip installed for it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> Why does proper argument handling and help text turn a script into a real "tool"?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A hand-rolled script that reads <code>sys.argv[1]</code>, <code>sys.argv[2]</code> directly has no self-documentation (the only way to learn its interface is to read the source), no validation (a typo'd argument either crashes with a raw traceback or silently does the wrong thing), and no consistent conventions (every script invents its own argument order and error style). <code>argparse</code> gives every tool a free, auto-generated <code>--help</code> screen, automatic type conversion and validation (rejecting bad input before your code ever runs, with a clear message naming exactly what was wrong), and a consistent, familiar interface shape that matches every other real CLI tool a user has ever touched. That gap -- self-documenting, validated, predictable vs. "read the source and hope" -- is the actual line between a script and a tool other people (including future you) can pick up without help.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating <code>--help</code> as a nice-to-have polish item rather than the main artifact that makes a tool usable by anyone who isn't its author.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Does argparse's auto-generated --help update itself if you add a new subcommand later?" (Yes -- the help text is generated from the parser's current configuration (its arguments, their help= strings, choices, defaults) every time --help runs, so it's never able to drift out of sync with the actual accepted arguments the way a hand-written help string or README section can.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> What are common CLI UX mistakes that make a tool frustrating to use, even if it technically works?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A few recurring ones: no <code>--help</code> at all, or help text that doesn't explain what each argument actually does (just restating its name); unclear error messages -- a raw Python traceback instead of a plain-language explanation of what went wrong and how to fix it (compare a raw `KeyError: 999` traceback to `ERROR: No task with id 999.`); exit codes that don't reflect success/failure, so the tool can't be reliably used in a shell script that checks `$?`; silently accepting bad input instead of rejecting it (the "optional argument that should have been required" mistake -- a missing required value quietly becomes a wrong default instead of a clear error); and inconsistent flag conventions across subcommands (e.g. `--file` meaning something different, or being spelled differently, between two subcommands of the same tool).</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Only listing "no --help" as the one mistake -- that's the most obvious one, but silent-wrong-default and leaking raw tracebacks to end users are the ones that cause real damage (bad data, confused users) rather than just mild annoyance.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why does exit code matter if a human is just reading the terminal output anyway?" (Because CLI tools frequently get called from other programs -- shell scripts, CI pipelines, cron jobs -- that check the numeric exit code, not the printed text, to decide whether something succeeded. A tool that always exits 0 even on failure will make an automated pipeline silently continue past a real error.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> In this chapter's <code>taskbox</code> project, why is the logic split into <code>core.py</code> and <code>cli.py</code> instead of one file, and why does <code>--file</code> matter for testing?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>core.py</code> holds the actual task logic (loading/saving JSON, adding/listing/completing/deleting tasks) and never imports <code>argparse</code>, never touches <code>sys.argv</code>, and never calls <code>print()</code> -- it raises a custom <code>TaskboxError</code> exception on bad input instead. <code>cli.py</code> is the only place that parses arguments, configures logging, and prints to the terminal; it calls into `core.py`'s functions and translates their return values (or a caught `TaskboxError`) into terminal output. That separation means `core.py` is directly unit-testable (call `add_task()` with a scratch file path and assert on the returned dict, no terminal involved) and could be reused by a future GUI or web API without dragging any command-line concerns along with it. The top-level `--file` flag (rather than a hardcoded `~/.taskbox/tasks.json` path baked into the functions) is what makes that testability real in practice -- every test, and every manual verification run, can point at an isolated scratch file instead of touching (or depending on the state of) the user's real task list.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not being able to explain the split beyond "it's cleaner" -- the concrete payoff (testability without a terminal, reusability outside a CLI context) is the actual answer an interviewer is listening for.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If core.py needs to report something like 'this task was already marked done' -- not fatal, just worth noting -- should it print, raise, or log?" (Log it, at WARNING level, via `logger.warning(...)` -- it's not an error (the operation still succeeds), it's not the tool's actual output (so not print()), and core.py shouldn't be deciding what the terminal displays at all -- that's cli.py's job, which is exactly why core.py logs instead of printing.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> A virtual environment gives a project its own isolated <code>____</code> folder, separate from the system Python.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="site-packages" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> An unpinned entry in <code>requirements.txt</code> (no version number) can install a different version depending on ____ it's installed.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="when,the date,what day" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Unlike <code>print()</code>, the <code>____</code> module lets severity control which messages are shown, without editing code.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="logging" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> From least to most severe, the standard log levels are DEBUG, INFO, ____, ERROR, CRITICAL.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="WARNING,warning" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> <code>logging.____()</code> configures the root logger, which every unconfigured library logger also flows into.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="basicConfig" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> In argparse, an argument defined without leading dashes (like <code>"title"</code>) is a <code>____</code> argument and is required by default.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="positional" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> <code>parser.add_____(dest="command", required=True)</code> is how you add subcommands like <code>add</code>/<code>list</code>/<code>done</code> to an argparse CLI.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="subparsers" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>____.toml</code> is the modern, declarative file that replaced <code>setup.py</code> for Python packaging metadata.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="pyproject" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> A missing <code>____</code> field in <code>pyproject.toml</code>'s <code>[project]</code> table makes <code>pip install -e .</code> fail outright, since it's required (directly or via a <code>dynamic</code> declaration).</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="version" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>[project.____]</code> in <code>pyproject.toml</code> maps a command name to a Python function, creating a real terminal command on install.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="scripts" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> <code>pip install -____ .</code> installs a package in editable/development mode, so source edits take effect without reinstalling.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="e" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> A package directory needs an <code>____.py</code> file to be importable as a real Python package.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="__init__" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> In taskbox's design, <code>core.py</code> never calls <code>print()</code> or imports argparse -- that split makes it directly unit-____able.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="test,testable" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> A CLI tool that always exits with code ____ regardless of success or failure breaks any shell script trying to check <code>$?</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="0,zero" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Lesson</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

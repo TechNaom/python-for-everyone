@@ -1,0 +1,19 @@
+[project]
+name = "expense-tracker"
+version = "0.1.0"
+description = "Tiny sample package used as Chapter 30's CI/CD project"
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["expense_tracker*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

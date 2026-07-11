@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 31: Professional Python -- build a logger, an argparse CLI parser, and fix a broken logging setup that silently produces no output.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 Exercises</span>
+    <span class="reading-time">40 min, hands-on</span>
+  </div>
+  <h1>Exercises: Professional Python</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below (it has every function
+    signature and detailed instructions as comments) and run
+    <code>python3 starter.py</code> from inside the folder you saved
+    it in. Everything here uses only the standard library
+    (<code>argparse</code>, <code>logging</code>) &mdash; no <code>pip
+    install</code> or virtual environment required to complete the
+    tasks themselves.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> make_logger(name, level=logging.INFO)</h3>
+    <p>Create and return a logger via <code>logging.getLogger(name)</code>, set its level, and attach one <code>StreamHandler</code> with formatter <code>"%(levelname)s: %(message)s"</code>. Only add the handler if <code>logger.handlers</code> is empty &mdash; otherwise calling this twice with the same name prints every message twice.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> safe_divide(logger, a, b)</h3>
+    <p>If <code>b</code> is <code>0</code>, log an error describing the attempted division and return <code>None</code>. Otherwise compute <code>a / b</code>, log it at <code>INFO</code> level, and return the result.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> build_greet_parser()</h3>
+    <p>Return an <code>argparse.ArgumentParser</code> with <code>prog="greet"</code>: a required positional <code>name</code>, an optional <code>-g</code>/<code>--greeting</code> (default <code>"Hello"</code>), and an optional <code>-n</code>/<code>--times</code> (<code>type=int</code>, default <code>1</code>). Give every argument a <code>help=</code> string.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> build_greeting(args)</h3>
+    <p>Given a parsed <code>Namespace</code> from Task 3's parser, return <code>"{greeting}, {name}!"</code> repeated on its own line, <code>args.times</code> times, joined with newlines.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> build_task_parser()</h3>
+    <p>Return an <code>argparse.ArgumentParser</code> with <code>prog="taskcli"</code> and two subcommands via <code>add_subparsers(dest="command", required=True)</code>: <code>"add"</code> (one required positional <code>description</code>) and <code>"list"</code> (one optional flag <code>--all</code> using <code>action="store_true"</code>).</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3>🐞 Task 6 — Debug the Code</h3>
+    <p><code>broken_logger_setup()</code> is supposed to print <code>WARNING</code>-level messages and above to the console &mdash; but it prints nothing at all, no matter what level you log at. Find the bug and fix it, without changing the intended threshold.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">starter.py (broken)</span>
+      </div>
+      <pre><code>def broken_logger_setup():
+    logger = logging.getLogger("broken")
+    logger.setLevel(logging.WARNING)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.CRITICAL)  # bug is somewhere in this function
+    logger.addHandler(handler)
+    return logger</code></pre>
+    </div>
+    <p><strong>Hint:</strong> a message has to pass <em>two</em> separate level checks before it prints &mdash; the logger's own level, and the handler's level. Whichever one is stricter wins.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Run <code>python3 solution.py</code> and compare its output against
+    your own. <code>safe_divide(logger, 10, 2)</code> should log at
+    <code>INFO</code> and return <code>5.0</code>;
+    <code>safe_divide(logger, 5, 0)</code> should log at
+    <code>ERROR</code> and return <code>None</code>. After fixing Task
+    6, <code>fixed_logger_setup().warning(...)</code> should actually
+    print, while <code>.info(...)</code> on that same logger still
+    shouldn't (it's below <code>WARNING</code>). Every function in
+    <code>solution.py</code> was actually run and verified before being
+    published, including every <code>argparse</code> call via an
+    explicit args list.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

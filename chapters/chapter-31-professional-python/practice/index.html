@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 31 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 31: Professional Python, including interview-style scenario problems on virtual environments, project structure, logging, argparse, packaging basics, and shipping a CLI tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-31">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 31 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Professional Python</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews. This
+    chapter covers venv, project structure, logging, argparse, packaging
+    basics, and shipping a real CLI tool.
+  </p>
+
+  <div class="what-is">
+    <span class="label">Why some of these are "reasoning" problems</span>
+    Virtual environments, project structure, and packaging are mostly
+    command-line and config-file skills, not Python logic &mdash; so
+    those problems are Python functions that <strong>simulate or reason
+    about</strong> a described venv/pip/pyproject state using plain data
+    (strings, lists, dicts) instead of literally running `pip` or
+    reading a real `pyproject.toml`. Every claim they encode was checked
+    against real venv/pip/Python behavior in a scratch directory first.
+    Logging and argparse, by contrast, are real, runnable Python using
+    the standard library &mdash; write and run actual code for those.
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#venv">1. Virtual Environments</a>
+    <a href="#structure">2. Project Structure</a>
+    <a href="#logging">3. Logging</a>
+    <a href="#argparse">4. argparse</a>
+    <a href="#packaging">5. Packaging Basics</a>
+    <a href="#shippable">6. Putting It Together</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder. Standard
+    library only &mdash; nothing to install.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="venv">Topic 1: Virtual Environments</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Is a venv active?</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>is_running_in_venv(sys_prefix, sys_base_prefix)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Parse pip freeze output</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>parse_pip_freeze(freeze_output)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This wrongly claims global installs have no downsides for team projects. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>recommended_venv_command(venv_already_exists)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why venv per project</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_why_venv_per_project()</code>.</p>
+  </div>
+
+  <h2 id="structure">Topic 2: Project Structure</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Minimal professional layout</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>has_required_layout(file_paths)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Does a directory need __init__.py?</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>needs_init_file(directory_contains_python_files, uses_namespace_package)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. This wrongly claims tests should live mixed in with source, no separate folder. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>choose_layout(package_will_be_published_to_pypi)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why structure matters on a team</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_why_structure_matters()</code>.</p>
+  </div>
+
+  <h2 id="logging">Topic 3: Logging</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Level number to name</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>level_name_for_number(level_number)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Would this message be emitted?</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>would_message_be_emitted(logger_level, message_level)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This log format string has fields out of order and a typo. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> The root logger's default level</h3>
+    <p>Find <code>&#35; TODO 3.4</code>. Write <code>default_root_level()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Count emitted messages</h3>
+    <p>Find <code>&#35; TODO 3.5</code>. Write <code>count_emitted_messages(logger_level, message_levels)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>choose_log_level_for_environment(is_production)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Silent production failures</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_why_silent_failure_needs_logging()</code>.</p>
+  </div>
+
+  <h2 id="argparse">Topic 4: argparse</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Counting parser arguments</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>build_parser_arg_count(positional_names, optional_flag_names)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Parse real greeting args</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>parse_greeting_args(argv)</code> using a real <code>argparse.ArgumentParser</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. This wrongly claims every argument is optional by default. Fix it.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Exit code for a missing required arg</h3>
+    <p>Find <code>&#35; TODO 4.4</code>. Write <code>exit_code_for_missing_required_arg()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> A count-style flag</h3>
+    <p>Find <code>&#35; TODO 4.5</code>. Write <code>build_count_flag_value(argv)</code> using a real <code>argparse.ArgumentParser</code> with <code>action="count"</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>choose_argparse_action(flag_takes_a_value)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>argparse vs. manual sys.argv</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_argparse_vs_manual_sys_argv()</code>.</p>
+  </div>
+
+  <h2 id="packaging">Topic 5: Packaging Basics (pyproject.toml)</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Minimum required fields</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>has_minimum_pyproject_fields(toml_keys)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Classify a dependency pin style</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>dependency_pin_style(version_spec)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This wrongly claims pyproject.toml has no real effect on installing the package. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>choose_dependency_pin(library_is_your_own_stable_api, library_changes_often)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why pin dependencies</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_why_pin_dependencies()</code>.</p>
+  </div>
+
+  <h2 id="shippable">Topic 6: Putting It Together &mdash; A Shippable CLI Tool</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Minimum files to ship</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>minimum_files_for_shippable_cli(file_names)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Build an entry-point line</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>cli_entry_point_line(package_name, module_name, function_name)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This wrongly claims <code>pip install -e .</code> behaves like a normal install. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Comparing Two Approaches</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>choose_install_mode(actively_developing_the_package)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>The shippable checklist</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_shippable_checklist()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match on the explanation-style tasks
+    &mdash; the goal is that your program runs without errors and does
+    what each TODO asks. Every data-driven and real-Python task's output
+    is exactly reproducible.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

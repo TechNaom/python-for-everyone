@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 30 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 30: CI/CD Pipelines — CI vs CD, GitHub Actions workflow structure, runners, matrix strategy, caching, status checks, branch protection, shift left, secrets management, and more.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-30-interview" data-active-chapter="chapter-30">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to lesson</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 30 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: CI/CD Pipelines</h1>
+  <p>Almost every professional Python job assumes you can work inside a CI/CD pipeline, even if you never build one from scratch — so interviewers probe whether you understand what's actually happening when a pipeline runs, not just whether you can recite "continuous integration means testing often." This set covers CI vs. CD, GitHub Actions' workflow structure, runners, the matrix strategy, caching, status checks and branch protection, "shift left," secrets management, and the multi-job workflow this chapter's project actually builds.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the difference between Continuous Integration (CI) and Continuous Deployment/Delivery (CD)?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>CI is the practice of automatically building and testing every change as soon as it's pushed — the goal is to catch integration problems (code that breaks when combined with everyone else's changes) within minutes, not weeks later. CD picks up where CI leaves off and automates getting a passing change out to users: Continuous Delivery means every change that passes CI is automatically packaged and made ready to release (a human still clicks "deploy"), while Continuous Deployment goes one step further and pushes straight to production with no manual gate at all. In practice, "CI/CD" is often used loosely to mean "the whole automated pipeline," but the distinction matters: a team can have excellent CI and zero CD (still deploying by hand), and that's a completely normal, valid setup.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating CI and CD as interchangeable synonyms, or claiming a team "does CI/CD" without being able to say which parts are actually automated.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is it possible to have CD without CI?" (Not meaningfully — deploying automatically without first testing automatically just means broken code reaches production faster. CD is built on top of a working CI pipeline, not a replacement for one.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> What is the "works on my machine" problem, and how does CI actually solve it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>"Works on my machine" describes code that passes locally but fails somewhere else — a different OS, a different Python version, a dependency the developer happened to have installed globally but never declared, or a hardcoded local file path. It happens because a developer's own machine accumulates invisible state over time (installed packages, environment variables, cached files) that isn't part of the actual codebase, so tests quietly depend on that hidden state without anyone noticing. CI solves it by running every change on a clean, disposable environment — a fresh container or VM with nothing pre-installed except what the project's own config explicitly asks for — every single time. If the workflow has to explicitly declare a dependency for a test to pass, then "it works in CI" really does mean "it works from a clean checkout," which "it works on my machine" never guarantees.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting CI "fixes" works-on-my-machine bugs by rerunning until they pass, rather than explaining that CI's clean-environment guarantee is what exposes the bug in the first place.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Your workflow passes but a teammate's identical code fails locally — what's the first thing you'd check?" (Whether their local environment has extra packages, a different Python version, or leftover state that isn't declared anywhere in the project's actual dependency files — the same class of hidden-state problem CI is designed to catch, just now happening in reverse.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> Walk through the structure of a GitHub Actions workflow file — what do <code>on</code>, <code>jobs</code>, and <code>steps</code> each do?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>on</code> declares the triggers — the events that cause this workflow to run at all, like <code>push</code>, <code>pull_request</code>, or a schedule. <code>jobs</code> is a dictionary of one or more independent units of work, each identified by a key (like <code>lint</code> or <code>test</code>); by default every job runs in its own fresh virtual machine, in parallel with the other jobs, unless one explicitly depends on another via <code>needs</code>. <code>steps</code> is the ordered list of actions inside a single job — each step either runs a shell command directly (<code>run:</code>) or invokes a reusable, pre-built action (<code>uses:</code>, like <code>actions/checkout@v4</code>) — and steps within one job always run sequentially, sharing the same filesystem and environment as they go.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing "job" and "step" — thinking all steps in a workflow share one VM regardless of which job they're under, when in fact each job gets its own fresh runner and steps inside different jobs share nothing unless artifacts are explicitly passed between them.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a job has no `needs:` key, what determines when it runs relative to other jobs?" (Nothing does — jobs without a `needs:` dependency all start as soon as the workflow triggers, running in parallel on separate runners, which is exactly why a lint job and a test job can run at the same time instead of one waiting for the other.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What is a "runner" in GitHub Actions?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A runner is the actual machine — a fresh virtual machine (or, for self-hosted runners, a machine you provide yourself) — that executes a job's steps. <code>runs-on: ubuntu-latest</code> tells GitHub "spin up a brand-new Ubuntu VM, run this job's steps on it, then throw it away" — nothing persists between separate job runs, and nothing from your own laptop is on it unless a step explicitly checks it out or installs it. GitHub provides free hosted runners for public repos (and a limited quota for private ones) pre-loaded with common tools, but a team can also register their own self-hosted runner — useful for jobs that need specific hardware (a GPU, proprietary licensed software) or need to run inside a private network the hosted runners can't reach.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a runner persists state between separate workflow runs, or between different jobs in the same run, without an explicit cache or artifact step making that happen.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why might a company choose a self-hosted runner over GitHub's hosted ones?" (Access to internal/private network resources hosted runners can't reach, specific hardware like a GPU, custom pre-installed software that would be slow to reinstall every run, or cost control at very high build volume — with the tradeoff of now owning that machine's security and maintenance.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What problem does a matrix strategy solve, and what does it actually generate?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A matrix strategy runs the same job multiple times with different variable values substituted in — most commonly different Python (or Node, or OS) versions — instead of hand-writing a near-duplicate job for each one. Declaring <code>strategy: matrix: python-version: ["3.11", "3.12"]</code> under a job doesn't run the job once; it generates one full, independent run of that job per matrix value, each on its own runner, all in parallel by default. This answers a real question a single-version test run can't: "does this code actually work for every Python version I claim to support," not just the one version the developer happens to have locally.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing a matrix as looping through versions sequentially in one job — it's the opposite: separate parallel job runs, not a loop inside one.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's the tradeoff of testing against more Python versions in the matrix?" (Real confidence the package works everywhere it claims to, at the direct cost of more total CI runtime/minutes consumed and a longer wait before all matrix legs report back — most teams pick the oldest and newest versions they officially support rather than testing every patch version in between.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> Why does dependency caching matter in a CI workflow, and what's actually being cached?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Every job runs on a brand-new, empty runner, so without caching, every single run has to re-download and reinstall every dependency from scratch (via <code>pip install</code>) — often the slowest part of an otherwise fast workflow, and it's pure repeated work, since the same <code>requirements.txt</code> produces the exact same installed packages every time until it changes. Caching saves the downloaded/installed packages after a run and restores them at the start of the next one, keyed off a hash of the dependency file (like <code>requirements.txt</code> or a lockfile) — if that file hasn't changed, the cache hits and the install step finishes in seconds instead of minutes; if it has changed, the cache key changes too, so a fresh install happens and gets cached under the new key. <code>actions/setup-python</code>'s built-in <code>cache: "pip"</code> option wires this up without a separate caching action.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not knowing that a cache is automatically invalidated when the dependency file changes — assuming a stale cache could silently serve old dependency versions forever.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What happens on the very first run of a workflow with caching newly added?" (A cache miss — there's nothing to restore yet, so the install runs at full (uncached) speed and its result gets saved as the cache for next time. The speedup only shows up from the second run onward.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What are "status checks," and how do they connect to branch protection?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A status check is the pass/fail result a workflow reports back to GitHub for a specific commit — the green check or red X shown directly on a pull request, one per job (a "lint" check, a "test" check, and so on). By themselves, status checks are just information; nothing stops someone from merging a PR with a red X unless the repository's branch protection rules say otherwise. Branch protection on a repo (typically applied to <code>main</code>) can require that specific status checks pass before the merge button is even clickable — turning "the tests happened to fail" into "this code physically cannot reach main until it's fixed," which is what actually makes CI enforce quality instead of just reporting on it.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming a red CI status check on its own blocks a merge — without a branch protection rule explicitly requiring that check, GitHub will let a maintainer merge right past it.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Besides requiring status checks, what's another common branch protection rule?" (Requiring at least one approving code review before merge, requiring the branch to be up to date with main before merging, or disallowing force-pushes to the protected branch — all aimed at the same goal of making it structurally hard to get bad or unreviewed code onto main.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What does "shift left" mean in a CI/CD context?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>"Shift left" means moving quality checks — tests, linting, security scans — as early as possible in the development timeline (conventionally drawn left-to-right, from "code is written" to "code is in production"), rather than only catching problems right before or after release. A lint/test job that runs on every single push and every pull request, instead of only in a pre-release check, is shifting left: a typo or a broken test gets caught within minutes of being written, while the context is still fresh in the developer's head, instead of surfacing during a release crunch days or weeks later when nobody remembers why that line was written that way.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing shift left as just "testing more" — the point isn't volume of testing, it's moving the same checks to run earlier and more frequently in the process.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is a bug caught in CI generally cheaper to fix than the same bug caught in production?" (The developer who wrote it still has full context and can fix it in minutes; a production bug requires someone to first notice it, reproduce it, figure out which change caused it (often without the original author's memory of the reasoning), then ship a fix through the full release process again — every step of that is slower and riskier than catching it at push time.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> How is a real CI/CD pipeline different from just writing a build/deploy shell script and running it manually?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A shell script that lints, tests, and deploys can technically do the same steps a CI/CD pipeline does — the difference is what triggers it and where it runs. A manual script only runs when a human remembers to run it, on whatever machine and environment that human happens to be using at the time (so it inherits the exact "works on my machine" risk CI is meant to eliminate). A CI/CD pipeline runs automatically, triggered by real events (a push, a PR, a merge) on a clean, disposable, consistent environment every time, with the result visibly attached to the commit/PR for the whole team to see — nobody has to remember to run it, and nobody can quietly skip it under deadline pressure. The steps might be nearly identical; the enforcement and consistency around when and where they run are what actually make it CI/CD.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Claiming a project "has CI" because a script named <code>ci.sh</code> exists in the repo — a script that has to be remembered and run manually provides none of CI's actual guarantees.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Could the exact same shell commands used inside a CI workflow also be run locally by a developer?" (Yes, and they usually should be able to — a good workflow's steps are typically just the same `ruff check .` and `pytest` a developer could and should run locally before ever pushing; CI's value is running them automatically and consistently, not running commands no human could reproduce.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> Why run lint and tests on every single push, instead of only right before a release?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The cost of finding a bug scales with how much has been built on top of it since it was introduced — a broken function caught the moment it's pushed is a two-minute fix by the person who just wrote it; the same bug found during a pre-release check might now be buried under weeks of other commits built on the assumption it worked, affecting a much larger blast radius and requiring someone to first figure out which of dozens of intervening commits actually caused it. Running on every push also means a broken pull request is visibly broken before anyone reviews or merges it, not after — reviewers can trust the code they're looking at, at least mechanically, instead of having to manually re-verify it passes tests themselves.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating CI as expensive overhead to be minimized by running it less often — the entire value proposition of CI is catching problems as early and as cheaply as possible, and running it less often directly undermines that.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is there ever a legitimate reason to skip the full test suite on some pushes?" (Yes — a common real pattern is running a fast lint/unit-test job on every push, but reserving a slow, expensive job (like integration tests against a real database, or an end-to-end browser suite) for pull requests only, or only after other checks pass, so the fastest feedback still happens on every push while the most expensive checks don't run redundantly on every single commit to a branch nobody's reviewing yet.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> How should secrets (API keys, database passwords, deploy credentials) be handled in a CI/CD workflow?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Never hardcoded into the workflow YAML file or anywhere else in the repository — a workflow file is just as much a permanent part of git history as any other committed file, so a secret pasted into it is exposed to anyone with read access to the repo, forever, even if it's deleted in a later commit. GitHub Actions provides encrypted repository (or organization/environment) secrets, configured through the repo's Settings UI, referenced in a workflow only as <code>${{ secrets.SECRET_NAME }}</code> — the actual value is injected at runtime, never written into the workflow file itself, and GitHub automatically redacts any secret value it detects in a job's log output so it can't leak through a print statement either.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting a secret is "probably fine" to hardcode temporarily, or not knowing that deleting a secret from a later commit doesn't remove it from earlier commits still in git history.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"You just discovered an API key was accidentally committed to a public repo three commits ago. Is deleting it in a new commit enough?" (No — the key is still readable in the repo's history by anyone who checks out or browses an earlier commit. The key must be treated as compromised and rotated (revoked and reissued) immediately; only after that does cleaning up history (or just leaving the dead key in old commits) become a lower-priority followup.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What is a "build artifact" in a CI/CD pipeline, and why would a workflow produce one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A build artifact is a file (or set of files) a workflow run produces and saves for later use — a built package (like a Python wheel), a compiled binary, a test coverage report, or a static site's output folder. Runners are disposable and torn down at the end of every job, so anything produced during a run would simply vanish unless explicitly saved via <code>actions/upload-artifact</code>; a later job (or a human) can then download that exact artifact rather than rebuilding it from scratch, guaranteeing the thing that gets tested is the exact same thing that gets deployed, not a fresh rebuild that could differ.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing an artifact with a cache — a cache exists purely to speed up a future run (like restoring dependencies) and isn't meant to be downloaded or used as a deliverable; an artifact is an actual output of the build, meant to be kept, inspected, or shipped.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why might a team add a separate job just to build a package artifact, rather than building it inline as part of the test job?" (Separation of concerns and reuse — a dedicated build job's output can be uploaded once and reused by multiple downstream jobs (a deploy job, a publish-to-PyPI job) without rebuilding it redundantly in each, and keeps the test job focused only on running tests rather than also being responsible for packaging.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> At a high level, what's the difference between a blue-green deployment and a canary deployment?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both are strategies for rolling out a new version without a risky "flip the switch and hope" all-at-once deploy. Blue-green keeps two complete, identical production environments — one live ("blue"), one idle ("green") — deploys the new version fully to the idle one, verifies it, then switches all traffic over at once (usually at the load balancer/router level); if something's wrong, traffic switches back to the still-intact old environment just as instantly. Canary instead rolls the new version out gradually to a small slice of real traffic first (say 5%), watches error rates and metrics closely, and only widens the rollout to 100% if that small slice looks healthy — trading blue-green's instant all-or-nothing switch for a slower, more cautious ramp that limits how many real users are affected if something's actually wrong.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing either as just "having a backup server" — the defining feature of both is the deployment/rollback mechanism (an instant full traffic switch vs. a gradual, monitored ramp), not simply the existence of redundant infrastructure.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Which of the two catches a subtle bug that only shows up under real production load faster?" (Canary — because it exposes the new version to a small slice of genuine production traffic and monitors it before a full rollout, whereas blue-green's verification typically happens before the switch, on the idle environment, which may not perfectly replicate live traffic patterns until it's already fully live.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> In a workflow with a separate lint job and a matrix test job, why put lint in its own job instead of as one more step inside the test job?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>This chapter's project workflow runs lint as its own job (a single run) alongside a separate test job that uses a matrix over multiple Python versions. Splitting them means lint — which doesn't need to run more than once, since code style doesn't change between Python versions — runs exactly once instead of being needlessly duplicated across every matrix leg, saving real runner time. It also means the two failure modes stay clearly distinguishable in the PR's status checks: a red "Lint" check tells a reviewer at a glance "there's a style/unused-import problem," while a red "Test (Python 3.11)" check says "logic is actually broken on this version" — folding both into one job's steps would blur that signal and make a lint typo look exactly like a real test failure until someone opens the log.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing that jobs run on independent runners by default — assuming a lint step inside the matrix job would "only run once" without realizing it would actually be duplicated once per matrix version.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"In this chapter's ci.yml, does the lint job have to finish before the test job starts?" (No — neither job declares a `needs:` dependency on the other, so both start immediately and run in parallel on separate runners; a learner who wants lint to gate the tests would need to add `needs: lint` to the test job explicitly.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> Continuous ____ is the practice of automatically building and testing every change as soon as it's pushed.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="integration" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> A GitHub Actions workflow's <code>____</code> key declares which events (push, pull_request, etc.) trigger it.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="on" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> The ordered list of commands/actions inside one job is called its <code>____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="steps" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> A ____ is the fresh, disposable virtual machine that actually executes a job's steps.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="runner" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> A ____ strategy runs the same job multiple times, once per listed value (e.g. per Python version).</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="matrix" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> Dependency ____ restores previously-installed packages so a workflow doesn't reinstall everything from scratch every run.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="caching,cache" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> A pass/fail result a workflow reports back to a commit/PR (the green check or red X) is called a ____ check.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="status" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> Branch ____ rules can require specific status checks to pass before a PR is even mergeable.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="protection" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Moving quality checks as early as possible in development is called "shift ____".</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="left" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> Secrets should be referenced in a workflow only as <code>${{ ____.SECRET_NAME }}</code>, never hardcoded into the YAML.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="secrets" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> A file a workflow run produces and saves for later use (like a built package) is called a build ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="artifact" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> ____-green deployment keeps two full environments and switches all traffic at once between them.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="blue" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> A ____ deployment gradually rolls a new version out to a small slice of real traffic before a full release.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="canary" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> Without a <code>____:</code> key linking them, two jobs in the same workflow run in parallel by default, not sequentially.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="needs" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Lesson</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>
