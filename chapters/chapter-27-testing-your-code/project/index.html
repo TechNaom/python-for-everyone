@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27 Project: Test Suite for an Earlier Project — Python for Everyone</title>
+<meta name="description" content="Write a comprehensive pytest test suite -- fixtures, edge cases, and a mocked external dependency -- for a small TaskManager module, plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../interview-questions.html">&larr; Back to interview questions</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 Project</span>
+    <span class="reading-time">55 min build</span>
+  </div>
+  <h1>Test Suite for an Earlier Project</h1>
+
+  <p>A comprehensive <strong>pytest test suite</strong> for a small, self-contained <code>TaskManager</code> module &mdash; an add/complete/overdue-check workflow, the kind of class you might have built back in Chapter 11's OOP chapter. The project itself <em>is</em> the test suite: fixtures for clean per-test state, happy-path and edge-case coverage, and a mocked external dependency so a test never actually sends a real notification.</p>
+
+  <h2>Example run</h2>
+  <div class="output-block">
+    <span class="output-label">Output</span>
+    <pre><code>$ python3 -m pytest solution.py -v
+============================= test session starts ==============================
+collected 13 items
+
+solution.py::test_add_task_returns_task_with_given_title PASSED          [  7%]
+solution.py::test_add_task_appends_to_manager_tasks_list PASSED          [ 15%]
+solution.py::test_add_task_rejects_empty_title PASSED                    [ 23%]
+solution.py::test_add_task_rejects_whitespace_only_title PASSED          [ 30%]
+solution.py::test_complete_task_marks_matching_task_done PASSED          [ 38%]
+solution.py::test_complete_task_returns_false_when_no_match PASSED       [ 46%]
+solution.py::test_complete_task_only_affects_first_pending_match PASSED  [ 53%]
+solution.py::test_get_overdue_tasks_returns_only_past_due_incomplete_tasks PASSED [ 61%]
+solution.py::test_get_overdue_tasks_excludes_completed_tasks_even_if_past_due PASSED [ 69%]
+solution.py::test_get_overdue_tasks_empty_when_no_tasks_added PASSED     [ 76%]
+solution.py::test_notify_overdue_calls_notifier_send_once_per_overdue_task PASSED [ 84%]
+solution.py::test_notify_overdue_does_not_count_failed_sends PASSED      [ 92%]
+solution.py::test_notify_overdue_never_touches_the_real_notification_sender PASSED [100%]
+
+============================== 13 passed in 0.05s ==============================</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">How to run</span>
+    Download <code>starter.py</code> below into an empty folder. You'll need pytest installed (<code>pip install pytest</code>) &mdash; unlike earlier chapters, this project isn't standard-library-only, since pytest itself is the tool being taught. Then run <code>python3 -m pytest starter.py -v</code>.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2>The code under test: <code>TaskManager</code></h2>
+  <p>This part is already finished for you &mdash; it's the "earlier project," not what you're building today. Read it closely, since every test you write targets it directly.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">task_manager.py</span>
+    </div>
+    <pre><code>class TaskManager:
+    def __init__(self, notifier=None):
+        self.tasks = []
+        # Dependency injection: a real NotificationSender by default,
+        # but a caller (or a test) can swap in something else entirely.
+        self.notifier = notifier if notifier is not None else NotificationSender()
+
+    def add_task(self, title, due_date):
+        if not title or not title.strip():
+            raise ValueError("Task title cannot be empty.")
+        task = Task(title, due_date)
+        self.tasks.append(task)
+        return task
+
+    def complete_task(self, title):
+        for task in self.tasks:
+            if task.title == title and not task.completed:
+                task.completed = True
+                return True
+        return False
+
+    def get_overdue_tasks(self, now=None):
+        return [task for task in self.tasks if task.is_overdue(now)]
+
+    def notify_overdue(self, recipient, now=None):
+        overdue = self.get_overdue_tasks(now)
+        sent = 0
+        for task in overdue:
+            if self.notifier.send(task.title, recipient):
+                sent += 1
+        return sent</code></pre>
+  </div>
+
+  <p>Two design choices make this class genuinely testable, worth noticing before you write a single test:</p>
+  <ul>
+    <li><strong>The notifier is injected, not hardcoded.</strong> <code>TaskManager(notifier=mock_notifier)</code> swaps in a test double without touching <code>TaskManager</code>'s code at all.</li>
+    <li><strong>Overdue checks accept an explicit <code>now</code>.</strong> Every method that cares about "is this overdue" takes <code>now</code> as a parameter instead of always calling <code>datetime.now()</code> internally &mdash; so a test can hand it a fixed, known moment in time instead of depending on when the test happens to actually run.</li>
+  </ul>
+
+  <h2>Writing the mocked test</h2>
+  <p>This is the one worth studying closest &mdash; it's the test that proves a notification was <em>requested</em> without ever actually sending one.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">test_notify_overdue.py</span>
+    </div>
+    <pre><code>def test_notify_overdue_calls_notifier_send_once_per_overdue_task(fixed_now):
+    mock_notifier = MagicMock()
+    mock_notifier.send.return_value = True
+    manager = TaskManager(notifier=mock_notifier)
+    manager.add_task("Late thing", fixed_now - timedelta(days=1))
+    manager.add_task("Also late", fixed_now - timedelta(days=2))
+    manager.add_task("Not due yet", fixed_now + timedelta(days=1))
+
+    sent_count = manager.notify_overdue("dev@example.com", now=fixed_now)
+
+    assert sent_count == 2
+    assert mock_notifier.send.call_count == 2
+    mock_notifier.send.assert_any_call("Late thing", "dev@example.com")
+    mock_notifier.send.assert_any_call("Also late", "dev@example.com")</code></pre>
+  </div>
+
+  <div class="genai-prompt-box" data-not-yet-taught="pytest-mock,responses,httpretty,freezegun">
+    <p class="genai-thought"><strong>Thought process:</strong> a mock stands in for the real dependency, so the test should assert on the mock's call history (call_count, assert_any_call) rather than on any real side effect &mdash; if a test can't tell the difference between "sent successfully" and "was asked to send," it isn't actually verifying the right thing. Injecting the notifier through the constructor (rather than patching a module-level import) keeps the test simple and keeps TaskManager's own code free of any test-only branching.</p>
+    <div class="genai-try-first">
+      <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+      <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a pytest test that mocks TaskManager's notifier and checks it was called correctly..."></textarea>
+      <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught? That comparison is the real test, not a score.
+        </div>
+    </div>
+    <details class="genai-reveal">
+      <summary>Show a strong version of this prompt</summary>
+      <div class="genai-prompt-text"><pre>Write a pytest test function for TaskManager.notify_overdue(recipient, now=None). TaskManager accepts a `notifier` object in its constructor with a .send(task_title, recipient) method that returns True/False. In the test: create a unittest.mock.MagicMock() as the notifier, set its .send.return_value = True, inject it via TaskManager(notifier=mock_notifier), add two tasks with due dates before a fixed `now` datetime and one task due after it, call notify_overdue("dev@example.com", now=fixed_now), then assert the returned count equals 2, mock_notifier.send.call_count equals 2, and use mock_notifier.send.assert_any_call() to confirm it was called with each overdue task's exact title and the recipient string. Never let this test call a real notification service.</pre></div>
+    </details>
+  </div>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong><code>Task</code> / <code>TaskManager</code> / <code>NotificationSender</code>:</strong> the finished code under test.</li>
+    <li><strong><code>manager</code> fixture:</strong> a fresh, empty <code>TaskManager</code> for every test.</li>
+    <li><strong><code>fixed_now</code> fixture:</strong> a fixed <code>datetime</code> so overdue checks never depend on real wall-clock time.</li>
+    <li><strong>13 test functions:</strong> happy-path and edge-case coverage for <code>add_task()</code>, <code>complete_task()</code>, and <code>get_overdue_tasks()</code>, plus 3 tests exercising the mocked <code>notify_overdue()</code>.</li>
+  </ul>
+
+  <h2>Ideas to make it your own</h2>
+  <ul>
+    <li>Point this same pattern at one of your own earlier chapter projects instead of the built-in <code>TaskManager</code> example.</li>
+    <li>Add a <code>@pytest.mark.parametrize</code> test that checks several empty/whitespace/<code>None</code> titles all raise <code>ValueError</code> in one test function.</li>
+    <li>Add a test for what happens when <code>NotificationSender.send()</code> raises an exception instead of returning <code>False</code>.</li>
+  </ul>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>A test suite is what lets you change code later without re-checking everything by hand &mdash; and mocking is what makes that practical the moment your code talks to anything external (an API, a database, the clock, a notification service). Writing tests against real code, not a toy example, is what makes the difference between "I know the syntax" and "I can actually protect a real project."</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>From Chapter 7 onward, you get a genuine choice of what to build. The Test Suite above is fully built out with a starter and reference solution &mdash; the four ideas below are not. Each is a real, grounded use case solvable with only what's been taught through Chapter 27. No starter or solution files are provided on purpose &mdash; building one of these unassisted is the point.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A Test Suite for a REST API Client</h3>
+    <p><strong>Problem:</strong> A small API client class makes real HTTP requests &mdash; but a test suite should never make a real network call.</p>
+    <p><strong>What it should do:</strong> Write pytest tests that mock the HTTP layer and assert the client parses a mocked JSON response correctly, handles a mocked error status code, and passes the right URL/parameters to the mocked call.</p>
+    <p><strong>Suggested approach:</strong> Inject the client's HTTP dependency the same way <code>TaskManager</code> injects its <code>notifier</code>, then <code>unittest.mock.patch</code> it in tests &mdash; never let a test actually reach the network.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A Test Suite for a CSV Data-Cleaning Pipeline</h3>
+    <p><strong>Problem:</strong> A CSV-cleaning function (strip whitespace, drop blank rows, convert types, flag malformed rows) needs confidence it handles messy real-world data correctly.</p>
+    <p><strong>What it should do:</strong> Write pytest tests using small in-memory CSV strings covering a clean row, a row with extra whitespace, a blank row, a bad numeric field, and an entirely empty file.</p>
+    <p><strong>Suggested approach:</strong> Reuse Chapter 13's CSV-reading logic as the function under test; <code>io.StringIO</code> feeds in fake CSV content without touching the real filesystem.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Tests That Mock the Clock for a Subscription-Expiry Checker</h3>
+    <p><strong>Problem:</strong> An <code>is_subscription_expired(subscription, now=None)</code>-style function needs testing at multiple points in time without depending on today's real date.</p>
+    <p><strong>What it should do:</strong> Write pytest tests that pass a fixed <code>datetime</code> for signup day, the day before expiry, the exact expiry moment, and well after expiry &mdash; asserting the correct True/False at each boundary.</p>
+    <p><strong>Suggested approach:</strong> A <code>@pytest.fixture</code> returning a fixed <code>datetime</code>, plus <code>@pytest.mark.parametrize</code> to run the same test body against several fixed "now" values.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Parametrized Tests for a Validation Function</h3>
+    <p><strong>Problem:</strong> A single validation function has many valid and invalid input cases worth checking, and one near-identical test per case gets repetitive fast.</p>
+    <p><strong>What it should do:</strong> Write ONE pytest test function using <code>@pytest.mark.parametrize</code> that runs the same assertion against 8-10+ <code>(input, expected_result)</code> pairs, including boundary cases.</p>
+    <p><strong>Suggested approach:</strong> <code>@pytest.mark.parametrize("text,expected", [...])</code> above a test function &mdash; pytest runs and reports it once per tuple, each as its own named test result.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../interview-questions.html">&larr; Interview Questions</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

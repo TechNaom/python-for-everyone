@@ -254,7 +254,7 @@ window.PFE_MODULES = [
         { id: "database-api-failures", title: "Category 7: Database & API Failures" },
         { id: "logging-observability", title: "Category 8: Logging & Observability" }
       ] },
-      { id: "chapter-27", num: 27, title: "Testing Your Code", path: null },
+      { id: "chapter-27", num: 27, title: "Testing Your Code", path: "chapters/chapter-27-testing-your-code/lesson.html" },
       { id: "chapter-28", num: 28, title: "Git Fundamentals", path: null },
       { id: "chapter-29", num: 29, title: "GitHub & Collaboration", path: null },
       { id: "chapter-30", num: 30, title: "CI/CD Pipelines", path: null },

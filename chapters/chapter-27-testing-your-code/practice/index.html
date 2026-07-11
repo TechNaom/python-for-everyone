@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27 Practice Bank — Python for Everyone</title>
+<meta name="description" content="Deeper per-topic practice problems for Chapter 27: Testing Your Code, including interview-style scenario problems on why testing matters, unittest, pytest, fixtures and setup/teardown, mocking with unittest.mock, and test coverage/design.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../exercises/index.html">&larr; Back to exercises</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 Practice Bank</span>
+    <span class="reading-time">70-90 min, hands-on</span>
+  </div>
+  <h1>Practice Bank: Testing Your Code</h1>
+  <p>
+    A deeper set of practice problems, organized by topic, for extra reps
+    beyond the main exercises &mdash; including scenario-based problems
+    written in the same style you'll meet in real interviews.
+    <code>unittest</code> and <code>unittest.mock</code> are standard
+    library, no installs needed; the pytest topic returns pytest-style
+    source as strings so the file still runs standalone.
+  </p>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#why-testing">1. Why Testing Matters</a>
+    <a href="#unittest-basics">2. Writing Tests with unittest</a>
+    <a href="#pytest-basics">3. Writing Tests with pytest</a>
+    <a href="#fixtures">4. Fixtures and setUp/tearDown</a>
+    <a href="#mocking">5. Mocking and Test Doubles</a>
+    <a href="#test-design">6. Test Coverage &amp; What Good Tests Look Like</a>
+  </nav>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below and run
+    <code>python3 starter.py</code> from inside the same folder.
+    <code>unittest</code>/<code>unittest.mock</code> are standard
+    library &mdash; nothing to install for those. If you want to
+    actually execute the pytest source strings from Topic 3, save them
+    to a file and <code>pip install pytest</code> first.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <h2 id="why-testing">Topic 1: Why Testing Matters</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Test by hand</h3>
+    <p>Find <code>&#35; TODO 1.1</code>. Write <code>manual_check(fn, args, expected)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Would a test have caught it?</h3>
+    <p>Find <code>&#35; TODO 1.2</code>. Write <code>would_have_caught_bug(fn, args, expected)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 1.3</code>. This swallows the real exception type and always reports "no error". Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Why We Test</h3>
+    <p>Find <code>&#35; TODO 1.A</code>. Write <code>cost_of_bug_in_stage(stage)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Why manual testing doesn't scale</h3>
+    <p>Find <code>&#35; TODO 1.B</code>. Write <code>explain_why_manual_testing_doesnt_scale()</code>.</p>
+  </div>
+
+  <h2 id="unittest-basics">Topic 2: Writing Tests with unittest</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> assertEqual basics</h3>
+    <p>Find <code>&#35; TODO 2.1</code>. Write <code>AddTestCase</code> using <code>assertEqual</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> assertRaises</h3>
+    <p>Find <code>&#35; TODO 2.2</code>. Write <code>DivideTestCase</code> using <code>assertEqual</code> and <code>assertRaises</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 2.3</code>. This uses the wrong assert method for a boolean and calls <code>unittest.main()</code> unsafely inside a function. Fix it.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Rescuing an Untested Function</h3>
+    <p>Find <code>&#35; TODO 2.A</code>. Write <code>unittest_covers_parse_price()</code> covering a teammate's untested function.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Which assert method, when?</h3>
+    <p>Find <code>&#35; TODO 2.B</code>. Write <code>explain_assert_methods()</code>.</p>
+  </div>
+
+  <h2 id="pytest-basics">Topic 3: Writing Tests with pytest</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A plain-assert pytest test</h3>
+    <p>Find <code>&#35; TODO 3.1</code>. Write <code>pytest_test_file_source()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> pytest discovery rules</h3>
+    <p>Find <code>&#35; TODO 3.2</code>. Write <code>pytest_naming_is_valid(name)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 3.3</code>. This matches the substring "assert" anywhere, including inside <code>assertEqual</code> calls. Fix it to only count genuine bare <code>assert</code> statements.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Migrating unittest to pytest</h3>
+    <p>Find <code>&#35; TODO 3.A</code>. Write <code>convert_assert_equal_to_pytest(unittest_line)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>pytest vs. unittest</h3>
+    <p>Find <code>&#35; TODO 3.B</code>. Write <code>explain_pytest_vs_unittest()</code>.</p>
+  </div>
+
+  <h2 id="fixtures">Topic 4: Fixtures and setUp/tearDown</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Fresh state per test</h3>
+    <p>Find <code>&#35; TODO 4.1</code>. Write <code>CounterTestCase</code> using <code>setUp()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A pytest fixture</h3>
+    <p>Find <code>&#35; TODO 4.2</code>. Write <code>pytest_fixture_source()</code> using <code>@pytest.fixture</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 4.3</code>. <code>SharedStateTestCase</code> leaks state between tests via a class attribute. Fix it with <code>setUp()</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Fixing a Flaky CI Suite</h3>
+    <p>Find <code>&#35; TODO 4.A</code>. Write <code>tests_are_independent(results_in_order, results_reversed)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What setUp/tearDown are for</h3>
+    <p>Find <code>&#35; TODO 4.B</code>. Write <code>explain_setup_teardown_purpose()</code>.</p>
+  </div>
+
+  <h2 id="mocking">Topic 5: Mocking and Test Doubles</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Patch a fake API response</h3>
+    <p>Find <code>&#35; TODO 5.1</code>. Write <code>mocked_price_lookup(mock_price)</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Mock two dependencies at once</h3>
+    <p>Find <code>&#35; TODO 5.2</code>. Write <code>place_order_without_real_calls(ticker, quantity, fake_price)</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 5.3</code>. This patches the wrong target twice instead of patching the database call. Fix it and assert on the right mock.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Fixing a Teammate's Wrong Mock</h3>
+    <p>Find <code>&#35; TODO 5.A</code>. Write <code>identify_unused_mock(function_under_test_uses, mock_target)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>What's worth mocking</h3>
+    <p>Find <code>&#35; TODO 5.B</code>. Write <code>explain_when_to_mock()</code>.</p>
+  </div>
+
+  <h2 id="test-design">Topic 6: Test Coverage &amp; What Good Tests Look Like</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Arrange-Act-Assert</h3>
+    <p>Find <code>&#35; TODO 6.1</code>. Write <code>aaa_pattern_labels()</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Edge cases for clamp()</h3>
+    <p>Find <code>&#35; TODO 6.2</code>. Write <code>edge_cases_for_clamp()</code>.</p>
+  </div>
+
+  <div class="task-card debug-card">
+    <h3><span class="task-num">3</span> Debug the Code</h3>
+    <p>Find <code>&#35; TODO 6.3</code>. This returns vague test names (<code>test_1</code>, <code>test_2</code>...). Fix it to return descriptive names.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Scenario</span>
+    <h3>Code Review Judgment Call</h3>
+    <p>Find <code>&#35; TODO 6.A</code>. Write <code>should_keep_test(tests_public_behavior, is_redundant_with_existing)</code>.</p>
+  </div>
+
+  <div class="scenario-card">
+    <span class="scenario-tag">💼 Interview Prep</span>
+    <h3>Happy path vs. edge cases</h3>
+    <p>Find <code>&#35; TODO 6.B</code>. Write <code>explain_happy_path_vs_edge_cases()</code>.</p>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Checking your work</span>
+    Compare your output against <code>solution.py</code>. Your exact
+    wording doesn't need to match on the explanation-style tasks
+    &mdash; the goal is that your program runs without errors and does
+    what each TODO asks. For the string-returning pytest tasks, try
+    pasting the result into a real <code>.py</code> file and running
+    it with <code>pytest</code> to confirm it actually passes.
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../exercises/index.html">&larr; Exercises</a>
+    <a href="../challenges.html">Challenges &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

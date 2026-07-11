@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27 Interview Questions — Python for Everyone</title>
+<meta name="description" content="Interview prep for Chapter 27: Testing Your Code -- unittest vs pytest, what makes a good unit test, mocking vs stubbing, test isolation, why 100% coverage isn't the goal, TDD basics, flaky tests, and the testing pyramid.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-27-interview" data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="challenges.html">&larr; Back to challenges</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 Interview Prep</span>
+    <span class="reading-time">55 min read</span>
+  </div>
+  <h1>Interview Questions: Testing Your Code</h1>
+  <p>Testing questions separate candidates who can write an <code>assert</code> statement from candidates who understand why a test suite exists at all. This set covers unittest vs. pytest, what makes a test actually good, mocking vs. stubbing, test isolation, why 100% coverage is a trap, TDD basics, flaky tests, and the testing pyramid.</p>
+
+  <details class="qa-item">
+    <summary><span class="q-num">1</span> What's the actual difference between <code>unittest</code> and <code>pytest</code>, beyond "one is built-in"?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>unittest</code> requires subclassing <code>TestCase</code> and using its assertion methods (<code>assertEqual</code>, <code>assertTrue</code>, <code>assertRaises</code>) — verbose, but zero installs since it ships with Python. <code>pytest</code> lets a test be a plain function using Python's own <code>assert</code> statement, and rewrites failures to show exactly which values differed, without needing a specific assertion method per comparison. <code>pytest</code> also auto-discovers fixtures, supports plugins (coverage, parallel runs, mocking helpers), and is what the overwhelming majority of real-world Python codebases actually use day to day, even though <code>unittest</code>-style tests still run fine under pytest's runner.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Saying they're "basically the same thing" without being able to name a concrete difference, or claiming pytest is a completely different testing philosophy rather than a more ergonomic layer over the same core idea (arrange, act, assert).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Can pytest run unittest-style tests?" (Yes — pytest can discover and run <code>TestCase</code>-based tests too, which is part of why teams can adopt it without rewriting an existing unittest suite all at once.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">2</span> How does pytest know which functions in a file are tests?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Test discovery is convention-based, not configuration-based by default: pytest looks in files matching <code>test_*.py</code> or <code>*_test.py</code>, and within those files, collects any function whose name starts with <code>test_</code> (and any class named <code>Test*</code> containing such methods). A function that doesn't match that prefix — even one full of asserts — is silently skipped and never runs as a test at all.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Assuming pytest runs every function in a file, or not realizing a misnamed test function (missing the <code>test_</code> prefix) will silently never execute — no error, no warning, it just doesn't show up in the results.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a test function is misspelled as <code>tset_login()</code>, what happens when you run pytest?" (Nothing — pytest collects 0 tests for that function, no error is raised, and it's easy to mistake "0 failures" for "everything passed" when really nothing ran at all.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">3</span> What makes a unit test "good," beyond just having assertions in it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A good unit test is fast, isolated (doesn't depend on other tests or shared state), deterministic (same result every run, not dependent on time/randomness/network), and tests one specific behavior so a failure immediately tells you what broke. It should also test behavior — what the function is supposed to accomplish — rather than implementation details, so that refactoring the internals without changing the outward behavior doesn't break the test for no real reason.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Equating "good test" with "has a lot of assertions" or "high coverage number," without mentioning isolation, determinism, or speed at all.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give an example of a test that asserts on implementation details instead of behavior." (Asserting that a sort function internally calls a specific helper method, rather than asserting the output list is actually sorted — the first breaks the moment someone refactors the internals, even if the sorting still works correctly.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">4</span> What is the AAA pattern, and why does structuring a test around it matter?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Arrange, Act, Assert: set up whatever the test needs (data, objects, mocks) in the Arrange step, perform the one action being tested in the Act step, then check the result in the Assert step. Keeping these three phases visually and logically separate — even with a blank line or comment between them — makes a test readable at a glance: anyone can tell what's being tested, what action triggers it, and what's actually being verified, without tracing through tangled setup-and-check code.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not being able to name the three phases, or writing/describing a test where setup, the action, and assertions are all interleaved with no clear structure.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Where would a mock's configuration (like <code>return_value</code>) go in this pattern?" (In the Arrange step — configuring what a mock should do is part of setting up the test's preconditions, before the actual action being tested runs.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">5</span> What's the difference between a mock and a stub?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Both are test doubles — fake stand-ins for a real dependency — but they answer different questions. A <strong>stub</strong> just returns canned data so the code under test has something to work with; the test cares about the code's resulting behavior/output, not about how the stub was used. A <strong>mock</strong> additionally records how it was called, so the test can assert on the interaction itself — that a method was called, how many times, and with what arguments (<code>assert_called_once_with(...)</code>). In practice, <code>unittest.mock.Mock</code>/<code>MagicMock</code> can serve as either, depending on whether the test actually checks call history or just uses the configured return value.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Using "mock" and "stub" as pure synonyms with no distinction at all, or being unable to explain what "asserting on the interaction" actually means in practice.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a test only checks the function's return value and never inspects the fake object's call history, is that fake object being used as a mock or a stub?" (A stub — it's supplying canned data, but the test isn't verifying anything about how it was called.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">6</span> Why should a test suite avoid making real network calls, database writes, or file system changes?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Real external calls make a test suite slow (network round-trips add up fast across hundreds of tests), flaky (the network, a third-party API, or a shared database can fail for reasons that have nothing to do with whether the code under test is correct), and sometimes actively dangerous (a test that really charges a payment or really sends an email on every run is a serious liability). Mocking the external dependency keeps the test fast, deterministic, and focused only on the logic that's actually being tested.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "just run it against the real API in tests" as a reasonable default, or not recognizing the difference between a unit test (should mock externals) and an integration test (deliberately exercises real externals, on purpose, in a separate, smaller suite).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Is it ever correct for a test to hit a real external dependency?" (Yes — integration tests exist specifically for this, verifying the real wiring actually works. The key is that they're a deliberate, separate, typically smaller and slower category of test, not the default for every unit test.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">7</span> What does "test isolation" mean, and what's a concrete way tests can accidentally violate it?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Test isolation means each test's outcome depends only on itself — not on which other tests ran before it, or in what order. A common way to accidentally violate it: a shared, module-level object (a database connection, a list, a class instance) that multiple tests all mutate, instead of each test getting its own fresh instance. One test's leftover state then silently leaks into the next test that happens to run afterward, so a test can pass or fail depending purely on execution order — a bug that's hard to reproduce because running the "failing" test alone often passes fine.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Not recognizing module-level/shared fixture state as a real risk, or assuming test order is always guaranteed to be the same and therefore "it works" is good enough justification for shared state.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"How does a pytest fixture with the default scope help avoid this?" (A default-scoped — function-scoped — fixture reruns its setup code fresh for every single test that requests it, so each test gets its own new object instead of a shared one, which is exactly what prevents this kind of leak.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">8</span> What are <code>setUp</code>/<code>tearDown</code> in unittest, and how does pytest's <code>@pytest.fixture</code> relate to them?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p><code>setUp()</code> runs before every test method in a <code>TestCase</code>, and <code>tearDown()</code> runs after — used to build fresh state before a test and clean up afterward (closing a file, resetting a connection). <code>@pytest.fixture</code> covers the same underlying need but more flexibly: a fixture function provides setup by returning a value tests can request as a parameter, and can handle teardown too, using <code>yield</code> instead of <code>return</code> — code after the <code>yield</code> runs as cleanup once the test finishes. Fixtures can also be scoped (function, module, session) and shared selectively, which <code>setUp</code>/<code>tearDown</code> can't do as flexibly.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Confusing setUp with something that runs once per whole test file/class (it runs once per test method, by default), or not knowing that <code>yield</code> is how a pytest fixture provides teardown logic.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What does the code after a fixture's `yield` statement do?" (It runs as teardown, after the test that used the fixture finishes — whether the test passed or failed — making it the fixture equivalent of `tearDown()`.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">9</span> Why isn't 100% code coverage the goal of a good test suite?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Coverage measures which lines executed during the test run — it says nothing about whether the right things were actually asserted on. A test can call every line of a function and still pass with zero meaningful assertions (or a trivially wrong one, like <code>assert True</code>), driving coverage to 100% while verifying nothing. Coverage is a useful signal for finding code that's never exercised at all — a genuinely useful "you have a blind spot here" flag — but treating the number itself as the target incentivizes writing hollow tests just to move the metric, instead of writing tests that would actually catch a real bug.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating coverage percentage as a direct proxy for test quality, or not being able to describe a test that achieves high coverage while testing nothing meaningful.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's coverage actually good for, then?" (Finding code paths with NO tests at all — an untested error-handling branch, an untested edge case — as a starting point for where to add real tests, not as a scorecard to maximize for its own sake.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">10</span> What is TDD (test-driven development), at a basic level?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A workflow where the test is written before the implementation, in a short repeating cycle: write a test for behavior that doesn't exist yet (it fails — "red," since the code doesn't exist), write just enough code to make it pass ("green"), then clean up the implementation while keeping the test passing ("refactor"). The claimed benefit is that it forces the test to actually specify the desired behavior clearly, up front, rather than being written after the fact to match whatever the code already happens to do.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Describing TDD as simply "writing tests" without the specific before-the-code, red-green-refactor cycle, or claiming it's the only legitimate way to write well-tested code (it's one workflow among several valid ones).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a risk of writing tests strictly after the implementation instead?" (The test can end up unconsciously matching whatever the code already does — including its bugs — rather than what the code was actually supposed to do, since there's no failing test forcing the author to state the intended behavior independently first.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">11</span> What's a flaky test, and what usually causes one?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>A flaky test is one that passes sometimes and fails other times with no code changes in between — the exact same test, the exact same code, different outcomes across runs. Common causes: depending on real wall-clock time (a test that assumes "this runs in under 1 second" or checks against <code>datetime.now()</code> directly), depending on execution order via shared/leaked state between tests, depending on network calls that can time out, or depending on dictionary/set iteration order in older Python versions or non-deterministic data structures.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Suggesting "just re-run it until it passes" as an acceptable fix rather than diagnosing the actual non-determinism, or not recognizing shared fixture state as a common flaky-test cause.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Why is a flaky test worse than a test that just always fails?" (An always-failing test is at least honest and gets fixed immediately. A flaky test erodes trust in the whole suite over time — people start reflexively re-running failures instead of investigating them, which means a real regression can hide behind "oh, that test is just flaky" and get ignored.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">12</span> What is the "testing pyramid," and why does it recommend many unit tests but few end-to-end tests?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>The testing pyramid is a rough guideline for how a test suite's effort should be distributed across levels: a large base of fast, isolated unit tests (testing individual functions/classes), a smaller middle layer of integration tests (testing how a few real pieces work together), and a small top layer of end-to-end tests (testing the whole system through its real interface, like a browser or a full API call chain). The shape reflects a real tradeoff: end-to-end tests give the most realistic confidence but are slow, brittle, and expensive to maintain, while unit tests are fast and pinpoint failures precisely but can't catch integration-level problems on their own — so the pyramid pushes most coverage down to the cheap, fast layer and reserves the expensive layer for what only it can verify.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Advocating for mostly end-to-end tests as the primary strategy ("test through the real UI/API for everything") without acknowledging the speed and maintenance cost, or not being able to name what each layer is actually good at.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"If a bug could be caught by either a unit test or an end-to-end test, which should catch it, and why?" (The unit test, when possible — it runs faster, isolates exactly which piece of logic is broken, and doesn't require the whole system to be running, which is why the pyramid pushes as much coverage as it can down to that level.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">13</span> When would you deliberately choose NOT to mock something?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Mocking is for genuine external boundaries — a network call, a database, the clock, anything slow/non-deterministic/side-effecting. It's the wrong tool for a fast, pure, in-process piece of logic that's part of what's actually being tested: mocking a helper function that the code under test calls internally, purely to isolate the caller, usually means the test stops verifying that the two pieces actually work together correctly — exactly the kind of gap an integration test exists to catch. Over-mocking can also mean a test technically exercises very little real code, giving a false sense of coverage.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Treating "mock everything the function touches" as a universal best practice, without distinguishing a genuine external dependency from ordinary internal logic that should just run for real during the test.</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"What's a concrete cost of mocking too aggressively?" (A refactor that changes how two internal pieces of your own code collaborate can pass every test — because the collaboration itself was mocked away — while the real, unmocked system is actually broken; the tests never had a chance to catch it.)</p>
+    </div>
+  </details>
+
+  <details class="qa-item">
+    <summary><span class="q-num">14</span> A candidate says "I test everything, so my code has no bugs." How would you respond?</summary>
+    <div class="qa-body">
+      <span class="qa-section-label strong">Strong answer</span>
+      <p>Tests only prove the specific cases they check — they can't prove the absence of bugs in general, only the presence of correct behavior for the inputs actually exercised. A thorough suite dramatically raises confidence and catches regressions, but "no bugs" is a claim no test suite, however large, can actually back up — there's always an untested input, an untested interaction with some other part of the system, or an environment difference (a different OS, a different data volume) the tests never modeled. The honest framing is that tests reduce risk and catch regressions fast, not that they eliminate bugs entirely.</p>
+      <span class="qa-section-label flags">Red flags</span>
+      <p>Agreeing that comprehensive tests guarantee bug-free code, or not being able to give a concrete example of a bug category tests commonly miss (e.g. behavior that only shows up under real production load, or an untested combination of inputs).</p>
+      <span class="qa-section-label followup">Follow-up</span>
+      <p>"Give one category of bug that a thorough unit test suite commonly still misses." (Anything that only emerges from real integration/scale conditions — a race condition under real concurrent load, a performance cliff at data volumes far larger than any test fixture uses, or a genuinely untested combination of two features that individually both have full coverage.)</p>
+    </div>
+  </details>
+
+  <h2>Rapid-Fire Review</h2>
+  <p>Quick recall check &mdash; fill in each blank and hit Check.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="r1"><span class="q-num">1</span> A pytest test function's name must start with <code>____</code> to be discovered and run.</label>
+      <div class="fib-row">
+        <input type="text" id="r1" class="fib-blank" data-answers="test_,test" aria-label="Answer for rapid-fire question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r2"><span class="q-num">2</span> A unittest test class must inherit from <code>unittest.____</code>.</label>
+      <div class="fib-row">
+        <input type="text" id="r2" class="fib-blank" data-answers="TestCase" aria-label="Answer for rapid-fire question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r3"><span class="q-num">3</span> Plain pytest tests use Python's own <code>____</code> statement instead of special assertion methods.</label>
+      <div class="fib-row">
+        <input type="text" id="r3" class="fib-blank" data-answers="assert" aria-label="Answer for rapid-fire question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r4"><span class="q-num">4</span> In unittest, <code>____()</code> runs before every test method to build fresh state.</label>
+      <div class="fib-row">
+        <input type="text" id="r4" class="fib-blank" data-answers="setUp" aria-label="Answer for rapid-fire question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r5"><span class="q-num">5</span> In unittest, <code>____()</code> runs after every test method to clean up.</label>
+      <div class="fib-row">
+        <input type="text" id="r5" class="fib-blank" data-answers="tearDown" aria-label="Answer for rapid-fire question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r6"><span class="q-num">6</span> The decorator <code>@pytest.____</code> declares a reusable setup function that tests can request as a parameter.</label>
+      <div class="fib-row">
+        <input type="text" id="r6" class="fib-blank" data-answers="fixture" aria-label="Answer for rapid-fire question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r7"><span class="q-num">7</span> Code after a fixture's <code>____</code> statement runs as teardown, once the test finishes.</label>
+      <div class="fib-row">
+        <input type="text" id="r7" class="fib-blank" data-answers="yield" aria-label="Answer for rapid-fire question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r8"><span class="q-num">8</span> <code>unittest.____.Mock()</code> creates a fake object that records how it was called.</label>
+      <div class="fib-row">
+        <input type="text" id="r8" class="fib-blank" data-answers="mock" aria-label="Answer for rapid-fire question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r9"><span class="q-num">9</span> Setting <code>mock_obj.method.____ = 42</code> configures what the mocked method returns when called.</label>
+      <div class="fib-row">
+        <input type="text" id="r9" class="fib-blank" data-answers="return_value" aria-label="Answer for rapid-fire question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r10"><span class="q-num">10</span> <code>mock_obj.method.____(x)</code> checks the mock was called exactly once, with argument x.</label>
+      <div class="fib-row">
+        <input type="text" id="r10" class="fib-blank" data-answers="assert_called_once_with" aria-label="Answer for rapid-fire question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r11"><span class="q-num">11</span> A test that passes sometimes and fails other times with no code changes is called ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r11" class="fib-blank" data-answers="flaky" aria-label="Answer for rapid-fire question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r12"><span class="q-num">12</span> The testing pyramid recommends the ____ number of tests at the unit-test layer, compared to end-to-end.</label>
+      <div class="fib-row">
+        <input type="text" id="r12" class="fib-blank" data-answers="most,largest,highest,greatest" aria-label="Answer for rapid-fire question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r13"><span class="q-num">13</span> In TDD's red-green-refactor cycle, "red" means the test ____ (passes or fails?) because the code doesn't exist yet.</label>
+      <div class="fib-row">
+        <input type="text" id="r13" class="fib-blank" data-answers="fails,fail" aria-label="Answer for rapid-fire question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <label for="r14"><span class="q-num">14</span> The AAA test pattern stands for Arrange, Act, and ____.</label>
+      <div class="fib-row">
+        <input type="text" id="r14" class="fib-blank" data-answers="Assert,assert" aria-label="Answer for rapid-fire question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score &mdash; you're ready to talk about this chapter in an interview.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="challenges.html">&larr; Challenges</a>
+    <a href="project/index.html">Build the Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

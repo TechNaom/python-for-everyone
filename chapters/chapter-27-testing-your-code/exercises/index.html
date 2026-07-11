@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27 Exercises — Python for Everyone</title>
+<meta name="description" content="Hands-on exercises for Chapter 27: Testing Your Code, covering unittest TestCase classes, fixtures/setUp, mocking with unittest.mock, the AAA pattern, and a Debug the Code task.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to the quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 Exercises</span>
+    <span class="reading-time">40 min, hands-on</span>
+  </div>
+  <h1>Exercises: Testing Your Code</h1>
+
+  <div class="what-is">
+    <span class="label">How to run these</span>
+    Download <code>starter.py</code> below, then run
+    <code>python3 starter.py</code> from inside the folder you saved it
+    in. It both defines your TODOs and runs the test suite immediately,
+    so you'll see pass/fail output as soon as you run it &mdash; no
+    separate test command required. Every task uses only the standard
+    library (<code>unittest</code>, <code>unittest.mock</code>) &mdash;
+    no installs needed.
+  </div>
+
+  <div class="what-is">
+    <span class="label">Optional: running with pytest</span>
+    If you have pytest installed (<code>pip install pytest</code>), you
+    can run the exact same test classes with <code>pytest starter.py -v</code>
+    from inside this folder &mdash; pytest runs <code>unittest.TestCase</code>
+    classes directly, no changes needed. It's a good way to compare
+    pytest's output style against unittest's on identical code.
+  </div>
+
+  <div class="download-links">
+    <a href="starter.py">starter.py</a>
+    <a href="solution.py">solution.py (reference)</a>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> A function to test</h3>
+    <p>Write <code>add(a, b)</code> — return <code>a + b</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> A function that raises</h3>
+    <p>Write <code>divide(a, b)</code> — return <code>a / b</code>, but raise <code>ValueError("Cannot divide by zero")</code> if <code>b == 0</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Your first TestCase</h3>
+    <p>Write a <code>unittest.TestCase</code> class <code>TestMathOps</code> testing <code>add()</code> and that <code>divide()</code> raises <code>ValueError</code> on zero.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> A fixture with setUp</h3>
+    <p>Write <code>TestCartFixture</code> with a <code>setUp(self)</code> that builds a fresh empty cart before each test.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Code with an external dependency</h3>
+    <p>Write <code>get_username(user_id, db_client)</code> — calls <code>db_client.fetch_user(user_id)</code> and returns its <code>"username"</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">6</span> Mocking that dependency</h3>
+    <p>Write <code>TestGetUsername</code> using <code>unittest.mock.Mock()</code> to fake the database client, with <code>assert_called_once_with</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">7</span> A function with edge cases</h3>
+    <p>Write <code>apply_late_fee(balance, days_late)</code> — no fee unless <code>days_late &gt; 0</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">8</span> Testing edge cases with AAA</h3>
+    <p>Write <code>TestLateFee</code> with three Arrange/Act/Assert tests: no days late, some days late, and negative days late.</p>
+  </div>
+
+  <div class="debug-card">
+    <h3>🐞 Task 9 — Debug the Code</h3>
+    <p>This test is supposed to prove two calls to <code>make_empty_cart()</code> never share state, but it fails. Find and fix the bug — it could be in the function or the test.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">buggy_make_empty_cart.py</span>
+      </div>
+      <pre><code>def make_empty_cart(_shared_cart=[]):
+    return _shared_cart
+
+
+class TestMakeEmptyCart(unittest.TestCase):
+    def test_two_calls_are_independent(self):
+        cart_a = make_empty_cart()
+        cart_a.append("apple")
+
+        cart_b = make_empty_cart()
+
+        self.assertEqual(cart_b, [])</code></pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Back to Quiz</a>
+    <a href="../practice/index.html">Practice Bank &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

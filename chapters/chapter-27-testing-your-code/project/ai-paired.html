@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to rebuild the Chapter 27 TaskManager test suite, then critique its plausible-but-flawed output -- catching a state-leaking fixture, a mock that patches the wrong thing, and a missing edge case.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">25 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just wrote the <a href="index.html">TaskManager test suite</a> yourself, unaided. That project is unchanged — this page is additive. Now the same test suite gets built a second way: by prompting an AI assistant, and then reviewing what it hands back with the same skepticism you'd bring to a coworker's pull request. Testing code is exactly where this matters most — a test suite that <em>looks</em> thorough but quietly proves nothing is worse than no tests at all, because it creates false confidence.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant to build a test suite for the same <code>TaskManager</code> module — an extended version of the prompt from the mocking example on the main project page:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>Write a pytest test suite for this TaskManager class (I'll paste the
+class below). Cover:
+
+1. add_task() -- happy path and rejecting an empty title
+2. complete_task() -- happy path
+3. get_overdue_tasks() -- happy path
+4. notify_overdue() -- it calls self.notifier.send(title, recipient)
+   for each overdue task. Mock this so no real notification gets sent,
+   and assert notify_overdue() returns the right count.
+
+Use pytest fixtures for shared setup so I'm not repeating myself in
+every test function.
+
+[... TaskManager, Task, and NotificationSender source pasted here ...]</code></pre>
+  </div>
+
+  <p>And here's a plausible response — the kind of code an AI assistant might hand back on the first try. It imports cleanly, every test passes, and it clearly followed the prompt's structure. Read it as if it just landed in a pull request from a teammate, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">ai_test_suite.py</span>
+    </div>
+    <pre><code>from datetime import datetime, timedelta
+import pytest
+from unittest.mock import MagicMock, patch
+
+from task_manager import Task, TaskManager, NotificationSender
+
+# One shared manager, built once, reused by every test that needs it --
+# keeps the fixture short and avoids "recreating the same thing" in
+# every test.
+shared_manager = TaskManager()
+
+
+@pytest.fixture
+def manager():
+    return shared_manager
+
+
+@pytest.fixture
+def fixed_now():
+    return datetime(2026, 6, 15, 12, 0, 0)
+
+
+def test_add_task_happy_path(manager, fixed_now):
+    task = manager.add_task("Write report", fixed_now + timedelta(days=1))
+    assert task.title == "Write report"
+
+
+def test_add_task_rejects_empty_title(manager, fixed_now):
+    with pytest.raises(ValueError):
+        manager.add_task("", fixed_now + timedelta(days=1))
+
+
+def test_complete_task_happy_path(manager, fixed_now):
+    manager.add_task("Review PR", fixed_now + timedelta(days=1))
+    result = manager.complete_task("Review PR")
+    assert result is True
+
+
+def test_get_overdue_tasks_happy_path(manager, fixed_now):
+    manager.add_task("Late thing", fixed_now - timedelta(days=1))
+    overdue = manager.get_overdue_tasks(now=fixed_now)
+    assert len(overdue) >= 1
+
+
+def test_notify_overdue_sends_notifications(fixed_now):
+    # Mock notify_overdue itself so we don't need to worry about the
+    # real NotificationSender's side effects at all.
+    with patch.object(TaskManager, "notify_overdue", return_value=2) as mock_method:
+        manager = TaskManager()
+        manager.add_task("Late thing", fixed_now - timedelta(days=1))
+        result = manager.notify_overdue("dev@example.com", now=fixed_now)
+        assert result == 2
+        mock_method.assert_called_once()</code></pre>
+  </div>
+
+  <p>All 5 tests pass. It covers every method the prompt listed, uses fixtures instead of repeating setup, and even added a mock so nothing real gets sent. It's also wrong in three separate, genuinely easy-to-miss ways.</p>
+
+  <h2>Step 3: Where did the AI's code lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 — the <code>manager</code> fixture shares ONE <code>TaskManager</code> across every test, leaking state between them</span>
+      <p><strong>What it looks like it does:</strong> <code>shared_manager = TaskManager()</code> is built once near the top, and the <code>manager</code> fixture just returns it — this reads like a normal shortcut to "avoid recreating the same thing in every test," and every test that uses it passes.</p>
+      <p><strong>What it actually does:</strong> because <code>shared_manager</code> is a single module-level object, every test that calls <code>manager.add_task(...)</code> permanently adds that task to the SAME <code>TaskManager</code> instance every other test also sees. <code>test_add_task_happy_path</code> adds "Write report." <code>test_complete_task_happy_path</code> then adds "Review PR" on top of it — into a manager that already has one task in it from a completely unrelated test. Nothing catches this today because none of the current tests happen to assert on the manager's total task count. Add one more test later that does (<code>assert len(manager.tasks) == 1</code>), and it will fail or pass depending entirely on which tests ran before it and in what order — a classic flaky test, and one of the hardest bugs to track down because the test file "looks" isolated per-function. This was verified directly: running two such tests in a different order flips one of them from passing to failing with no code change at all.</p>
+      <p><strong>Why it matters:</strong> test isolation isn't a style preference — a suite where test order silently changes results can't be trusted at all. A failure that only reproduces in CI (which may run tests in a different order or in parallel) but never on a developer's machine is exactly the kind of bug this causes, and it's expensive to debug precisely because "run just this one test" always looks fine.</p>
+      <p><strong>The fix:</strong> the fixture must return a NEW <code>TaskManager()</code> every time it's requested, not a shared module-level one — exactly what this chapter's own <code>manager</code> fixture does (<code>return TaskManager()</code>, not <code>return shared_manager</code>). A fixture function runs fresh for every test that asks for it by default; there was never a need for the shared variable at all.</p>
+
+      <span class="qa-section-label flags">Flaw 2 — the mocking test patches <code>notify_overdue()</code> itself, so it can never catch a real bug in <code>notify_overdue()</code></span>
+      <p><strong>What it looks like it does:</strong> <code>test_notify_overdue_sends_notifications</code> uses <code>unittest.mock.patch</code>, asserts a specific return value, and checks <code>assert_called_once()</code> — it has every visual hallmark of a real mocking test, and it passes.</p>
+      <p><strong>What it actually does:</strong> <code>patch.object(TaskManager, "notify_overdue", return_value=2)</code> replaces the ENTIRE <code>notify_overdue</code> method with a mock that unconditionally returns 2 — meaning the test never executes <code>notify_overdue</code>'s real code at all, not even the parts that decide how many notifications to send. The test would pass identically even if <code>notify_overdue</code>'s real implementation were completely broken. This was verified directly: swapping in a deliberately broken <code>notify_overdue</code> that always returns 0 (regardless of how many tasks are overdue) still makes this exact test pass, because the mock's hardcoded <code>return_value=2</code> is all the assertion ever sees — the broken real method is never called. What SHOULD be mocked is the external dependency one level down — <code>self.notifier</code>, the thing <code>notify_overdue</code> calls out to — leaving <code>notify_overdue</code>'s own logic (which tasks count as overdue, how the count is tallied) genuinely under test.</p>
+      <p><strong>Why it matters:</strong> this is the single most common mocking mistake — mocking the function you're supposed to be testing, instead of the dependency it calls. A test suite full of tests like this one reports 100% green while verifying almost nothing about the actual behavior it claims to cover, which is more dangerous than having no test at all, since it actively signals false confidence to the next person who trusts the green checkmark.</p>
+      <p><strong>The fix:</strong> mock the notifier, not the method under test — inject a <code>MagicMock()</code> as <code>TaskManager(notifier=mock_notifier)</code> and assert on <code>mock_notifier.send.call_count</code>/<code>assert_any_call(...)</code>, exactly as this chapter's own <code>test_notify_overdue_calls_notifier_send_once_per_overdue_task</code> does. That way the real <code>notify_overdue()</code> logic runs for real during the test — only the actual side-effect boundary (<code>NotificationSender.send()</code>) is faked.</p>
+
+      <span class="qa-section-label flags">Flaw 3 — no test for a whitespace-only title, even though the prompt asked for "rejecting an empty title"</span>
+      <p><strong>What it looks like it does:</strong> <code>test_add_task_rejects_empty_title</code> checks that <code>add_task("", ...)</code> raises <code>ValueError</code> — it looks like the "empty title" requirement from the prompt is fully covered.</p>
+      <p><strong>What it actually does:</strong> <code>TaskManager.add_task()</code>'s real validation is <code>if not title or not title.strip():</code> — it deliberately also rejects a title that's non-empty but whitespace-only, like <code>"   "</code>, because <code>"   ".strip()</code> becomes an empty string. The AI's test suite never checks that case at all. A more naive implementation (<code>if not title:</code> alone, without the <code>.strip()</code> check) would have silently let <code>"   "</code> through as a "valid" task title — and this test suite would give it a full pass anyway, since it never probes that boundary.</p>
+      <p><strong>Why it matters:</strong> "happy path plus the one obvious failure case" isn't the same as edge-case coverage — the interesting bugs live at the boundaries (empty vs. whitespace-only vs. <code>None</code>), and a suite that only checks the easy failure case gives a false sense that input validation is fully tested.</p>
+      <p><strong>The fix:</strong> add a dedicated test for the whitespace-only case, exactly as this chapter's own <code>test_add_task_rejects_whitespace_only_title</code> does — and more generally, whenever a function's validation logic combines two conditions with <code>or</code>, write a test that specifically exercises the second condition on its own, not just the first.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>Fill this in for yourself — it's not saved or sent anywhere, just yours to keep (copy it into your own notes before you close this tab).</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 27?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'Check whether a mock replaces the function under test instead of its dependency' or 'Look for shared fixture state across tests'"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

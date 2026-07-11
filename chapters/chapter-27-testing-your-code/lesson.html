@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27: Testing Your Code — Python for Everyone</title>
+<meta name="description" content="Writing automated tests with unittest and pytest: assertions, test discovery, fixtures/setUp/tearDown, mocking external dependencies with unittest.mock, and what good test coverage actually looks like.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../../index.html">&larr; Back to all chapters</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 of 33</span>
+    <span class="badge-difficulty">Intermediate</span>
+    <span class="reading-time">75 min read</span>
+  </div>
+  <h1>Testing Your Code</h1>
+  <p><em>Every chapter so far ended the same way: run the code, look at the output, decide by eye whether it's right. That works for a chapter exercise. It falls apart on a real codebase &mdash; nobody re-reads every function's output by eye before every change, forever. This chapter is about writing code that checks your code, automatically, every time, so a mistake gets caught by a failing test in seconds instead of by a user in production.</em></p>
+
+  <div class="lesson-hero">
+    <h2>How to read this chapter</h2>
+    <ul>
+      <li><strong>Sub-topic 1</strong> covers why testing matters &mdash; what a test actually verifies, and what breaks without one.</li>
+      <li><strong>Sub-topic 2</strong> covers <code>unittest</code>, Python's built-in testing framework &mdash; <code>TestCase</code>, assertions, and running tests.</li>
+      <li><strong>Sub-topic 3</strong> covers <code>pytest</code>, the more common real-world choice &mdash; plain <code>assert</code>, less boilerplate, better output.</li>
+      <li><strong>Sub-topic 4</strong> covers fixtures and setup/teardown &mdash; sharing setup across tests without letting tests depend on each other.</li>
+      <li><strong>Sub-topic 5</strong> covers mocking &mdash; testing code that talks to an API, a database, or the clock, without actually calling any of them.</li>
+      <li><strong>Sub-topic 6</strong> covers test coverage and what a genuinely good test looks like &mdash; the AAA pattern, edge cases, and what NOT to test.</li>
+      <li><strong>A note on scope:</strong> this chapter's new material is <code>unittest</code>, <code>pytest</code>, and <code>unittest.mock</code>. Every example otherwise sticks to what Chapters 1&ndash;26 already taught &mdash; functions, classes, exceptions, file handling, decorators, APIs.</li>
+    </ul>
+  </div>
+
+  <nav class="page-toc" aria-label="On this page">
+    <span class="toc-label">On this page</span>
+    <a href="#why-testing-matters">1. Why testing matters</a>
+    <a href="#unittest-basics">2. Writing tests with unittest</a>
+    <a href="#pytest-basics">3. Writing tests with pytest</a>
+    <a href="#fixtures-setup-teardown">4. Fixtures and setup/teardown</a>
+    <a href="#mocking">5. Mocking and test doubles</a>
+    <a href="#coverage-good-tests">6. Test coverage and what good tests look like</a>
+  </nav>
+
+  <div class="hook">
+    Chapter 12 taught you to handle exceptions so your code fails gracefully. This chapter is about catching mistakes <em>before</em> they ship at all &mdash; a test suite is the difference between "I think this still works" and "I know this still works, because 40 checks just ran in half a second and all passed."
+  </div>
+
+  <div class="subtopic" id="why-testing-matters">
+    <span class="subtopic-label">Sub-topic 1 of 6</span>
+    <h2>1. Why testing matters</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Manual testing</strong> means running your code by hand and eyeballing the output &mdash; it doesn't scale, and it silently stops happening as a codebase grows.</li>
+        <li><strong>Automated testing</strong> means writing code that runs your code and checks the result against a known-correct answer, every time, with no human required.</li>
+        <li>A test doesn't verify that code "looks right" &mdash; it verifies one specific, stated claim: "given this input, the output must be exactly this."</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a function you tested once by hand, three months ago, tells you nothing about whether it still works today &mdash; after five refactors by you and two by a teammate. A test that still runs today tells you immediately.
+    </div>
+
+    <p>
+      Picture a real, common situation: a function that calculates a
+      shopping cart's total has worked fine for months. Someone refactors
+      it &mdash; maybe to add a discount feature &mdash; and in the
+      process breaks the case where the cart is empty. Nothing crashes.
+      No exception. The function just quietly starts returning the wrong
+      number for one specific case, and nobody notices until a customer
+      complains weeks later.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... an automated test?</span>
+      A small piece of code that calls your function with a known input and asserts the result matches a known-correct expected output. If the two match, the test passes silently. If they don't, it fails loudly &mdash; immediately, with the exact input, expected value, and actual value shown. Nobody has to remember to check by hand ever again.
+    </div>
+
+    <p>
+      This is exactly the gap between manual and automated testing, made
+      concrete:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><strong>Manual testing</strong> catches a bug only if a human happens to try the exact input that triggers it, at the exact moment they're paying attention.</li>
+      <li><strong>Automated testing</strong> catches it every single time that test runs &mdash; on every commit, every refactor, forever &mdash; whether or not anyone remembers the bug ever existed.</li>
+      <li>A well-known trap: a bug gets reported, fixed, and closed &mdash; with no test written for it. Six months later, an unrelated change reintroduces the exact same bug, because nothing was checking for it anymore. A test written at fix time would have caught the regression instantly.</li>
+    </ul>
+
+    <p>
+      Here's a small function with a real, silent bug in one case &mdash;
+      the kind manual testing is likely to miss entirely, because the
+      "happy path" looks fine:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">cart_total_buggy.py</span>
+      </div>
+      <pre><code>def cart_total(prices):
+    total = prices[0]
+    for price in prices[1:]:
+        total += price
+    return total
+
+
+print(cart_total([10, 20, 30]))   # looks fine: 60
+print(cart_total([]))             # IndexError -- crashes on an empty cart</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of cart_total_buggy.py</span>
+      <pre><code>60
+Traceback (most recent call last):
+  ...
+IndexError: list index out of range</code></pre>
+    </div>
+
+    <p>
+      A manual test run with <code>[10, 20, 30]</code> looks completely
+      correct &mdash; the bug only shows up on the empty-cart case, which
+      is exactly the kind of edge case a human tester is most likely to
+      forget to try by hand. An automated test suite that includes an
+      empty-cart case catches this every time, without anyone having to
+      remember to think of it again after the first time it's written.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>A test verifies one specific, stated claim about your code &mdash; not a vague sense that it "seems to work."</li>
+      <li>Automated tests catch regressions &mdash; a bug that was fixed once and quietly comes back &mdash; which manual testing structurally cannot do reliably.</li>
+      <li>The rest of this chapter covers two ways to write these tests in Python: the built-in <code>unittest</code>, and the far more commonly used <code>pytest</code>.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: does testing prove code has no bugs?</summary>
+      <p>
+        No &mdash; a passing test suite proves only that the specific
+        cases you wrote tests for still behave as expected. It says
+        nothing about cases nobody thought to test. This is exactly why
+        Sub-topic 6 spends real time on <em>which</em> cases are worth
+        testing, not just "write more tests."
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Manual testing relies on a human remembering to check the right case, every time, forever &mdash; it doesn't scale.</li>
+        <li>Automated tests check a stated claim mechanically, catching regressions manual testing reliably misses.</li>
+        <li>A bug fixed once with no test can silently come back later &mdash; the test is what actually locks the fix in place.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="unittest-basics">
+    <span class="subtopic-label">Sub-topic 2 of 6</span>
+    <h2>2. Writing tests with <code>unittest</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>unittest</code> is Python's built-in testing framework &mdash; no install required, part of the standard library.</li>
+        <li>Tests are written as methods on a class that inherits from <code>unittest.TestCase</code>, with method names starting with <code>test_</code>.</li>
+        <li>Assertions like <code>assertEqual</code>, <code>assertTrue</code>, and <code>assertRaises</code> are how a test states its expected claim.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> <code>unittest</code> ships with every Python install &mdash; it's always available, no setup, which makes it the natural starting point even though Sub-topic 3 covers the tool most real teams reach for day to day.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... <code>unittest.TestCase</code>?</span>
+      A base class from the <code>unittest</code> module. Any class that inherits from it and defines methods starting with <code>test_</code> becomes a group of tests <code>unittest</code> can discover and run automatically &mdash; each <code>test_</code> method is one independent test.
+    </div>
+
+    <p>
+      Here's a small module to test, and a <code>TestCase</code> class
+      that checks it:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">calc.py</span>
+      </div>
+      <pre><code>def add(a, b):
+    return a + b
+
+
+def divide(a, b):
+    if b == 0:
+        raise ValueError("Cannot divide by zero")
+    return a / b</code></pre>
+    </div>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_calc_unittest.py</span>
+      </div>
+      <pre><code>import unittest
+from calc import add, divide
+
+
+class TestCalc(unittest.TestCase):
+    def test_add_two_positive_numbers(self):
+        self.assertEqual(add(2, 3), 5)
+
+    def test_add_negative_numbers(self):
+        self.assertEqual(add(-1, -1), -2)
+
+    def test_divide_raises_on_zero(self):
+        with self.assertRaises(ValueError):
+            divide(10, 0)
+
+    def test_divide_normal_case(self):
+        self.assertTrue(divide(10, 2) == 5.0)
+
+
+if __name__ == "__main__":
+    unittest.main()</code></pre>
+    </div>
+
+    <p>
+      Run it from the command line with <code>python -m unittest</code>
+      &mdash; the <code>-v</code> flag lists every test by name as it
+      runs:
+    </p>
+
+    <div class="output-block">
+      <span class="output-label">actual output of: python -m unittest test_calc_unittest -v</span>
+      <pre><code>test_add_negative_numbers (test_calc_unittest.TestCalc.test_add_negative_numbers) ... ok
+test_add_two_positive_numbers (test_calc_unittest.TestCalc.test_add_two_positive_numbers) ... ok
+test_divide_normal_case (test_calc_unittest.TestCalc.test_divide_normal_case) ... ok
+test_divide_raises_on_zero (test_calc_unittest.TestCalc.test_divide_raises_on_zero) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK</code></pre>
+    </div>
+
+    <div class="genai-prompt-box" data-not-yet-taught="async,await,multiprocessing,asyncio">
+      <p class="genai-thought"><strong>Thought process:</strong> a good test file covers the normal case, a different-but-still-normal case (negative numbers, not just positive), and the one documented error case (dividing by zero) &mdash; picking those three is the actual design work, not just calling assertEqual once. assertRaises specifically needs the risky call inside a `with` block, since the exception has to happen *during* the assertion's watch, not before it.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write unittest tests for this add/divide module covering normal cases and the zero-division error..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python unittest.TestCase class called TestCalc testing this module:
+
+def add(a, b):
+    return a + b
+
+def divide(a, b):
+    if b == 0:
+        raise ValueError("Cannot divide by zero")
+    return a / b
+
+Include: a test for add() with two positive numbers, a test for add() with two negative numbers, a test that divide() raises ValueError when dividing by zero (using assertRaises as a context manager), and a test for a normal divide() case. Use assertEqual and assertTrue appropriately. Add an if __name__ == "__main__": unittest.main() block at the bottom.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Four assertions are doing the real work here, and each one states a
+      different kind of claim:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>self.assertEqual(a, b)</code> &mdash; fails unless <code>a == b</code>; the most common assertion by far.</li>
+      <li><code>self.assertTrue(x)</code> / <code>self.assertFalse(x)</code> &mdash; fails unless <code>x</code> is truthy (or falsy).</li>
+      <li><code>self.assertRaises(ExceptionType)</code>, used as a <code>with</code> block &mdash; fails unless the code inside the block raises exactly that exception type.</li>
+      <li><code>self.assertIn(item, container)</code> &mdash; fails unless <code>item</code> is found inside <code>container</code> (a list, string, or dict).</li>
+    </ul>
+
+    <div class="what-is">
+      <span class="label">What is... test discovery?</span>
+      Running <code>python -m unittest</code> with no filename tells <code>unittest</code> to automatically find every file matching the pattern <code>test*.py</code> in the current directory (and subdirectories), import it, and run every <code>TestCase</code> it finds &mdash; no manual list of test files to maintain. This is why test files are conventionally named <code>test_something.py</code>, not something arbitrary.
+    </div>
+
+    <p>
+      A failing test is just as important to see clearly as a passing
+      one &mdash; here's the exact same idea with a deliberately wrong
+      expected value, to show what a failure actually looks like:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_fail_demo.py</span>
+      </div>
+      <pre><code>import unittest
+
+
+def calculate_discount(price, percent):
+    return price - (price * percent / 100)
+
+
+class TestDiscount(unittest.TestCase):
+    def test_ten_percent_discount(self):
+        self.assertEqual(calculate_discount(100, 10), 91)  # wrong on purpose
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of test_fail_demo.py</span>
+      <pre><code>test_ten_percent_discount (test_fail_demo.TestDiscount.test_ten_percent_discount) ... FAIL
+
+======================================================================
+FAIL: test_ten_percent_discount (test_fail_demo.TestDiscount.test_ten_percent_discount)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test_fail_demo.py", line 10, in test_ten_percent_discount
+    self.assertEqual(calculate_discount(100, 10), 91)
+AssertionError: 90.0 != 91
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)</code></pre>
+    </div>
+
+    <p>
+      The failure message tells you exactly what was expected
+      (<code>91</code>), exactly what actually happened
+      (<code>90.0</code>), and exactly which line and which test caused
+      it &mdash; no guessing, no re-running the function by hand to see
+      what it prints. This is the whole point: a broken assumption
+      becomes a specific, readable failure instead of a silent wrong
+      answer.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>unittest.TestCase</code> groups related tests as methods on a class, each named <code>test_...</code>.</li>
+      <li><code>assertEqual</code>/<code>assertTrue</code>/<code>assertRaises</code>/<code>assertIn</code> each state a different kind of expected claim.</li>
+      <li><code>python -m unittest</code> (or <code>python -m unittest -v</code> for detail) discovers and runs every test file automatically.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: why "Test" as a class name prefix?</summary>
+      <p>
+        It's a convention, not a hard rule &mdash; <code>unittest</code>'s
+        discovery actually looks for any class inheriting from
+        <code>TestCase</code>, regardless of its name. Naming classes
+        <code>TestSomething</code> and methods <code>test_something</code>
+        is just the near-universal convention that makes test files
+        instantly recognizable, both to humans skimming them and to
+        discovery tools that also look for the <code>test_</code> prefix
+        by default.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li><code>unittest</code> is built into Python &mdash; tests are methods (named <code>test_...</code>) on a class inheriting <code>TestCase</code>.</li>
+        <li>Assertions (<code>assertEqual</code>, <code>assertRaises</code>, etc.) state the exact claim each test is checking.</li>
+        <li><code>python -m unittest -v</code> discovers and runs every test, printing a clear pass/fail with a full traceback on failure.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="pytest-basics">
+    <span class="subtopic-label">Sub-topic 3 of 6</span>
+    <h2>3. Writing tests with <code>pytest</code></h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><code>pytest</code> is a third-party testing framework (<code>pip install pytest</code>) &mdash; not built in, but the de facto standard across the real-world Python ecosystem.</li>
+        <li>Tests are plain functions named <code>test_...</code> &mdash; no class, no inheritance required, using Python's own <code>assert</code> statement directly.</li>
+        <li>It's run from the command line with the single word <code>pytest</code>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> if a job posting or an open-source project mentions "tests," it's overwhelmingly likely to mean pytest, not unittest &mdash; less boilerplate to write, sharper failure output to read, and a huge plugin ecosystem (coverage reporting, mocking helpers, parallel test runs) built around it.
+    </div>
+
+    <p>
+      The exact same <code>calc.py</code> from Sub-topic 2, tested with
+      pytest instead:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_calc_pytest.py</span>
+      </div>
+      <pre><code>import pytest
+from calc import add, divide
+
+
+def test_add_two_positive_numbers():
+    assert add(2, 3) == 5
+
+
+def test_add_negative_numbers():
+    assert add(-1, -1) == -2
+
+
+def test_divide_raises_on_zero():
+    with pytest.raises(ValueError):
+        divide(10, 0)
+
+
+def test_divide_normal_case():
+    assert divide(10, 2) == 5.0</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">running: pytest test_calc_pytest.py -v</span>
+      <pre><code>test_calc_pytest.py::test_add_two_positive_numbers PASSED
+test_calc_pytest.py::test_add_negative_numbers PASSED
+test_calc_pytest.py::test_divide_raises_on_zero PASSED
+test_calc_pytest.py::test_divide_normal_case PASSED
+
+======================== 4 passed in 0.01s ========================</code></pre>
+    </div>
+
+    <div class="genai-prompt-box" data-not-yet-taught="async,await,multiprocessing,asyncio">
+      <p class="genai-thought"><strong>Thought process:</strong> the goal is a like-for-like comparison with the unittest version — same four cases, same claims — so the only real difference on display is the mechanism (plain functions and bare assert vs. a class and assert* methods), not different test coverage. pytest.raises mirrors assertRaises exactly: still a context manager wrapping the call expected to fail.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Rewrite these unittest tests for calc.py as pytest tests using plain functions and assert..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Rewrite this unittest.TestCase into pytest style: plain test functions named test_..., using Python's bare assert statement instead of self.assertEqual, and pytest.raises(...) instead of self.assertRaises(...). Keep the exact same four cases: add() with two positive numbers, add() with two negative numbers, divide() raising ValueError on zero, and a normal divide() case.
+
+class TestCalc(unittest.TestCase):
+    def test_add_two_positive_numbers(self):
+        self.assertEqual(add(2, 3), 5)
+    def test_add_negative_numbers(self):
+        self.assertEqual(add(-1, -1), -2)
+    def test_divide_raises_on_zero(self):
+        with self.assertRaises(ValueError):
+            divide(10, 0)
+    def test_divide_normal_case(self):
+        self.assertTrue(divide(10, 2) == 5.0)</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Notice everything that disappeared: no class, no
+      <code>self</code>, no <code>assertEqual</code> &mdash; just a plain
+      function and Python's own <code>assert</code> keyword. That's the
+      "less boilerplate" half of pytest's appeal. The other half is
+      failure output &mdash; pytest doesn't just say two values weren't
+      equal, it shows exactly which sub-expression failed:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_fail_pytest.py</span>
+      </div>
+      <pre><code>def calculate_discount(price, percent):
+    return price - (price * percent / 100)
+
+
+def test_ten_percent_discount():
+    assert calculate_discount(100, 10) == 91  # wrong on purpose</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">running: pytest test_fail_pytest.py -v</span>
+      <pre><code>test_fail_pytest.py::test_ten_percent_discount FAILED
+
+================================= FAILURES =================================
+______________________ test_ten_percent_discount ___________________________
+
+    def test_ten_percent_discount():
+&gt;       assert calculate_discount(100, 10) == 91
+E       assert 90.0 == 91
+E        +  where 90.0 = calculate_discount(100, 10)
+
+test_fail_pytest.py:5: AssertionError
+==================== 1 failed in 0.01s =====================</code></pre>
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... pytest's assertion rewriting?</span>
+      Normally, a plain <code>assert x == y</code> that fails just says <code>AssertionError</code> with no detail. pytest rewrites the bytecode of every <code>assert</code> statement in a test file at import time so a failure shows the actual values on both sides &mdash; the <code>E&nbsp;&nbsp;assert 90.0 == 91</code> line above. This is what lets pytest keep the plain <code>assert</code> keyword instead of needing a family of <code>assertX</code> methods like unittest does.
+    </div>
+
+    <p>
+      Test discovery works the same way in spirit: running the bare
+      <code>pytest</code> command in a project directory finds every file
+      matching <code>test_*.py</code> or <code>*_test.py</code>, and
+      every function inside them named <code>test_...</code> &mdash; no
+      class required, though pytest can also run <code>unittest.TestCase</code>
+      classes unchanged, which makes migrating an existing
+      <code>unittest</code> suite to pytest incremental rather than all
+      -or-nothing.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>pytest tests are plain functions using bare <code>assert</code> &mdash; no class or <code>self</code> required.</li>
+      <li>pytest rewrites <code>assert</code> at import time to show the actual failing values, not just "AssertionError."</li>
+      <li>Running <code>pytest</code> in a directory auto-discovers and runs everything matching <code>test_*.py</code>/<code>*_test.py</code>.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: if pytest is more popular, why does this chapter teach unittest first?</summary>
+      <p>
+        Because <code>unittest</code> requires nothing extra to try
+        &mdash; it's already installed with Python, so Sub-topic 2's
+        examples run on literally any machine with Python on it. Real
+        production codebases skew heavily toward pytest for day-to-day
+        work, which is why it gets equal weight here rather than being an
+        afterthought &mdash; but knowing <code>unittest</code> still
+        matters, since some codebases (and some interview questions)
+        use it, and pytest can run <code>unittest</code>-style tests
+        directly.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>pytest tests are plain <code>test_...</code> functions using bare <code>assert</code> &mdash; install with <code>pip install pytest</code>.</li>
+        <li>Failures show the actual values involved via assertion rewriting, without needing a family of <code>assertX</code> methods.</li>
+        <li>The bare <code>pytest</code> command auto-discovers and runs every test in a project &mdash; the most common way real teams run their suite.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="fixtures-setup-teardown">
+    <span class="subtopic-label">Sub-topic 4 of 6</span>
+    <h2>4. Fixtures and setup/teardown</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Shared setup</strong> is anything several tests need in common (a fresh list, a database connection, a temp file) built fresh, before each test, rather than copy-pasted into every test.</li>
+        <li><code>unittest</code> provides <code>setUp</code>/<code>tearDown</code> methods, run automatically before/after every test method in a class.</li>
+        <li>pytest provides <code>@pytest.fixture</code> &mdash; a function that produces a value tests can request by naming it as a parameter.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> tests that quietly share state &mdash; one test's leftover data becoming another test's starting point &mdash; are one of the most common causes of a test suite that passes alone but fails when run together, or passes in one order but fails in another. Fresh setup per test is what prevents this.
+    </div>
+
+    <p>
+      Here's <code>unittest</code>'s version &mdash; <code>setUp</code>
+      runs before every single test method, building a fresh, isolated
+      cart each time:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_setup.py</span>
+      </div>
+      <pre><code>import unittest
+
+
+class TestCartWithSetup(unittest.TestCase):
+    def setUp(self):
+        self.cart = []
+        print("  setUp: fresh cart created")
+
+    def tearDown(self):
+        print("  tearDown: cart discarded")
+
+    def test_add_one_item(self):
+        self.cart.append("apple")
+        self.assertEqual(self.cart, ["apple"])
+
+    def test_cart_starts_empty(self):
+        self.assertEqual(self.cart, [])
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of test_setup.py</span>
+      <pre><code>  setUp: fresh cart created
+  tearDown: cart discarded
+  setUp: fresh cart created
+  tearDown: cart discarded
+test_add_one_item ... ok
+test_cart_starts_empty ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK</code></pre>
+    </div>
+
+    <div class="genai-prompt-box" data-not-yet-taught="async,await,multiprocessing,asyncio">
+      <p class="genai-thought"><strong>Thought process:</strong> the point being proven is isolation, so the two tests are deliberately written so their order wouldn't matter — test_cart_starts_empty would fail immediately if it ran after test_add_one_item and somehow shared state, which is exactly what setUp's "fresh cart every time" print statements make visible.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a unittest TestCase with setUp/tearDown that proves each test gets a fresh, isolated cart..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a unittest.TestCase class called TestCartWithSetup that proves each test method gets its own fresh, isolated cart list, not shared state. Add a setUp(self) method that sets self.cart = [] and prints "  setUp: fresh cart created", and a tearDown(self) method that prints "  tearDown: cart discarded". Add two test methods: test_add_one_item (appends "apple" and asserts the cart equals ["apple"]), and test_cart_starts_empty (asserts the cart is still empty). Run with unittest.main(verbosity=2) so setUp/tearDown output is visible around each test.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Notice <code>setUp</code> ran twice &mdash; once before each test
+      &mdash; not once for the whole class. That's exactly the guarantee
+      that matters: <code>test_cart_starts_empty</code> sees a genuinely
+      empty cart no matter what <code>test_add_one_item</code> did,
+      because it never touches that other test's cart at all. They're
+      two separate lists, built fresh each time.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... a fixture?</span>
+      A fixture is any setup a test needs in order to run &mdash; a fresh object, a temp file, a mock connection &mdash; built once per test (or once per group of tests) so every test doesn't have to duplicate that setup code itself. <code>unittest</code>'s <code>setUp</code>/<code>tearDown</code> and pytest's <code>@pytest.fixture</code> are two different mechanisms for the same underlying idea.
+    </div>
+
+    <p>
+      pytest's version uses a decorator instead of two special method
+      names. A fixture is a plain function decorated with
+      <code>@pytest.fixture</code>; any test that wants it simply names
+      it as a parameter, and pytest supplies the value automatically:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_fixture_pytest.py</span>
+      </div>
+      <pre><code>import pytest
+
+
+@pytest.fixture
+def empty_cart():
+    print("  fixture: fresh cart created")
+    cart = []
+    yield cart
+    print("  fixture: cart discarded")
+
+
+def test_add_one_item(empty_cart):
+    empty_cart.append("apple")
+    assert empty_cart == ["apple"]
+
+
+def test_cart_starts_empty(empty_cart):
+    assert empty_cart == []</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">running: pytest test_fixture_pytest.py -v -s (documented pytest behavior)</span>
+      <pre><code>  fixture: fresh cart created
+test_fixture_pytest.py::test_add_one_item PASSED
+  fixture: cart discarded
+  fixture: fresh cart created
+test_fixture_pytest.py::test_cart_starts_empty PASSED
+  fixture: cart discarded
+
+======================== 2 passed in 0.01s ========================</code></pre>
+    </div>
+
+    <p>
+      The <code>yield</code> is what splits setup from teardown in one
+      function: everything before <code>yield</code> runs as setup,
+      the yielded value (<code>cart</code>) is what gets handed to the
+      test as its parameter, and everything after <code>yield</code>
+      runs as teardown &mdash; once the test finishes, pass or fail.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li><code>unittest</code>: define <code>setUp(self)</code>/<code>tearDown(self)</code> on the class &mdash; run automatically before/after every test method.</li>
+      <li>pytest: define a function decorated <code>@pytest.fixture</code>; tests request it by naming it as a parameter; <code>yield</code> splits setup from teardown.</li>
+      <li>Both exist to give every test fresh, independent state &mdash; avoiding tests that only pass when run in a specific order.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what's a "test interdependence" bug in practice?</summary>
+      <p>
+        A classic version: Test A creates a row in a database and never
+        cleans it up. Test B, which checks "there are zero rows,"
+        happens to pass when run alone, then mysteriously fails whenever
+        it runs after Test A in the same session. The fix is never
+        "run B before A" &mdash; it's giving both tests their own
+        isolated setup/teardown so neither can affect the other,
+        regardless of run order.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Fixtures give every test fresh, independent setup instead of copy-pasted or shared state.</li>
+        <li><code>unittest</code> uses <code>setUp</code>/<code>tearDown</code> methods; pytest uses <code>@pytest.fixture</code> functions requested by parameter name.</li>
+        <li>A test suite that only passes in one specific run order is a sign of hidden shared state &mdash; fixtures are the fix.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="mocking">
+    <span class="subtopic-label">Sub-topic 5 of 6</span>
+    <h2>5. Mocking and test doubles</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li>A <strong>mock</strong> is a fake stand-in object that replaces a real dependency during a test &mdash; it looks like the real thing to the code under test, but does nothing real.</li>
+        <li><code>unittest.mock.Mock</code> creates a fake object; <code>patch</code> temporarily swaps a real object out for a mock, for the duration of one test.</li>
+        <li>You mock anything <strong>external</strong> to the function you're actually testing &mdash; a network call, a database, the current time &mdash; so tests stay fast, reliable, and free of side effects.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> a test suite that makes a real API call, a real database write, or a real payment charge on every run is slow, flaky (the network can fail for reasons that have nothing to do with your code), and in the payment case, actively dangerous to run repeatedly. Mocking removes the real dependency while still testing your code's logic around it.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... a Mock?</span>
+      <code>unittest.mock.Mock()</code> creates an object that accepts any attribute access or method call and simply records what happened &mdash; no real logic behind it. You configure what it should return (<code>mock.fetch.return_value = ...</code>) and later ask it what was actually called and with what arguments (<code>mock.fetch.assert_called_once_with(...)</code>).
+    </div>
+
+    <p>
+      Picture code that fetches weather data from an external API
+      client &mdash; testing it for real would mean an actual network
+      call every time the test suite runs:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_mock_basic.py</span>
+      </div>
+      <pre><code>from unittest.mock import Mock
+import unittest
+
+
+def get_weather(city, api_client):
+    data = api_client.fetch(city)
+    return data["temp"]
+
+
+class TestWeather(unittest.TestCase):
+    def test_get_weather_uses_mocked_api(self):
+        mock_client = Mock()
+        mock_client.fetch.return_value = {"temp": 72}
+
+        result = get_weather("Austin", mock_client)
+
+        self.assertEqual(result, 72)
+        mock_client.fetch.assert_called_once_with("Austin")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of test_mock_basic.py</span>
+      <pre><code>test_get_weather_uses_mocked_api ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK</code></pre>
+    </div>
+
+    <div class="genai-prompt-box" data-not-yet-taught="async,await,multiprocessing,asyncio">
+      <p class="genai-thought"><strong>Thought process:</strong> get_weather() takes its api_client as a parameter specifically so a test can substitute a Mock for it — that's the actual design decision that makes this testable at all; a function that builds its own real API client internally would leave no seam for a test to intercept. The mock's job here is twofold: return a canned value AND let the test verify fetch() was actually called with the right city.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a unittest test for get_weather() that mocks the api_client instead of making a real network call..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a unittest.TestCase test for this function using unittest.mock.Mock instead of a real API call:
+
+def get_weather(city, api_client):
+    data = api_client.fetch(city)
+    return data["temp"]
+
+Create a Mock() as a fake api_client, configure mock_client.fetch.return_value to be {"temp": 72}, call get_weather("Austin", mock_client), assert the result equals 72, and assert mock_client.fetch was called exactly once with the argument "Austin" using assert_called_once_with.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Two things happened in that one test, and both matter:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>The mock stood in for a real API client, returning a fixed, predictable value instead of whatever a real network call happens to return that day.</li>
+      <li><code>assert_called_once_with("Austin")</code> verified <em>how</em> the code under test used its dependency &mdash; that it called <code>.fetch()</code> exactly once, with exactly the right city &mdash; not just that it returned the right final number.</li>
+    </ul>
+
+    <p>
+      <code>patch</code> handles the more common real case: the
+      dependency isn't passed in as an argument, it's used directly
+      inside the function or method. This is the payment-API scenario
+      &mdash; testing code that charges a customer, without a single
+      real charge ever happening:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_mock_patch.py</span>
+      </div>
+      <pre><code>from unittest.mock import patch
+import unittest
+
+
+class Payment:
+    def charge(self, amount):
+        raise RuntimeError("This should never actually run in tests!")
+
+
+def process_order(amount, payment):
+    return payment.charge(amount)
+
+
+class TestPayment(unittest.TestCase):
+    @patch.object(Payment, "charge")
+    def test_process_order_calls_charge(self, mock_charge):
+        mock_charge.return_value = "charged"
+        payment = Payment()
+
+        result = process_order(50, payment)
+
+        self.assertEqual(result, "charged")
+        mock_charge.assert_called_once_with(50)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">actual output of test_mock_patch.py</span>
+      <pre><code>test_process_order_calls_charge ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK</code></pre>
+    </div>
+
+    <p>
+      <code>@patch.object(Payment, "charge")</code> replaces
+      <code>Payment.charge</code> with a mock for the duration of this
+      one test only, and passes that mock in as an extra argument
+      (<code>mock_charge</code>). The real <code>charge</code> method
+      &mdash; the one that would raise an error if it somehow ran for
+      real &mdash; never executes at all. Outside this test, the real
+      method is completely untouched.
+    </p>
+
+    <div class="what-is">
+      <span class="label">What is... <code>patch</code> vs. <code>Mock</code>?</span>
+      <code>Mock()</code> creates a brand-new fake object from scratch, useful when a dependency is passed in as an argument (as with <code>api_client</code> above). <code>patch</code> (or <code>patch.object</code>) temporarily replaces something that <em>already exists</em> &mdash; a method, a class, a module attribute &mdash; with a mock, for exactly the duration of the test, then restores the original automatically afterward.
+    </div>
+
+    <ul class="lesson-bullets">
+      <li>Mock an external dependency &mdash; a network call, a database, a payment charge, the current time &mdash; anything with real-world side effects or unpredictable results.</li>
+      <li><code>Mock()</code> builds a fake object for a dependency that's passed as an argument; <code>patch</code>/<code>patch.object</code> temporarily swaps out something used directly inside the code.</li>
+      <li>A mock lets a test check both the return value <em>and</em> that the dependency was called correctly (<code>assert_called_once_with</code>), without ever touching the real thing.</li>
+    </ul>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: is mocking ever overused?</summary>
+      <p>
+        Yes &mdash; mocking every single collaborator, including simple
+        in-process helper functions with no side effects, produces tests
+        that pass even when the real integration between pieces is
+        broken, because nothing real ever actually ran together. The
+        rule of thumb: mock things with real-world side effects or that
+        are genuinely external (network, disk, time, payment) &mdash;
+        let plain, deterministic Python functions call each other for
+        real inside a test.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>A mock is a fake stand-in that replaces a real dependency during a test, with no real side effects.</li>
+        <li><code>Mock()</code> builds a fake object; <code>patch</code>/<code>patch.object</code> temporarily replaces something that already exists, then restores it.</li>
+        <li>Mock external dependencies specifically (API, database, time, payment) &mdash; not every internal helper function.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="subtopic" id="coverage-good-tests">
+    <span class="subtopic-label">Sub-topic 6 of 6</span>
+    <h2>6. Test coverage and what "good tests" actually look like</h2>
+    <div class="lesson-stack">
+      <div class="lesson-pill">At a glance</div>
+      <ul class="lesson-bullets">
+        <li><strong>Test coverage</strong> is the percentage of your code that runs at least once when your test suite runs &mdash; measured by the <code>coverage</code> package.</li>
+        <li>100% coverage does not mean 100% correct &mdash; it only means every line <em>executed</em>, not that every meaningful case was checked.</li>
+        <li>The <strong>AAA pattern</strong> (Arrange, Act, Assert) is a simple structure that keeps individual tests readable: set up, do the one thing, check the result.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-note">
+      <strong>Why this matters:</strong> it's easy to write tests that only exercise the "happy path" &mdash; the input everything was designed around &mdash; and call it done. The bugs that actually reach production are almost always in the edge cases nobody thought to test, not the main case everyone tested first.
+    </div>
+
+    <div class="what-is">
+      <span class="label">What is... the <code>coverage</code> package?</span>
+      <code>coverage</code> (installed with <code>pip install coverage</code>, commonly run as <code>coverage run -m pytest</code> then <code>coverage report</code>) tracks which lines of your source files actually executed while the test suite ran, and reports a percentage per file. It answers "did any test even touch this line?" &mdash; a useful signal for finding completely untested code, but not a measure of test quality by itself.
+    </div>
+
+    <p>
+      Here's exactly why 100% coverage can still hide a real bug &mdash;
+      this function is fully covered by one test, and still wrong:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">coverage_trap.py</span>
+      </div>
+      <pre><code>def apply_discount(price, percent):
+    return price - (price * percent / 100)
+
+
+def test_apply_discount():
+    # "covers" every line of apply_discount -- but never checks
+    # percent=0, percent=100, or a negative price
+    assert apply_discount(100, 10) == 90.0</code></pre>
+    </div>
+
+    <p>
+      That one test runs every line of <code>apply_discount</code>, so a
+      coverage report would show it at 100%. But nothing checks what
+      happens with a 0% discount, a 100% discount, or a negative price
+      &mdash; and a bug in any of those cases would ship completely
+      unnoticed, hidden behind a "fully covered" report.
+    </p>
+
+    <div class="genai-prompt-box" data-not-yet-taught="async,await,multiprocessing,asyncio">
+      <p class="genai-thought"><strong>Thought process:</strong> the goal here is picking edge cases that are actually plausible for this specific function's domain — a discount really can be 0% or 100%, and a price really shouldn't be negative — rather than testing arbitrary extra numbers just to add test count. Naming each test after the exact case it checks (test_apply_discount_zero_percent, not test_apply_discount_2) is what makes a failing test self-explanatory without opening it.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write pytest tests for apply_discount() that actually cover its edge cases, not just the happy path..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare what it builds against this lesson's example — does it actually match what this chapter taught?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write pytest tests for this function that go beyond the happy path:
+
+def apply_discount(price, percent):
+    return price - (price * percent / 100)
+
+Write one test per case, named to describe exactly what it checks: a normal discount (e.g. 10% off 100), a 0% discount (price should be unchanged), a 100% discount (price should become 0), and a negative price. Use the Arrange-Act-Assert structure in each test (set up inputs, call the function once, assert the result) with a comment marking each of the three steps.</pre></div>
+      </details>
+    </div>
+
+    <p>
+      Each test below follows the <strong>AAA pattern</strong> &mdash;
+      Arrange the inputs, Act by calling the one thing under test, Assert
+      the result &mdash; which is why each one stays short and instantly
+      readable even without comments:
+    </p>
+
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">test_discount_edge_cases.py</span>
+      </div>
+      <pre><code>def apply_discount(price, percent):
+    return price - (price * percent / 100)
+
+
+def test_apply_discount_normal_case():
+    # Arrange
+    price, percent = 100, 10
+    # Act
+    result = apply_discount(price, percent)
+    # Assert
+    assert result == 90.0
+
+
+def test_apply_discount_zero_percent():
+    assert apply_discount(100, 0) == 100.0
+
+
+def test_apply_discount_full_percent():
+    assert apply_discount(100, 100) == 0.0</code></pre>
+    </div>
+
+    <div class="output-block">
+      <span class="output-label">running: pytest test_discount_edge_cases.py -v (documented pytest behavior)</span>
+      <pre><code>test_discount_edge_cases.py::test_apply_discount_normal_case PASSED
+test_discount_edge_cases.py::test_apply_discount_zero_percent PASSED
+test_discount_edge_cases.py::test_apply_discount_full_percent PASSED
+
+======================== 3 passed in 0.01s ========================</code></pre>
+    </div>
+
+    <p>
+      Test <em>names</em> are doing real work here too &mdash; each one
+      describes exactly what it checks, so a failure is understandable
+      from the test name alone, in a CI log, without opening the file:
+      <code>test_apply_discount_zero_percent</code> failing tells you
+      immediately which case broke, unlike a generic name like
+      <code>test_discount_2</code>.
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Name every test after the exact behavior it checks &mdash; readable in a failure log, not just in the file.</li>
+      <li>Test boundaries and edge cases deliberately: zero, negative numbers, empty collections, the maximum allowed value &mdash; not just the input everything was designed around.</li>
+      <li>Structure each test as Arrange (set up inputs) &rarr; Act (call the one thing under test) &rarr; Assert (check the result) &mdash; one clear unit of behavior per test.</li>
+    </ul>
+
+    <p>
+      The AAA structure works with bare <code>assert</code> even outside
+      a test runner &mdash; try editing the inputs below and see which
+      assertions still hold:
+    </p>
+
+    <div class="playground">
+      <div class="playground-bar">
+        <span class="filename">try_it.py</span>
+        <button class="playground-run-btn" data-playground-run>▶ Run Code</button>
+      </div>
+      <textarea class="playground-code" data-playground-code rows="16">def apply_discount(price, percent):
+    return price - (price * percent / 100)
+
+
+# Arrange
+price, percent = 100, 10
+# Act
+result = apply_discount(price, percent)
+# Assert
+assert result == 90.0
+print("normal case passed:", result)
+
+# now try the edge cases yourself
+assert apply_discount(100, 0) == 100.0
+print("zero percent passed")
+
+assert apply_discount(100, 100) == 0.0
+print("full percent passed")
+
+# try changing percent to 150 and see which assertion breaks</textarea>
+      <div class="playground-output" data-playground-output>Click "Run Code" — try changing an input above to see an assertion fail.</div>
+    </div>
+
+    <p>
+      Just as important as what to test is what <strong>not</strong> to
+      test:
+    </p>
+
+    <ul class="lesson-bullets">
+      <li>Don't test the language or the standard library itself &mdash; a test asserting <code>1 + 1 == 2</code> or that <code>list.append()</code> appends is testing Python, not your code.</li>
+      <li>Don't test private implementation details that could change during a harmless refactor &mdash; test the public behavior/output a caller actually depends on.</li>
+      <li>Don't chase 100% coverage as a goal in itself &mdash; a handful of well-chosen edge-case tests on the code that actually matters beats mechanically covering every line of trivial code.</li>
+    </ul>
+
+    <div class="what-is">
+      <span class="label">What is... the "happy path"?</span>
+      The happy path is the normal, expected case &mdash; valid input, nothing unusual, everything works as designed. It's important to test, but it's also the case every developer already runs by hand while writing the code in the first place, so it's the least likely place for an undiscovered bug to hide. Edge cases (empty input, zero, negative numbers, the maximum size) are where real bugs concentrate, precisely because they're the cases nobody ran by hand.
+    </div>
+
+    <details class="go-deeper">
+      <summary>Go Deeper: what coverage percentage is "good enough"?</summary>
+      <p>
+        There's no universal number &mdash; teams commonly target
+        somewhere around 80&ndash;90% as a practical floor, not 100%.
+        Chasing the last few percent often means writing tests for
+        trivial code (simple getters, one-line wrappers) that add little
+        real safety, while the same effort spent on edge cases for
+        complex, business-critical logic would catch far more real bugs.
+        Coverage is a tool for finding <em>completely untested</em> code,
+        not a target to maximize for its own sake.
+      </p>
+    </details>
+
+    <div class="quick-recap">
+      <span class="label">Quick recap</span>
+      <ul>
+        <li>Coverage measures which lines <em>ran</em> during tests &mdash; not whether the right cases were actually checked.</li>
+        <li>The AAA pattern (Arrange, Act, Assert) keeps each test short, focused, and readable.</li>
+        <li>Test edge cases deliberately and name tests descriptively; don't test the language itself or chase 100% coverage as a goal.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <span class="label">In the Real World</span>
+    <ul>
+      <li>Every serious open-source Python project and production codebase runs its test suite automatically on every pull request (CI) &mdash; a red test blocks a merge before a broken change ever reaches other people's work.</li>
+      <li>Mocking is what makes testing code around payments, external APIs, and databases possible at all in a fast, repeatable test suite &mdash; without it, the suite would be slow, flaky, and in the payment case, would trigger real charges on every run.</li>
+      <li>"We had a bug, fixed it, and it came back six months later" is one of the most common reasons teams adopt stricter testing discipline &mdash; a regression test written at fix time is what actually locks a fix in place permanently.</li>
+    </ul>
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Points to Remember</h2>
+    <ul>
+      <li>Automated tests check a stated claim mechanically, every run, catching regressions manual testing structurally cannot catch.</li>
+      <li><code>unittest</code> (built-in): tests are methods on a class inheriting <code>TestCase</code>, using <code>assertEqual</code>/<code>assertTrue</code>/<code>assertRaises</code>/<code>assertIn</code>; run with <code>python -m unittest</code>.</li>
+      <li>pytest (the common real-world choice): plain <code>test_...</code> functions using bare <code>assert</code>, with detailed failure output via assertion rewriting; run with <code>pytest</code>.</li>
+      <li>Fixtures give every test fresh, independent setup: <code>setUp</code>/<code>tearDown</code> in unittest, <code>@pytest.fixture</code> (with <code>yield</code> splitting setup/teardown) in pytest.</li>
+      <li>Mock external dependencies &mdash; APIs, databases, the clock, payments &mdash; with <code>unittest.mock.Mock</code>/<code>patch</code>, so tests stay fast, reliable, and side-effect-free.</li>
+      <li>Coverage measures which lines ran, not whether the right cases were tested; good tests follow the AAA pattern, cover edge cases deliberately, use descriptive names, and skip testing the language itself.</li>
+    </ul>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../../index.html">&larr; All Chapters</a>
+    <a href="quiz.html">Take the Quiz &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/playground.js"></script>
+<script src="../../assets/genai-grader.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

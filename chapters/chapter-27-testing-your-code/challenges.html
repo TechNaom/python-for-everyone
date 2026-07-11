@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 27 Coding Challenges — Python for Everyone</title>
+<meta name="description" content="8 auto-graded, HackerRank-style challenges on test results, pytest naming rules, catching bugs with tests, mocking retry logic, edge cases, fixture isolation, and descriptive test names, for Chapter 27: Testing Your Code.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-27">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="practice/index.html">&larr; Back to practice bank</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 27 Coding Challenges</span>
+    <span class="reading-time">45-60 min, auto-graded</span>
+  </div>
+  <h1>Coding Challenges: Testing Your Code</h1>
+  <p>
+    8 HackerRank-style challenges, auto-graded right in your browser
+    &mdash; no local install needed, standard library only. Write your
+    function in the code box, then click <strong>Run Tests</strong> to
+    check it against a set of test cases (including edge cases). Stuck?
+    Every challenge has a <strong>Show Solution</strong> reveal at the
+    bottom. Only uses what Chapters 1-27 have covered so far.
+  </p>
+
+  <div class="what-is">
+    <span class="label">How grading works</span>
+    Your code runs entirely in your browser using Pyodide (Python compiled
+    to WebAssembly) &mdash; nothing is uploaded anywhere. Keep the function
+    name in the stub exactly as given, since the grader calls it by name.
+    These challenges are function-writing exercises <em>about</em> testing
+    concepts (test results, discovery rules, catching bugs, mocked retries,
+    edge cases, fixture isolation, naming) &mdash; the deeper skill of
+    actually writing <code>unittest</code>/<code>pytest</code> test files
+    lives in the practice bank and lesson, since this grader can only check
+    a function's return value, not a test file's structure.
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">1</span> Count Failed Tests <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>count_failures(results_list)</code> that takes a list of booleans representing pass (<code>True</code>) / fail (<code>False</code>) results from a test run, and returns how many of them are <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>results_list</code> is a list of booleans, possibly empty.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>count_failures([True, True, False])</code> &rarr; <code>1</code><br>
+        <code>count_failures([])</code> &rarr; <code>0</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_1.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def count_failures(results_list):
+    # TODO: return how many items in results_list are False.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "count_failures",
+  "cases": [
+    { "args": [[true, true, false]], "expected": 1 },
+    { "args": [[false, false, false]], "expected": 3 },
+    { "args": [[true, true, true]], "expected": 0 },
+    { "args": [[]], "expected": 0 },
+    { "args": [[false]], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_1.py</span>
+        </div>
+        <pre><code>def count_failures(results_list):
+    return sum(1 for r in results_list if r is False)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">2</span> Would the Test Catch It? <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>test_would_fail(actual, expected)</code> that simulates the core of an <code>assertEqual</code> check: return <code>True</code> if <code>actual</code> does <strong>not</strong> equal <code>expected</code> (the test would fail and catch the problem), else return <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>actual</code> and <code>expected</code> can be numbers, strings, or lists.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>test_would_fail(5, 5)</code> &rarr; <code>False</code><br>
+        <code>test_would_fail(5, 6)</code> &rarr; <code>True</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_2.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="14">
+def test_would_fail(actual, expected):
+    # TODO: return True if actual != expected, else False.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "test_would_fail",
+  "cases": [
+    { "args": [5, 5], "expected": false },
+    { "args": [5, 6], "expected": true },
+    { "args": ["hi", "hi"], "expected": false },
+    { "args": [[1, 2], [1, 2]], "expected": false },
+    { "args": [[1, 2], [2, 1]], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_2.py</span>
+        </div>
+        <pre><code>def test_would_fail(actual, expected):
+    return actual != expected</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Easy">
+    <h3><span class="task-num">3</span> Valid pytest Test File Name <span class="badge-difficulty">Easy</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_valid_pytest_filename(name)</code> that returns <code>True</code> if pytest's default discovery would pick up this filename as a test file. pytest's default rule: the file must end in <code>.py</code>, and its name (without the <code>.py</code>) must either start with <code>test_</code> or end with <code>_test</code>. Matching is case-sensitive.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>name</code> is a non-empty string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_valid_pytest_filename("test_math.py")</code> &rarr; <code>True</code><br>
+        <code>is_valid_pytest_filename("math.py")</code> &rarr; <code>False</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_3.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="16">
+def is_valid_pytest_filename(name):
+    # TODO: must end in .py, and (without .py) start with "test_" or
+    # end with "_test". Case-sensitive.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_valid_pytest_filename",
+  "cases": [
+    { "args": ["test_math.py"], "expected": true },
+    { "args": ["math_test.py"], "expected": true },
+    { "args": ["math.py"], "expected": false },
+    { "args": ["Test_math.py"], "expected": false },
+    { "args": ["test_math.txt"], "expected": false },
+    { "args": ["mytest.py"], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_3.py</span>
+        </div>
+        <pre><code>def is_valid_pytest_filename(name):
+    if not name.endswith(".py"):
+        return False
+    stem = name[:-3]
+    return stem.startswith("test_") or stem.endswith("_test")</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">4</span> Catch the Off-By-One <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>A teammate's <code>is_last_index(i, length)</code> helper has an off-by-one bug: it checks <code>i == length</code> instead of the correct <code>i == length - 1</code>. Write a function <code>exposes_off_by_one_bug(n)</code> that, for a fixed <code>length</code> of <code>5</code>, builds BOTH the buggy version and the correct version internally, calls each with <code>n</code>, and returns <code>True</code> if the two versions disagree on this input (meaning a test using <code>n</code> as its input would have caught the bug), else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>n</code> is a non-negative int. <code>length</code> is always <code>5</code> inside your function.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>exposes_off_by_one_bug(4)</code> &rarr; <code>True</code> (the real last index; buggy version wrongly says <code>False</code>)<br>
+        <code>exposes_off_by_one_bug(3)</code> &rarr; <code>False</code> (both versions agree)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_4.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def exposes_off_by_one_bug(n):
+    # TODO: define buggy_is_last_index(i, length) using i == length,
+    # and correct_is_last_index(i, length) using i == length - 1.
+    # Using length = 5, call both with n and return True if they
+    # disagree, else False.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "exposes_off_by_one_bug",
+  "cases": [
+    { "args": [4], "expected": true },
+    { "args": [5], "expected": true },
+    { "args": [3], "expected": false },
+    { "args": [0], "expected": false }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_4.py</span>
+        </div>
+        <pre><code>def exposes_off_by_one_bug(n):
+    def buggy_is_last_index(i, length):
+        return i == length  # bug: should be length - 1
+
+    def correct_is_last_index(i, length):
+        return i == length - 1
+
+    length = 5
+    return buggy_is_last_index(n, length) != correct_is_last_index(n, length)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">5</span> Simulated Retry Call Count <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>A common thing to verify with a mock is "how many times did we retry a flaky call before it succeeded (or gave up)?" Write a function <code>call_count_after_retries(max_retries, fails_before_success)</code> that simulates this: starting from attempt 1, an attempt succeeds once the attempt number is strictly greater than <code>fails_before_success</code>; stop retrying once you succeed OR once you've made <code>max_retries</code> attempts, whichever comes first. Return the total number of attempts actually made.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>max_retries</code> is a positive int; <code>fails_before_success</code> is a non-negative int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>call_count_after_retries(5, 2)</code> &rarr; <code>3</code> (fails on attempts 1 and 2, succeeds on attempt 3)<br>
+        <code>call_count_after_retries(3, 10)</code> &rarr; <code>3</code> (gives up after 3 attempts, never succeeds)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_5.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def call_count_after_retries(max_retries, fails_before_success):
+    # TODO: count attempts starting at 1; an attempt succeeds once its
+    # number is > fails_before_success. Stop at success or at
+    # max_retries attempts, whichever comes first. Return the count.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "call_count_after_retries",
+  "cases": [
+    { "args": [5, 2], "expected": 3 },
+    { "args": [5, 0], "expected": 1 },
+    { "args": [3, 10], "expected": 3 },
+    { "args": [1, 0], "expected": 1 }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_5.py</span>
+        </div>
+        <pre><code>def call_count_after_retries(max_retries, fails_before_success):
+    attempts = 0
+    succeeded = False
+    while attempts < max_retries and not succeeded:
+        attempts += 1
+        if attempts > fails_before_success:
+            succeeded = True
+    return attempts</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">6</span> Edge Cases for a Range Check <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>edge_case_results(low, high)</code> that tests an inclusive range check (<code>low &lt;= value &lt;= high</code>) at its 4 classic boundary inputs, in this exact order: one below <code>low</code>, exactly <code>low</code>, exactly <code>high</code>, and one above <code>high</code>. Return a list of the 4 boolean results, in that order.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>low</code> and <code>high</code> are ints with <code>low &lt;= high</code>.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>edge_case_results(0, 10)</code> &rarr; <code>[False, True, True, False]</code>
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_6.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def edge_case_results(low, high):
+    # TODO: define in_range_inclusive(value, low, high) returning
+    # low <= value <= high, then return the 4 boundary results in
+    # order: [low-1, low, high, high+1].
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "edge_case_results",
+  "cases": [
+    { "args": [0, 10], "expected": [false, true, true, false] },
+    { "args": [5, 5], "expected": [false, true, true, false] },
+    { "args": [-3, 3], "expected": [false, true, true, false] }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_6.py</span>
+        </div>
+        <pre><code>def in_range_inclusive(value, low, high):
+    return low <= value <= high
+
+
+def edge_case_results(low, high):
+    return [
+        in_range_inclusive(low - 1, low, high),
+        in_range_inclusive(low, low, high),
+        in_range_inclusive(high, low, high),
+        in_range_inclusive(high + 1, low, high),
+    ]</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">7</span> Fresh Fixture State <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>fixture_values_are_isolated(num_tests)</code> that simulates a pytest-style fixture: define an inner <code>make_fixture()</code> that returns a fresh empty list each call. Then, for <code>num_tests</code> simulated tests, call <code>make_fixture()</code> fresh each time, append one item to it, and record its length. Return <code>True</code> if every recorded length is exactly <code>1</code> (proving no state leaked between simulated tests), else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>num_tests</code> is a non-negative int.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>fixture_values_are_isolated(3)</code> &rarr; <code>True</code><br>
+        <code>fixture_values_are_isolated(0)</code> &rarr; <code>True</code> (vacuously, nothing to fail)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_7.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="18">
+def fixture_values_are_isolated(num_tests):
+    # TODO: define make_fixture() returning a fresh empty list. Call
+    # it num_tests times, append one item each time, record each
+    # resulting length. Return True if every length equals 1.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "fixture_values_are_isolated",
+  "cases": [
+    { "args": [3], "expected": true },
+    { "args": [1], "expected": true },
+    { "args": [10], "expected": true },
+    { "args": [0], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_7.py</span>
+        </div>
+        <pre><code>def fixture_values_are_isolated(num_tests):
+    def make_fixture():
+        return []
+
+    results_per_test = []
+    for i in range(num_tests):
+        state = make_fixture()
+        state.append(i)
+        results_per_test.append(len(state))
+
+    return all(r == 1 for r in results_per_test)</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="challenge-card" data-difficulty="Medium">
+    <h3><span class="task-num">8</span> Descriptive Test Name Check <span class="badge-difficulty">Medium</span></h3>
+    <div class="challenge-statement">
+      <p>Write a function <code>is_descriptive_test_name(name)</code> that flags whether a test function's name follows good naming practice. Rules: it must start with <code>test_</code>; what follows must not be empty, must not be purely numeric (like <code>test_1</code>), and must not be one of these known-vague words: <code>"1", "2", "3", "a", "b", "case", "thing", "it", "x"</code>. If it passes all of those checks, it's descriptive only if it also contains an underscore (multiple words) OR is longer than 3 characters. Return <code>True</code> if the name is descriptive by these rules, else <code>False</code>.</p>
+      <div class="constraints">
+        <strong>Constraints:</strong> <code>name</code> is a non-empty string.
+      </div>
+      <div class="examples">
+        <strong>Examples:</strong><br>
+        <code>is_descriptive_test_name("test_value_below_low_returns_low")</code> &rarr; <code>True</code><br>
+        <code>is_descriptive_test_name("test_1")</code> &rarr; <code>False</code><br>
+        <code>is_descriptive_test_name("add_returns_sum")</code> &rarr; <code>False</code> (doesn't start with <code>test_</code>)
+      </div>
+    </div>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">challenge_8.py</span>
+      </div>
+      <textarea class="challenge-code" data-challenge-code rows="20">
+def is_descriptive_test_name(name):
+    # TODO: must start with "test_"; the remainder must not be empty,
+    # purely numeric, or one of the known-vague words. Then it's
+    # descriptive if it contains "_" OR is longer than 3 characters.
+    pass
+</textarea>
+    </div>
+    <button class="challenge-run-btn" data-challenge-run>&#9654; Run Tests</button>
+    <div class="challenge-results" data-challenge-results></div>
+    <script type="application/json" data-challenge-tests>
+{ "function": "is_descriptive_test_name",
+  "cases": [
+    { "args": ["test_value_below_low_returns_low"], "expected": true },
+    { "args": ["test_1"], "expected": false },
+    { "args": ["test_case"], "expected": false },
+    { "args": ["add_returns_sum"], "expected": false },
+    { "args": ["test_empty_list_raises_error"], "expected": true }
+  ] }
+    </script>
+    <details class="qa-item"><summary>Show Solution</summary>
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="filename">solution_8.py</span>
+        </div>
+        <pre><code>def is_descriptive_test_name(name):
+    if not name.startswith("test_"):
+        return False
+    body = name[len("test_"):]
+    if body == "" or body.isdigit():
+        return False
+    vague = {"1", "2", "3", "a", "b", "case", "thing", "it", "x"}
+    if body in vague:
+        return False
+    return "_" in body or len(body) > 3</code></pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="practice/index.html">&larr; Practice Bank</a>
+    <a href="interview-questions.html">Interview Questions &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+<script src="../../assets/challenge-engine.js"></script>
+</body>
+</html>
