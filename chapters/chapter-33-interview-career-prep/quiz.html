@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 33 Quiz — Python for Everyone</title>
+<meta name="description" content="Fill-in-the-blank quiz for Chapter 33: Interview & Career Prep -- resume vs. portfolio, interview formats, live coding strategy, the STAR method, talking about AI-paired work, and offers.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body data-chapter-id="chapter-33" data-active-chapter="chapter-33">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../index.html">All Chapters</a>
+      <a href="../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="lesson.html">&larr; Back to the lesson</a></p>
+
+  <span class="chapter-badge">Chapter 33 Quiz</span>
+  <h1>Interview &amp; Career Prep</h1>
+  <p>Fill in each blank and press its <strong>Check</strong> button (or press Enter). This quiz tests interview and career judgment, not code output &mdash; the same skill Sub-topics 1-6 covered.</p>
+
+  <div class="quiz-progress-wrap" aria-hidden="true">
+    <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+  </div>
+
+  <form onsubmit="return false;">
+
+    <div class="quiz-question">
+      <label for="q1"><span class="q-num">1</span> A resume's job is to earn a closer look, not to prove anything by itself &mdash; the actual proving happens one click away, in your ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q1" class="fib-blank" data-answers="portfolio" aria-label="Answer for question 1">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q2"><span class="q-num">2</span> A strong resume bullet states an ____, not a list of topics covered &mdash; "built X that does Y" rather than "learned Python OOP and databases."</label>
+      <div class="fib-row">
+        <input type="text" id="q2" class="fib-blank" data-answers="outcome" aria-label="Answer for question 2">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q3"><span class="q-num">3</span> The principle that a portfolio link beats a bullet-point claim, because a link is checkable and a claim isn't, is often summarized as "____, don't tell."</label>
+      <div class="fib-row">
+        <input type="text" id="q3" class="fib-blank" data-answers="show" aria-label="Answer for question 3">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q4"><span class="q-num">4</span> A small coding project completed on your own time over a few hours to a few days, then submitted for review, is called a ____ assignment.</label>
+      <div class="fib-row">
+        <input type="text" id="q4" class="fib-blank" data-answers="take-home,take home" aria-label="Answer for question 4">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q5"><span class="q-num">5</span> An interview format where you and a team engineer work on a problem together, often extending an existing codebase, is called a ____ programming interview.</label>
+      <div class="fib-row">
+        <input type="text" id="q5" class="fib-blank" data-answers="pair" aria-label="Answer for question 5">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q6"><span class="q-num">6</span> At a junior level, an interview that asks you to reason out loud about database schema and API structure, rather than write code, is a ____ design interview.</label>
+      <div class="fib-row">
+        <input type="text" id="q6" class="fib-blank" data-answers="system" aria-label="Answer for question 6">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q7"><span class="q-num">7</span> In a live coding interview, an interviewer can't score reasoning they can't see &mdash; ____ thinking looks identical to being stuck from the other side of the screen.</label>
+      <div class="fib-row">
+        <input type="text" id="q7" class="fib-blank" data-answers="silent" aria-label="Answer for question 7">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q8"><span class="q-num">8</span> The recommended live coding strategy is to get a working ____-force solution first, then optimize it, rather than attempting the clever solution silently from the start.</label>
+      <div class="fib-row">
+        <input type="text" id="q8" class="fib-blank" data-answers="brute" aria-label="Answer for question 8">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q9"><span class="q-num">9</span> Saying "I don't know, but here's how I'd find out" is considered a stronger live-coding answer than ____ a confident-sounding wrong answer.</label>
+      <div class="fib-row">
+        <input type="text" id="q9" class="fib-blank" data-answers="bluffing,guessing" aria-label="Answer for question 9">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q10"><span class="q-num">10</span> The four-part structure for behavioral interview answers &mdash; Situation, Task, Action, Result &mdash; is known by the acronym ____.</label>
+      <div class="fib-row">
+        <input type="text" id="q10" class="fib-blank" data-answers="STAR,star" aria-label="Answer for question 10">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q11"><span class="q-num">11</span> In a STAR answer, the ____ section should be the longest and most specific, since it's the part interviewers are actually listening for.</label>
+      <div class="fib-row">
+        <input type="text" id="q11" class="fib-blank" data-answers="Action,action" aria-label="Answer for question 11">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q12"><span class="q-num">12</span> When describing your own contribution in a behavioral answer, you should use "____," not "we," even for genuinely collaborative work &mdash; interviewers are evaluating you specifically.</label>
+      <div class="fib-row">
+        <input type="text" id="q12" class="fib-blank" data-answers="I" aria-label="Answer for question 12">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q13"><span class="q-num">13</span> This course's solo, then AI-paired, then ____ loop is a genuinely differentiating thing to describe in an interview, since most candidates can't articulate using AI tools critically.</label>
+      <div class="fib-row">
+        <input type="text" id="q13" class="fib-blank" data-answers="critique" aria-label="Answer for question 13">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q14"><span class="q-num">14</span> The honest, specific way to describe AI-assisted work in an interview is "I directed and reviewed this, and here's a specific ____ I caught" &mdash; not staying silent about AI use, and not over-claiming.</label>
+      <div class="fib-row">
+        <input type="text" id="q14" class="fib-blank" data-answers="bug" aria-label="Answer for question 14">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q15"><span class="q-num">15</span> A partially finished capstone should be described the same honest way in an interview as in a README &mdash; by naming what's genuinely finished versus what was deliberately ____ down.</label>
+      <div class="fib-row">
+        <input type="text" id="q15" class="fib-blank" data-answers="scoped" aria-label="Answer for question 15">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q16"><span class="q-num">16</span> After receiving a job offer, it's standard and expected to ask for a couple of days of ____ before responding, rather than accepting or rejecting on the spot.</label>
+      <div class="fib-row">
+        <input type="text" id="q16" class="fib-blank" data-answers="time" aria-label="Answer for question 16">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q17"><span class="q-num">17</span> Evaluating a job offer should look beyond base salary to the whole package, including benefits, equity or ____, and how much mentorship a junior role offers.</label>
+      <div class="fib-row">
+        <input type="text" id="q17" class="fib-blank" data-answers="bonus" aria-label="Answer for question 17">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <label for="q18"><span class="q-num">18</span> A junior role's first ____ days are expected to feel like a ramp-up of reading code and asking questions, not full-speed contribution from day one.</label>
+      <div class="fib-row">
+        <input type="text" id="q18" class="fib-blank" data-answers="90,ninety" aria-label="Answer for question 18">
+        <button type="button" class="check-btn">Check</button>
+        <span class="fib-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div id="check-all-wrap">
+      <button type="button" id="check-all-btn" class="check-btn">Check All Answers</button>
+      <span id="quiz-score"></span>
+    </div>
+
+    <div class="quiz-celebration" id="quiz-celebration" aria-live="polite">
+      🎉 Perfect score! Chapter 33 is marked complete &mdash; on to the final project.
+    </div>
+
+  </form>
+
+  <div class="chapter-nav">
+    <a href="lesson.html">&larr; Back to Lesson</a>
+    <a href="../project/index.html">Final Project &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../assets/progress.js"></script>
+<script src="../../assets/quiz-engine.js"></script>
+
+<script src="../../assets/chapters-data.js"></script>
+<script src="../../assets/sidebar.js"></script>
+</body>
+</html>

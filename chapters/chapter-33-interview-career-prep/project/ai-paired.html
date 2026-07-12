@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 33: Solo &rarr; AI-Paired &rarr; Critique — Python for Everyone</title>
+<meta name="description" content="Pair with an AI to extend careerprep with a README check, an answer saver, and a smart avoid-repeats mode, then critique its plausible-but-flawed output -- a README check that only verifies existence not content, an answer saver that silently overwrites practice history, and an avoid-repeats picker that computes the right filter but never uses it.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-33">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="index.html">&larr; Back to the project</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 33 (Final Chapter) &mdash; Solo &rarr; AI-Paired &rarr; Critique</span>
+    <span class="reading-time">30 min</span>
+  </div>
+  <h1>Now Pair With an AI</h1>
+
+  <div class="lesson-hero">
+    <h2>Step 1: You already built this solo</h2>
+    <p>You just built <a href="index.html">careerprep</a> yourself, unaided &mdash; a packaged CLI tool with a real question bank, an answers file that appends across sessions, and a checklist scanner that actually reads files on disk. That project is unchanged; this page is additive. Now imagine the more common real-world move: you already have a working v1, and you ask an AI assistant to bolt on three specific improvements in one pass &mdash; the way developers actually reach for an assistant once the skeleton exists and they just want the next features done fast.</p>
+  </div>
+
+  <h2>Step 2: Now pair with an AI</h2>
+  <p>Here's a real prompt a learner could give an AI assistant, extending the working <code>careerprep</code> from Step 1 instead of starting over:</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">the-prompt.txt</span>
+    </div>
+    <pre><code>I have a working CLI tool called careerprep with a question bank,
+a JSON answers file, and a portfolio checklist scanner. Add three
+things: (1) in the checklist scanner, a _check_readme(target) helper
+that checks whether the project has a real README.md; (2) a
+record_answer(answers_file, question, answer_text) function that
+saves a learner's typed answer to the JSON file; (3) a
+pick_unseen_question(answers_file, category=None) function for a new
+--avoid-repeats mode that picks a random question the learner
+HASN'T already answered, based on their saved answer history. Please
+just give me the working code for all three.</code></pre>
+  </div>
+
+  <p>And here's a plausible response &mdash; the kind of complete, confident-looking output an AI assistant might hand back on the first try. Read it the way you'd review a pull request from a teammate who moved fast, before scrolling to the critique below.</p>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">careerprep/checklist.py (AI output)</span>
+    </div>
+    <pre><code>def _check_readme(target: Path) -> bool:
+    """Check whether the project has a real README."""
+    return (target / "README.md").exists()</code></pre>
+  </div>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">careerprep/interview.py (AI output)</span>
+    </div>
+    <pre><code>def record_answer(answers_file: Path, question: dict, answer_text: str) -> dict:
+    """Save the learner's answer to the answers file."""
+    entry = {
+        "question_id": question["id"],
+        "category": question["category"],
+        "question_text": question["text"],
+        "answer": answer_text.strip(),
+        "answered_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+
+    answers_file.parent.mkdir(parents=True, exist_ok=True)
+    answers_file.write_text(json.dumps([entry], indent=2), encoding="utf-8")
+    logger.info("Saved answer for question #%d", question["id"])
+    return entry
+
+
+def pick_unseen_question(answers_file: Path, category: str | None = None) -> dict:
+    """Pick a random question the learner hasn't answered yet, for --avoid-repeats mode."""
+    answered_ids = {a["question_id"] for a in load_answers(answers_file)}
+    questions = get_questions(category)
+    unseen = [q for q in questions if q["id"] not in answered_ids]
+
+    if not unseen:
+        print("You've answered every question in this category! Picking a random one anyway.")
+
+    return random.choice(questions)</code></pre>
+  </div>
+
+  <p>It's complete, it imports cleanly, and it looks like exactly the kind of fast, thorough answer you asked for &mdash; a README existence check, an answer saver with a real timestamp, and an "avoid repeats" picker that visibly computes an <code>unseen</code> list and even handles the "you've answered everything" edge case with a friendly message. It's also wrong in three separate, genuinely subtle ways.</p>
+
+  <h2>Step 3: Where did the AI's code lie to you?</h2>
+
+  <details class="qa-item">
+    <summary>Click to see the critique</summary>
+    <div class="qa-body">
+
+      <span class="qa-section-label flags">Flaw 1 &mdash; <code>_check_readme</code> only verifies the README exists, not that it says anything</span>
+      <p><strong>What it looks like it does:</strong> "check whether the project has a real README.md" reads like it's checking for something meaningful &mdash; the word "real" is right there in the docstring.</p>
+      <p><strong>What it actually does:</strong> confirmed by actually running it &mdash; a directory containing a <code>README.md</code> whose entire content is the single word <code>TODO</code> returns <code>True</code>. <code>Path.exists()</code> only asks "is there a file at this path," it has no opinion at all about what's inside it. A learner scanning their own capstone folder with this version would see a passing checkmark next to "README" even if they'd forgotten to actually write one.</p>
+      <p><strong>Why it matters:</strong> this is the exact shortcut this chapter's own <code>scan_directory</code> deliberately avoids &mdash; it checks both that a README file exists <em>and</em> that its stripped content clears a minimum length (200 characters), specifically so a one-line placeholder doesn't quietly pass as "done." A checklist tool that can't tell the difference between "wrote a README" and "created an empty file named README.md" isn't measuring the thing it claims to measure.</p>
+      <p><strong>The fix:</strong> read the file's content, strip it, and compare its length against a real threshold &mdash; see this chapter's own <code>_is_substantial()</code> helper in <code>solution/careerprep/checklist.py</code> for the working version.</p>
+
+      <span class="qa-section-label flags">Flaw 2 &mdash; <code>record_answer</code> silently overwrites the entire answers file instead of appending to it</span>
+      <p><strong>What it looks like it does:</strong> it builds a real entry dict with a real timestamp, creates the parent folder, writes JSON, and logs an info message &mdash; every individual line looks correct in isolation.</p>
+      <p><strong>What it actually does:</strong> <code>json.dumps([entry], indent=2)</code> wraps <em>only the new entry</em> in a list and writes that &mdash; it never calls <code>load_answers()</code> first to get the existing history. Confirmed by actually running it twice in a row with two different questions: after the second call, the file contains exactly <strong>one</strong> entry (the second one), not two. The first practice session's answer is gone, with no error, no warning, and a log line that says "Saved answer" as if everything worked.</p>
+      <p><strong>Why it matters:</strong> the entire point of a mock-interview drill tool is watching your answers to the same question improve across multiple sessions &mdash; that's explicitly what this chapter's <code>interview review</code> command is for. A version that overwrites on every save can never show more than the single most recent answer, silently destroying the exact history the tool exists to build. This is a worse failure than a crash: it looks like it's working, prints a success message, and the data loss is invisible until a learner runs <code>review</code> weeks later and finds only one saved answer where there should be a dozen.</p>
+      <p><strong>The fix:</strong> load the existing answers first, append the new entry to that list, and save the whole list back &mdash; <code>answers = load_answers(answers_file); answers.append(entry); save_answers(answers_file, answers)</code>. See this chapter's own <code>record_answer()</code> in <code>solution/careerprep/interview.py</code> for the working version.</p>
+
+      <span class="qa-section-label flags">Flaw 3 &mdash; <code>pick_unseen_question</code> computes the correct <code>unseen</code> list, then picks from the wrong one anyway</span>
+      <p><strong>What it looks like it does:</strong> it builds <code>answered_ids</code> from the saved history, filters <code>questions</code> down to <code>unseen</code>, and even prints a considerate message for the "you've answered everything" edge case &mdash; every piece of the filtering logic is visibly present and looks deliberate.</p>
+      <p><strong>What it actually does:</strong> the final line is <code>return random.choice(questions)</code> &mdash; the full, unfiltered list &mdash; not <code>random.choice(unseen)</code>. The <code>unseen</code> variable is computed, checked for emptiness, and then never used again. Confirmed by actually running it: seeded with 4 already-answered questions out of 5 total, 30 calls to <code>pick_unseen_question</code> returned an already-answered question <strong>24 out of 30 times</strong> &mdash; almost exactly what you'd expect from picking uniformly at random from all 5 questions, meaning the "avoid repeats" filtering had zero effect on the actual output.</p>
+      <p><strong>Why it matters:</strong> this is the most dangerous kind of bug to catch by reading alone &mdash; the code that computes the right answer is right there, so a quick skim sees "yes, it filters by answered_ids" and moves on. It only surfaces by actually running it and checking whether repeats really stop happening, which is exactly why "confirmed by actually running it" matters more than "the logic looks right" throughout this whole course.</p>
+      <p><strong>The fix:</strong> change the return statement to <code>random.choice(unseen)</code> when <code>unseen</code> is non-empty, falling back to <code>random.choice(questions)</code> only in the genuine "answered everything" case the code already detects and prints a message for.</p>
+
+    </div>
+  </details>
+
+  <h2>Step 4: Your entry for this chapter's playbook</h2>
+  <p>This is the last chapter of the course, so this entry is a fitting capstone to a thread that's run through every single project's <code>ai-paired.html</code>: an AI assistant's code almost always <em>looks</em> complete &mdash; it imports cleanly, it has docstrings, it handles the edge case you'd expect it to miss. The skill this course has been building, one chapter at a time, isn't "write a prompt" &mdash; it's noticing the gap between what a block of code claims to do and what it actually does when you run it, especially when the claim is confident and the gap is one line wide (a wrong variable in a <code>return</code> statement, a missing <code>load_answers()</code> call, a check that measures existence instead of quality). Fill this in for yourself &mdash; it's not saved or sent anywhere, just yours to keep.</p>
+
+  <div class="playbook-template">
+    <div class="playbook-field">
+      <label for="playbook-prompt">Prompt I used</label>
+      <textarea id="playbook-prompt" rows="2" placeholder="Paste or paraphrase the prompt you actually tried..."></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-caught">Flaw I would/wouldn't have caught before this chapter</label>
+      <textarea id="playbook-caught" rows="2" placeholder="Be honest -- which of the 3 flaws above would you have spotted on your own, before reading Chapter 33? Which would you have shipped without noticing?"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-pattern">Pattern to watch for next time</label>
+      <textarea id="playbook-pattern" rows="2" placeholder="e.g. 'A variable that's computed and checked but never actually used in the return statement is a real bug pattern, not just a style nitpick' or 'Always ask: does this check verify quality, or just existence?'"></textarea>
+    </div>
+    <div class="playbook-field">
+      <label for="playbook-course-summary">Looking back across all 33 chapters</label>
+      <textarea id="playbook-course-summary" rows="3" placeholder="What's the single biggest habit this course's ai-paired.html pages built in you -- the thing you now do automatically before trusting AI-generated code, that you didn't do before Chapter 1?"></textarea>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="index.html">&larr; Back to the Project</a>
+    <a href="../../../index.html">All Chapters &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

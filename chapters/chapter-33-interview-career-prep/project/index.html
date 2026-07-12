@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 33 Project: careerprep (Mock-Interview Drill + Portfolio Checklist) — Python for Everyone</title>
+<meta name="description" content="Build careerprep, a real multi-file, pip-installable CLI tool that drills mock interview questions and saves your timestamped answers, plus scans a real project folder against a portfolio-readiness checklist -- plus four more real-world project ideas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body data-active-chapter="chapter-33">
+<button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle chapter list" aria-expanded="false">☰ Chapters</button>
+<aside id="chapter-sidebar" class="sidebar" data-root="../../../" aria-label="Chapter navigation"></aside>
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+<header class="top-bar">
+  <div class="page">
+    <a href="../../../index.html" class="brand">🐍 Python for Everyone</a>
+    <nav>
+      <a href="../../../index.html">All Chapters</a>
+      <a href="../../../docs/curriculum/index.html">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <p><a href="../quiz.html">&larr; Back to quiz</a></p>
+
+  <div class="page-meta">
+    <span class="chapter-badge">Chapter 33 Project &mdash; Final Chapter</span>
+    <span class="reading-time">75 min build</span>
+  </div>
+  <h1>careerprep: a Mock-Interview Drill Tool + Portfolio Checklist Scanner</h1>
+
+  <p>A real, multi-file, pip-installable command-line tool with two genuinely useful features for wrapping up this course: a mock-interview drill that saves your typed answers with a timestamp so you can watch them improve over multiple practice sessions, and a portfolio-readiness scanner that actually points at one of your own project folders and checks real files on disk &mdash; not a static list you tick by hand.</p>
+
+  <div class="what-is">
+    <span class="label">Project layout</span>
+    <pre><code>project/
+├── starter/            &lt;- you work here
+│   └── careerprep/
+│       ├── __init__.py
+│       ├── interview.py  (TODOs 1-10 -- question bank + answer storage)
+│       ├── checklist.py  (TODOs 11-12 -- the directory scanner)
+│       └── cli.py        (TODOs 11-25 -- the argparse wiring)
+├── solution/            &lt;- complete, working reference
+│   ├── careerprep/
+│   │   ├── __init__.py
+│   │   ├── interview.py
+│   │   ├── checklist.py
+│   │   └── cli.py
+│   ├── pyproject.toml
+│   ├── requirements.txt
+│   └── README.md</code></pre>
+  </div>
+
+  <div class="download-links">
+    <a href="starter/careerprep/__init__.py">starter/careerprep/__init__.py</a>
+    <a href="starter/careerprep/interview.py">starter/careerprep/interview.py</a>
+    <a href="starter/careerprep/checklist.py">starter/careerprep/checklist.py</a>
+    <a href="starter/careerprep/cli.py">starter/careerprep/cli.py</a>
+    <a href="solution/careerprep/__init__.py">solution/careerprep/__init__.py</a>
+    <a href="solution/careerprep/interview.py">solution/careerprep/interview.py</a>
+    <a href="solution/careerprep/checklist.py">solution/careerprep/checklist.py</a>
+    <a href="solution/careerprep/cli.py">solution/careerprep/cli.py</a>
+    <a href="solution/pyproject.toml">solution/pyproject.toml</a>
+    <a href="solution/requirements.txt">solution/requirements.txt</a>
+  </div>
+
+  <h2>What you're building</h2>
+
+  <div class="what-is">
+    <span class="label">Feature 1 &mdash; mock-interview drill (<code>careerprep interview ...</code>)</span>
+    <ul>
+      <li><code>careerprep interview list [--category behavioral|technical]</code> &mdash; list all 25 questions in the built-in bank (10 behavioral STAR-method questions, 15 technical-concept questions spanning Python fundamentals, OOP, testing, git, APIs, databases, memory, and concurrency &mdash; pulled from topics across this course).</li>
+      <li><code>careerprep interview random [--category behavioral|technical]</code> &mdash; pick one random question, print it, read a typed/pasted multi-line answer from the terminal, and save it to a local JSON file with a timestamp.</li>
+      <li><code>careerprep interview review [--category ...] [--question-id N]</code> &mdash; show previously saved answers, optionally filtered, so you can watch how your answers to the same question evolve across practice sessions. Every session <strong>appends</strong> &mdash; nothing is ever silently overwritten.</li>
+    </ul>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Feature 2 &mdash; portfolio checklist scanner (<code>careerprep checklist ...</code>)</span>
+    <ul>
+      <li><code>careerprep checklist list</code> &mdash; print the full 9-item checklist: 4 auto-checkable items and 5 manual self-assessment items.</li>
+      <li><code>careerprep checklist scan &lt;path&gt;</code> &mdash; point it at a real directory (one of your own capstone project folders) and it actually checks 4 items for real: a non-trivial <code>README.md</code>, a <code>requirements.txt</code>/<code>pyproject.toml</code>, a test file (<code>tests/</code> or <code>test_*.py</code>/<code>*_test.py</code>), and a <code>.gitignore</code>. The other 5 items (README explains WHY not just WHAT, no hardcoded secrets, an honest limitations section, tests exercise real logic, meaningful commit history) print as manual checkboxes &mdash; a script can't honestly judge those, so it doesn't pretend to.</li>
+    </ul>
+  </div>
+
+  <p>A top-level <code>--file &lt;path&gt;</code> flag points interview commands at which JSON answers file to read/write (defaults to <code>~/.careerprep/answers.json</code>). A top-level <code>-v/--verbose</code> flag raises the tool's own log level from INFO to DEBUG, scoped to <code>careerprep</code>'s own logger only.</p>
+
+  <div class="what-is">
+    <span class="label">Why two modules, not one script</span>
+    <code>interview.py</code> and <code>checklist.py</code> hold the actual logic &mdash; reading/writing JSON, filtering questions, scanning a directory's real files. Neither imports <code>argparse</code>, touches <code>sys.argv</code>, or calls <code>print()</code>. <code>cli.py</code> holds the argparse parser, the <code>input()</code> calls that collect a typed answer, and is the only place that talks to the terminal. This is the same "separate the engine from the dashboard" split Chapter 31's <code>taskbox</code> project used.
+  </div>
+
+  <h2>Build it: interview.py</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Filter and pick questions (TODOs 1-3)</h3>
+    <p><code>get_questions</code> validates the category and filters the built-in 25-question bank. <code>pick_random_question</code> reuses it and calls <code>random.choice</code>, raising <code>CareerPrepError</code> if a category has no matches (it never will, with this bank, but a learner adding new categories later would want that guard).</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">careerprep/interview.py (solution)</span>
+      </div>
+      <pre><code>def pick_random_question(category: str | None = None) -> dict:
+    """Pick one random question, optionally restricted to a category."""
+    questions = get_questions(category)
+    if not questions:
+        raise CareerPrepError(f"No questions available for category {category!r}.")
+    question = random.choice(questions)
+    logger.debug("Picked random question #%d (category=%s)", question["id"], question["category"])
+    return question</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> the empty-result case has to be handled before calling <code>random.choice</code>, which raises a confusing <code>IndexError</code> on an empty sequence rather than a message that tells the caller what actually went wrong. Filtering first through the already-validated <code>get_questions</code> also means the category-validation logic lives in exactly one place, not duplicated here.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that picks a random question from a list, filtered by..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare against this example -- does it guard the empty-list case before calling random.choice(), or does it let a raw IndexError reach the caller?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python function pick_random_question(category: str | None = None) -> dict that picks one random question dict from a module-level QUESTION_BANK list (each item has "id", "category", "text" keys). It should reuse an existing get_questions(category) helper to get the filtered candidates, raise a custom CareerPrepError with a clear message if the filtered list is empty (don't let random.choice raise a raw IndexError on an empty sequence), and log a debug message with the picked question's id and category before returning it.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Load, save, and append answers (TODOs 4-9)</h3>
+    <p><code>load_answers</code>/<code>save_answers</code> mirror Chapter 31's <code>load_tasks</code>/<code>save_tasks</code> pattern exactly &mdash; missing file is a normal empty start, unreadable/corrupted file gets a clear wrapped error. The one detail that matters most here is <code>record_answer</code>: it must <strong>load the existing answers and append</strong>, never replace the file with just the new entry &mdash; losing past practice sessions defeats the entire point of a drill tool meant to show improvement over time.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">careerprep/interview.py (solution)</span>
+      </div>
+      <pre><code>def record_answer(answers_file: Path, question: dict, answer_text: str) -> dict:
+    """
+    Append a new answer to the answers file (never overwrite past ones --
+    each practice session should add to the learner's history, not erase
+    it, so they can see how their answers evolve over time).
+    """
+    answer_text = answer_text.strip()
+    if not answer_text:
+        raise CareerPrepError("Answer cannot be empty.")
+
+    answers = load_answers(answers_file)
+    entry = {
+        "question_id": question["id"],
+        "category": question["category"],
+        "question_text": question["text"],
+        "answer": answer_text,
+        "answered_at": _now_iso(),
+    }
+    answers.append(entry)
+    save_answers(answers_file, answers)
+    logger.info("Saved answer for question #%d (%s)", question["id"], question["category"])
+    return entry</code></pre>
+    </div>
+  </div>
+
+  <h2>Build it: checklist.py</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Scan a real directory for objectively-checkable signals (TODOs 11-12)</h3>
+    <p><code>scan_directory</code> is the only function in this project that touches a real filesystem path a learner supplies. It checks four things a script genuinely can verify without judgment: does a README exist and clear a minimum length, does a dependency file exist, does a test file exist, does a <code>.gitignore</code> exist. Five more checklist items (README explains WHY, no hardcoded secrets, an honest limitations section, tests exercise real logic, meaningful commits) stay in <code>manual_items()</code> &mdash; a script that claimed to verify those would be lying about what it can actually see.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">careerprep/checklist.py (solution)</span>
+      </div>
+      <pre><code>def scan_directory(target: Path) -> dict[str, bool]:
+    if not target.exists():
+        raise CareerPrepError(f"No such directory: {target}")
+    if not target.is_dir():
+        raise CareerPrepError(f"Not a directory: {target}")
+
+    logger.debug("Scanning %s for portfolio-readiness signals", target)
+
+    readme = _find_file(target, README_FILENAMES)
+    results = {
+        "readme_substantial": readme is not None and _is_substantial(readme),
+        "dependencies_declared": any((target / name).is_file() for name in DEPENDENCY_FILENAMES),
+        "tests_exist": _has_tests(target),
+        "gitignore_exists": (target / ".gitignore").is_file(),
+    }
+    logger.info("Scanned %s: %d/%d auto-checkable items passed", target, sum(results.values()), len(results))
+    return results</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> "does a README exist" and "is the README actually useful" are two very different questions &mdash; the first is a file-existence check, the second requires judgment a script can't make honestly. The temptation with an AI assistant is to let it collapse "exists" into "passes," which quietly overstates what the scanner actually verified (this is exactly the flaw planted in this chapter's <a href="ai-paired.html">AI-paired version</a> &mdash; go compare after you've built this).</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write a function that scans a directory and checks whether..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare against this example -- does its README check look at content length, or does it just call Path.exists() and call that a pass?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write a Python function scan_directory(target: Path) -> dict[str, bool] that checks a real project directory for four portfolio-readiness signals: (1) "readme_substantial" -- a README.md (case-insensitive) exists AND its stripped text content is at least 200 characters long, not just present; (2) "dependencies_declared" -- a requirements.txt or pyproject.toml exists directly under target; (3) "tests_exist" -- either a tests/ folder containing at least one .py file, or a top-level/nested test_*.py or *_test.py file exists; (4) "gitignore_exists" -- a .gitignore file exists. Raise a custom CareerPrepError if target doesn't exist or isn't a directory. Use the logging module to log an info-level summary of how many of the 4 checks passed.</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <h2>Build it: cli.py</h2>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Build the argparse parser with nested subcommands (TODOs 11-17)</h3>
+    <p>This parser nests one level deeper than Chapter 31's <code>taskbox</code>: <code>interview</code> and <code>checklist</code> are each their own subparser with their <em>own</em> subparsers underneath (<code>list</code>/<code>random</code>/<code>review</code>, and <code>list</code>/<code>scan</code>). <code>args.command</code> tells you which top-level group ran; <code>args.interview_command</code> or <code>args.checklist_command</code> tells you which one inside that group.</p>
+    <div class="code-window">
+      <div class="code-window-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="filename">careerprep/cli.py (solution)</span>
+      </div>
+      <pre><code>subparsers = parser.add_subparsers(dest="command", required=True)
+
+interview_parser = subparsers.add_parser("interview", help="mock-interview drill tool")
+interview_sub = interview_parser.add_subparsers(dest="interview_command", required=True)
+
+random_parser = interview_sub.add_parser("random", help="answer one random question")
+random_parser.add_argument(
+    "--category", choices=["behavioral", "technical"], default=None,
+    help="only pick from this category",
+)
+
+checklist_parser = subparsers.add_parser("checklist", help="portfolio-readiness checklist")
+checklist_sub = checklist_parser.add_subparsers(dest="checklist_command", required=True)
+
+scan_parser = checklist_sub.add_parser("scan", help="scan a real directory and auto-check what's checkable")
+scan_parser.add_argument("path", type=Path, help="path to the project directory to scan")</code></pre>
+    </div>
+    <div class="genai-prompt-box">
+      <p class="genai-thought"><strong>Thought process:</strong> two-level subcommands (<code>careerprep interview random</code>) need <code>required=True</code> on <em>both</em> levels of <code>add_subparsers</code>, not just the top one &mdash; forgetting it on the inner level means <code>careerprep interview</code> with no further argument silently does nothing instead of showing a clear "missing command" error.</p>
+      <div class="genai-try-first">
+        <p class="genai-prompt-label">Write the prompt you'd give an AI assistant to build this:</p>
+        <textarea class="genai-user-attempt" rows="3" placeholder="e.g. Write an argparse parser with nested subcommands for..."></textarea>
+        <button type="button" class="genai-reveal-btn">Reveal a strong reference prompt</button>
+        <div class="genai-compare-note" hidden>
+          Paste your prompt into Claude, ChatGPT, Copilot, or whatever assistant you use, and compare against this example -- did it set required=True on both levels of add_subparsers, or just the outer one?
+        </div>
+      </div>
+      <details class="genai-reveal">
+        <summary>Show a strong version of this prompt</summary>
+        <div class="genai-prompt-text"><pre>Write an argparse.ArgumentParser for a CLI tool called "careerprep" with two top-level subcommands via add_subparsers(dest="command", required=True): "interview" and "checklist". Each of those needs its OWN nested subparsers (also required=True): "interview" gets "list" (optional --category choices=[behavioral,technical]), "random" (same --category option), and "review" (--category AND optional --question-id type=int); "checklist" gets "list" (no arguments) and "scan" (one required positional "path" argument, type=Path). Also add top-level --file (type=Path) and -v/--verbose (store_true) flags before the subparsers. Return the built parser from build_parser() without calling parse_args().</pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">5</span> Scoped logging, multi-line input, and error handling (TODOs 18-25)</h3>
+    <p><code>configure_logging</code> reuses Chapter 31's named-logger pattern (never <code>logging.basicConfig()</code>). <code>read_multiline_answer</code> is new for this chapter: it loops on <code>input()</code>, collecting lines until a blank one is entered, so a learner can write a real multi-paragraph STAR answer instead of one cramped line. <code>main()</code> wraps dispatch in <code>try/except (InterviewError, ChecklistError)</code> so a bad path or bad category becomes a clean one-line error, not a raw traceback.</p>
+    <div class="output-block">
+      <span class="output-label">terminal &mdash; a real error, not invented for the docs</span>
+      <pre><code>$ careerprep checklist scan /tmp/does_not_exist_xyz
+ERROR: No such directory: /tmp/does_not_exist_xyz
+$ echo $?
+1</code></pre>
+    </div>
+    <p>A missing required subcommand never even reaches this code &mdash; argparse catches it, at whichever nesting level it happened, before <code>main()</code>'s body runs:</p>
+    <div class="output-block">
+      <span class="output-label">terminal</span>
+      <pre><code>$ careerprep interview
+usage: careerprep interview [-h] {list,random,review} ...
+careerprep interview: error: the following arguments are required: interview_command
+$ echo $?
+2</code></pre>
+    </div>
+  </div>
+
+  <h2>Install it for real</h2>
+
+  <div class="code-window">
+    <div class="code-window-bar">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span class="filename">terminal</span>
+    </div>
+    <pre><code>cd chapters/chapter-33-interview-career-prep/project/solution
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e .</code></pre>
+  </div>
+  <p>Real output from actually running that install:</p>
+  <div class="output-block">
+    <span class="output-label">terminal</span>
+    <pre><code>$ pip install -e .
+Obtaining file:///.../chapter-33-interview-career-prep/project/solution
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  ...
+Building wheels for collected packages: careerprep
+  Building editable for careerprep (pyproject.toml): finished with status 'done'
+  Created wheel for careerprep: filename=careerprep-1.0.0-0.editable-py3-none-any.whl ...
+Successfully built careerprep
+Installing collected packages: careerprep
+Successfully installed careerprep-1.0.0</code></pre>
+  </div>
+
+  <h2>Feature 1, for real &mdash; mock-interview drill</h2>
+  <div class="output-block">
+    <span class="output-label">terminal</span>
+    <pre><code>$ careerprep --file /tmp/demo_answers.json interview random --category behavioral
+============================================================
+#2 [behavioral] Describe a time you disagreed with a teammate's code review feedback. How did you handle it?
+============================================================
+(Type or paste your answer. Press Enter on a blank line when you're done.)
+Situation: our checkout API started 500ing under load.
+Task: I needed to find root cause before the weekend traffic spike.
+Action: I added structured logging around the payment call and traced it to a connection pool exhaustion bug.
+Result: fixed the pool size and added an alert so we caught it early next time.
+
+INFO: Saved answer for question #2 (behavioral)
+Saved your answer for question #2 at 2026-07-12T05:42:02+00:00.</code></pre>
+  </div>
+  <p>A second practice session on a different (random) question, then <code>review</code> showing both &mdash; proving the answers file <strong>appends</strong>, it never overwrites past sessions:</p>
+  <div class="output-block">
+    <span class="output-label">terminal</span>
+    <pre><code>$ careerprep --file /tmp/demo_answers.json interview review
+--- Answer 1 of 2 ---
+[2026-07-12T05:42:02+00:00] #2 (behavioral) Describe a time you disagreed with a teammate's code review feedback. How did you handle it?
+  Situation: our checkout API started 500ing under load.
+  Task: I needed to find root cause before the weekend traffic spike.
+  Action: I added structured logging around the payment call and traced it to a connection pool exhaustion bug.
+  Result: fixed the pool size and added an alert so we caught it early next time.
+
+--- Answer 2 of 2 ---
+[2026-07-12T05:42:14+00:00] #17 (technical) What does `git rebase` do differently from `git merge`, and when would you reach for one over the other?
+  A decorator wraps a function to add behavior without changing its source, e.g. logging execution time.
+  Real use case: a @require_auth decorator on Flask view functions.</code></pre>
+  </div>
+
+  <h2>Feature 2, for real &mdash; checklist scan pointed at a real directory in this repo</h2>
+  <p>This is <code>careerprep checklist scan</code> pointed at <code>chapters/chapter-31-professional-python/project/solution/</code> &mdash; a real chapter folder in this repo. At the time of this scan, that folder has a 140-character <code>README.md</code> (below the 200-character "substantial" threshold), a <code>pyproject.toml</code>, no <code>tests/</code> folder, and no <code>.gitignore</code>:</p>
+  <div class="output-block">
+    <span class="output-label">terminal</span>
+    <pre><code>$ careerprep checklist scan ../../chapter-31-professional-python/project/solution
+INFO: Scanned ../../chapter-31-professional-python/project/solution: 1/4 auto-checkable items passed
+Scanning ../../chapter-31-professional-python/project/solution ...
+
+Auto-checked (verified against real files on disk):
+  [ ] README.md exists and is a non-trivial length (not a one-line placeholder)
+  [x] requirements.txt or pyproject.toml declares dependencies
+  [ ] At least one test file exists (tests/ folder or test_*.py / *_test.py)
+  [ ] .gitignore exists
+
+Manual self-assessment (not scannable -- be honest with yourself):
+  [ ] README explains WHY the project exists, not just WHAT it does
+  [ ] No hardcoded secrets or API keys anywhere in the codebase
+  [ ] An honest 'Limitations' or 'Known Issues' section exists somewhere
+  [ ] Tests actually exercise real logic, not just placeholder asserts
+  [ ] Commit history shows incremental progress, not one giant commit</code></pre>
+  </div>
+  <p>That result matches the real files on disk exactly. As a contrast, a folder that actually has all four (substantial README, <code>requirements.txt</code>, a real test file under <code>tests/</code>, and a <code>.gitignore</code>) reports a clean 4/4:</p>
+  <div class="output-block">
+    <span class="output-label">terminal</span>
+    <pre><code>$ careerprep checklist scan /tmp/portfolio_demo
+INFO: Scanned /tmp/portfolio_demo: 4/4 auto-checkable items passed
+Scanning /tmp/portfolio_demo ...
+
+Auto-checked (verified against real files on disk):
+  [x] README.md exists and is a non-trivial length (not a one-line placeholder)
+  [x] requirements.txt or pyproject.toml declares dependencies
+  [x] At least one test file exists (tests/ folder or test_*.py / *_test.py)
+  [x] .gitignore exists</code></pre>
+  </div>
+
+  <div class="what-is">
+    <span class="label">Why requirements.txt is (correctly) empty</span>
+    <code>careerprep</code> only imports from the standard library: <code>argparse</code>, <code>logging</code>, <code>json</code>, <code>pathlib</code>, <code>datetime</code>, <code>random</code>, <code>textwrap</code>. There is nothing to pin. The file is kept &mdash; not deleted &mdash; with a comment explaining that.
+  </div>
+
+  <div class="points-to-remember">
+    <h2>Why this project matters</h2>
+    <p>Every real interview loop combines exactly these two things: practicing how you talk about your work out loud, and having a portfolio that actually holds up when someone opens the folder. A checklist you never run against real files is just a list you feel good about; a mock-interview tool that doesn't save your answers gives you no way to notice you're getting better. This project is a small, honest version of both &mdash; the same shape you'd want for real job prep, built with the same subcommands-plus-package pattern you used for <code>taskbox</code> back in Chapter 31.</p>
+  </div>
+
+  <h2>More project ideas</h2>
+  <p>No starter/solution files are provided for these on purpose &mdash; building and verifying each one yourself is the point. Each is solvable with only what this chapter (and earlier chapters) have taught.</p>
+
+  <div class="task-card">
+    <h3><span class="task-num">1</span> Add a <code>--timer</code> flag that times how long you take to answer each question</h3>
+    <p><strong>Scenario:</strong> Real interviews are timed, even if informally &mdash; a behavioral answer that takes eight minutes to get to the point is a real problem, and you won't notice unless you measure it.</p>
+    <p><strong>What to do:</strong> Add a <code>--timer</code> flag to <code>interview random</code>. When set, start a timer (<code>time.monotonic()</code>) right after the question is printed, and stop it right after <code>read_multiline_answer()</code> returns. Print the elapsed time, and save it alongside the answer in the JSON entry (a new <code>elapsed_seconds</code> key).</p>
+    <p><strong>Suggested approach:</strong> <code>time.monotonic()</code> before and after, subtract, <code>round(..., 1)</code> for a clean display &mdash; don't use <code>time.time()</code>, which can jump backward if the system clock adjusts mid-interview.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">2</span> Add a 1-5 confidence self-rating after each answer</h3>
+    <p><strong>Scenario:</strong> Raw answer text doesn't tell you which questions you actually feel shaky on &mdash; a self-rating, tracked over time, does.</p>
+    <p><strong>What to do:</strong> After saving an answer in <code>interview random</code>, prompt <code>"How confident do you feel about that answer? (1-5): "</code>, validate it's an int 1-5 (re-prompt on bad input), and save it in the JSON entry alongside the answer as a <code>confidence</code> key. Add a way to see your average confidence per question when reviewing.</p>
+    <p><strong>Suggested approach:</strong> A small <code>while True:</code> input-validation loop, the same pattern you used in earlier chapters' menu-driven projects.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">3</span> Extend the checklist scanner to check for a LICENSE file and a CI workflow</h3>
+    <p><strong>Scenario:</strong> Two more genuinely checkable portfolio signals: does the repo have an open-source license, and does it have any automated CI at all.</p>
+    <p><strong>What to do:</strong> Add two more auto-checkable items to <code>CHECKLIST_ITEMS</code>: <code>license_exists</code> (a <code>LICENSE</code>, <code>LICENSE.md</code>, or <code>LICENSE.txt</code> file at the project root) and <code>ci_workflow_exists</code> (a <code>.github/workflows/</code> folder containing at least one <code>.yml</code>/<code>.yaml</code> file). Wire both into <code>scan_directory()</code>'s results dict.</p>
+    <p><strong>Suggested approach:</strong> Reuse the <code>_find_file()</code> helper pattern for <code>LICENSE*</code>; for the CI check, <code>(target / ".github" / "workflows").is_dir() and any((target / ".github" / "workflows").glob("*.y*ml"))</code>.</p>
+  </div>
+
+  <div class="task-card">
+    <h3><span class="task-num">4</span> Add an export-to-markdown feature that turns saved answers into a study guide</h3>
+    <p><strong>Scenario:</strong> A JSON file of past answers isn't something you'd actually review the night before an interview &mdash; a readable document is.</p>
+    <p><strong>What to do:</strong> Add a new <code>careerprep interview export &lt;output.md&gt;</code> subcommand. It should load all saved answers (optionally filtered by <code>--category</code>), group them by question, and write a Markdown file with one <code>## Question text</code> heading per question followed by each of your saved answers to it in chronological order.</p>
+    <p><strong>Suggested approach:</strong> Build a <code>dict[int, list[dict]]</code> keyed by <code>question_id</code> from the loaded answers, then iterate it to build the Markdown string before writing it with <code>Path(output).write_text(...)</code>.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <a href="../quiz.html">&larr; Quiz</a>
+    <a href="ai-paired.html">Now Pair With an AI &rarr;</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="page">
+    <span>🐍 Python for Everyone &mdash; free &amp; open source, MIT licensed.</span>
+    <span><a href="https://github.com/TechNaom/python-for-everyone">github.com/TechNaom/python-for-everyone</a></span>
+    <span class="footer-brand-credit">Built by Manohar Papasani</span>
+  </div>
+</footer>
+
+<script src="../../../assets/progress.js"></script>
+<script src="../../../assets/genai-grader.js"></script>
+<script src="../../../assets/chapters-data.js"></script>
+<script src="../../../assets/sidebar.js"></script>
+</body>
+</html>

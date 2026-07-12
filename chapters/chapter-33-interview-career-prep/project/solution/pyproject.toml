@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "careerprep"
+version = "1.0.0"
+description = "A mock-interview drill tool and portfolio-readiness checklist scanner."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Your Name" }
+]
+
+[project.scripts]
+careerprep = "careerprep.cli:main"
+
+[tool.setuptools]
+packages = ["careerprep"]

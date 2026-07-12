@@ -1,0 +1,5 @@
+# careerprep uses only the Python standard library (argparse, logging,
+# json, pathlib, datetime, random, textwrap) -- there are no third-party
+# runtime dependencies to pin here. This file is intentionally kept (not
+# omitted) so it's explicit -- a design choice, not a forgotten file --
+# that this tool has zero external dependencies.

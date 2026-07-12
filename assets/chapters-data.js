@@ -302,7 +302,14 @@ window.PFE_MODULES = [
         { id: "the-5-capstones", title: "The 5 capstones in this course" },
         { id: "picking-a-capstone", title: "How to pick which capstone(s) to build" }
       ] },
-      { id: "chapter-33", num: 33, title: "Interview & Career Prep", path: null }
+      { id: "chapter-33", num: 33, title: "Interview & Career Prep", path: "chapters/chapter-33-interview-career-prep/lesson.html", subtopics: [
+        { id: "resume-and-portfolio", title: "Turning this course into a resume and portfolio" },
+        { id: "interview-formats", title: "Technical interview formats" },
+        { id: "live-coding", title: "The live coding interview, strategically" },
+        { id: "behavioral-star", title: "Behavioral interviews and the STAR method" },
+        { id: "talking-about-this-course", title: "Talking about this course's projects specifically" },
+        { id: "after-the-interview", title: "After the interview: offers, negotiating, and your first 90 days" }
+      ] }
     ]
   }
 ];
