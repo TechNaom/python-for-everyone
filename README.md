@@ -3,7 +3,7 @@
 ![Python for Everyone](assets/banner.svg)
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-1E8E3E)](LICENSE)
-[![Chapters built](https://img.shields.io/badge/chapters%20built-25%20%2F%2033-2E6BB8)](docs/curriculum/CURRICULUM_MAP.md)
+[![Chapters built](https://img.shields.io/badge/chapters%20built-33%20%2F%2033-2E6BB8)](docs/curriculum/CURRICULUM_MAP.md)
 [![Live site](https://img.shields.io/badge/live%20site-technaom.github.io-FFC93C)](https://technaom.github.io/python-for-everyone/)
 [![No signup required](https://img.shields.io/badge/signup-not%20required-0E7C86)](https://technaom.github.io/python-for-everyone/)
 
@@ -16,7 +16,10 @@ each worked example, writing the prompt you'd give an AI assistant to
 build it, and an "AI-paired" version of every project with real, subtle
 bugs planted in it to practice catching. Neither half substitutes for
 the other; see [Chapter 25](chapters/chapter-25-memory-management/lesson.html)
-for the current reference implementation.
+for the reference implementation of that standard.
+
+All 33 chapters are complete, along with 4 written module exams and 4
+capstone reference implementations under [`capstones/`](capstones).
 
 🔗 **Live course site:** https://technaom.github.io/python-for-everyone/
 
@@ -72,14 +75,13 @@ local storage — no accounts, no tracking).
 
 ## Status
 
-This course is being built **one chapter at a time**, piloted and validated
-before scaling. 25 of a planned 33 chapters are live, spanning Modules
-1-5 (Foundations through Data Analysis with NumPy/Pandas plus Memory
-Management). The GenAI thought-process/prompt-box and AI-paired-critique
-standard above is new as of Chapter 25 — it's the direction every chapter
-from here forward is built with, and a retrofit pass to add it to
-Chapters 1-24 is planned but not yet started, so don't expect it on
-earlier chapters yet.
+The course is complete: all 33 chapters, spanning Modules 1-6
+(Foundations through Interview & Career Prep), plus 4 written module
+exams and 4 capstone reference implementations, are built and live.
+The GenAI thought-process/prompt-box and AI-paired-critique standard is
+new as of Chapter 25 — it's the direction every chapter from Chapter 25
+onward is built with. A retrofit pass to add it to Chapters 1-24 is
+planned but not yet started, so don't expect it on earlier chapters yet.
 
 See the live [roadmap page](https://technaom.github.io/python-for-everyone/docs/curriculum/index.html)
 (or the plain-text draft at
@@ -99,7 +101,8 @@ python-for-everyone/
 │   ├── quiz-engine.js                    → shared fill-in-the-blank quiz checking logic
 │   └── genai-grader.js                   → wires up the GenAI prompt box's reveal button (Ch25+; no scoring)
 ├── chapters/
-│   └── chapter-25-memory-management/     → current reference implementation of every standard below
+│   ├── chapter-01-first-program/ … chapter-33-interview-career-prep/  → all 33 chapters
+│   └── chapter-25-memory-management/     → reference implementation of the GenAI-era standard below
 │       ├── lesson.html                   → the interactive mini-textbook, incl. GenAI prompt boxes
 │       ├── quiz.html                     → fill-in-the-blank quiz
 │       ├── interview-questions.html      → Q&A accordion + rapid-fire quiz
@@ -109,7 +112,9 @@ python-for-everyone/
 │           ├── index.html                → the solo project, incl. GenAI prompt boxes
 │           ├── ai-paired.html            → AI-paired critique loop (solo → AI-paired → find the bugs)
 │           ├── README.md, starter.py, solution.py
-└── .github/workflows/                    → GitHub Pages deploy workflow
+├── assessments/written-exams/            → 4 written module exams (Modules 1-4)
+├── capstones/                            → 4 capstone reference implementations (Task API, Data CLI, Ops Toolkit, Finance Tracker)
+└── .github/workflows/                    → GitHub Pages deploy + capstone CI workflows
 ```
 
 Every chapter page is fully cross-linked: lesson → quiz → exercises →

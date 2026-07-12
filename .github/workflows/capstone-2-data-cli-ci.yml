@@ -1,0 +1,42 @@
+name: Capstone 2 - Data Insights CLI CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "capstones/capstone-2-data-cli/**"
+      - ".github/workflows/capstone-2-data-cli-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "capstones/capstone-2-data-cli/**"
+      - ".github/workflows/capstone-2-data-cli-ci.yml"
+
+defaults:
+  run:
+    working-directory: capstones/capstone-2-data-cli
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: capstones/capstone-2-data-cli/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -e . -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest -v

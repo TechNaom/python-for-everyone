@@ -369,9 +369,29 @@ capstone-2-data-cli/
   sample_data/
     sales.csv       # Chapter 24's dataset, saved to a real file
     expenses.csv    # a second, unrelated dataset for proving generalization
+  tests/
+    test_core.py    # analysis logic, tested with no argparse/terminal involved
+    test_cli.py      # main() driven with an argv list, stdout/exit codes asserted
   pyproject.toml
+  requirements-dev.txt
   README.md
 ```
+
+## Running the tests
+
+```bash
+cd capstones/capstone-2-data-cli
+python3 -m venv .venv
+source .venv/bin/activate      # .venv\Scripts\activate on Windows
+pip install -e . -r requirements-dev.txt
+pytest -v
+```
+
+22 tests, covering `core.py`'s analysis functions directly (grouping,
+totals, top-N, outlier flagging, summary stats, error cases for
+missing/non-numeric columns) and `cli.py`'s subcommands end-to-end via
+`main()` with a captured argv list — the same `core.py`/`cli.py` split
+that keeps the analysis logic testable without a terminal attached.
 
 ## Stretch goals not built in this MVP
 
