@@ -1,0 +1,11 @@
+date,product,region,units_sold,unit_price,revenue
+2026-01-05,Widget,East,40,30,1200
+2026-01-05,Gadget,West,25,38,950
+2026-01-06,Gizmo,East,61,30,1830
+2026-01-06,Widget,West,18,30,540
+2026-01-07,Gadget,East,33,38,1254
+2026-01-07,Gizmo,West,9,30,270
+2026-01-08,Widget,East,52,30,1560
+2026-01-08,Gadget,West,15,38,570
+2026-01-09,Gizmo,East,44,30,1320
+2026-01-09,Widget,West,27,30,810
