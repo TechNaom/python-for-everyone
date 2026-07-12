@@ -1,0 +1,15 @@
+2026-07-10 08:01:12 INFO Server started on port 8080
+2026-07-10 08:02:03 INFO Health check passed
+2026-07-10 08:05:44 WARNING Slow response from database (412ms)
+2026-07-10 08:07:19 ERROR Database connection timeout
+2026-07-10 08:07:20 ERROR Database connection timeout
+2026-07-10 08:08:01 INFO Retrying database connection
+2026-07-10 08:08:05 INFO Database connection restored
+2026-07-10 08:12:33 WARNING High memory usage (82%)
+2026-07-10 08:15:47 ERROR Database connection timeout
+2026-07-10 08:20:10 INFO User authentication succeeded
+2026-07-10 08:21:55 ERROR Failed to authenticate user: invalid token
+2026-07-10 08:25:02 INFO Cache warmed
+2026-07-10 08:30:18 WARNING Disk usage above 75%
+2026-07-10 08:33:41 ERROR Database connection timeout
+2026-07-10 08:40:00 INFO Scheduled backup completed

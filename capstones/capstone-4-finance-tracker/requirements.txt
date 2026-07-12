@@ -1,0 +1,6 @@
+# finance_tracker itself is stdlib-only: sqlite3, argparse, logging,
+# pathlib, and collections are all part of the Python standard library.
+#
+# pytest is only needed to run the test suite in tests/, not to run the
+# finance_tracker package or the `finance` CLI itself.
+pytest>=7.0

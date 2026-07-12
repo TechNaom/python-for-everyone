@@ -1,0 +1,5 @@
+# ops uses only the Python standard library (argparse, logging, re,
+# csv, json, pathlib) -- there are no third-party runtime dependencies
+# to pin here. This file is intentionally kept (not omitted) so it's
+# explicit -- a design choice, not a forgotten file -- that this tool
+# has zero external dependencies, following taskbox's own precedent.

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ops"
+version = "1.0.0"
+description = "A unified ops toolkit: log analysis, resume scanning, and a mocked weather/quote fetch pipeline behind one command."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Your Name" }
+]
+
+[project.scripts]
+ops = "ops.cli:main"
+
+[tool.setuptools]
+packages = ["ops"]
